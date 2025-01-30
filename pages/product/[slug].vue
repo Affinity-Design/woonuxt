@@ -41,19 +41,25 @@ const selectProductInput = computed<any>(() => ({
 })) as ComputedRef<AddToCartInput>;
 
 const mergeLiveStockStatus = (payload: Product): void => {
-  product.value.stockStatus = payload.stockStatus ?? product.value?.stockStatus;
-
-  payload.variations?.nodes?.forEach((variation: Variation, index: number) => {
-    if (product.value?.variations?.nodes[index]) {
-      product.value.variations.nodes[index].stockStatus = variation.stockStatus;
-    }
-  });
+  if (product.value) {
+    product.value = {
+      ...product.value,
+      stockStatus: payload.stockStatus,
+      variations: {
+        ...product.value.variations,
+        nodes: product.value.variations?.nodes.map((node, index) => ({
+          ...node,
+          stockStatus:
+            payload.variations?.nodes[index]?.stockStatus || node.stockStatus,
+        })),
+      },
+    };
+  }
 };
 
 onMounted(async () => {
   try {
     const { product } = await GqlGetStockStatus({ slug });
-    console.log(product);
     if (product) mergeLiveStockStatus(product as Product);
   } catch (error: any) {
     const errorMessage = error?.gqlErrors?.[0].message;
@@ -96,24 +102,16 @@ const updateSelectedVariations = (variations: VariationAttribute[]): void => {
 };
 
 const stockStatus = computed(() => {
-  if (isVariableProduct.value)
-    return activeVariation.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
-  return type.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
+  if (isVariableProduct.value) {
+    return activeVariation.value?.stockStatus || product.value?.stockStatus;
+  }
+  return product.value?.stockStatus;
 });
 
 const disabledAddToCart = computed(() => {
-  if (isSimpleProduct.value)
-    return (
-      !type.value ||
-      stockStatus.value === StockStatusEnum.OUT_OF_STOCK ||
-      isUpdatingCart.value
-    );
-  return (
-    !type.value ||
-    stockStatus.value === StockStatusEnum.OUT_OF_STOCK ||
-    !activeVariation.value ||
-    isUpdatingCart.value
-  );
+  // Common conditions for all product types
+
+  return stockStatus.value !== StockStatusEnum.IN_STOCK;
 });
 </script>
 

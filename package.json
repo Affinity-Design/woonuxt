@@ -14,9 +14,7 @@
     "@nuxtjs/seo": "^2.1.1",
     "@stripe/stripe-js": "^4.10.0",
     "@vueform/slider": "^2.1.10",
-    "@vueuse/core": "^12.4.0",
-    "mkcert": "^3.2.0",
-    "punycode": "^2.3.1"
+    "@vueuse/core": "^12.4.0"
   },
   "devDependencies": {
     "@iconify-json/ion": "^1.2.2",
@@ -25,10 +23,10 @@
     "@nuxtjs/i18n": "^8.5.5",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@tailwindcss/typography": "^0.5.16",
-    "nuxt": "^3.15.2",
+    "nuxt": "^3.15.3",
     "nuxt-graphql-client": "^0.2.43",
     "prettier": "^3.4.2",
-    "woonuxt-settings": "^1.0.61"
+    "woonuxt-settings": "^1.0.66"
   },
   "overrides": {
     "sharp": "0.32.6"
