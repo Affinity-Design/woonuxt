@@ -34,7 +34,7 @@ useHead({
     <Transition name="slide-from-left">
       <MobileMenu v-if="isShowingMobileMenu" />
     </Transition>
-
+    <NuxtLoadingIndicator color="#3B82F6" />
     <NuxtPage />
 
     <Transition name="fade">

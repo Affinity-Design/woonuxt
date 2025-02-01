@@ -9,6 +9,7 @@ const { t } = useI18n();
 const slug = route.params.slug as string;
 
 const { data } = await useAsyncGql("getProduct", { slug });
+console.log(data);
 if (!data.value?.product) {
   throw showError({
     statusCode: 404,
@@ -142,7 +143,7 @@ const disabledAddToCart = computed(() => {
           src="/images/placeholder.jpg"
           :alt="product?.name || 'Product'"
         />
-
+        <!-- PRODUCT DECS -->
         <div class="lg:max-w-md xl:max-w-lg md:py-2 w-full">
           <div class="flex justify-between mb-4">
             <div class="flex-1">
@@ -150,10 +151,10 @@ const disabledAddToCart = computed(() => {
                 class="flex flex-wrap items-center gap-2 mb-2 text-2xl font-sesmibold"
               >
                 {{ type.name }}
-                <LazyWPAdminLink
+                <!-- <LazyWPAdminLink
                   :link="`/wp-admin/post.php?post=${product.databaseId}&action=edit`"
                   >Edit</LazyWPAdminLink
-                >
+                > -->
               </h1>
               <StarRating
                 :rating="product.averageRating || 0"
@@ -162,7 +163,7 @@ const disabledAddToCart = computed(() => {
               />
             </div>
             <ProductPrice
-              class="text-xl"
+              class="text-2xl"
               :sale-price="type.salePrice"
               :regular-price="type.regularPrice"
             />

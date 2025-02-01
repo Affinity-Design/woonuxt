@@ -24,8 +24,8 @@ useSeoMeta({
 <template>
   <main>
     <HeroBanner />
-    <!-- Brands -->
-    <div
+    <!-- TODOBrands -->
+    <!-- <div
       class="container flex flex-wrap items-center justify-center my-16 text-center gap-x-8 gap-y-4 brand lg:justify-between"
     >
       <img
@@ -64,8 +64,8 @@ useSeoMeta({
         width="132"
         height="40"
       />
-    </div>
-
+    </div> -->
+    <!-- Catagories -->
     <section class="container my-16">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">
@@ -86,7 +86,7 @@ useSeoMeta({
         />
       </div>
     </section>
-
+    <!-- Benifits -->
     <section class="container grid gap-4 my-24 md:grid-cols-2 lg:grid-cols-4">
       <div class="flex items-center gap-8 p-8 bg-white rounded-lg">
         <img
@@ -141,7 +141,7 @@ useSeoMeta({
         </div>
       </div>
     </section>
-
+    <!-- Sales -->
     <section class="container my-16" v-if="popularProducts">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">Sales Running Out</h2>
