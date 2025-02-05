@@ -7,12 +7,14 @@ export default defineNuxtConfig({
 
   // Configure Nitro for pre-rendering
   nitro: {
+    preset: "cloudflare-pages",
     prerender: {
       crawlLinks: false,
       routes: ["/"],
       concurrency: 10,
       interval: 1000,
       failOnError: false,
+      autoSubfolderIndex: false,
     },
   },
 
