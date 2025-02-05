@@ -6,7 +6,6 @@ const route = useRoute();
 const slug = route.params.slug;
 
 const { data } = await useAsyncGql("getProducts", { slug });
-console.log(data);
 const productsInCategory = (data.value?.products?.nodes || []) as Product[];
 setProducts(productsInCategory);
 
