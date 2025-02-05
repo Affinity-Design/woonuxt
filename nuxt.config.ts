@@ -17,6 +17,11 @@ export default defineNuxtConfig({
       autoSubfolderIndex: false,
     },
   },
+  runtimeConfig: {
+    public: {
+      exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
+    },
+  },
 
   // Set route rules for pre-rendering
   routeRules: {

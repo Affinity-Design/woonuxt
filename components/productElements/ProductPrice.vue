@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useExchangeRate } from "~/composables/useExchangeRate";
+import { convertToCAD, removeCurrencyPrefix } from "~/utils/priceConverter";
+
 interface ProductPriceProps {
   regularPrice?: string | null;
   salePrice?: string | null;
@@ -6,17 +9,28 @@ interface ProductPriceProps {
 
 const { regularPrice, salePrice } = defineProps<ProductPriceProps>();
 
-// Utility function to remove 'CA' prefix
-const removeCurrencyPrefix = (price: string | null): string => {
-  if (!price) return "";
-  return price.replace(/^CA\$/, "$");
-};
+// Fetch the exchange rate
+const { exchangeRate } = useExchangeRate();
+
+// Check if in development environment
+const isDev = import.meta.env.DEV;
 
 // Computed properties for formatted prices
-const formattedRegularPrice = computed(() =>
-  removeCurrencyPrefix(regularPrice)
-);
-const formattedSalePrice = computed(() => removeCurrencyPrefix(salePrice));
+const formattedRegularPrice = computed(() => {
+  if (isDev || exchangeRate.value === null) {
+    // If in development environment or exchange rate is not available, return the original price
+    return removeCurrencyPrefix(regularPrice || "");
+  }
+  return removeCurrencyPrefix(convertToCAD(regularPrice, exchangeRate.value));
+});
+
+const formattedSalePrice = computed(() => {
+  if (isDev || exchangeRate.value === null) {
+    // If in development environment or exchange rate is not available, return the original price
+    return removeCurrencyPrefix(salePrice || "");
+  }
+  return removeCurrencyPrefix(convertToCAD(salePrice, exchangeRate.value));
+});
 </script>
 
 <template>
@@ -27,4 +41,5 @@ const formattedSalePrice = computed(() => removeCurrencyPrefix(salePrice));
     />
     <span v-if="salePrice" class="ml-2" v-html="formattedSalePrice" />
   </div>
+  <div v-if="!exchangeRate && !isDev">Loading exchange rate...</div>
 </template>

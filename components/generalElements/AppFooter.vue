@@ -16,7 +16,7 @@ const { wishlistLink } = useAuth();
           skates, and ski gear. Top brands, expert advice, and unbeatable
           selection await you!
         </p>
-        <LangSwitcher class="mt-8" />
+        <!-- <LangSwitcher class="mt-8" /> -->
       </div>
       <!-- info -->
       <div class="w-3/7 lg:w-auto">
@@ -101,16 +101,16 @@ const { wishlistLink } = useAuth();
       <div class="copywrite">
         <p class="py-4 text-xs text-center">
           <a
-            href="https://woonuxt.com"
-            :title="`WooNuxt v${wooNuxtVersionInfo}`"
-            >{{ `WooNuxt v${wooNuxtVersionInfo}` }}</a
+            href="https://affinitydesign.ca/website-design"
+            :title="`Website Design`"
+            >{{ `Website Design` }}</a
           >
-          - by
+          - Implementation By
           <a
-            href="https://scottyzen.com"
-            title="Scott Kennedy - Web Developer"
+            href="https://affinitydesign.ca"
+            title="Affinity Design"
             target="_blank"
-            >Scott Kennedy</a
+            >Affinity Design</a
           >
         </p>
       </div>
