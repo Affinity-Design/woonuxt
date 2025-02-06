@@ -22,7 +22,7 @@ export const useExchangeRate = () => {
         return response.json();
       },
       {
-        server: false, // Ensure this runs only on the client side
+        server: true, // Ensure this runs only on the server side
       }
     );
 
