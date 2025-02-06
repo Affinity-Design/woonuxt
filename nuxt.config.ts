@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   // Enable server-side rendering
   ssr: true,
-
+  devtools: { enabled: true },
   // Configure Nitro for pre-rendering
   nitro: {
     preset: "cloudflare-pages",
