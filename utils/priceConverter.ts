@@ -4,19 +4,13 @@ export const convertToCAD = (
   exchangeRate: number | null
 ): string => {
   if (!price || !exchangeRate) return "";
-
-  // Determine currency type
   const isUSD = price.startsWith("US$");
   const isCAD = price.startsWith("CA$");
-
+  if (isCAD) return price.replace("CA$", "");
   // Clean price by removing currency symbols and non-numeric characters
-  const cleanedPrice = price
-    .replace("US$", "")
-    .replace("CA$", "")
-    .replace(/[^0-9.-]/g, "");
-
+  const cleanedPrice = price.replace("US$", "").replace(/[^0-9.-]/g, "");
   const numericPrice = parseFloat(cleanedPrice);
-  if (isNaN(numericPrice)) return "";
+  if (isNaN(numericPrice)) return price;
 
   // Convert only USD prices
   const finalValue = isUSD ? numericPrice * exchangeRate : numericPrice;
