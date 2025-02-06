@@ -21,7 +21,7 @@ const formattedRegularPrice = computed(() => {
     // If in development environment or exchange rate is not available, return the original price
     return removeCurrencyPrefix(regularPrice || "");
   }
-  return removeCurrencyPrefix(convertToCAD(regularPrice, exchangeRate.value));
+  return convertToCAD(regularPrice, exchangeRate.value);
 });
 
 const formattedSalePrice = computed(() => {
@@ -29,7 +29,7 @@ const formattedSalePrice = computed(() => {
     // If in development environment or exchange rate is not available, return the original price
     return removeCurrencyPrefix(salePrice || "");
   }
-  return removeCurrencyPrefix(convertToCAD(salePrice, exchangeRate.value));
+  return convertToCAD(salePrice, exchangeRate.value);
 });
 </script>
 

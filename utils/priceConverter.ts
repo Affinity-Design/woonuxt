@@ -5,22 +5,28 @@ export const convertToCAD = (
 ): string => {
   if (!price || !exchangeRate) return "";
 
-  // Improved price cleaning that handles "US$" prefix and thousand separators
+  // Determine currency type
+  const isUSD = price.startsWith("US$");
+  const isCAD = price.startsWith("CA$");
+
+  // Clean price by removing currency symbols and non-numeric characters
   const cleanedPrice = price
-    .replace("US$", "") // Remove US$ prefix first
-    .replace(/[^0-9.-]+/g, ""); // Then remove other non-numeric characters
+    .replace("US$", "")
+    .replace("CA$", "")
+    .replace(/[^0-9.-]/g, "");
 
-  const usdPrice = parseFloat(cleanedPrice);
+  const numericPrice = parseFloat(cleanedPrice);
+  if (isNaN(numericPrice)) return "";
 
-  // Handle potential parsing failures
-  if (isNaN(usdPrice)) return "";
+  // Convert only USD prices
+  const finalValue = isUSD ? numericPrice * exchangeRate : numericPrice;
 
-  const cadPrice = usdPrice * exchangeRate;
-  return `CA$${cadPrice.toFixed(2)}`;
+  // Format with $ and use helper to ensure consistent prefix removal
+  return removeCurrencyPrefix(`$${finalValue.toFixed(2)}`);
 };
 
 export const removeCurrencyPrefix = (price: string | null): string => {
   if (!price) return "";
-  // Remove both CA$ and US$ prefixes
+  // Remove both CA$ and US$ prefixes while preserving existing $
   return price.replace(/^(CA|US)\$/, "$");
 };
