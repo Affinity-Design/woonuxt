@@ -34,12 +34,14 @@ const formattedSalePrice = computed(() => {
 </script>
 
 <template>
-  <div v-if="regularPrice" class="flex font-semibold">
-    <span
-      :class="{ 'text-gray-400 line-through font-normal': salePrice }"
-      v-html="formattedRegularPrice"
-    />
-    <span v-if="salePrice" class="ml-2" v-html="formattedSalePrice" />
+  <div class="product-price">
+    <div v-if="regularPrice" class="flex font-semibold">
+      <span
+        :class="{ 'text-gray-400 line-through font-normal': salePrice }"
+        v-html="formattedRegularPrice"
+      />
+      <span v-if="salePrice" class="ml-2" v-html="formattedSalePrice" />
+    </div>
+    <div v-if="!exchangeRate && !isDev">Loading exchange rate...</div>
   </div>
-  <div v-if="!exchangeRate && !isDev">Loading exchange rate...</div>
 </template>
