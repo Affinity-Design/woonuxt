@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
-      crawlLinks: true, // set to true for render
+      crawlLinks: false, // set to true for render
       routes: ["/"],
       concurrency: 10,
       interval: 1000,
