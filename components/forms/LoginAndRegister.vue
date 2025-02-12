@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VueTurnstile } from "vue-turnstile";
+import VueTurnstile from "vue-turnstile"; // Remove curly braces :cite[2]:cite[7]
 
 // Add at the top of your <script> section
 interface UserInfo {
