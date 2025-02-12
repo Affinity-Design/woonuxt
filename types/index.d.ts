@@ -93,36 +93,3 @@ interface UserInfo {
   password: string;
   username: string;
 }
-
-// Add these interface extensions at the bottom of your types file
-declare module '#gql' {
-  interface CreateAccountInput {
-    turnstileToken: string;
-  }
-
-  interface LoginInput {
-    turnstileToken: string;
-  }
-}
-
-// Extend your existing UserInfo interface
-interface UserInfo {
-  email: string;
-  password: string;
-  username: string;
-  rememberMe: boolean;
-  turnstileToken: string;
-}
-
-// Create a specialized type for login credentials
-interface LoginCredentials extends UserInfo {
-  rememberMe: boolean;
-}
-
-// If you need to maintain backward compatibility, create a legacy type
-type LegacyUserInfo = Omit<UserInfo, 'turnstileToken'>;
-
-// Extend your existing ProductAttributeInput if needed
-interface EnhancedProductAttributeInput extends ProductAttributeInput {
-  turnstileVerified?: boolean; // Optional verification flag
-}

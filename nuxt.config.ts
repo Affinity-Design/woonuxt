@@ -6,6 +6,9 @@ export default defineNuxtConfig({
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY, // Fallback for development
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
+      turnstile: {
+        siteKey: process.env.TURNSTYLE_SECRET_KEY,
+      },
     },
   },
   devtools: { enabled: true },
