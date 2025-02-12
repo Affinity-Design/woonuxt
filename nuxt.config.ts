@@ -7,7 +7,7 @@ export default defineNuxtConfig({
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY, // Fallback for development
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
       turnstile: {
-        siteKey: process.env.TURNSTYLE_SECRET_KEY,
+        siteKey: process.env.TURNSTYLE_SITE_KEY,
       },
     },
   },

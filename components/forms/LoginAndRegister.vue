@@ -24,7 +24,7 @@ const {
 
 const turnstileToken = ref<string>("");
 const turnstileMounted = ref(false);
-const turnstileSiteKey = useRuntimeConfig().public.turnstyleSiteKey;
+const turnstileSiteKey = useRuntimeConfig();
 const turnstileError = ref<string>("");
 
 if (loginClients.value === null) getLoginClients();
@@ -200,7 +200,7 @@ const inputPlaceholder = computed(() => {
       <ClientOnly>
         <VueTurnstile
           v-if="formView === 'login' || formView === 'register'"
-          :sitekey="turnstileSiteKey"
+          :site-key="turnstileSiteKey.public.turnstyleSiteKey"
           v-model="turnstileToken"
           @error="
             () => (turnstileError = 'Security check failed - please try again')
