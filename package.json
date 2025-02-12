@@ -15,7 +15,8 @@
     "@stripe/stripe-js": "^4.10.0",
     "@vueform/slider": "^2.1.10",
     "@vueuse/core": "^12.5.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "vue-turnstile": "^1.0.11"
   },
   "devDependencies": {
     "@iconify-json/ion": "^1.2.2",

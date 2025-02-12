@@ -26,6 +26,7 @@ useHead({
 <template>
   <NuxtLoadingIndicator />
   <div class="flex flex-col min-h-screen">
+    <TopBanner />
     <AppHeader />
 
     <Transition name="slide-from-right">
