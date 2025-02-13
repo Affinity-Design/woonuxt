@@ -32,4 +32,15 @@ export default defineNuxtConfig({
     "/product-category/**": { prerender: true },
     // "/product/**": { prerender: true }, // Added this line for all product pages
   },
+  app: {
+    head: {
+      meta: [
+        {
+          name: "user-agent",
+          content:
+            "Mozilla/5.0 (compatible; ProSkatersPlaceFrontend/1.0; https://*.proskatersplace.ca)",
+        },
+      ],
+    },
+  },
 });
