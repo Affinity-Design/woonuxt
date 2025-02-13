@@ -183,32 +183,6 @@ const inputPlaceholder = computed(() => {
       v-if="formView === 'login' || formView === 'register'"
       :loginClients="loginClients"
     />
-    <!-- TURNSTYLE -->
-    <div class="my-4">
-      <ClientOnly>
-        <VueTurnstile
-          v-if="formView === 'login' || formView === 'register'"
-          :site-key="turnstileSiteKey.public.turnstyleSiteKey"
-          v-model="turnstileToken"
-          @verify="
-            () => {
-              turnstileMounted = true;
-              // Add token availability check
-              if (!turnstileToken) console.error('No token after mount');
-            }
-          "
-          @error="
-            () => {
-              turnstileError = 'Security check failed - please try again';
-            }
-          "
-          :reset-interval="30000"
-        />
-        <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
-          {{ turnstileError }}
-        </div>
-      </ClientOnly>
-    </div>
 
     <form class="mt-6" @submit.prevent="handleFormSubmit">
       <div
@@ -310,6 +284,33 @@ const inputPlaceholder = computed(() => {
       v-if="formView === 'forgotPassword'"
     >
       {{ $t("messages.account.backToLogin") }}
+    </div>
+
+    <!-- TURNSTYLE -->
+    <div class="my-4">
+      <ClientOnly>
+        <VueTurnstile
+          v-if="formView === 'login' || formView === 'register'"
+          :site-key="turnstileSiteKey.public.turnstyleSiteKey"
+          v-model="turnstileToken"
+          @verify="
+            () => {
+              turnstileMounted = true;
+              // Add token availability check
+              if (!turnstileToken) console.error('No token after mount');
+            }
+          "
+          @error="
+            () => {
+              turnstileError = 'Security check failed - please try again';
+            }
+          "
+          :reset-interval="30000"
+        />
+        <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+          {{ turnstileError }}
+        </div>
+      </ClientOnly>
     </div>
   </div>
 </template>
