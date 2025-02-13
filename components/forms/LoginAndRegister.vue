@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import VueTurnstile from "vue-turnstile"; // Remove curly braces :cite[2]:cite[7]
 
-// Add at the top of your <script> section
-interface UserInfo {
-  email: string;
-  password: string;
-  username: string;
-  rememberMe: boolean;
-  turnstileToken: string; // Add this
-}
-
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -43,9 +34,7 @@ const errorMessage = ref("");
 
 const verifyTurnstile = async () => {
   turnstileError.value = "";
-  // Set the token on your userInfo object.
-  userInfo.value.turnstileToken = turnstileToken.value;
-  if (!turnstileMounted.value || !userInfo.value.turnstileToken) {
+  if (!turnstileToken.value) {
     turnstileError.value = "Please complete the security check";
     return false;
   }
@@ -93,6 +82,8 @@ const handleFormSubmit = async () => {
     ...userInfo.value,
     turnstileToken: turnstileToken.value, // Direct ref access
   };
+
+  console.log("creds", credentials);
 
   if (formView.value === "register") {
     const { success, error } = await registerUser(credentials);
@@ -202,6 +193,8 @@ const inputPlaceholder = computed(() => {
           @verify="
             () => {
               turnstileMounted = true;
+              // Add token availability check
+              if (!turnstileToken) console.error('No token after mount');
             }
           "
           @error="
@@ -209,6 +202,7 @@ const inputPlaceholder = computed(() => {
               turnstileError = 'Security check failed - please try again';
             }
           "
+          :reset-interval="30000"
         />
         <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
           {{ turnstileError }}

@@ -45,7 +45,13 @@ export const useAuth = () => {
         turnstileToken: credentials.turnstileToken,
       };
 
-      const { login } = await GqlLogin(extendedCredentials);
+      const { login } = await GqlLogin(extendedCredentials, {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Turnstile-Token": credentials.turnstileToken,
+        },
+        credentials: "include", // 👈 Critical for cookies
+      });
 
       if (login?.user && login?.authToken) {
         useGqlToken(login.authToken);
