@@ -43,13 +43,12 @@ const errorMessage = ref("");
 
 const verifyTurnstile = async () => {
   turnstileError.value = "";
-
-  // Use direct token ref instead of userInfo copy
-  if (!turnstileToken.value) {
+  // Set the token on your userInfo object.
+  userInfo.value.turnstileToken = turnstileToken.value;
+  if (!turnstileMounted.value || !userInfo.value.turnstileToken) {
     turnstileError.value = "Please complete the security check";
     return false;
   }
-
   return true;
 };
 
@@ -200,10 +199,16 @@ const inputPlaceholder = computed(() => {
           v-if="formView === 'login' || formView === 'register'"
           :site-key="turnstileSiteKey.public.turnstyleSiteKey"
           v-model="turnstileToken"
-          @error="
-            () => (turnstileError = 'Security check failed - please try again')
+          @verify="
+            () => {
+              turnstileMounted = true;
+            }
           "
-          @verify="() => (turnstileMounted = true)"
+          @error="
+            () => {
+              turnstileError = 'Security check failed - please try again';
+            }
+          "
         />
         <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
           {{ turnstileError }}
