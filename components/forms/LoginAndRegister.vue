@@ -44,10 +44,8 @@ const errorMessage = ref("");
 const verifyTurnstile = async () => {
   turnstileError.value = "";
 
-  // Set the token value
-  userInfo.value.turnstileToken = turnstileToken.value;
-
-  if (!turnstileMounted.value || !userInfo.value.turnstileToken) {
+  // Use direct token ref instead of userInfo copy
+  if (!turnstileToken.value) {
     turnstileError.value = "Please complete the security check";
     return false;
   }
@@ -91,10 +89,10 @@ const handleFormSubmit = async () => {
   // Add Turnstile verification
   if (!(await verifyTurnstile())) return;
 
-  // Add token to submission data
+  // Use spread with latest token value
   const credentials = {
     ...userInfo.value,
-    turnstileToken: turnstileToken.value,
+    turnstileToken: turnstileToken.value, // Direct ref access
   };
 
   if (formView.value === "register") {
@@ -207,10 +205,10 @@ const inputPlaceholder = computed(() => {
           "
           @verify="() => (turnstileMounted = true)"
         />
+        <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+          {{ turnstileError }}
+        </div>
       </ClientOnly>
-      <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
-        {{ turnstileError }}
-      </div>
     </div>
 
     <form class="mt-6" @submit.prevent="handleFormSubmit">
