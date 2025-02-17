@@ -11,12 +11,16 @@ let elements = null as any;
 
 const options = {
   mode: "payment",
-  currency: "cad",
+  currency: "eur",
   amount: rawCartTotal.value,
   // paymentMethodCreation: 'manual',
 };
-console.log("options", options);
-console.log("cart", cart);
+
+watch(rawCartTotal, (newVal) => {
+  console.log("Stripe Amount:", newVal);
+  console.log("options", options);
+  console.log("cart", cart);
+});
 
 const createStripeElements = async () => {
   elements = stripe.elements(options);
