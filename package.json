@@ -31,6 +31,9 @@
     "prettier": "^3.5.1",
     "woonuxt-settings": "^1.0.66"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.34.8"
+  },
   "overrides": {
     "sharp": "0.32.6"
   }
