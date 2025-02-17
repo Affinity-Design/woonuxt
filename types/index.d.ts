@@ -1,21 +1,21 @@
-type Cart = import('#gql').CartFragment;
-type Customer = import('#gql').CustomerFragment;
-type Viewer = import('#gql').ViewerFragment;
-type PaymentGateway = import('#gql').PaymentGatewayFragment;
-type Order = import('#gql').OrderFragmentFragment;
-type ProductBase = import('#gql').GetProductQuery['product'];
-type SimpleProduct = import('#gql').SimpleProductFragment;
-type VariableProduct = import('#gql').VariableProductFragment;
-type ExternalProduct = import('#gql').ExternalProductFragment;
-type DownloadableItem = import('#gql').DownloadableItemFragment;
-type ProductCategory = import('#gql').ProductCategoryFragment;
+type Cart = import("#gql").CartFragment;
+type Customer = import("#gql").CustomerFragment;
+type Viewer = import("#gql").ViewerFragment;
+type PaymentGateway = import("#gql").PaymentGatewayFragment;
+type Order = import("#gql").OrderFragmentFragment;
+type ProductBase = import("#gql").GetProductQuery["product"];
+type SimpleProduct = import("#gql").SimpleProductFragment;
+type VariableProduct = import("#gql").VariableProductFragment;
+type ExternalProduct = import("#gql").ExternalProductFragment;
+type DownloadableItem = import("#gql").DownloadableItemFragment;
+type ProductCategory = import("#gql").ProductCategoryFragment;
 type Product = ProductBase & SimpleProduct & VariableProduct & ExternalProduct;
-type Address = import('#gql').AddressFragment;
-type Terms = import('#gql').TermsFragment;
-type VariationAttribute = import('#gql').VariationAttributeFragment;
-type Comment = import('#gql').CommentFragment;
-type ProductAttribute = import('#gql').ProductAttributeFragment;
-type LoginClients = import('#gql').GetLoginClientsQuery['loginClients'];
+type Address = import("#gql").AddressFragment;
+type Terms = import("#gql").TermsFragment;
+type VariationAttribute = import("#gql").VariationAttributeFragment;
+type Comment = import("#gql").CommentFragment;
+type ProductAttribute = import("#gql").ProductAttributeFragment;
+type LoginClient = import("#gql").LoginClientFragment;
 
 interface ProductAttributeInput {
   attributeName: string;

@@ -27,7 +27,7 @@ export const useAuth = () => {
     "downloads",
     () => null
   );
-  const loginClients = useState<LoginClients | null>(
+  const loginClients = useState<LoginClient[] | null>(
     "loginClients",
     () => null
   );
@@ -268,23 +268,8 @@ export const useAuth = () => {
     }
   };
 
-  const getLoginClients = async () => {
-    try {
-      const response = await GqlGetLoginClients();
-      if (response.loginClients) {
-        loginClients.value = response.loginClients;
-        return { success: true, error: null };
-      }
-      return {
-        success: false,
-        error:
-          "There was an error getting your OAuth clients. Please try again later.",
-      };
-    } catch (error: any) {
-      logGQLError(error);
-      const gqlError = error?.gqlErrors?.[0];
-      return { success: false, error: gqlError?.message };
-    }
+  const updateLoginClients = (payload?: LoginClient[]): void => {
+    loginClients.value = payload ?? null;
   };
 
   const avatar = computed(() => viewer.value?.avatar?.url ?? null);
@@ -311,6 +296,6 @@ export const useAuth = () => {
     resetPasswordWithKey,
     getOrders,
     getDownloads,
-    getLoginClients,
+    updateLoginClients,
   };
 };

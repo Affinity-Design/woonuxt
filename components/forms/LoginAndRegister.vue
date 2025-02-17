@@ -10,9 +10,7 @@ const {
   registerUser,
   sendResetPasswordEmail,
   loginClients,
-  getLoginClients,
 } = useAuth();
-
 const turnstileToken = ref<string>("");
 const turnstileMounted = ref(false);
 const turnstileSiteKey = useRuntimeConfig();
@@ -181,7 +179,6 @@ const inputPlaceholder = computed(() => {
     <LoginProviders
       class="my-8"
       v-if="formView === 'login' || formView === 'register'"
-      :loginClients="loginClients"
     />
 
     <form class="mt-6" @submit.prevent="handleFormSubmit">
