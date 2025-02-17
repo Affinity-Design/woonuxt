@@ -35,6 +35,7 @@ const verifyTurnstile = async () => {
   if (!turnstileToken.value) {
     turnstileError.value = "Please complete the security check";
     return false;
+    // return true; // for testing
   }
   return true;
 };
@@ -80,8 +81,6 @@ const handleFormSubmit = async () => {
     ...userInfo.value,
     turnstileToken: turnstileToken.value, // Direct ref access
   };
-
-  console.log("creds", credentials);
 
   if (formView.value === "register") {
     const { success, error } = await registerUser(credentials);
