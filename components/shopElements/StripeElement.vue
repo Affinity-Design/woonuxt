@@ -15,6 +15,8 @@ const options = {
   amount: rawCartTotal.value,
   // paymentMethodCreation: 'manual',
 };
+console.log("options", options);
+console.log("cart", cart);
 
 const createStripeElements = async () => {
   elements = stripe.elements(options);
