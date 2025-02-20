@@ -37,7 +37,7 @@ export default defineNuxtConfig({
       default: {
         host: process.env.GQL_HOST || 'http://localhost:4000/graphql',
         corsOptions: { mode: 'cors', credentials: 'include' },
-        headers: { 'Origin': process.env.APP_HOST || 'http://localhost:3000' },
+        headers: { Origin: process.env.APP_HOST || 'http://localhost:3000' },
       },
     },
   },
@@ -73,14 +73,14 @@ export default defineNuxtConfig({
   // Multilingual support
   i18n: {
     locales: [
-      { code: 'en_US', file: 'en-US.json', name: 'English 🇺🇸' },
+      { code: 'en_US', file: 'en-US.json', name: 'English 🇺🇸', lazy: true },
       { code: 'de_DE', file: 'de-DE.json', name: 'Deutsch 🇩🇪' },
       { code: 'es_ES', file: 'es-ES.json', name: 'Español 🇪🇸' },
       { code: 'fr_FR', file: 'fr-FR.json', name: 'Français 🇫🇷' },
       { code: 'it_IT', file: 'it-IT.json', name: 'Italiano 🇮🇹' },
       { code: 'pt_BR', file: 'pt-BR.json', name: 'Português 🇧🇷' },
     ],
-    langDir: 'locales',
+    langDir: './locales',
     defaultLocale: 'en_US',
     strategy: 'no_prefix',
   },

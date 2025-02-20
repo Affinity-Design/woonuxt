@@ -7,6 +7,12 @@ import type {
   StripeCardElement,
 } from "@stripe/stripe-js";
 
+interface PaymentError {
+  message: string;
+  code?: string;
+  type?: string;
+}
+
 const { t } = useI18n();
 const { query } = useRoute();
 const { cart, isUpdatingCart, paymentGateways } = useCart();
@@ -14,6 +20,8 @@ const { customer, viewer } = useAuth();
 const { orderInput, isProcessingOrder, proccessCheckout } = useCheckout();
 const runtimeConfig = useRuntimeConfig();
 const stripeKey = runtimeConfig.public?.STRIPE_PUBLISHABLE_KEY || null;
+const stripeElementRef = ref(); // Add ref to StripeElement component
+const cardElement = ref<any>(null);
 
 const buttonText = ref<string>(
   isProcessingOrder.value
@@ -31,33 +39,79 @@ const isInvalidEmail = ref<boolean>(false);
 const stripe: Stripe | null = stripeKey ? await loadStripe(stripeKey) : null;
 const elements = ref();
 const isPaid = ref<boolean>(false);
+const paymentError = ref<string | null>(null);
+const isSubmitting = ref<boolean>(false);
 
 onBeforeMount(async () => {
   if (query.cancel_order) window.close();
 });
 
 const payNow = async () => {
+  paymentError.value = null;
+  isSubmitting.value = true;
   buttonText.value = t("messages.general.processing");
 
-  const { stripePaymentIntent } = await GqlGetStripePaymentIntent();
-  const clientSecret = stripePaymentIntent?.clientSecret || "";
-
   try {
+    // Validate cart
+    if (!cart.value || cart.value.isEmpty) {
+      throw new Error(t("messages.shop.cartEmpty"));
+    }
+
+    // Validate payment method
+    if (!orderInput.value.paymentMethod) {
+      throw new Error(
+        t("messages.shop.selectPaymentMethod", "Please select a payment method")
+      );
+    }
+
+    // Process Stripe Payment
     if (
       orderInput.value.paymentMethod.id === "stripe" &&
       stripe &&
       elements.value
     ) {
+      // Get Stripe Payment Intent
+      const { stripePaymentIntent } = await GqlGetStripePaymentIntent().catch(
+        (err: any) => {
+          console.error("Payment intent error:", err);
+        }
+      );
+
+      const clientSecret = stripePaymentIntent?.clientSecret || "";
+      if (!stripePaymentIntent?.clientSecret) {
+        throw new Error(
+          t("messages.shop.paymentInitError", "Payment initialization failed")
+        );
+      }
+
+      // Get card element
+
       const cardElement = elements.value.getElement(
         "card"
       ) as StripeCardElement;
-      const { setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-        payment_method: { card: cardElement },
-      });
-      const { source } = await stripe.createSource(
+
+      // Confirm card setup
+      const { setupIntent, error: setupError } = await stripe.confirmCardSetup(
+        clientSecret,
+        {
+          payment_method: { card: cardElement },
+        }
+      );
+
+      if (setupError) {
+        throw new Error(setupError.message);
+      }
+
+      // Create source
+      const { source, error: sourceError } = await stripe.createSource(
         cardElement as CreateSourceData
       );
 
+      if (sourceError) {
+        throw new Error(sourceError.message);
+      }
+
+      // Update order metadata
       if (source)
         orderInput.value.metaData.push({
           key: "_stripe_source_id",
@@ -73,13 +127,40 @@ const payNow = async () => {
       orderInput.value.transactionId =
         source?.created?.toString() || new Date().getTime().toString();
     }
-  } catch (error) {
-    console.error(error);
+  } catch (error: unknown) {
+    console.error("Checkout error:", error);
+
+    // Handle different error types
+    if (error instanceof Error) {
+      paymentError.value = error.message;
+    } else if (typeof error === "string") {
+      paymentError.value = error;
+    } else {
+      paymentError.value = t(
+        "messages.shop.genericError",
+        "An error occurred. Please try again."
+      );
+    }
+
+    // Reset states
+    isPaid.value = false;
     buttonText.value = t("messages.shop.placeOrder");
+  } finally {
+    isSubmitting.value = false;
   }
 
-  proccessCheckout(isPaid.value);
+  // Process final checkout
+  await proccessCheckout(isPaid.value);
 };
+// Add handler for card state changes
+const handleCardStateChange = ({ complete, error }) => {
+  console.log("Card state changed:", { complete, error });
+  // You can update UI or state based on card completion
+};
+// Add computed property for showing error message
+const hasPaymentError = computed(() => {
+  return paymentError.value && !isSubmitting.value;
+});
 
 const handleStripeElement = (stripeElements: StripeElements): void => {
   elements.value = stripeElements;
@@ -246,10 +327,12 @@ useSeoMeta({
               :paymentGateways
             />
             <StripeElement
+              ref="stripeElementRef"
               v-if="stripe"
               v-show="orderInput.paymentMethod.id == 'stripe'"
-              :stripe
+              :stripe="stripe"
               @updateElement="handleStripeElement"
+              @cardStateChange="handleCardStateChange"
             />
           </div>
 
@@ -272,12 +355,23 @@ useSeoMeta({
         </div>
 
         <OrderSummary>
+          <div
+            v-if="hasPaymentError"
+            class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md"
+          >
+            {{ paymentError }}
+          </div>
+
           <button
             class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
-            :disabled="isCheckoutDisabled"
+            :disabled="isCheckoutDisabled || isSubmitting"
           >
-            {{ buttonText
-            }}<LoadingIcon v-if="isProcessingOrder" color="#fff" size="18" />
+            {{ buttonText }}
+            <LoadingIcon
+              v-if="isProcessingOrder || isSubmitting"
+              color="#fff"
+              size="18"
+            />
           </button>
         </OrderSummary>
       </form>

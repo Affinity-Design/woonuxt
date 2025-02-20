@@ -1,9 +1,9 @@
-query getStripePaymentIntent {
+query GetStripePaymentIntent {
   stripePaymentIntent {
+    id
     amount
+    currency
     clientSecret
     error
-    id
-    currency
   }
 }

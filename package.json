@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@nuxtjs/seo": "^2.0.3",
-    "@stripe/stripe-js": "^4.10.0",
+    "@stripe/stripe-js": "^5.6.0",
     "@vueform/slider": "^2.1.10",
     "@vueuse/core": "^12.7.0",
     "lodash-es": "^4.17.21",
@@ -32,7 +32,7 @@
     "woonuxt-settings": "^1.0.66"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.34.8"
+    "@rollup/rollup-linux-x64-gnu": "^4.34.8"
   },
   "overrides": {
     "sharp": "0.32.6"
