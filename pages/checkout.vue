@@ -71,65 +71,62 @@ const payNow = async () => {
       elements.value
     ) {
       // Get Stripe Payment Intent
-      const { stripePaymentIntent } = await GqlGetStripePaymentIntent().catch(
-        (err: any) => {
-          console.error("Payment intent error:", err);
-        }
-      );
+      const result = await GqlGetStripePaymentIntent().catch((err: any) => {
+        console.error("Payment intent error:", err);
+        throw new Error(
+          t("messages.shop.paymentInitError", "Payment initialization failed")
+        );
+      });
 
-      const clientSecret = stripePaymentIntent?.clientSecret || "";
-      if (!stripePaymentIntent?.clientSecret) {
+      // Check for GraphQL errors in the response
+      if (result.errors) {
+        console.error("GraphQL errors:", result.errors);
         throw new Error(
           t("messages.shop.paymentInitError", "Payment initialization failed")
         );
       }
 
-      // Get card element
+      // Destructure stripePaymentIntent and validate
+      const { stripePaymentIntent } = result;
 
+      if (!stripePaymentIntent || !stripePaymentIntent.clientSecret) {
+        throw new Error(
+          t("messages.shop.paymentInitError", "Payment initialization failed")
+        );
+      }
+
+      const clientSecret = stripePaymentIntent.clientSecret;
+
+      // Get card element
       const cardElement = elements.value.getElement(
         "card"
       ) as StripeCardElement;
 
-      // Confirm card setup
-      const { setupIntent, error: setupError } = await stripe.confirmCardSetup(
-        clientSecret,
-        {
+      // Confirm card payment (not setup)
+      const { paymentIntent, error: paymentError } =
+        await stripe.confirmCardPayment(clientSecret, {
           payment_method: { card: cardElement },
-        }
-      );
-
-      if (setupError) {
-        throw new Error(setupError.message);
-      }
-
-      // Create source
-      const { source, error: sourceError } = await stripe.createSource(
-        cardElement as CreateSourceData
-      );
-
-      if (sourceError) {
-        throw new Error(sourceError.message);
-      }
-
-      // Update order metadata
-      if (source)
-        orderInput.value.metaData.push({
-          key: "_stripe_source_id",
-          value: source.id,
         });
-      if (setupIntent)
+
+      if (paymentError) {
+        throw new Error(paymentError.message);
+      }
+
+      // Check if payment succeeded
+      if (paymentIntent.status === "succeeded") {
+        isPaid.value = true;
+        orderInput.value.transactionId = paymentIntent.id;
+        // Optionally, add metadata
         orderInput.value.metaData.push({
           key: "_stripe_intent_id",
-          value: setupIntent.id,
+          value: paymentIntent.id,
         });
-
-      isPaid.value = setupIntent?.status === "succeeded" || false;
-      orderInput.value.transactionId =
-        source?.created?.toString() || new Date().getTime().toString();
+      } else {
+        throw new Error("Payment did not succeed");
+      }
     }
   } catch (error: unknown) {
     console.error("Checkout error:", error);
-
     // Handle different error types
     if (error instanceof Error) {
       paymentError.value = error.message;
@@ -141,7 +138,6 @@ const payNow = async () => {
         "An error occurred. Please try again."
       );
     }
-
     // Reset states
     isPaid.value = false;
     buttonText.value = t("messages.shop.placeOrder");
