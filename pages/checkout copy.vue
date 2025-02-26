@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from "vue";
+import { loadStripe } from "@stripe/stripe-js";
+import type {
+  Stripe,
+  StripeElements,
+  CreateSourceData,
+  StripeCardElement,
+} from "@stripe/stripe-js";
 
 const { t } = useI18n();
 const { query } = useRoute();
@@ -7,112 +13,59 @@ const { cart, isUpdatingCart, paymentGateways } = useCart();
 const { customer, viewer } = useAuth();
 const { orderInput, isProcessingOrder, proccessCheckout } = useCheckout();
 const runtimeConfig = useRuntimeConfig();
+const stripeKey = runtimeConfig.public?.STRIPE_PUBLISHABLE_KEY || null;
+const stripeElementRef = ref(); // Add ref to StripeElement component
 
-// Refs for managing checkout state
 const buttonText = ref<string>(
   isProcessingOrder.value
     ? t("messages.general.processing")
     : t("messages.shop.checkoutButton")
 );
 const isCheckoutDisabled = computed<boolean>(
-  () => isProcessingOrder.value || isUpdatingCart.value
+  () =>
+    isProcessingOrder.value ||
+    isUpdatingCart.value ||
+    !orderInput.value.paymentMethod
 );
 
 const isInvalidEmail = ref<boolean>(false);
+const stripe: Stripe | null = stripeKey ? await loadStripe(stripeKey) : null;
+const elements = ref();
 const isPaid = ref<boolean>(false);
 const paymentError = ref<string | null>(null);
 const isSubmitting = ref<boolean>(false);
-const stripeCardRef = ref(null);
 
-onBeforeMount(() => {
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+onBeforeMount(async () => {
   if (query.cancel_order) window.close();
 });
 
-// Handle Stripe payment
-const processStripePayment = async () => {
-  if (orderInput.value.paymentMethod.id !== "stripe") {
-    return true; // Not a Stripe payment
-  }
-
-  try {
-    // Get Stripe instance from the card component
-    const stripeInstance = stripeCardRef.value?.getStripe();
-    const cardElement = stripeCardRef.value?.getCardElement();
-
-    if (!stripeInstance || !cardElement) {
-      throw new Error("Stripe payment elements not initialized");
-    }
-
-    // Check if card is complete
-    if (!stripeCardRef.value?.isCardComplete()) {
-      throw new Error("Please complete your card details");
-    }
-
-    // Calculate amount in cents
-    const amount = Math.round(parseFloat(cart.value.rawTotal) * 100);
-    console.log("Amount to charge:", amount);
-
-    // Create a payment method
-    const { paymentMethod, error: pmError } =
-      await stripeInstance.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: {
-          name: `${customer.value.billing.firstName} ${customer.value.billing.lastName}`,
-          email: customer.value.billing.email,
-          phone: customer.value.billing.phone,
-          address: {
-            line1: customer.value.billing.address1,
-            line2: customer.value.billing.address2,
-            city: customer.value.billing.city,
-            state: customer.value.billing.state,
-            postal_code: customer.value.billing.postcode,
-            country: customer.value.billing.country,
-          },
-        },
-      });
-
-    if (pmError) {
-      throw new Error(pmError.message);
-    }
-
-    // Create payment intent on server
-    const response = await $fetch("/api/stripe", {
-      method: "POST",
-      body: {
-        action: "create_payment_intent",
-        amount,
-        paymentMethodId: paymentMethod.id,
-        metadata: {
-          customer_email: customer.value.billing.email,
-          cart_id: cart.value.id,
-        },
-      },
-    });
-
-    if (!response.success) {
-      throw new Error(response.error.message || "Payment failed");
-    }
-
-    // Add payment info to order
-    orderInput.value.metaData.push({
-      key: "_stripe_payment_intent_id",
-      value: response.paymentIntentId,
-    });
-    orderInput.value.transactionId = response.paymentIntentId;
-
-    isPaid.value = true;
-    console.log("Payment successful:", response.paymentIntentId);
-    return true;
-  } catch (error) {
-    console.error("Stripe payment error:", error);
-    paymentError.value = error.message || "Payment processing failed";
-    return false;
-  }
+const handleStripeElement = (stripeElements: StripeElements): void => {
+  elements.value = stripeElements;
 };
 
-// Handle form submission
-const payNow = async () => {
+const fetchClientSecret = async (
+  value?: number,
+  type: "payment" | "setup" = "payment"
+) => {
+  const body =
+    type === "payment" ? { type: "payment", amount: value } : { type: "setup" };
+
+  if (type === "payment" && (value === undefined || value <= 0)) {
+    throw new Error("A valid amount is required for payment intent");
+  }
+
+  const response = await $fetch("/api/stripe", {
+    method: "POST",
+    body,
+  });
+
+  return response.clientSecret;
+};
+
+const payNow = async (stripeElements: StripeElements) => {
+  const GqlInstance = useGql();
   paymentError.value = null;
   isSubmitting.value = true;
   buttonText.value = t("messages.general.processing");
@@ -125,52 +78,105 @@ const payNow = async () => {
 
     // Validate payment method
     if (!orderInput.value.paymentMethod) {
-      throw new Error(t("messages.shop.selectPaymentMethod"));
+      throw new Error(
+        t("messages.shop.selectPaymentMethod", "Please select a payment method")
+      );
     }
 
-    // Process payment based on selected method
-    if (orderInput.value.paymentMethod.id === "stripe") {
-      const success = await processStripePayment();
-      if (!success) {
-        throw new Error(paymentError.value || "Payment failed");
-      }
-      await proccessCheckout(success);
+    // Process Stripe Payment
+    if (
+      orderInput.value.paymentMethod.id === "stripe" &&
+      stripe &&
+      elements.value
+    ) {
+      // Get Stripe Payment Intent
+      // const { stripePaymentIntent } = await GqlInstance(
+      //   `GetStripePaymentIntent`,
+      //   {}
+      // );
+      // const clientSecret = stripePaymentIntent?.clientSecret || "";
+      const val = Math.round(parseFloat(cart.value.rawTotal) * 100);
+      console.log("val", val);
+      const clientSecret = await fetchClientSecret(undefined, "setup");
+      console.log("secret", clientSecret);
+      if (clientSecret == null)
+        throw new Error(t("messages.shop.genericError", "No stripe intent"));
+
+      const cardElement = elements.value.getElement(
+        "card"
+      ) as StripeCardElement;
+
+      // Confirm card setup
+      const { setupIntent, error: setupError } = await stripe.confirmCardSetup(
+        clientSecret,
+        {
+          payment_method: { card: cardElement },
+        }
+      );
+
+      // Create source
+      const { source, error: sourceError } = await stripe.createSource(
+        cardElement as CreateSourceData
+      );
+
+      // Update order metadata
+      if (source)
+        orderInput.value.metaData.push({
+          key: "_stripe_source_id",
+          value: source.id,
+        });
+      if (setupIntent)
+        orderInput.value.metaData.push({
+          key: "_stripe_intent_id",
+          value: setupIntent.id,
+        });
+      console.log(source);
+      console.log(setupIntent?.status);
+      isPaid.value = setupIntent?.status === "succeeded" || false;
+      orderInput.value.transactionId =
+        source?.created?.toString() || new Date().getTime().toString();
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Checkout error:", error);
-    paymentError.value =
-      error.message || t("messages.shop.genericError", "An error occurred");
+
+    // Handle different error types
+    if (error instanceof Error) {
+      paymentError.value = error.message;
+    } else if (typeof error === "string") {
+      paymentError.value = error;
+    } else {
+      paymentError.value = t(
+        "messages.shop.genericError",
+        "An error occurred. Please try again."
+      );
+    }
+
+    // Reset states
     isPaid.value = false;
     buttonText.value = t("messages.shop.placeOrder");
   } finally {
     isSubmitting.value = false;
   }
+
+  // Process final checkout
+  await proccessCheckout(isPaid.value);
 };
 
-// Check for email validity
+// Add computed property for showing error message
+const hasPaymentError = computed(() => {
+  return paymentError.value && !isSubmitting.value;
+});
+
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
 const checkEmailOnBlur = (email?: string | null): void => {
   if (email) isInvalidEmail.value = !emailRegex.test(email);
 };
+
 const checkEmailOnInput = (email?: string | null): void => {
   if (email && isInvalidEmail.value)
     isInvalidEmail.value = !emailRegex.test(email);
 };
-
-// Handle Stripe card ready state
-const handleStripeReady = (event) => {
-  console.log("Stripe card ready:", event);
-};
-
-// Handle Stripe card errors
-const handleStripeError = (error) => {
-  console.error("Stripe card error:", error);
-  paymentError.value = error;
-};
-
-const hasPaymentError = computed(
-  () => paymentError.value && !isSubmitting.value
-);
 
 useSeoMeta({
   title: t("messages.shop.checkout"),
@@ -184,7 +190,6 @@ useSeoMeta({
         v-if="cart.isEmpty"
         class="flex flex-col items-center justify-center flex-1 mb-12"
       >
-        <!-- Empty cart content - unchanged -->
         <Icon name="ion:cart-outline" size="156" class="opacity-25 mb-5" />
         <h2 class="text-2xl font-bold mb-2">
           {{ $t("messages.shop.cartEmpty") }}
@@ -206,7 +211,7 @@ useSeoMeta({
         @submit.prevent="payNow"
       >
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
-          <!-- Customer details section - unchanged -->
+          <!-- Customer details -->
           <div v-if="!viewer && customer.billing">
             <h2 class="w-full mb-2 text-2xl font-semibold leading-none">
               Contact Information
@@ -235,9 +240,30 @@ useSeoMeta({
                 </div>
               </Transition>
             </div>
-            <!-- Account creation section - unchanged -->
             <template v-if="orderInput.createAccount">
-              <!-- Account fields -->
+              <div class="w-full mt-4">
+                <label for="username">{{
+                  $t("messages.account.username")
+                }}</label>
+                <input
+                  v-model="orderInput.username"
+                  placeholder="johndoe"
+                  autocomplete="username"
+                  type="text"
+                  name="username"
+                  required
+                />
+              </div>
+              <div class="w-full my-2" v-if="orderInput.createAccount">
+                <label for="email">{{ $t("messages.account.password") }}</label>
+                <PasswordInput
+                  id="password"
+                  class="my-2"
+                  v-model="orderInput.password"
+                  placeholder="••••••••••"
+                  :required="true"
+                />
+              </div>
             </template>
             <div v-if="!viewer" class="flex items-center gap-2 my-2">
               <label for="creat-account">Create an account?</label>
@@ -250,7 +276,6 @@ useSeoMeta({
             </div>
           </div>
 
-          <!-- Billing details section - unchanged -->
           <div>
             <h2 class="w-full mb-3 text-2xl font-semibold">
               {{ $t("messages.billing.billingDetails") }}
@@ -258,7 +283,6 @@ useSeoMeta({
             <BillingDetails v-model="customer.billing" />
           </div>
 
-          <!-- Ship to different address section - unchanged -->
           <label
             v-if="cart.availableShippingMethods.length > 0"
             for="shipToDifferentAddress"
@@ -273,7 +297,6 @@ useSeoMeta({
             />
           </label>
 
-          <!-- Shipping details section - unchanged -->
           <Transition name="scale-y" mode="out-in">
             <div v-if="orderInput.shipToDifferentAddress">
               <h2 class="mb-4 text-xl font-semibold">
@@ -283,7 +306,7 @@ useSeoMeta({
             </div>
           </Transition>
 
-          <!-- Shipping methods section - unchanged -->
+          <!-- Shipping methods -->
           <div v-if="cart.availableShippingMethods.length">
             <h3 class="mb-4 text-xl font-semibold">
               {{ $t("messages.general.shippingSelect") }}
@@ -294,7 +317,7 @@ useSeoMeta({
             />
           </div>
 
-          <!-- Payment methods section - updated with new Stripe component -->
+          <!-- Pay methods -->
           <div v-if="paymentGateways?.nodes.length" class="mt-2 col-span-full">
             <h2 class="mb-4 text-xl font-semibold">
               {{ $t("messages.billing.paymentOptions") }}
@@ -304,19 +327,17 @@ useSeoMeta({
               class="mb-4"
               :paymentGateways
             />
-
-            <!-- New Stripe card component -->
-            <div v-if="orderInput.paymentMethod.id === 'stripe'" class="mt-4">
-              <h3 class="mb-2 text-md font-medium">Card Details</h3>
-              <StripeCard
-                ref="stripeCardRef"
-                @ready="handleStripeReady"
-                @error="handleStripeError"
-              />
-            </div>
+            <StripeElement
+              ref="stripeElementRef"
+              v-if="stripe"
+              v-show="orderInput.paymentMethod.id == 'stripe'"
+              :stripe="stripe"
+              @updateElement="handleStripeElement"
+              @cardStateChange="handleStripeElement"
+            />
           </div>
 
-          <!-- Order note section - unchanged -->
+          <!-- Order note -->
           <div>
             <h2 class="mb-4 text-xl font-semibold">
               {{ $t("messages.shop.orderNote") }} ({{
@@ -334,7 +355,6 @@ useSeoMeta({
           </div>
         </div>
 
-        <!-- Order summary section - unchanged -->
         <OrderSummary>
           <div
             v-if="hasPaymentError"
@@ -367,7 +387,8 @@ useSeoMeta({
 .checkout-form input[type="tel"],
 .checkout-form input[type="password"],
 .checkout-form textarea,
-.checkout-form select {
+.checkout-form select,
+.checkout-form .StripeElement {
   @apply bg-white border rounded-md outline-none border-gray-300 shadow-sm w-full py-2 px-4;
 }
 
@@ -378,5 +399,9 @@ useSeoMeta({
 
 .checkout-form label {
   @apply my-1.5 text-xs text-gray-600 uppercase;
+}
+
+.checkout-form .StripeElement {
+  padding: 1rem 0.75rem;
 }
 </style>

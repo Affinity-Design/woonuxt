@@ -5,7 +5,9 @@ export default defineNuxtConfig({
   extends: ["./woonuxt_base"],
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
   runtimeConfig: {
+    stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
     public: {
+      stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY, // Fallback for development
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,

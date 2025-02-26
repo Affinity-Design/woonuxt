@@ -1,9 +1,10 @@
 query GetStripePaymentIntent {
-  stripePaymentIntent {
-    id
+  stripePaymentIntent(stripePaymentMethod: SETUP) {
     amount
-    currency
     clientSecret
+    currency
     error
+    stripePaymentMethod
+    id
   }
 }

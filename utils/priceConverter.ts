@@ -10,10 +10,7 @@ export const convertToCAD = (
   const isCAD = price.startsWith("CA$");
 
   // Clean price by removing currency symbols and non-numeric characters
-  const cleanedPrice = price
-    .replace("US$", "")
-    .replace("CA$", "")
-    .replace(/[^0-9.-]/g, "");
+  const cleanedPrice = price.replace("US$", "").replace("CA$", "");
 
   const numericPrice = parseFloat(cleanedPrice);
   if (isNaN(numericPrice)) return "";
@@ -36,7 +33,8 @@ export const convertToCAD = (
   }
 
   // Format with $ and use helper to ensure consistent prefix removal
-  return removeCurrencyPrefix(`$${finalValue.toFixed(2)}`);
+  // return `$${finalValue.toFixed(2)}`;
+  return finalValue.toFixed(2);
 };
 
 export const removeCurrencyPrefix = (price: string | null): string => {

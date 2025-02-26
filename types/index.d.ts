@@ -93,3 +93,12 @@ interface UserInfo {
   password: string;
   username: string;
 }
+interface NuxtApp {
+  $graphql: {
+    default: {
+      request<T = any>(
+        query: string
+      ): Promise<{ data: T; error?: any; pending?: boolean }>;
+    };
+  };
+}
