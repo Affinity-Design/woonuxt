@@ -1,92 +1,162 @@
 <script setup lang="ts">
 interface Props {
   attributes: any[];
+  variations: any[];
   defaultAttributes?: { nodes: VariationAttribute[] } | null;
 }
 
-const { attributes, defaultAttributes } = defineProps<Props>();
+const { attributes, variations, defaultAttributes } = defineProps<Props>();
 const emit = defineEmits(["attrs-changed"]);
 
 const activeVariations = ref<VariationAttribute[]>([]);
 
-const getSelectedName = (attr: any, activeVariation?: VariationAttribute) => {
-  if (attr?.terms?.nodes && activeVariation) {
-    return attr.terms.nodes.find(
-      (node: { slug: string }) => node.slug === activeVariation.value
-    )?.name;
-  }
-
-  return activeVariation?.value || "";
+// Format attribute name to ensure consistent usage
+const formatAttributeName = (name) => {
+  if (!name) return "";
+  // Remove spaces and special characters for DOM ID usage
+  return name.replace(/[^a-zA-Z0-9]/g, "");
 };
 
-const updateAttrs = () => {
-  const selectedVariations = attributes.map((row): VariationAttribute => {
-    const radioValue = document.querySelector(
-      `.name-${row.name.toLowerCase()}:checked`
-    ) as HTMLInputElement;
-    const dropdownValue = document.querySelector(
-      `#${row.name}`
-    ) as HTMLSelectElement;
-    const name = row.name.charAt(0).toLowerCase() + row.name.slice(1);
-    const value = radioValue?.value ?? dropdownValue?.value ?? "";
-    return { name, value };
+// Filter attributes to only those used for variations
+const requiredAttributes = computed(() => {
+  if (!attributes || !variations || variations.length === 0) {
+    return [];
+  }
+
+  // Get all attribute names used in variations
+  const usedAttributeNames = new Set();
+  variations.forEach((variation, index) => {
+    if (variation.attributes && variation.attributes.nodes) {
+      variation.attributes.nodes.forEach((attr) => {
+        if (attr.name) {
+          usedAttributeNames.add(attr.name.toLowerCase());
+        }
+      });
+    }
   });
 
-  activeVariations.value = selectedVariations;
-  emit("attrs-changed", selectedVariations);
+  // Filter attributes to only those used in variations
+  const required = attributes.filter(
+    (attr) => attr.name && usedAttributeNames.has(attr.name.toLowerCase())
+  );
+
+  return required;
+});
+const getSelectedName = (attr: any, activeVariation?: VariationAttribute) => {
+  if (!attr?.terms?.nodes || !activeVariation) return "";
+
+  const selected = attr.terms.nodes.find(
+    (node: { slug: string }) => node.slug === activeVariation.value
+  );
+
+  return selected?.name || activeVariation?.value || "";
+};
+const updateAttrs = () => {
+  try {
+    if (!requiredAttributes.value || requiredAttributes.value.length === 0) {
+      return;
+    }
+
+    const selectedVariations = [];
+
+    // Safely gather all selected variation values
+    for (const attr of requiredAttributes.value) {
+      if (!attr || !attr.name) continue;
+
+      const formattedName = formatAttributeName(attr.name);
+      const selectElement = document.getElementById(formattedName);
+      // Normalize attribute name for consistency
+      const name = attr.name.charAt(0).toLowerCase() + attr.name.slice(1);
+      let value = "";
+
+      if (selectElement instanceof HTMLSelectElement) {
+        value = selectElement.value || "";
+      } else {
+      }
+
+      selectedVariations.push({ name, value });
+    }
+
+    activeVariations.value = selectedVariations;
+    emit("attrs-changed", selectedVariations);
+  } catch (error) {
+    console.error("Error updating attributes:", error);
+  }
 };
 
 const setDefaultAttributes = () => {
-  if (defaultAttributes?.nodes) {
-    defaultAttributes.nodes.forEach((attr: VariationAttribute) => {
-      const radio = document.querySelector(
-        `.name-${attr.name.toLowerCase()}[value="${attr.value}"]`
-      ) as HTMLInputElement;
-      if (radio) radio.checked = true;
-      const dropdown = document.querySelector(
-        `#${attr.name}`
-      ) as HTMLSelectElement;
-      if (dropdown) dropdown.value = attr.value || "";
-    });
+  if (!defaultAttributes?.nodes) return;
+
+  try {
+    // First, make sure all dropdowns exist
+    for (const attr of defaultAttributes.nodes) {
+      if (!attr?.name) continue;
+
+      const formattedName = formatAttributeName(attr.name);
+      const dropdown = document.querySelector(`#${formattedName}`);
+
+      if (dropdown instanceof HTMLSelectElement && attr.value) {
+        dropdown.value = attr.value;
+      }
+    }
+
+    // After setting defaults, update the activeVariations
+    updateAttrs();
+  } catch (error) {
+    console.error("Error setting default attributes:", error);
   }
 };
 
-const className = (name: string) => `name-${name.toLowerCase()}`;
-
 onMounted(() => {
-  setDefaultAttributes();
-  updateAttrs();
+  // Allow more time for the DOM to fully render
+  setTimeout(() => {
+    try {
+      setDefaultAttributes();
+    } catch (error) {
+      console.error("Error in attribute initialization:", error);
+    }
+  }, 100);
 });
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 justify-between" v-if="attributes">
-    <div class="text-sm">
-      {{ attributes[0].label }}
-      <span v-if="activeVariations.length" class="text-gray-400">{{
-        getSelectedName(attributes[0], attributes[0])
-      }}</span>
-    </div>
-    <select
-      :id="attributes[0].name"
-      :ref="attributes[0].name"
-      :name="attributes[0].name"
-      required
-      class="border-white shadow"
-      @change="updateAttrs"
+  <div v-if="requiredAttributes.length > 0">
+    <div
+      v-for="(attribute, index) in requiredAttributes"
+      :key="attribute.name"
+      class="flex flex-col gap-1 justify-between mb-4"
     >
-      <option disabled hidden>
-        {{ $t("messages.general.choose") }}
-        {{ decodeURIComponent(attributes[0].label) }}
-      </option>
-      <option
-        v-for="(term, dropdownIndex) in attributes[0].terms.nodes"
-        :key="dropdownIndex"
-        :value="term.slug"
-        v-html="term.name"
-        :selected="dropdownIndex == 0"
-      />
-    </select>
+      <div class="text-sm">
+        {{ attribute.label }}
+        <span v-if="activeVariations[index]" class="text-gray-400">
+          {{ getSelectedName(attribute, activeVariations[index]) }}
+        </span>
+      </div>
+      <select
+        :id="formatAttributeName(attribute.name)"
+        :name="attribute.name"
+        required
+        class="border-white shadow rounded p-2"
+        @change="updateAttrs"
+      >
+        <option value="" disabled selected>
+          {{ $t("messages.general.choose") }}
+          {{ attribute.label ? decodeURIComponent(attribute.label) : "" }}
+        </option>
+        <option
+          v-for="(term, termIndex) in attribute.terms?.nodes || []"
+          :key="termIndex"
+          :value="term.slug"
+          v-html="term.name"
+        />
+      </select>
+    </div>
+  </div>
+  <div v-else class="text-sm text-gray-500">
+    {{
+      $t("messages.shop.noVariationsRequired") ||
+      "No variations required for this product"
+    }}
   </div>
 </template>
 

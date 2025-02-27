@@ -15,7 +15,8 @@ if (!data.value?.product) {
     statusMessage: t("messages.shop.productNotFound"),
   });
 }
-
+const forceTreatAsSimple = ref(false);
+const selectedAttributes = ref([]);
 const product = ref<Product>(data?.value?.product);
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
@@ -35,19 +36,35 @@ const isExternalProduct = computed<boolean>(
 );
 
 const type = computed(() => activeVariation.value || product.value);
-const selectProductInput = computed<any>(() => ({
-  productId: type.value?.databaseId,
-  quantity: quantity.value,
-})) as ComputedRef<AddToCartInput>;
+const selectProductInput = computed<any>(() => {
+  const input = {
+    productId: type.value?.databaseId,
+    quantity: quantity.value,
+  };
+
+  // If in fallback mode, use the selected attributes
+  if (forceTreatAsSimple.value && selectedAttributes.value.length > 0) {
+    input.variation = selectedAttributes.value;
+  }
+  // Otherwise use the normal variation if available
+  else if (activeVariation.value) {
+    input.variationId = activeVariation.value.databaseId;
+    input.variation = attrValues.value;
+  }
+
+  return input;
+}) as ComputedRef<AddToCartInput>;
 
 const mergeLiveStockStatus = (payload: Product): void => {
-  product.value.stockStatus = payload.stockStatus ?? product.value?.stockStatus;
-
   payload.variations?.nodes?.forEach((variation: Variation, index: number) => {
     if (product.value?.variations?.nodes[index]) {
-      product.value.variations.nodes[index].stockStatus = variation.stockStatus;
+      return (product.value.variations.nodes[index].stockStatus =
+        variation.stockStatus);
     }
   });
+
+  return (product.value.stockStatus =
+    payload.stockStatus ?? product.value?.stockStatus);
 };
 
 onMounted(async () => {
@@ -59,60 +76,247 @@ onMounted(async () => {
     if (errorMessage) console.error(errorMessage);
   }
 });
+const debugVariationMatching = (selectedVariations, availableVariations) => {
+  if (!availableVariations || !availableVariations.length) {
+    return;
+  }
+
+  // Log each variation's attributes for debugging
+  availableVariations.forEach((variation, i) => {
+    if (variation && variation.attributes && variation.attributes.nodes) {
+    } else {
+    }
+  });
+};
+// Replace the updateSelectedVariations function in [slug].vue with this:
+const matchSizeValues = (selectedValue, variationValue) => {
+  if (!selectedValue || !variationValue) return false;
+
+  // Normalize both values to lowercase
+  const selected = selectedValue.toLowerCase();
+  const variation = variationValue.toLowerCase();
+
+  // Direct match
+  if (selected === variation) return true;
+
+  // Extract size numbers to compare (ignoring prefixes)
+  // This handles cases like "18-395eu" vs "35-39-40eu"
+  const extractSizeNumbers = (val) => {
+    // Match all numbers in the string, including decimals
+    const matches = val.match(/\d+(\.\d+)?/g);
+    return matches || [];
+  };
+
+  const selectedNums = extractSizeNumbers(selected);
+  const variationNums = extractSizeNumbers(variation);
+
+  // Check if any of the selected numbers appear in the variation
+  return selectedNums.some(
+    (num) =>
+      variationNums.includes(num) ||
+      // Also check for decimal point variations (39.5 vs 395)
+      variationNums.includes(num.replace(".", ""))
+  );
+};
 
 const updateSelectedVariations = (variations: VariationAttribute[]): void => {
-  if (!product.value.variations) return;
+  if (!product.value.variations || !variations || variations.length === 0)
+    return;
 
+  // Create attribute values for cart
   attrValues.value = variations.map((el) => ({
     attributeName: el.name,
     attributeValue: el.value,
   }));
-  const clonedVariations = JSON.parse(JSON.stringify(variations));
-  const getActiveVariation = product.value.variations?.nodes.filter(
-    (variation: any) => {
-      // If there is any variation of type ANY set the value to ''
-      if (variation.attributes) {
-        // Set the value of the variation of type ANY to ''
-        indexOfTypeAny.value.forEach(
-          (index) => (clonedVariations[index].value = "")
-        );
 
-        return arraysEqual(
-          formatArray(variation.attributes.nodes),
-          formatArray(clonedVariations)
-        );
+  try {
+    // Before we try to match, log all available variations for debugging
+    debugVariationMatching(variations, product.value.variations.nodes);
+
+    // Find a matching variation
+    let matchingVariation = null;
+
+    if (product.value.variations?.nodes) {
+      // For each variation, check if it matches our selection
+      for (const variation of product.value.variations.nodes) {
+        if (!variation.attributes || !variation.attributes.nodes) continue;
+
+        // For this variation to match, all selected attributes must match
+        const allAttributesMatch = variations.every((selectedAttr) => {
+          // Find the matching attribute in this variation
+          const matchingAttr = variation.attributes.nodes.find((varAttr) => {
+            // Compare attribute names (with or without pa_ prefix)
+            const selectedName = selectedAttr.name.toLowerCase();
+            const varName = (varAttr.name || "").toLowerCase();
+
+            return (
+              selectedName === varName ||
+              `pa_${selectedName}` === varName ||
+              selectedName === varName.replace("pa_", "")
+            );
+          });
+
+          if (!matchingAttr) return false;
+
+          // Special handling for size attributes
+          const isSizeAttribute =
+            selectedAttr.name.toLowerCase().includes("size") ||
+            matchingAttr.name.toLowerCase().includes("size");
+
+          if (isSizeAttribute) {
+            return matchSizeValues(selectedAttr.value, matchingAttr.value);
+          }
+
+          // For other attributes, do a standard comparison
+          return selectedAttr.value === matchingAttr.value;
+        });
+
+        if (allAttributesMatch) {
+          matchingVariation = variation;
+          break;
+        }
       }
     }
+
+    // Set the active variation
+    activeVariation.value = matchingVariation;
+
+    // Update the product input
+    selectProductInput.value.variationId =
+      activeVariation.value?.databaseId || null;
+    selectProductInput.value.variation = activeVariation.value
+      ? attrValues.value
+      : null;
+    variation.value = variations;
+
+    // Log the current state for debugging
+  } catch (error) {
+    console.error("Error in updateSelectedVariations:", error);
+  }
+};
+const stockStatus = computed(() => {
+  // Add debugging
+  // ;
+  // ;
+  // ;
+  // ;
+  // ;
+
+  if (isVariableProduct.value && activeVariation.value) {
+    return activeVariation.value.stockStatus || StockStatusEnum.OUT_OF_STOCK;
+  }
+
+  // For simple products, prefer product.value.stockStatus over type.value?.stockStatus
+  return (
+    product.value.stockStatus ||
+    type.value?.stockStatus ||
+    StockStatusEnum.OUT_OF_STOCK
+  );
+});
+
+const isOutOfStock = (status: string | undefined) => {
+  if (!status) return true; // If no status, assume out of stock for safety
+
+  // Normalize the status string for comparison (remove spaces, lowercase)
+  const normalizedStatus = status.toLowerCase().replace(/[\s_-]/g, "");
+  const normalizedEnum = StockStatusEnum.OUT_OF_STOCK.toLowerCase().replace(
+    /[\s_-]/g,
+    ""
   );
 
-  if (getActiveVariation[0]) activeVariation.value = getActiveVariation[0];
-  selectProductInput.value.variationId =
-    activeVariation.value?.databaseId ?? null;
-  selectProductInput.value.variation = activeVariation.value
-    ? attrValues.value
-    : null;
-  variation.value = variations;
+  // Check if the status matches OUT_OF_STOCK
+  return (
+    normalizedStatus === normalizedEnum ||
+    normalizedStatus.includes(normalizedEnum) ||
+    normalizedEnum.includes(normalizedStatus)
+  );
 };
 
-const stockStatus = computed(() => {
-  if (isVariableProduct.value)
-    return activeVariation.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
-  return type.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
+const productRequiresVariationSelection = computed(() => {
+  // If it's not a variable product, no variations needed
+  if (!isVariableProduct.value) {
+    return false;
+  }
+
+  // Check if there are any variation attributes defined
+  const hasVariationAttributes = product.value?.attributes?.nodes?.some(
+    (attr) => attr.variation === true
+  );
+
+  // Check if there are actual variation options
+  const hasVariationOptions = product.value?.variations?.nodes?.length > 0;
+
+  return hasVariationAttributes && hasVariationOptions;
 });
+
+const allRequiredVariationsSelected = computed(() => {
+  // If it's not a variable product, no variations needed
+  if (!isVariableProduct.value) {
+    return true;
+  }
+
+  // If the product doesn't require variations, return true
+  if (!productRequiresVariationSelection.value) {
+    return true;
+  }
+
+  // Must have an active variation selected
+  return !!activeVariation.value;
+});
+
+// Update the disabledAddToCart computed property
 const disabledAddToCart = computed(() => {
-  if (isSimpleProduct.value)
+  // If in fallback mode and not out of stock, enable the button
+  if (forceTreatAsSimple.value && !isOutOfStock(stockStatus.value)) {
+    return isUpdatingCart.value;
+  }
+
+  // Regular variable product checks
+  if (isVariableProduct.value) {
     return (
       !type.value ||
-      stockStatus.value === StockStatusEnum.OUT_OF_STOCK ||
+      isOutOfStock(stockStatus.value) ||
+      (productRequiresVariationSelection.value &&
+        !allRequiredVariationsSelected.value) ||
       isUpdatingCart.value
     );
-  return (
-    !type.value ||
-    stockStatus.value === StockStatusEnum.OUT_OF_STOCK ||
-    !activeVariation.value ||
-    isUpdatingCart.value
-  );
+  }
+
+  // Simple product checks
+  return !type.value || isOutOfStock(stockStatus.value) || isUpdatingCart.value;
 });
+const validateForm = () => {
+  // For variable products where a variation is required but not found
+  if (isVariableProduct.value && !activeVariation.value) {
+    // Check if we have attributes selected
+    if (attrValues.value && attrValues.value.length > 0) {
+      // Save the selected attributes for the cart
+      selectedAttributes.value = [...attrValues.value];
+
+      // Ask the customer if they want to continue without a specific variation
+      const confirmMessage =
+        t("messages.shop.noMatchingVariation") ||
+        "We couldn't find an exact match for your selection. Continue with these options?";
+
+      if (confirm(confirmMessage)) {
+        // Enable fallback mode
+        forceTreatAsSimple.value = true;
+        return true;
+      }
+
+      return false;
+    } else {
+      // No attributes selected at all
+      alert(
+        t("messages.shop.pleaseSelectVariation") ||
+          "Please select product options before adding to cart"
+      );
+      return false;
+    }
+  }
+
+  return true;
+};
 </script>
 
 <template>
@@ -124,10 +328,11 @@ const disabledAddToCart = computed(() => {
         class="mb-6"
         v-if="storeSettings.showBreadcrumbOnSingleProduct"
       />
-
+      <!-- Product TOp -->
       <div
         class="flex flex-col gap-10 md:flex-row md:justify-between lg:gap-24"
       >
+        <!-- left Cal Product -->
         <ProductImageGallery
           v-if="product.image"
           class="relative flex-1"
@@ -142,7 +347,7 @@ const disabledAddToCart = computed(() => {
           src="/images/placeholder.jpg"
           :alt="product?.name || 'Product'"
         />
-
+        <!-- Right Col Product -->
         <div class="lg:max-w-md xl:max-w-lg md:py-2 w-full">
           <div class="flex justify-between mb-4">
             <div class="flex-1">
@@ -173,7 +378,12 @@ const disabledAddToCart = computed(() => {
               <span class="text-gray-400"
                 >{{ $t("messages.shop.availability") }}:
               </span>
-              <StockStatus :stockStatus @updated="mergeLiveStockStatus" />
+              <!-- TODO -->
+
+              <StockStatus
+                :stockStatus="stockStatus"
+                @updated="mergeLiveStockStatus"
+              />
             </div>
             <div
               class="flex items-center gap-2"
@@ -190,8 +400,10 @@ const disabledAddToCart = computed(() => {
           />
 
           <hr />
-
-          <form @submit.prevent="addToCart(selectProductInput)">
+          <!-- Selectors -->
+          <form
+            @submit.prevent="validateForm() && addToCart(selectProductInput)"
+          >
             <AttributeSelections
               v-if="
                 isVariableProduct && product.attributes && product.variations
@@ -228,7 +440,7 @@ const disabledAddToCart = computed(() => {
               {{ product?.buttonText || "View product" }}
             </a>
           </form>
-
+          <!-- Catagories -->
           <div
             v-if="
               storeSettings.showProductCategoriesOnSingleProduct &&
@@ -254,16 +466,18 @@ const disabledAddToCart = computed(() => {
             </div>
             <hr />
           </div>
-
+          <!-- share / wish -->
           <div class="flex flex-wrap gap-4">
             <WishlistButton :product />
             <ShareButton :product />
           </div>
         </div>
       </div>
+      <!-- Description -->
       <div v-if="product.description || product.reviews" class="my-32">
         <ProductTabs :product />
       </div>
+      <!-- You may like -->
       <div
         class="my-32"
         v-if="product.related && storeSettings.showRelatedProducts"
