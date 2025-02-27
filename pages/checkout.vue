@@ -226,7 +226,29 @@ useSeoMeta({
             </div>
             <!-- Account creation section - unchanged -->
             <template v-if="orderInput.createAccount">
-              <!-- Account fields -->
+              <div class="w-full mt-4">
+                <label for="username">{{
+                  $t("messages.account.username")
+                }}</label>
+                <input
+                  v-model="orderInput.username"
+                  placeholder="johndoe"
+                  autocomplete="username"
+                  type="text"
+                  name="username"
+                  required
+                />
+              </div>
+              <div class="w-full my-2" v-if="orderInput.createAccount">
+                <label for="email">{{ $t("messages.account.password") }}</label>
+                <PasswordInput
+                  id="password"
+                  class="my-2"
+                  v-model="orderInput.password"
+                  placeholder="••••••••••"
+                  :required="true"
+                />
+              </div>
             </template>
             <div v-if="!viewer" class="flex items-center gap-2 my-2">
               <label for="creat-account">Create an account?</label>
