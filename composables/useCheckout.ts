@@ -60,6 +60,12 @@ export function useCheckout() {
     });
   }
 
+  const getPaymentId = () => {
+    return orderInput.value.paymentMethod.id
+      ? orderInput.value.paymentMethod.id
+      : "fkwcs_stripe";
+  };
+
   const proccessCheckout = async (isPaid = false) => {
     const { customer, loginUser } = useAuth();
     const router = useRouter();
@@ -80,7 +86,7 @@ export function useCheckout() {
       console.log("Checkout payload preparation:", {
         billing,
         shipping,
-        paymentMethod: orderInput.value.paymentMethod.id,
+        paymentMethod: getPaymentId(),
         transactionId: orderInput.value.transactionId,
         isPaid,
       });
@@ -90,7 +96,7 @@ export function useCheckout() {
         shipping,
         shippingMethod,
         metaData: orderInput.value.metaData,
-        paymentMethod: orderInput.value.paymentMethod.id,
+        paymentMethod: getPaymentId(),
         customerNote: orderInput.value.customerNote,
         shipToDifferentAddress,
         transactionId: orderInput.value.transactionId,

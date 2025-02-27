@@ -119,10 +119,6 @@ const payNow = async () => {
     if (!cart.value || cart.value.isEmpty) {
       throw new Error(t("messages.shop.cartEmpty"));
     }
-    // Validate payment method
-    if (!orderInput.value.paymentMethod) {
-      throw new Error(t("messages.shop.selectPaymentMethod"));
-    }
     // Process payment based on selected method
     const success = await processStripePayment();
     if (!success) {

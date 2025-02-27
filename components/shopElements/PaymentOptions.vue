@@ -22,6 +22,8 @@ onMounted(() => {
     );
     if (firstValidGateway) {
       updatePaymentMethod(firstValidGateway);
+    } else {
+      updatePaymentMethod("fkwcs_stripe");
     }
   }
 });
@@ -63,6 +65,18 @@ onMounted(() => {
         v-html="activePaymentMethod.description"
       />
     </div>
+    <!-- overdie -->
+    <!-- <div
+      class="option"
+      :class="{ 'active-option': `fkwcs_stripe` === activePaymentMethod.id }"
+      @click="updatePaymentMethod(`fkwcs_stripe`)"
+      :title="'Payment Method'"
+    >
+      <span class="whitespace-nowrap" v-html="`Stripe`" /><icon
+        name="ion:card-outline"
+        size="20"
+      />
+    </div> -->
   </div>
 </template>
 
