@@ -39,7 +39,11 @@ onMounted(() => {
       @click="updatePaymentMethod(gateway)"
       :title="gateway?.description || gateway?.title || 'Payment Method'"
     >
-      <icon v-if="gateway.id === 'stripe'" name="ion:card-outline" size="20" />
+      <icon
+        v-if="gateway.id === 'fkwcs_stripe'"
+        name="ion:card-outline"
+        size="20"
+      />
       <icon
         v-else-if="gateway.id === 'paypal'"
         name="ion:logo-paypal"
