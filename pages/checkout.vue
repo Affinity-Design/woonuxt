@@ -30,10 +30,6 @@ onBeforeMount(() => {
 
 // Handle Stripe payment
 const processStripePayment = async () => {
-  if (orderInput.value.paymentMethod.id !== "stripe") {
-    return true; // Not a Stripe payment
-  }
-
   try {
     // Get Stripe instance from the card component
     const stripeInstance = stripeCardRef.value?.getStripe();
@@ -113,6 +109,7 @@ const processStripePayment = async () => {
 
 // Handle form submission
 const payNow = async () => {
+  // Currently only works for stripe
   paymentError.value = null;
   isSubmitting.value = true;
   buttonText.value = t("messages.general.processing");
@@ -122,20 +119,17 @@ const payNow = async () => {
     if (!cart.value || cart.value.isEmpty) {
       throw new Error(t("messages.shop.cartEmpty"));
     }
-
     // Validate payment method
     if (!orderInput.value.paymentMethod) {
       throw new Error(t("messages.shop.selectPaymentMethod"));
     }
-
     // Process payment based on selected method
-    if (orderInput.value.paymentMethod.id === "stripe") {
-      const success = await processStripePayment();
-      if (!success) {
-        throw new Error(paymentError.value || "Payment failed");
-      }
-      await proccessCheckout(success);
+    const success = await processStripePayment();
+    if (!success) {
+      throw new Error(paymentError.value || "Payment failed");
     }
+    // Send data to wordpress
+    await proccessCheckout(success);
   } catch (error) {
     console.error("Checkout error:", error);
     paymentError.value =
@@ -306,7 +300,7 @@ useSeoMeta({
             />
 
             <!-- New Stripe card component -->
-            <div v-if="orderInput.paymentMethod.id === 'stripe'" class="mt-4">
+            <div class="mt-4">
               <h3 class="mb-2 text-md font-medium">Card Details</h3>
               <StripeCard
                 ref="stripeCardRef"
