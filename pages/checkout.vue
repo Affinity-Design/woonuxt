@@ -149,12 +149,11 @@ const checkEmailOnInput = (email?: string | null): void => {
 
 // Handle Stripe card ready state
 const handleStripeReady = (event) => {
-  console.log("Stripe card ready:", event);
+  // console.log("Stripe card ready:", event);
 };
 
 // Handle Stripe card errors
 const handleStripeError = (error) => {
-  console.error("Stripe card error:", error);
   paymentError.value = error;
 };
 
