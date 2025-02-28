@@ -34,22 +34,79 @@ const isVariableProduct = computed<boolean>(
 const isExternalProduct = computed<boolean>(
   () => product.value?.type === ProductTypesEnum.EXTERNAL
 );
-
 const type = computed(() => activeVariation.value || product.value);
+
+const debugProductAttributes = () => {
+  console.log("=== DEBUG PRODUCT ATTRIBUTES ===");
+
+  // Log the product type and ID
+  console.log(`Product: ${product.value.name}`);
+  console.log(`Type: ${product.value.type}`);
+  console.log(`ID: ${product.value.databaseId}`);
+
+  // Log the product attributes
+  console.log("Product Attributes:", product.value.attributes?.nodes);
+
+  // Log variation attributes
+  if (
+    product.value.variations?.nodes &&
+    product.value.variations.nodes.length > 0
+  ) {
+    console.log(
+      "First Variation Attributes:",
+      product.value.variations.nodes[0].attributes?.nodes
+    );
+
+    // Log a sample API call for this product
+    const variation = product.value.variations.nodes[0];
+    console.log("Sample API payload that should work:");
+    console.log({
+      productId: product.value.databaseId,
+      variationId: variation.databaseId,
+      quantity: 1,
+    });
+  }
+
+  console.log("=== END DEBUG ===");
+};
+
+// Update the selectProductInput computed property in [slug].vue to better handle variation data
+const getExactAttributeName = (attributeInput) => {
+  // If the product doesn't have attributes, we can't find the exact name
+  if (!product.value?.attributes?.nodes) return attributeInput;
+
+  // Find the matching attribute in the product's attributes
+  const matchingAttribute = product.value.attributes.nodes.find((attr) => {
+    const inputName = attributeInput.toLowerCase();
+    const attrName = (attr.name || "").toLowerCase();
+
+    // Try various ways to match the attribute names
+    return (
+      inputName === attrName ||
+      inputName === attrName.replace("pa_", "") ||
+      "pa_" + inputName === attrName
+    );
+  });
+
+  if (matchingAttribute) {
+    // Return the exact name as defined in the product
+    return matchingAttribute.name;
+  }
+
+  // If no match found, return the original input
+  return attributeInput;
+};
+
+// Simplify the selectProductInput computed property for better reliability
 const selectProductInput = computed<any>(() => {
   const input = {
     productId: type.value?.databaseId,
     quantity: quantity.value,
   };
 
-  // If in fallback mode, use the selected attributes
-  if (forceTreatAsSimple.value && selectedAttributes.value.length > 0) {
-    input.variation = selectedAttributes.value;
-  }
-  // Otherwise use the normal variation if available
-  else if (activeVariation.value) {
+  // If we have a variation ID, just use that
+  if (activeVariation.value) {
     input.variationId = activeVariation.value.databaseId;
-    input.variation = attrValues.value;
   }
 
   return input;
@@ -68,6 +125,7 @@ const mergeLiveStockStatus = (payload: Product): void => {
 };
 
 onMounted(async () => {
+  setTimeout(debugProductAttributes, 500); //TODO
   try {
     const { product } = await GqlGetStockStatus({ slug });
     if (product) mergeLiveStockStatus(product as Product);
@@ -76,19 +134,7 @@ onMounted(async () => {
     if (errorMessage) console.error(errorMessage);
   }
 });
-const debugVariationMatching = (selectedVariations, availableVariations) => {
-  if (!availableVariations || !availableVariations.length) {
-    return;
-  }
 
-  // Log each variation's attributes for debugging
-  availableVariations.forEach((variation, i) => {
-    if (variation && variation.attributes && variation.attributes.nodes) {
-    } else {
-    }
-  });
-};
-// Replace the updateSelectedVariations function in [slug].vue with this:
 const matchSizeValues = (selectedValue, variationValue) => {
   if (!selectedValue || !variationValue) return false;
 
@@ -119,20 +165,22 @@ const matchSizeValues = (selectedValue, variationValue) => {
   );
 };
 
+// Update the updateSelectedVariations function
 const updateSelectedVariations = (variations: VariationAttribute[]): void => {
   if (!product.value.variations || !variations || variations.length === 0)
     return;
 
-  // Create attribute values for cart
-  attrValues.value = variations.map((el) => ({
-    attributeName: el.name,
-    attributeValue: el.value,
-  }));
+  // Create attribute values for cart with EXACT attribute names from the product
+  attrValues.value = variations.map((el) => {
+    // For each selected attribute, get the exact attribute name from the product
+    // This ensures we use the names exactly as WooCommerce expects them
+    return {
+      attributeName: getExactAttributeName(el.name),
+      attributeValue: el.value,
+    };
+  });
 
   try {
-    // Before we try to match, log all available variations for debugging
-    debugVariationMatching(variations, product.value.variations.nodes);
-
     // Find a matching variation
     let matchingVariation = null;
 
@@ -145,7 +193,7 @@ const updateSelectedVariations = (variations: VariationAttribute[]): void => {
         const allAttributesMatch = variations.every((selectedAttr) => {
           // Find the matching attribute in this variation
           const matchingAttr = variation.attributes.nodes.find((varAttr) => {
-            // Compare attribute names (with or without pa_ prefix)
+            // Compare attribute names (using normalized versions)
             const selectedName = selectedAttr.name.toLowerCase();
             const varName = (varAttr.name || "").toLowerCase();
 
@@ -164,10 +212,11 @@ const updateSelectedVariations = (variations: VariationAttribute[]): void => {
             matchingAttr.name.toLowerCase().includes("size");
 
           if (isSizeAttribute) {
+            // Use size matching logic
             return matchSizeValues(selectedAttr.value, matchingAttr.value);
           }
 
-          // For other attributes, do a standard comparison
+          // For other attributes, standard comparison
           return selectedAttr.value === matchingAttr.value;
         });
 
@@ -180,20 +229,12 @@ const updateSelectedVariations = (variations: VariationAttribute[]): void => {
 
     // Set the active variation
     activeVariation.value = matchingVariation;
-
-    // Update the product input
-    selectProductInput.value.variationId =
-      activeVariation.value?.databaseId || null;
-    selectProductInput.value.variation = activeVariation.value
-      ? attrValues.value
-      : null;
     variation.value = variations;
-
-    // Log the current state for debugging
   } catch (error) {
     console.error("Error in updateSelectedVariations:", error);
   }
 };
+
 const stockStatus = computed(() => {
   // Add debugging
   // ;
@@ -355,10 +396,6 @@ const validateForm = () => {
                 class="flex flex-wrap items-center gap-2 mb-2 text-2xl font-sesmibold"
               >
                 {{ type.name }}
-                <LazyWPAdminLink
-                  :link="`/wp-admin/post.php?post=${product.databaseId}&action=edit`"
-                  >Edit</LazyWPAdminLink
-                >
               </h1>
               <StarRating
                 :rating="product.averageRating || 0"
