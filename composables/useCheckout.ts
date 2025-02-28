@@ -82,15 +82,6 @@ export function useCheckout() {
         : billing;
       const shippingMethod = cart.value?.chosenShippingMethods;
 
-      // Debug log to see what's being sent
-      console.log("Checkout payload preparation:", {
-        billing,
-        shipping,
-        paymentMethod: getPaymentId(),
-        transactionId: orderInput.value.transactionId,
-        isPaid,
-      });
-
       let checkoutPayload: CheckoutInput = {
         billing,
         shipping,
@@ -111,9 +102,14 @@ export function useCheckout() {
         checkoutPayload.account = null;
       }
 
-      console.log("Sending checkout payload:", checkoutPayload);
       const { checkout } = await GqlCheckout(checkoutPayload);
-      console.log("Checkout response:", checkout);
+
+      // Check if checkout was successful
+      if (checkout?.result !== "success") {
+        alert("There was an error processing your order. Please try again.");
+        window.location.reload();
+        return checkout;
+      }
 
       // handle login
       if (orderInput.value.createAccount) {
@@ -127,8 +123,17 @@ export function useCheckout() {
         orderInputPaymentId === "paypal" ||
         orderInputPaymentId === "ppcp-gateway";
 
-      // PayPal redirect
-      if ((await checkout?.redirect) && isPayPal) {
+      // First empty the cart for all successful orders - BEFORE redirection
+      try {
+        await emptyCart();
+        await refreshCart();
+        console.log("Cart emptied successfully after order completion");
+      } catch (cartError) {
+        console.error("Error emptying cart:", cartError);
+      }
+
+      // Handle redirects after cart is emptied
+      if (checkout?.redirect && isPayPal) {
         const frontEndUrl = window.location.origin;
         let redirectUrl = checkout?.redirect ?? "";
         const payPalReturnUrl = `${frontEndUrl}/checkout/order-received/${orderId}/?key=${orderKey}&from_paypal=true`;
@@ -150,16 +155,8 @@ export function useCheckout() {
           );
         }
       } else {
+        // Stripe or other payment methods
         router.push(`/checkout/order-received/${orderId}/?key=${orderKey}`);
-      }
-
-      if ((await checkout?.result) !== "success") {
-        alert("There was an error processing your order. Please try again.");
-        window.location.reload();
-        return checkout;
-      } else {
-        await emptyCart();
-        await refreshCart();
       }
     } catch (error: any) {
       isProcessingOrder.value = false;
