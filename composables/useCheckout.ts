@@ -126,7 +126,7 @@ export function useCheckout() {
       // First empty the cart for all successful orders - BEFORE redirection
       try {
         await emptyCart();
-        await refreshCart();
+        // await refreshCart();
         console.log("Cart emptied successfully after order completion");
       } catch (cartError) {
         console.error("Error emptying cart:", cartError);
