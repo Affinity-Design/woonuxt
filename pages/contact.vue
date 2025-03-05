@@ -12,14 +12,54 @@ export default {
         email: "",
         message: "",
       },
+      status: {
+        submitting: false,
+        success: false,
+        error: null,
+      },
     };
   },
   methods: {
-    submitForm() {
-      // Handle form submission here
-      console.log("Form submitted:", this.form);
-      // Reset form after submission
-      this.form = { name: "", email: "", message: "" };
+    async submitForm() {
+      try {
+        // Set submitting state
+        this.status.submitting = true;
+        this.status.error = null;
+
+        // Send form data to the API
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.form),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to send message");
+        }
+
+        // Success state
+        this.status.success = true;
+
+        // Reset form after submission
+        this.form = { name: "", email: "", message: "" };
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        this.status.error =
+          error.message || "An error occurred while sending your message";
+      } finally {
+        this.status.submitting = false;
+
+        // Auto-clear success message after 5 seconds
+        if (this.status.success) {
+          setTimeout(() => {
+            this.status.success = false;
+          }, 5000);
+        }
+      }
     },
   },
 };
@@ -38,6 +78,23 @@ export default {
       <!-- Right column: Contact Form -->
       <div class="w-full md:w-1/2">
         <h2 class="text-2xl font-semibold mb-4">Contact Us</h2>
+
+        <!-- Success message -->
+        <div
+          v-if="status.success"
+          class="mb-4 p-3 bg-green-100 text-green-800 rounded"
+        >
+          Your message has been sent successfully! We'll get back to you soon.
+        </div>
+
+        <!-- Error message -->
+        <div
+          v-if="status.error"
+          class="mb-4 p-3 bg-red-100 text-red-800 rounded"
+        >
+          {{ status.error }}
+        </div>
+
         <form @submit.prevent="submitForm" class="space-y-4">
           <div>
             <label for="name" class="block mb-1">Name</label>
@@ -47,6 +104,7 @@ export default {
               v-model="form.name"
               required
               class="w-full p-2 border rounded"
+              :disabled="status.submitting"
             />
           </div>
           <div>
@@ -57,6 +115,7 @@ export default {
               v-model="form.email"
               required
               class="w-full p-2 border rounded"
+              :disabled="status.submitting"
             />
           </div>
           <div>
@@ -67,13 +126,16 @@ export default {
               required
               class="w-full p-2 border rounded"
               rows="4"
+              :disabled="status.submitting"
             ></textarea>
           </div>
           <button
             type="submit"
             class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
+            :disabled="status.submitting"
           >
-            Send Message
+            <span v-if="status.submitting">Sending...</span>
+            <span v-else>Send Message</span>
           </button>
         </form>
       </div>

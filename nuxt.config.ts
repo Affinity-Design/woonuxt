@@ -14,6 +14,11 @@ export default defineNuxtConfig({
       turnstile: {
         siteKey: process.env.TURNSTYLE_SITE_KEY,
       },
+      GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
+      GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
+      GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
+      GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
+      RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
     },
   },
   devtools: { enabled: true },
