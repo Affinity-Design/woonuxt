@@ -75,7 +75,7 @@ export default {
         <FaqAccordion />
       </div>
 
-      <!-- Right column: Contact Form -->
+      <!-- Right column: Contact Form test-->
       <div class="w-full md:w-1/2">
         <h2 class="text-2xl font-semibold mb-4">Contact Us</h2>
 
