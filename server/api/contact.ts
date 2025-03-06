@@ -1,6 +1,5 @@
-// server/api/contact.js
-import { google } from "googleapis";
-import { Buffer } from "buffer";
+// server/api/contact.ts
+import sgMail from "@sendgrid/mail";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -9,39 +8,32 @@ export default defineEventHandler(async (event) => {
     // Get runtime config to access environment variables
     const config = useRuntimeConfig();
 
-    // Gmail API credentials from environment variables
-    const GMAIL_CLIENT_ID = config.GMAIL_CLIENT_ID;
-    const GMAIL_CLIENT_SECRET = config.GMAIL_CLIENT_SECRET;
-    const GMAIL_REFRESH_TOKEN = config.GMAIL_REFRESH_TOKEN;
-    const GMAIL_REDIRECT_URI =
-      config.GMAIL_REDIRECT_URI ||
-      "https://developers.google.com/oauthplayground";
+    // SendGrid API key from environment variables
+    const SENDGRID_API_KEY = config.SENDGRID_API_KEY;
+    const SENDING_EMAIL = config.SENDING_EMAIL;
     const RECEIVING_EMAIL = config.RECEIVING_EMAIL;
 
     // Log credential availability (not values)
     console.log("Credentials check:", {
-      hasClientId: !!GMAIL_CLIENT_ID,
-      hasClientSecret: !!GMAIL_CLIENT_SECRET,
-      hasRefreshToken: !!GMAIL_REFRESH_TOKEN,
-      hasRedirectUri: !!GMAIL_REDIRECT_URI,
+      hasSendGridApiKey: !!SENDGRID_API_KEY,
+      hasSendingEmail: !!SENDING_EMAIL,
       hasReceivingEmail: !!RECEIVING_EMAIL,
     });
 
     // Validate that all required credentials are available
-    if (
-      !GMAIL_CLIENT_ID ||
-      !GMAIL_CLIENT_SECRET ||
-      !GMAIL_REFRESH_TOKEN ||
-      !RECEIVING_EMAIL
-    ) {
-      console.error("Missing Gmail API credentials");
+    if (!SENDGRID_API_KEY || !SENDING_EMAIL || !RECEIVING_EMAIL) {
+      console.error("Missing SendGrid API credentials");
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "Server configuration error - missing Gmail API credentials",
+          error:
+            "Server configuration error - missing SendGrid API credentials",
         }),
       };
     }
+
+    // Set SendGrid API key
+    sgMail.setApiKey(SENDGRID_API_KEY);
 
     // Get form data from request
     const body = await readBody(event);
@@ -131,92 +123,59 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Configure OAuth2 client
-    console.log("Setting up OAuth2 client");
-    const oauth2Client = new google.auth.OAuth2(
-      GMAIL_CLIENT_ID,
-      GMAIL_CLIENT_SECRET,
-      GMAIL_REDIRECT_URI
-    );
-
-    oauth2Client.setCredentials({
-      refresh_token: GMAIL_REFRESH_TOKEN,
-    });
-
-    // Create Gmail API client
-    console.log("Creating Gmail API client");
-    const gmail = google.gmail({
-      version: "v1",
-      auth: oauth2Client,
-    });
-
-    // Helper function to encode the email to base64
-    function createMessage({ name, email, message }) {
-      const emailContent = `From: "Contact Form" <${RECEIVING_EMAIL}>
-To: ${RECEIVING_EMAIL}
-Subject: New Contact Form Submission from ${name}
-Content-Type: text/plain; charset=utf-8
-MIME-Version: 1.0
-
+    // Create email message for SendGrid
+    console.log("Creating email message");
+    const msg = {
+      to: RECEIVING_EMAIL,
+      from: SENDING_EMAIL,
+      subject: `New Contact Form Submission from ${name}`,
+      text: `
 Name: ${name}
 Email: ${email}
 
 Message:
 ${message}
-`;
+      `,
+      html: `
+<p><strong>Name:</strong> ${name}</p>
+<p><strong>Email:</strong> ${email}</p>
+<p><strong>Message:</strong></p>
+<p>${message.replace(/\n/g, "<br>")}</p>
+      `,
+      replyTo: email,
+    };
 
-      // Encode to base64
-      return Buffer.from(emailContent)
-        .toString("base64")
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-    }
-
-    // Create the email message
-    console.log("Creating email message");
-    const encodedMessage = createMessage({ name, email, message });
-
-    // Send the email using Gmail API
-    console.log("Sending email via Gmail API");
+    // Send the email using SendGrid
+    console.log("Sending email via SendGrid");
     try {
-      const result = await gmail.users.messages.send({
-        userId: "me",
-        requestBody: {
-          raw: encodedMessage,
-        },
-      });
+      const result = await sgMail.send(msg);
 
-      console.log("Email sent successfully:", result.data.id);
+      console.log("Email sent successfully:", result[0].statusCode);
 
       // Return success response
       return {
         statusCode: 200,
         body: JSON.stringify({
           success: true,
-          messageId: result.data.id,
+          statusCode: result[0].statusCode,
         }),
       };
-    } catch (gmailError) {
-      console.error("Gmail API error:", gmailError);
+    } catch (sendGridError) {
+      console.error("SendGrid API error:", sendGridError);
 
       let errorDetails = {
-        message: gmailError.message,
+        message: sendGridError.message,
       };
 
-      if (gmailError.response) {
-        errorDetails.statusCode = gmailError.response.status;
-        errorDetails.statusText = gmailError.response.statusText;
-
-        if (gmailError.response.data) {
-          errorDetails.data = gmailError.response.data;
-        }
+      if (sendGridError.response) {
+        errorDetails.statusCode = sendGridError.response.statusCode;
+        errorDetails.body = sendGridError.response.body;
       }
 
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "Gmail API error",
+          error: "SendGrid API error",
           details: errorDetails,
         }),
       };

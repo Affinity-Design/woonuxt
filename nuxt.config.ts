@@ -6,10 +6,8 @@ export default defineNuxtConfig({
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
   runtimeConfig: {
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
-    GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
-    GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
-    GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
-    GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
+    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+    SENDING_EMAIL: process.env.SENDING_EMAIL,
     RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
