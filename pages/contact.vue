@@ -1,159 +1,98 @@
-<script>
+<script setup lang="ts">
+import VueTurnstile from "vue-turnstile";
 import FaqAccordion from "./components/generalElements/FaqAccordion.vue";
 
-export default {
-  components: {
-    FaqAccordion,
-  },
-  data() {
-    return {
-      form: {
-        name: "",
-        email: "",
-        message: "",
-        turnstileToken: "",
-      },
-      status: {
-        submitting: false,
-        success: false,
-        error: null,
-        turnstileLoading: true,
-      },
-      turnstileWidgetId: null,
-      turnstileRetryCount: 0,
-    };
-  },
-  mounted() {
-    // Initialize Turnstile when component is mounted
-    this.initTurnstile();
-  },
-  unmounted() {
-    // Clean up Turnstile widget if it exists
-    if (this.turnstileWidgetId && window.turnstile) {
-      window.turnstile.remove(this.turnstileWidgetId);
-    }
-  },
-  methods: {
-    initTurnstile() {
-      if (this.turnstileRetryCount > 10) {
-        // Stop trying after several attempts
-        this.status.turnstileLoading = false;
-        console.error("Failed to load Turnstile after multiple attempts");
-        return;
-      }
+const turnstileToken = ref<string>("");
+const turnstileError = ref<string>("");
+const turnstileMounted = ref(false);
+const turnstileSiteKey = useRuntimeConfig();
 
-      // Wait for Turnstile to be loaded
-      if (window.turnstile) {
-        try {
-          const config = useRuntimeConfig();
-          const siteKey = config.public.turnstile?.siteKey;
+const form = ref({
+  name: "",
+  email: "",
+  message: "",
+});
 
-          if (!siteKey) {
-            console.error("Turnstile site key not found in runtime config");
-            this.status.turnstileLoading = false;
-            return;
-          }
+const status = ref({
+  submitting: false,
+  success: false,
+  error: null,
+});
 
-          console.log(
-            "Initializing Turnstile with site key prefix:",
-            siteKey.substring(0, 5) + "..."
-          );
-
-          // Render the Turnstile widget
-          this.turnstileWidgetId = window.turnstile.render(
-            "#turnstile-container",
-            {
-              sitekey: siteKey,
-              callback: (token) => {
-                console.log("Turnstile token received");
-                this.form.turnstileToken = token;
-              },
-              "expired-callback": () => {
-                console.log("Turnstile token expired");
-                this.form.turnstileToken = "";
-              },
-              "error-callback": (error) => {
-                console.error("Turnstile error:", error);
-                this.form.turnstileToken = "";
-              },
-            }
-          );
-
-          this.status.turnstileLoading = false;
-          console.log("Turnstile initialized successfully");
-        } catch (error) {
-          console.error("Error initializing Turnstile:", error);
-          this.status.turnstileLoading = false;
-        }
-      } else {
-        // If Turnstile is not loaded yet, try again in a moment
-        this.turnstileRetryCount++;
-        setTimeout(() => this.initTurnstile(), 500);
-      }
-    },
-    resetTurnstile() {
-      if (window.turnstile && this.turnstileWidgetId) {
-        window.turnstile.reset(this.turnstileWidgetId);
-        this.form.turnstileToken = "";
-      }
-    },
-    async submitForm() {
-      try {
-        // Check if Turnstile token is available (skip check if Turnstile failed to load)
-        if (!this.form.turnstileToken && !this.status.turnstileLoading) {
-          this.status.error = "Please complete the CAPTCHA verification";
-          return;
-        }
-
-        // Set submitting state
-        this.status.submitting = true;
-        this.status.error = null;
-
-        console.log("Submitting form...");
-
-        // Send form data to the API
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.form),
-        });
-
-        const result = await response.json();
-        console.log("Form submission response:", result);
-
-        if (!response.ok) {
-          const errorMsg = result.error || "Failed to send message";
-          console.error("Form submission error:", errorMsg, result);
-          throw new Error(errorMsg);
-        }
-
-        // Success state
-        this.status.success = true;
-        console.log("Form submitted successfully");
-
-        // Reset form after submission
-        this.form = { name: "", email: "", message: "", turnstileToken: "" };
-        this.resetTurnstile();
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        this.status.error =
-          error.message || "An error occurred while sending your message";
-        this.resetTurnstile();
-      } finally {
-        this.status.submitting = false;
-
-        // Auto-clear success message after 5 seconds
-        if (this.status.success) {
-          setTimeout(() => {
-            this.status.success = false;
-          }, 5000);
-        }
-      }
-    },
-  },
+const verifyTurnstile = async () => {
+  turnstileError.value = "";
+  if (!turnstileToken.value) {
+    turnstileError.value = "Please complete the security check";
+    return false;
+  }
+  return true;
 };
+
+async function submitForm() {
+  try {
+    // Verify Turnstile token
+    if (!(await verifyTurnstile())) return;
+
+    // Set submitting state
+    status.value.submitting = true;
+    status.value.error = null;
+
+    console.log("Submitting form...");
+
+    // Send form data to the API
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form.value,
+        turnstileToken: turnstileToken.value,
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Form submission response:", result);
+
+    if (!response.ok) {
+      const errorMsg = result.error || "Failed to send message";
+      console.error("Form submission error:", errorMsg, result);
+      throw new Error(errorMsg);
+    }
+
+    // Success state
+    status.value.success = true;
+    console.log("Form submitted successfully");
+
+    // Reset form after submission
+    form.value = { name: "", email: "", message: "" };
+    turnstileToken.value = "";
+
+    // Reset Turnstile
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    status.value.error =
+      error.message || "An error occurred while sending your message";
+    turnstileToken.value = "";
+
+    // Reset Turnstile
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+  } finally {
+    status.value.submitting = false;
+
+    // Auto-clear success message after 5 seconds
+    if (status.value.success) {
+      setTimeout(() => {
+        status.value.success = false;
+      }, 5000);
+    }
+  }
+}
 </script>
 
 <template>
@@ -221,29 +160,35 @@ export default {
             ></textarea>
           </div>
 
-          <!-- Turnstile widget container -->
-          <div class="mb-4">
-            <div v-if="status.turnstileLoading" class="text-gray-600 mb-2">
-              Loading verification...
-            </div>
-            <div id="turnstile-container"></div>
-            <div
-              v-if="
-                !form.turnstileToken && status.error && !status.turnstileLoading
-              "
-              class="mt-1 text-red-500 text-sm"
-            >
-              Please verify that you're not a robot
-            </div>
+          <!-- Turnstile widget using VueTurnstile -->
+          <div class="my-4">
+            <ClientOnly>
+              <VueTurnstile
+                :site-key="turnstileSiteKey.public.turnstyleSiteKey"
+                v-model="turnstileToken"
+                @verify="
+                  () => {
+                    turnstileMounted = true;
+                    if (!turnstileToken) console.error('No token after mount');
+                  }
+                "
+                @error="
+                  () => {
+                    turnstileError = 'Security check failed - please try again';
+                  }
+                "
+                :reset-interval="30000"
+              />
+              <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+                {{ turnstileError }}
+              </div>
+            </ClientOnly>
           </div>
 
           <button
             type="submit"
             class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-            :disabled="
-              status.submitting ||
-              (!form.turnstileToken && !status.turnstileLoading)
-            "
+            :disabled="status.submitting || !turnstileToken"
           >
             <span v-if="status.submitting">Sending...</span>
             <span v-else>Send Message</span>
