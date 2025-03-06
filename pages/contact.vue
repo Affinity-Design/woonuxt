@@ -11,17 +11,65 @@ export default {
         name: "",
         email: "",
         message: "",
+        turnstileToken: "",
       },
       status: {
         submitting: false,
         success: false,
         error: null,
       },
+      turnstileWidgetId: null,
     };
   },
+  mounted() {
+    // Initialize Turnstile when component is mounted
+    this.initTurnstile();
+  },
+  unmounted() {
+    // Clean up Turnstile widget if it exists
+    if (this.turnstileWidgetId) {
+      window.turnstile?.remove(this.turnstileWidgetId);
+    }
+  },
   methods: {
+    initTurnstile() {
+      // Wait for Turnstile to be loaded
+      if (window.turnstile) {
+        const config = useRuntimeConfig();
+        const siteKey = config.public.turnstile.siteKey;
+
+        // Render the Turnstile widget
+        this.turnstileWidgetId = window.turnstile.render(
+          "#turnstile-container",
+          {
+            sitekey: siteKey,
+            callback: (token) => {
+              this.form.turnstileToken = token;
+            },
+            "expired-callback": () => {
+              this.form.turnstileToken = "";
+            },
+          }
+        );
+      } else {
+        // If Turnstile is not loaded yet, try again in a moment
+        setTimeout(() => this.initTurnstile(), 500);
+      }
+    },
+    resetTurnstile() {
+      if (window.turnstile && this.turnstileWidgetId) {
+        window.turnstile.reset(this.turnstileWidgetId);
+        this.form.turnstileToken = "";
+      }
+    },
     async submitForm() {
       try {
+        // Check if Turnstile token is available
+        if (!this.form.turnstileToken) {
+          this.status.error = "Please complete the CAPTCHA verification";
+          return;
+        }
+
         // Set submitting state
         this.status.submitting = true;
         this.status.error = null;
@@ -45,11 +93,13 @@ export default {
         this.status.success = true;
 
         // Reset form after submission
-        this.form = { name: "", email: "", message: "" };
+        this.form = { name: "", email: "", message: "", turnstileToken: "" };
+        this.resetTurnstile();
       } catch (error) {
         console.error("Error submitting form:", error);
         this.status.error =
           error.message || "An error occurred while sending your message";
+        this.resetTurnstile();
       } finally {
         this.status.submitting = false;
 
@@ -129,10 +179,22 @@ export default {
               :disabled="status.submitting"
             ></textarea>
           </div>
+
+          <!-- Turnstile widget container -->
+          <div class="mb-4">
+            <div id="turnstile-container"></div>
+            <div
+              v-if="!form.turnstileToken && status.error"
+              class="mt-1 text-red-500 text-sm"
+            >
+              Please verify that you're not a robot
+            </div>
+          </div>
+
           <button
             type="submit"
             class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-            :disabled="status.submitting"
+            :disabled="status.submitting || !form.turnstileToken"
           >
             <span v-if="status.submitting">Sending...</span>
             <span v-else>Send Message</span>

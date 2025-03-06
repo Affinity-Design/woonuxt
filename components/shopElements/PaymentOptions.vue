@@ -10,6 +10,14 @@ const activePaymentMethod = computed<PaymentGateway>(
 );
 const emits = defineEmits(["update:modelValue"]);
 
+// List of payment gateways to exclude
+const excludedGateways = ["helcimjs", "ppcp"];
+
+// Filter function to exclude unwanted payment gateways
+const filterPaymentGateways = (gateways) => {
+  return gateways.filter((gateway) => !excludedGateways.includes(gateway.id));
+};
+
 const updatePaymentMethod = (value: any) => {
   emits("update:modelValue", value);
 };
@@ -17,12 +25,13 @@ const updatePaymentMethod = (value: any) => {
 onMounted(() => {
   // Emit first valid payment method
   if (props.paymentGateways?.nodes.length) {
-    const firstValidGateway = props.paymentGateways.nodes.find(
-      (gateway) => gateway.id !== "helcimjs"
-    );
-    if (firstValidGateway) {
-      updatePaymentMethod(firstValidGateway);
+    const filteredGateways = filterPaymentGateways(props.paymentGateways.nodes);
+
+    if (filteredGateways.length) {
+      // Use the first available gateway after filtering
+      updatePaymentMethod(filteredGateways[0]);
     } else {
+      // Fallback to stripe if no gateways remain after filtering
       updatePaymentMethod("fkwcs_stripe");
     }
   }
@@ -32,9 +41,7 @@ onMounted(() => {
 <template>
   <div class="flex gap-4 leading-tight flex-wrap">
     <div
-      v-for="gateway in paymentGateways?.nodes.filter(
-        (gateway) => gateway.id !== 'helcimjs'
-      )"
+      v-for="gateway in filterPaymentGateways(paymentGateways?.nodes || [])"
       :key="gateway.id"
       class="option"
       :class="{ 'active-option': gateway.id === activePaymentMethod.id }"

@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
   runtimeConfig: {
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
+    GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
+    GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
+    GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
+    GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
+    RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
@@ -14,15 +19,14 @@ export default defineNuxtConfig({
       turnstile: {
         siteKey: process.env.TURNSTYLE_SITE_KEY,
       },
-      GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
-      GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
-      GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
-      GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
-      RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
     },
   },
   devtools: { enabled: true },
   ssr: true,
+
+  devServer: {
+    port: 3000,
+  },
 
   nitro: {
     preset: "cloudflare-pages",
@@ -33,6 +37,9 @@ export default defineNuxtConfig({
       interval: 1000,
       failOnError: false,
       autoSubfolderIndex: false,
+    },
+    experimental: {
+      openAPI: true,
     },
   },
 
