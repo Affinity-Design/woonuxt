@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     SENDING_EMAIL: process.env.SENDING_EMAIL,
     RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
+    REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
