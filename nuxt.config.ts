@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     port: 3000,
   },
 
+  // Update your nitro config in nuxt.config.ts
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
@@ -40,19 +41,13 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    // Configure the Nitro cache
-    storage: {
-      cache: {
-        driver: "cloudflare-kv", // Use CloudFlare KV for cache storage
-      },
-    },
   },
 
   // Set route rules for pre-rendering
   routeRules: {
     "/": { prerender: true }, // Only prerender homepage
     "/product-category/**": {
-      isr: {
+      cache: {
         maxAge: 60 * 60 * 24 * 7, // Cache for 1 week (in seconds)
         staleMaxAge: 60 * 60, // Serve stale content for up to 1 hour while revalidating
         swr: true, // Enable stale-while-revalidate behavior
@@ -60,7 +55,7 @@ export default defineNuxtConfig({
       prerender: false, // Don't prerender at build time
     },
     "/product/**": {
-      isr: {
+      cache: {
         maxAge: 60 * 60 * 48, // Cache for 48 hours (in seconds)
         staleMaxAge: 60 * 15, // Serve stale content for up to 15 minutes while revalidating
         swr: true, // Enable stale-while-revalidate behavior
