@@ -11,30 +11,46 @@ const imgHeight = Math.round(imgWidth * 1.125);
 // Track if we've already fallen back to prevent infinite loops
 const hasErrored = ref(false);
 
+// Function to convert category names to dash-separated filenames
+const convertToDashed = (categoryName: string) => {
+  if (!categoryName) return "";
+
+  // Special case mapping for categories with custom image names
+  const specialCases: Record<string, string> = {
+    "Trick Scooters | Stunt Scooters | Pro Scooters": "Trick-Scooters",
+  };
+
+  // If we have a special case mapping, use it
+  if (specialCases[categoryName]) {
+    return specialCases[categoryName];
+  }
+
+  // Otherwise apply standard conversion
+  return (
+    categoryName
+      // First handle special characters that might need specific replacements
+      .replace(/\|/g, "-") // Replace pipe with dash
+      .replace(/\//g, "-") // Replace forward slash with dash
+      .replace(/!/g, "") // Remove exclamation marks
+      .replace(/&/g, "and") // Replace & with 'and'
+      // Replace spaces with dashes
+      .replace(/\s+/g, "-")
+      // Remove any other special characters
+      .replace(/[^\w\-]/g, "")
+      // Ensure no double dashes
+      .replace(/--+/g, "-")
+  );
+};
+
 // Function to get the local image path based on category name
 const getLocalImagePath = (categoryName: string) => {
   if (!categoryName) return FALLBACK_IMG;
 
-  // Create a map for special case replacements
-  const specialCases: Record<string, string> = {
-    "Inline Skate Wheels | Wheels For Rollerblades":
-      "Inline Skate Wheels   Wheels For Rollerblades",
-    "Roller Skates | Quad Skates": "Roller Skates   Quad Skates",
-    "Electric Boards / e-boards": "Electric Boards   e-boards",
-    "Inline Skates / Rollerblades": "Inline Skates   Rollerblades",
-    "Trick Scooters | Stunt Scooters | Pro Scooters": "Trick Scooters",
-  };
+  // Convert the category name to a dash-separated filename
+  const dashedName = convertToDashed(categoryName);
 
-  // Get the filename - use special case if defined, otherwise use exact category name
-  const filename = specialCases[categoryName] || categoryName;
-
-  // Add debugging for problematic cases
-  if (specialCases[categoryName]) {
-    console.log(`Special case: "${categoryName}" → "${filename}"`);
-  }
-
-  // Return the exact filename as is - no sanitization
-  return `/images/${filename}.jpeg`;
+  // Return the path with the dashed filename
+  return `/images/${dashedName}.jpeg`;
 };
 
 // Get the image path for this category
@@ -47,23 +63,16 @@ const imageSrc = computed(() => {
   return getLocalImagePath(props.node.name);
 });
 
-// Handle image error - use a more robust approach
+// Handle image error
 const handleImageError = (event) => {
-  console.log(`Image error for category: "${props.node.name}"`);
-  console.log(`Failed URL: ${event.target.src}`);
-
   // Only change the source if we haven't already errored
   if (!hasErrored.value) {
     hasErrored.value = true;
 
     // Force a refresh to use the fallback image
     if (props.node.image?.sourceUrl) {
-      console.log(
-        `Falling back to WordPress image: ${props.node.image.sourceUrl}`
-      );
       event.target.src = props.node.image.sourceUrl;
     } else {
-      console.log(`Falling back to default image: ${FALLBACK_IMG}`);
       event.target.src = FALLBACK_IMG;
     }
   }
