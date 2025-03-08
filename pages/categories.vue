@@ -2,7 +2,6 @@
 const { data } = await useAsyncGql("getProductCategories");
 const productCategories = data.value.productCategories
   ?.nodes as ProductCategory[];
-console.log(data);
 
 useHead({
   title: `Categories`,

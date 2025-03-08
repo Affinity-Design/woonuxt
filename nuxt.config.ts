@@ -6,6 +6,10 @@ export default defineNuxtConfig({
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
   runtimeConfig: {
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
+    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+    SENDING_EMAIL: process.env.SENDING_EMAIL,
+    RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
+    REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key", // Fallback for development
@@ -14,33 +18,54 @@ export default defineNuxtConfig({
       turnstile: {
         siteKey: process.env.TURNSTYLE_SITE_KEY,
       },
-      GMAIL_CLIENT_ID: process.env.GMAIL_CLIENT_ID,
-      GMAIL_CLIENT_SECRET: process.env.GMAIL_CLIENT_SECRET,
-      GMAIL_REFRESH_TOKEN: process.env.GMAIL_REFRESH_TOKEN,
-      GMAIL_REDIRECT_URI: process.env.GMAIL_REDIRECT_URI,
-      RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
     },
   },
   devtools: { enabled: true },
   ssr: true,
 
+  devServer: {
+    port: 3000,
+  },
+
+  // Update your nitro config in nuxt.config.ts
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
-      crawlLinks: false, // set to true for render
-      routes: ["/"],
+      crawlLinks: false, // Don't automatically crawl all links
+      routes: ["/"], // Only prerender the homepage
+      ignore: ["/product/**", "/product-category/**"], // Explicitly ignore product and category pages during prerendering
       concurrency: 10,
       interval: 1000,
       failOnError: false,
       autoSubfolderIndex: false,
     },
+    experimental: {
+      openAPI: true,
+    },
   },
 
   // Set route rules for pre-rendering
   routeRules: {
-    // "/**": { prerender: true },
-    "/product-category/**": { prerender: true },
-    // "/product/**": { prerender: true }, // Added this line for all product pages
+    "/": { prerender: true }, // Only prerender homepage
+    "/product-category/**": {
+      cache: {
+        maxAge: 60 * 60 * 24 * 7, // Cache for 1 week (in seconds)
+        staleMaxAge: 60 * 60, // Serve stale content for up to 1 hour while revalidating
+        swr: true, // Enable stale-while-revalidate behavior
+      },
+      prerender: false, // Don't prerender at build time
+    },
+    "/product/**": {
+      cache: {
+        maxAge: 60 * 60 * 48, // Cache for 48 hours (in seconds)
+        staleMaxAge: 60 * 15, // Serve stale content for up to 15 minutes while revalidating
+        swr: true, // Enable stale-while-revalidate behavior
+      },
+      prerender: false, // Don't prerender at build time
+    },
+    "/checkout/**": { ssr: true }, // Dynamic routes, no caching
+    "/cart": { ssr: true }, // Dynamic routes, no caching
+    "/account/**": { ssr: true }, // Dynamic routes, no caching
   },
   // Hook overides
   hooks: {

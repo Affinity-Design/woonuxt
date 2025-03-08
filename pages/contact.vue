@@ -1,68 +1,98 @@
-<script>
+<script setup lang="ts">
+import VueTurnstile from "vue-turnstile";
 import FaqAccordion from "./components/generalElements/FaqAccordion.vue";
 
-export default {
-  components: {
-    FaqAccordion,
-  },
-  data() {
-    return {
-      form: {
-        name: "",
-        email: "",
-        message: "",
-      },
-      status: {
-        submitting: false,
-        success: false,
-        error: null,
-      },
-    };
-  },
-  methods: {
-    async submitForm() {
-      try {
-        // Set submitting state
-        this.status.submitting = true;
-        this.status.error = null;
+const turnstileToken = ref<string>("");
+const turnstileError = ref<string>("");
+const turnstileMounted = ref(false);
+const turnstileSiteKey = useRuntimeConfig();
 
-        // Send form data to the API
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.form),
-        });
+const form = ref({
+  name: "",
+  email: "",
+  message: "",
+});
 
-        const result = await response.json();
+const status = ref({
+  submitting: false,
+  success: false,
+  error: null,
+});
 
-        if (!response.ok) {
-          throw new Error(result.error || "Failed to send message");
-        }
-
-        // Success state
-        this.status.success = true;
-
-        // Reset form after submission
-        this.form = { name: "", email: "", message: "" };
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        this.status.error =
-          error.message || "An error occurred while sending your message";
-      } finally {
-        this.status.submitting = false;
-
-        // Auto-clear success message after 5 seconds
-        if (this.status.success) {
-          setTimeout(() => {
-            this.status.success = false;
-          }, 5000);
-        }
-      }
-    },
-  },
+const verifyTurnstile = async () => {
+  turnstileError.value = "";
+  if (!turnstileToken.value) {
+    turnstileError.value = "Please complete the security check";
+    return false;
+  }
+  return true;
 };
+
+async function submitForm() {
+  try {
+    // Verify Turnstile token
+    if (!(await verifyTurnstile())) return;
+
+    // Set submitting state
+    status.value.submitting = true;
+    status.value.error = null;
+
+    console.log("Submitting form...");
+
+    // Send form data to the API
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form.value,
+        turnstileToken: turnstileToken.value,
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Form submission response:", result);
+
+    if (!response.ok) {
+      const errorMsg = result.error || "Failed to send message";
+      console.error("Form submission error:", errorMsg, result);
+      throw new Error(errorMsg);
+    }
+
+    // Success state
+    status.value.success = true;
+    console.log("Form submitted successfully");
+
+    // Reset form after submission
+    form.value = { name: "", email: "", message: "" };
+    turnstileToken.value = "";
+
+    // Reset Turnstile
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    status.value.error =
+      error.message || "An error occurred while sending your message";
+    turnstileToken.value = "";
+
+    // Reset Turnstile
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+  } finally {
+    status.value.submitting = false;
+
+    // Auto-clear success message after 5 seconds
+    if (status.value.success) {
+      setTimeout(() => {
+        status.value.success = false;
+      }, 5000);
+    }
+  }
+}
 </script>
 
 <template>
@@ -129,10 +159,36 @@ export default {
               :disabled="status.submitting"
             ></textarea>
           </div>
+
+          <!-- Turnstile widget using VueTurnstile -->
+          <div class="my-4">
+            <ClientOnly>
+              <VueTurnstile
+                :site-key="turnstileSiteKey.public.turnstyleSiteKey"
+                v-model="turnstileToken"
+                @verify="
+                  () => {
+                    turnstileMounted = true;
+                    if (!turnstileToken) console.error('No token after mount');
+                  }
+                "
+                @error="
+                  () => {
+                    turnstileError = 'Security check failed - please try again';
+                  }
+                "
+                :reset-interval="30000"
+              />
+              <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+                {{ turnstileError }}
+              </div>
+            </ClientOnly>
+          </div>
+
           <button
             type="submit"
             class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-            :disabled="status.submitting"
+            :disabled="status.submitting || !turnstileToken"
           >
             <span v-if="status.submitting">Sending...</span>
             <span v-else>Send Message</span>

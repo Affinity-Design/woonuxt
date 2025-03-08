@@ -42,3 +42,27 @@ export const removeCurrencyPrefix = (price: string | null): string => {
   // Remove both CA$ and US$ prefixes while preserving existing $
   return price.replace(/^(CA|US)\$/, "$");
 };
+
+// Format a dollar amount with the CAD suffix, handling zero values properly
+export const formatPriceWithCAD = (amount: number | string): string => {
+  if (amount === 0 || amount === "0" || amount === "0.00") {
+    return "$0.00 CAD";
+  }
+
+  // Convert to a string if it's a number
+  const amountStr =
+    typeof amount === "number" ? amount.toFixed(2) : amount.toString();
+
+  // If the amount already has a $ prefix, leave it; otherwise add it
+  const withDollarSign = amountStr.startsWith("$")
+    ? amountStr
+    : `$${amountStr}`;
+
+  // Add the CAD suffix with a regular space (not &nbsp;)
+  return `${withDollarSign} CAD`;
+};
+
+// Utility function specifically for zero values
+export const formatZeroPrice = (): string => {
+  return "$0.00 CAD";
+};
