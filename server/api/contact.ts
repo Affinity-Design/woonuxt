@@ -1,5 +1,6 @@
 // server/api/contact.ts
 import sgMail from "@sendgrid/mail";
+import { useRuntimeConfig } from "#imports";
 
 export default defineEventHandler(async (event) => {
   try {

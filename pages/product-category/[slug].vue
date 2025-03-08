@@ -7,7 +7,6 @@ const slug = route.params.slug;
 
 const { data } = await useAsyncGql("getProducts", { slug });
 const productsInCategory = (data.value?.products?.nodes || []) as Product[];
-setProducts(productsInCategory);
 
 onMounted(() => {
   if (!isQueryEmpty.value) updateProductList();
@@ -53,8 +52,8 @@ useHead({
       </div>
     </div>
     <NoProductsFound v-else
-      >HEYCould not fetch products from your store. Please check your
-      configuration.</NoProductsFound
+      >Could not fetch products from your store. Please Wait 1 Minute and
+      Refresh Page</NoProductsFound
     >
   </div>
 </template>
