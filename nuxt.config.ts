@@ -29,8 +29,9 @@ export default defineNuxtConfig({
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
-      crawlLinks: false, // set to true for render
-      routes: ["/"],
+      crawlLinks: false, // Don't automatically crawl all links
+      routes: ["/"], // Only prerender the homepage
+      ignore: ["/product/**", "/product-category/**"], // Explicitly ignore product and category pages during prerendering
       concurrency: 10,
       interval: 1000,
       failOnError: false,
@@ -39,13 +40,36 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
+    // Configure the Nitro cache
+    storage: {
+      cache: {
+        driver: "cloudflare-kv", // Use CloudFlare KV for cache storage
+      },
+    },
   },
 
   // Set route rules for pre-rendering
   routeRules: {
-    // "/**": { prerender: true },
-    "/product-category/**": { prerender: true },
-    // "/product/**": { prerender: true }, // Added this line for all product pages
+    "/": { prerender: true }, // Only prerender homepage
+    "/product-category/**": {
+      isr: {
+        maxAge: 60 * 60 * 24 * 7, // Cache for 1 week (in seconds)
+        staleMaxAge: 60 * 60, // Serve stale content for up to 1 hour while revalidating
+        swr: true, // Enable stale-while-revalidate behavior
+      },
+      prerender: false, // Don't prerender at build time
+    },
+    "/product/**": {
+      isr: {
+        maxAge: 60 * 60 * 48, // Cache for 48 hours (in seconds)
+        staleMaxAge: 60 * 15, // Serve stale content for up to 15 minutes while revalidating
+        swr: true, // Enable stale-while-revalidate behavior
+      },
+      prerender: false, // Don't prerender at build time
+    },
+    "/checkout/**": { ssr: true }, // Dynamic routes, no caching
+    "/cart": { ssr: true }, // Dynamic routes, no caching
+    "/account/**": { ssr: true }, // Dynamic routes, no caching
   },
   // Hook overides
   hooks: {

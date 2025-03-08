@@ -1,0 +1,15 @@
+/product/*
+  Cache-Control: public, max-age=172800, stale-while-revalidate=900
+
+/product-category/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=3600
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
