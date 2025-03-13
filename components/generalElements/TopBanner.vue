@@ -2,7 +2,7 @@
 
 <script setup>
 const { hostname } = useRequestURL();
-const showBanner = computed(() => hostname !== "proskaterplace.ca");
+const showBanner = computed(() => hostname !== "proskatersplace.ca");
 </script>
 
 <template>

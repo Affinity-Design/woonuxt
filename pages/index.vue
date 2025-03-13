@@ -5,8 +5,6 @@ const { siteName, description, shortDescription, siteImage } = useAppConfig();
 const { data } = await useAsyncGql("getProductCategories", { first: 6 });
 const productCategories = data.value?.productCategories?.nodes || [];
 
-console.log(productCategories);
-
 const { data: productData } = await useAsyncGql("getProducts", {
   first: 5,
   orderby: ProductsOrderByEnum.ON_SALE_TO,
