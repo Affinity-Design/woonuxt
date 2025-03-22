@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     port: 3000,
   },
 
-  // Update your nitro config in nuxt.config.ts
+  // Updated Nitro configuration for Cloudflare Pages
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
@@ -42,31 +42,62 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
+    // Configure the storage for the cache
+    storage: {
+      cache: {
+        driver: "cloudflare-kv",
+        // Optional: Configure specific KV namespace if needed
+        // binding: 'YOUR_KV_NAMESPACE',
+      },
+    },
+    // Cloudflare-specific optimizations
+    cloudflare: {
+      // Enable Cloudflare cache optimization
+      optimization: true,
+    },
   },
 
-  // Set route rules for pre-rendering
+  // Enhanced route rules with ISR (Incremental Static Regeneration)
   routeRules: {
-    "/": { prerender: true }, // Only prerender homepage
+    "/": {
+      prerender: true,
+      cache: {
+        maxAge: 60 * 60 * 24, // 24 hours (in seconds)
+        staleWhileRevalidate: 60 * 60, // 1 hour
+      },
+    },
     "/product-category/**": {
       cache: {
         maxAge: 60 * 60 * 24 * 7, // Cache for 1 week (in seconds)
-        staleMaxAge: 60 * 60, // Serve stale content for up to 1 hour while revalidating
+        staleWhileRevalidate: 60 * 60 * 24, // Serve stale content for up to 1 day while revalidating
         swr: true, // Enable stale-while-revalidate behavior
       },
       prerender: false, // Don't prerender at build time
     },
     "/product/**": {
       cache: {
-        maxAge: 60 * 60 * 48, // Cache for 48 hours (in seconds)
-        staleMaxAge: 60 * 15, // Serve stale content for up to 15 minutes while revalidating
+        maxAge: 60 * 60 * 72, // Cache for 72 hours (in seconds)
+        staleWhileRevalidate: 60 * 60 * 6, // Serve stale content for up to 6 hours while revalidating
         swr: true, // Enable stale-while-revalidate behavior
       },
       prerender: false, // Don't prerender at build time
     },
-    "/checkout/**": { ssr: true }, // Dynamic routes, no caching
-    "/cart": { ssr: true }, // Dynamic routes, no caching
-    "/account/**": { ssr: true }, // Dynamic routes, no caching
+    // Dynamic routes with no caching
+    "/checkout/**": { ssr: true },
+    "/cart": { ssr: true },
+    "/account/**": { ssr: true },
+    // Static pages with medium caching
+    "/contact": {
+      cache: { prerender: true },
+    },
+    "/terms": {
+      cache: { prerender: true },
+    },
+    "/privacy": {
+      cache: { prerender: true },
+    },
   },
+
   // Hook overides
   hooks: {
     "pages:extend"(pages) {

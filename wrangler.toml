@@ -1,0 +1,61 @@
+# wrangler.toml
+name = "proskatersplace"
+compatibility_date = "2023-10-30"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespace binding - you'll need to create this in the Cloudflare dashboard
+kv_namespaces = [
+  { binding = "NUXT_CACHE", id = "your-kv-namespace-id", preview_id = "your-preview-kv-namespace-id" }
+]
+
+# Environment variables
+[vars]
+  NODE_VERSION = "20.16.0"
+
+[build]
+  command = "npm run build && npm run setup-cache"
+  output_directory = ".output/public"
+
+# Post-upload command to run AFTER deployment (not during build)
+[build.upload]
+  format = "directory"
+  
+[build.upload.main]
+  dir = ".output/public"
+
+# Command to run after the directory is uploaded
+[build.uploadDirectory]
+  command = "node scripts/post-deploy.js"
+
+# Customize build cache behavior
+[build.cache]
+  enabled = true
+  includes = ["node_modules/**", ".nuxt/**", ".output/**"]
+
+# Configure build environment
+[build.environment]
+  NODE_ENV = "production"
+
+# Configure cron trigger to refresh caches daily
+[triggers]
+  crons = ["0 0 * * *"] # Run daily at midnight UTC
+
+# Configure headers for caching
+[[headers]]
+  for = "/product/*"
+  [headers.values]
+    Cache-Control = "public, max-age=259200, stale-while-revalidate=21600"
+
+[[headers]]
+  for = "/product-category/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Configure build optimization for Cloudflare Pages
+[build.optimization]
+  minify = true

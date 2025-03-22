@@ -8,7 +8,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "serve": "nuxi generate && npx serve .output/public -l 8080"
+    "serve": "nuxi generate && npx serve .output/public -l 8080",
+    "setup-cache": "node scripts/setup-script.js",
+    "warm-cache": "node scripts/cache-warmer.js",
+    "build-product-cache": "node scripts/build-products-cache.js"
   },
   "dependencies": {
     "@nuxtjs/seo": "^2.0.3",
@@ -16,8 +19,12 @@
     "@stripe/stripe-js": "^4.10.0",
     "@vueform/slider": "^2.1.10",
     "@vueuse/core": "^12.7.0",
+    "algoliasearch": "^5.21.0",
+    "fuse.js": "^7.1.0",
+    "instantsearch.css": "^8.5.1",
     "lodash-es": "^4.17.21",
     "stripe": "^17.7.0",
+    "vue-instantsearch": "^4.20.5",
     "vue-turnstile": "^1.0.11"
   },
   "devDependencies": {

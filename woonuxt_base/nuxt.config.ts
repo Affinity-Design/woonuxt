@@ -30,6 +30,17 @@ export default defineNuxtConfig({
 
   components: [{ path: resolve('./app/components'), pathPrefix: false }],
 
+  imports: {
+    dirs: [
+      // Scan top-level composables and composables directory recursively
+      'composables',
+      'composables/**',
+    ],
+    // These are the valid options
+    autoImport: true,
+    global: true,
+  },
+
   modules: ['woonuxt-settings', 'nuxt-graphql-client', '@nuxtjs/tailwindcss', '@nuxt/icon', '@nuxt/image', '@nuxtjs/i18n'],
 
   'graphql-client': {
