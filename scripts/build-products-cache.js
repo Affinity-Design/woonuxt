@@ -19,7 +19,7 @@ const CONFIG = {
   // Secret token for revalidation
   REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
   // How many products to fetch per batch
-  BATCH_SIZE: isBuildMode ? 50 : 100,
+  BATCH_SIZE: isBuildMode ? 10 : 5,
   // Delay between batches (in ms)
   BATCH_DELAY: isBuildMode ? 500 : 1000,
   // Are we limiting products for build mode?
@@ -30,29 +30,52 @@ const CONFIG = {
 
 // GraphQL query to fetch products with search-relevant fields
 const PRODUCTS_QUERY = `
-  query getProducts($after: String, $slug: [String], $first: Int = 1700, $orderby: ProductsOrderByEnum = DATE) {
-    products(
-      first: $first
-      after: $after
-      where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: { field: $orderby, order: DESC }, status: "publish" }
-    ) {
+  query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
+    products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}}) {
       pageInfo {
         hasNextPage
         endCursor
       }
       nodes {
+        databaseId
         name
         slug
-        type
-        databaseId
-        id
+        sku
+        shortDescription
         productCategories {
           nodes {
             name
             slug
           }
         }
-        price
+        # Use fragments for specific product types
+        ... on SimpleProduct {
+          price
+          regularPrice
+          salePrice
+          stockStatus
+          stockQuantity
+          onSale
+        }
+        ... on VariableProduct {
+          price
+          regularPrice
+          salePrice
+          stockStatus
+          stockQuantity
+          onSale
+        }
+        ... on ExternalProduct {
+          price
+          regularPrice
+          salePrice
+          externalUrl
+        }
+        # Add any other product types you need
+        image {
+          sourceUrl
+          altText
+        }
       }
     }
   }

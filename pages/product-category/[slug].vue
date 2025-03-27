@@ -1,85 +1,65 @@
 <script setup lang="ts">
-const { setProducts, updateProductList } = useProducts();
-const { isQueryEmpty } = useHelpers();
-const { storeSettings } = useAppConfig();
 const route = useRoute();
 const slug = route.params.slug;
+const { storeSettings } = useAppConfig();
 
-// Add loading state to handle async data
-const isLoading = ref(true);
-const productsInCategory = ref([]);
-const fetchError = ref(false);
-
-// Create a composable function to fetch products
-const fetchProducts = async () => {
-  isLoading.value = true;
-  fetchError.value = false;
-
-  try {
-    const { data } = await useAsyncGql("getProducts", { slug });
-
-    if (data.value?.products?.nodes) {
-      productsInCategory.value = data.value.products.nodes as Product[];
-      // Update the product store
-      setProducts(productsInCategory.value);
-    } else {
-      productsInCategory.value = [];
+// Separate static data fetching from filter-based updates
+const {
+  data: categoryData,
+  pending,
+  error,
+} = await useAsyncData(
+  `category-${slug}`, // Key based only on slug, not query parameters
+  async () => {
+    try {
+      const { data } = await useAsyncGql("getProducts", { slug });
+      return {
+        products: data.value?.products?.nodes || [],
+        categoryName: slug.toString().replace(/-/g, " "),
+      };
+    } catch (err) {
+      console.error("Error fetching category data:", err);
+      return { products: [], categoryName: slug.toString().replace(/-/g, " ") };
     }
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    fetchError.value = true;
-  } finally {
-    isLoading.value = false;
+  },
+  {
+    server: true,
+    cache: true,
+    watch: [() => route.params.slug], // Only refetch when slug changes, not queries
   }
-};
+);
 
-// Use server prefetch for SSR caching
-if (process.server) {
-  await fetchProducts();
-}
+// Initialize products store after data is loaded
+const { setProducts, updateProductList } = useProducts();
+const { isQueryEmpty } = useHelpers();
 
-onMounted(async () => {
-  // If using client-side navigation or if we need to refetch
-  if (process.client) {
-    if (productsInCategory.value.length === 0) {
-      await fetchProducts();
+// Wait until we have data before updating the products store
+watchEffect(() => {
+  if (categoryData.value?.products?.length) {
+    setProducts(categoryData.value.products);
+
+    // Only apply filters if query parameters exist
+    if (!isQueryEmpty.value) {
+      // Use nextTick to ensure DOM is updated first
+      nextTick(() => {
+        updateProductList();
+      });
     }
   }
-
-  if (!isQueryEmpty.value) updateProductList();
 });
 
-// Watch for route changes to update product list
-watch(
-  () => route.query,
-  () => {
-    if (route.name !== "product-category-slug") return;
-    updateProductList();
-  }
-);
-
-// Watch for slug changes to refetch products
-watch(
-  () => route.params.slug,
-  async (newSlug, oldSlug) => {
-    if (newSlug !== oldSlug) {
-      await fetchProducts();
-    }
-  }
-);
-
-// Add retry functionality
-const retryFetch = async () => {
-  await fetchProducts();
+// Handle retry functionality
+const retryFetch = () => {
+  refreshNuxtData(`category-${slug}`);
 };
 
+// Set page metadata
 useHead({
-  title: `Product Category: ${slug}`,
+  title: `${categoryData.value?.categoryName || slug} - Products`,
   meta: [
     {
-      hid: "description",
       name: "description",
-      content: `Browse ${slug} products`,
+      content: `Browse our selection of ${categoryData.value?.categoryName || slug} products.`,
     },
   ],
 });
@@ -87,38 +67,59 @@ useHead({
 
 <template>
   <div>
-    <!-- Show loading indicator while data is being fetched -->
-    <div v-if="isLoading" class="container py-12 text-center">
-      <p>Loading products...</p>
-    </div>
+    <ClientOnly>
+      <div v-if="pending" class="container py-12 text-center">
+        <p>Loading products...</p>
+      </div>
+    </ClientOnly>
 
-    <!-- Check if productsInCategory exists AND has items -->
+    <!-- Check if products exist and have items -->
     <div
       class="container flex items-start gap-16"
-      v-else-if="productsInCategory && productsInCategory.length > 0"
+      v-if="categoryData?.products?.length > 0"
     >
-      <Filters v-if="storeSettings.showFilters" :hide-categories="true" />
+      <ClientOnly>
+        <Filters v-if="storeSettings.showFilters" :hide-categories="true" />
+      </ClientOnly>
 
       <div class="w-full">
         <div
           class="flex items-center justify-between w-full gap-4 mt-8 md:gap-8"
         >
-          <ProductResultCount />
-          <OrderByDropdown
-            class="hidden md:inline-flex"
-            v-if="storeSettings.showOrderByDropdown"
-          />
-          <ShowFilterTrigger
-            v-if="storeSettings.showFilters"
-            class="md:hidden"
-          />
+          <ClientOnly>
+            <ProductResultCount />
+            <OrderByDropdown
+              class="hidden md:inline-flex"
+              v-if="storeSettings.showOrderByDropdown"
+            />
+            <ShowFilterTrigger
+              v-if="storeSettings.showFilters"
+              class="md:hidden"
+            />
+          </ClientOnly>
         </div>
-        <ProductGrid />
+
+        <!-- ProductGrid wrapped in ClientOnly to prevent hydration mismatches -->
+        <ClientOnly>
+          <ProductGrid />
+          <template #fallback>
+            <!-- Static fallback for initial render -->
+            <div
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-8"
+            >
+              <div
+                v-for="i in 8"
+                :key="i"
+                class="bg-gray-100 rounded-lg h-80 animate-pulse"
+              ></div>
+            </div>
+          </template>
+        </ClientOnly>
       </div>
     </div>
 
     <!-- Error state with retry option -->
-    <div v-else-if="fetchError" class="container py-12 text-center">
+    <div v-else-if="error" class="container py-12 text-center">
       <p>There was an error loading the products.</p>
       <button
         @click="retryFetch"

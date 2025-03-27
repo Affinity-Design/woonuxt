@@ -26,52 +26,35 @@ const CONFIG = {
 
 // GraphQL query for products
 const PRODUCTS_QUERY = `
-  query getProducts($after: String, $slug: [String], $first: Int = 1700, $orderby: ProductsOrderByEnum = DATE) {
-  products(
-    first: $first
-    after: $after
-    where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: { field: $orderby, order: DESC }, status: "publish" }
-  ) {
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-    nodes {
-      name
-      slug
-      type
-      databaseId
-      id
-      averageRating
-      reviewCount
+   query getProducts($after: String, $first: Int = 1700) {
+    products(
+      first: $first
+      after: $after
+      where: { visibility: VISIBLE, status: "publish" }
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        slug
+        databaseId  # Kept for tracking processed items
+      }
     }
   }
-}
 
 `;
 
 // GraphQL query for categories
 const CATEGORIES_QUERY = `
   query getProductCategories($first: Int = 99) {
-  productCategories(first: $first, where: { orderby: COUNT, order: DESC, hideEmpty: true }) {
-    nodes {
-      ...ProductCategory
+    productCategories(first: $first, where: { hideEmpty: true }) {
+      nodes {
+        slug
+        databaseId  # Kept for tracking processed items
+      }
     }
   }
-}
-
-fragment ProductCategory on ProductCategory {
-  count
-  databaseId
-  id
-  name
-  slug
-  image {
-    sourceUrl(size: MEDIUM_LARGE)
-    altText
-    title
-  }
-}
 
 `;
 

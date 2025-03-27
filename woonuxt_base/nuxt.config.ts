@@ -35,6 +35,8 @@ export default defineNuxtConfig({
       // Scan top-level composables and composables directory recursively
       'composables',
       'composables/**',
+      'utils/**',
+      'utils',
     ],
     // These are the valid options
     autoImport: true,

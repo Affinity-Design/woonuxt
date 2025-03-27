@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { StockStatusEnum, ProductTypesEnum, type AddToCartInput } from "#woo";
-
 const route = useRoute();
 const { storeSettings } = useAppConfig();
 const { arraysEqual, formatArray, checkForVariationTypeOfAny } = useHelpers();

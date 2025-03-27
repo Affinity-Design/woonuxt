@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import VueTurnstile from "vue-turnstile";
-import FaqAccordion from "./components/generalElements/FaqAccordion.vue";
 
 const turnstileToken = ref<string>("");
 const turnstileError = ref<string>("");

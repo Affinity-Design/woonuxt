@@ -51,50 +51,47 @@ export default defineNuxtConfig({
       },
     },
     // Cloudflare-specific optimizations
-    cloudflare: {
-      // Enable Cloudflare cache optimization
-      optimization: true,
-    },
   },
 
   // Enhanced route rules with ISR (Incremental Static Regeneration)
+  // Enhanced route rules with ISR (Incremental Static Regeneration)
   routeRules: {
+    // Homepage prerendered at build time
     "/": {
       prerender: true,
-      cache: {
-        maxAge: 60 * 60 * 24, // 24 hours (in seconds)
-        staleWhileRevalidate: 60 * 60, // 1 hour
-      },
     },
+    // Product category pages with stale-while-revalidate for 1 week
     "/product-category/**": {
+      swr: 60 * 60 * 24 * 7, // 7 days in seconds
       cache: {
-        maxAge: 60 * 60 * 24 * 7, // Cache for 1 week (in seconds)
-        staleWhileRevalidate: 60 * 60 * 24, // Serve stale content for up to 1 day while revalidating
-        swr: true, // Enable stale-while-revalidate behavior
+        headersToKeep: ["Set-Cookie"],
+        // Don't vary cache by query params:
+        key: (request) => new URL(request.url).pathname,
       },
-      prerender: false, // Don't prerender at build time
     },
+    // Product pages with stale-while-revalidate for 72 hours
     "/product/**": {
-      cache: {
-        maxAge: 60 * 60 * 72, // Cache for 72 hours (in seconds)
-        staleWhileRevalidate: 60 * 60 * 6, // Serve stale content for up to 6 hours while revalidating
-        swr: true, // Enable stale-while-revalidate behavior
-      },
-      prerender: false, // Don't prerender at build time
+      swr: 60 * 60 * 72, // 72 hours in seconds
     },
-    // Dynamic routes with no caching
-    "/checkout/**": { ssr: true },
-    "/cart": { ssr: true },
-    "/account/**": { ssr: true },
-    // Static pages with medium caching
+    // Dynamic routes with no caching - client-side rendering only
+    "/checkout/**": {
+      ssr: false,
+    },
+    "/cart": {
+      ssr: false,
+    },
+    "/account/**": {
+      ssr: false,
+    },
+    // Static pages prerendered
     "/contact": {
-      cache: { prerender: true },
+      prerender: true,
     },
     "/terms": {
-      cache: { prerender: true },
+      prerender: true,
     },
     "/privacy": {
-      cache: { prerender: true },
+      prerender: true,
     },
   },
 
