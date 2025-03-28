@@ -25,6 +25,10 @@ export default defineNuxtConfig({
 
   devServer: {
     port: 3000,
+    https: {
+      key: "./localhost-key.pem",
+      cert: "./localhost.pem",
+    },
   },
 
   // Updated Nitro configuration for Cloudflare Pages

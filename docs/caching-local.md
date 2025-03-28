@@ -46,8 +46,11 @@ server/api/trigger-cache-products.ts - API endpoint to trigger product cache bui
 
 Building the Product Search Cache
 The product search cache allows your site to search products instantly without making GraphQL queries.
-Run the Setup Script
-bashCopynpm run setup-cache
+
+### Run the Setup Script
+
+`npm run setup-cache`
+
 This script:
 
 Builds an initial product search cache with the most important products
@@ -73,15 +76,19 @@ Takes longer but provides complete search capabilities
 
 Warming Product and Category Pages
 The cache warmer visits and caches HTML pages for faster loading.
-Warming Category Pages
-bashCopynpm run warm-cache categories
+
+### Warming Category Pages
+
+`npm run warm-cache categories`
+
 This script:
 
 Fetches all category slugs from your GraphQL endpoint
 Visits each category page to build the cache
 Tracks progress in a state file
 
-Warming Product Pages
+### Warming Product Pages
+
 bashCopynpm run warm-cache products
 This script:
 

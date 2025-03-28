@@ -6,9 +6,10 @@ const fetch = require("node-fetch");
 const isBuildMode =
   process.argv.includes("--build-mode") ||
   process.env.LIMIT_PRODUCTS === "true";
+
 const maxProducts = isBuildMode
-  ? parseInt(process.env.MAX_PRODUCTS || "200", 10)
-  : null;
+  ? parseInt(process.env.MAX_PRODUCTS || "2000", 10) // Increase default limit
+  : null; // No limit when not in build mode
 
 // Configuration
 const CONFIG = {
@@ -267,10 +268,15 @@ async function storeProductsInCache(products) {
 /**
  * Main function
  */
+// In the main function
 async function main() {
   console.log(
     `Starting products cache builder${CONFIG.IS_BUILD_MODE ? " (BUILD MODE)" : ""}...`
   );
+
+  if (CONFIG.IS_BUILD_MODE) {
+    console.log(`Limited to ${CONFIG.MAX_PRODUCTS} products for build mode`);
+  }
 
   try {
     // Fetch products

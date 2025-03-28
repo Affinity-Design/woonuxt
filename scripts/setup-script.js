@@ -1,49 +1,57 @@
-// scripts/setup-cache.js
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
-console.log('🚀 Setting up caching system during build phase...');
+console.log("🚀 Setting up caching system during build phase...");
 
-// Create the cache directory if it doesn't exist
-const cacheDir = path.join(process.cwd(), '.cache');
-if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir, { recursive: true });
-}
+// Configuration with default fallbacks
+const CONFIG = {
+  RUN_CACHE_WARMING: process.env.RUN_CACHE_WARMING === "true",
+  WARM_CRITICAL_ONLY: process.env.WARM_CRITICAL_ONLY === "true",
+  FRONTEND_URL: process.env.FRONTEND_URL || "https://localhost:3000",
+  LIMIT_PRODUCTS: process.env.LIMIT_PRODUCTS === "false",
+  MAX_PRODUCTS: parseInt(process.env.MAX_PRODUCTS || "2000", 10),
+};
+
+console.log("Configuration:", JSON.stringify(CONFIG, null, 2));
 
 try {
-  // 1. Build only the product search cache with a limited number of products
-  // This is faster and keeps us under the 20-minute limit
-  console.log('📦 Building initial product search cache (limited to recent/popular products)...');
-  
-  // Set environment variable to limit the number of products fetched during build
-  process.env.LIMIT_PRODUCTS = 'true';
-  process.env.MAX_PRODUCTS = '200'; // Adjust based on your build time constraints
-  
-  execSync('node scripts/build-products-cache.js --build-mode', { 
-    stdio: 'inherit',
+  // Create the cache directory if it doesn't exist
+  const cacheDir = path.join(process.cwd(), ".cache");
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
+
+  // Build product search cache
+  console.log("📦 Building initial product search cache...");
+
+  const buildCacheCommand = `node scripts/build-products-cache.js ${CONFIG.LIMIT_PRODUCTS ? "--build-mode" : ""}`;
+
+  execSync(buildCacheCommand, {
+    stdio: "inherit",
     env: {
       ...process.env,
-      LIMIT_PRODUCTS: 'true',
-      MAX_PRODUCTS: '200'
-    }
+      LIMIT_PRODUCTS: CONFIG.LIMIT_PRODUCTS ? "true" : "false",
+      MAX_PRODUCTS: CONFIG.MAX_PRODUCTS.toString(),
+    },
   });
 
-  // 2. Create a flag file to signal that post-deployment actions are needed
-  console.log('🏁 Creating signal file for post-deployment cache warming...');
+  // Create deployment data file
+  console.log("🏁 Creating signal file for post-deployment actions...");
   const deploymentData = {
     buildTime: new Date().toISOString(),
-    needsFullCacheWarming: true,
-    needsFullProductCache: true
+    needsFullCacheWarming: CONFIG.RUN_CACHE_WARMING,
+    needsFullProductCache: !CONFIG.WARM_CRITICAL_ONLY,
+    configuration: CONFIG,
   };
+
   fs.writeFileSync(
-    path.join(cacheDir, 'deployment-data.json'),
+    path.join(cacheDir, "deployment-data.json"),
     JSON.stringify(deploymentData, null, 2)
   );
 
-  console.log('✅ Build-time cache setup complete! Full caching will run post-deployment.');
+  console.log("✅ Build-time cache setup complete!");
 } catch (error) {
-  console.error('❌ Error in build-time cache setup:', error);
-  console.log('⚠️ Continuing with deployment despite caching error...');
-  // Don't fail the build process if caching fails
+  console.error("❌ Error in build-time cache setup:", error);
+  console.log("⚠️ Continuing with deployment despite caching error...");
 }

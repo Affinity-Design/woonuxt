@@ -11,7 +11,8 @@
     "serve": "nuxi generate && npx serve .output/public -l 8080",
     "setup-cache": "node scripts/setup-script.js",
     "warm-cache": "node scripts/cache-warmer.js",
-    "build-product-cache": "node scripts/build-products-cache.js"
+    "build-product-cache": "node scripts/build-products-cache.js",
+    "debug:cache": "node scripts/debug-cache.js"
   },
   "dependencies": {
     "@nuxtjs/seo": "^2.0.3",

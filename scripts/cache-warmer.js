@@ -1,8 +1,46 @@
 // scripts/cache-warmer.js
 require("dotenv").config();
-const fetch = require("node-fetch");
-const fs = require("fs/promises");
+const fs = require("fs").promises;
 const path = require("path");
+const https = require("https");
+const fetch = require("node-fetch");
+
+async function findMkcertCertificates() {
+  const currentDir = process.cwd();
+  const possibleCertPaths = [
+    path.join(currentDir, "localhost.pem"),
+    path.join(currentDir, "localhost-key.pem"),
+    path.join(process.env.HOME, ".local/share/mkcert/localhost.pem"),
+    path.join(process.env.HOME, ".local/share/mkcert/localhost-key.pem"),
+  ];
+
+  const certPath = await Promise.all(
+    possibleCertPaths.map(async (p) => {
+      try {
+        await fs.access(p);
+        return p;
+      } catch {
+        return null;
+      }
+    })
+  ).then((paths) => paths.find((p) => p !== null));
+
+  const keyPath = await Promise.all(
+    possibleCertPaths.map(async (p) => {
+      try {
+        await fs.access(p);
+        return p.includes("key") ? p : null;
+      } catch {
+        return null;
+      }
+    })
+  ).then((paths) => paths.find((p) => p !== null));
+
+  return {
+    cert: certPath,
+    key: keyPath,
+  };
+}
 
 // Configuration
 const CONFIG = {
@@ -87,8 +125,16 @@ async function loadState() {
  * Save the current state
  */
 async function saveState(state) {
-  await fs.writeFile(CONFIG.STATE_FILE, JSON.stringify(state, null, 2));
-  console.log("State saved successfully");
+  try {
+    await fs.writeFile(
+      CONFIG.STATE_FILE,
+      JSON.stringify(state, null, 2),
+      "utf8"
+    );
+    console.log("State saved successfully");
+  } catch (error) {
+    console.error("Error saving state:", error);
+  }
 }
 
 /**
@@ -98,10 +144,11 @@ async function getAllProductSlugs(state) {
   let allProducts = [];
   let hasNextPage = true;
   let cursor = state.productsCursor;
+  let totalFetched = 0;
 
-  console.log(
-    `Fetching products${cursor ? " (continuing from cursor)" : ""}...`
-  );
+  console.log("=== DETAILED PRODUCT FETCH ===");
+  console.log(`Starting with cursor: ${cursor || "null"}`);
+  console.log(`Existing processed products: ${state.processedProducts.length}`);
 
   while (hasNextPage) {
     try {
@@ -127,13 +174,23 @@ async function getAllProductSlugs(state) {
       }
 
       const products = data.data.products.nodes;
+
+      // Log detailed product information
+      console.log("Batch products:");
+      products.forEach((product) => {
+        console.log(
+          `- ${product.name} (ID: ${product.databaseId}, Slug: ${product.slug})`
+        );
+      });
+
       allProducts = [...allProducts, ...products];
+      totalFetched += products.length;
 
       hasNextPage = data.data.products.pageInfo.hasNextPage;
       cursor = data.data.products.pageInfo.endCursor;
 
       console.log(
-        `Fetched ${products.length} products. Total: ${allProducts.length}`
+        `Fetched ${products.length} products. Total so far: ${totalFetched}`
       );
 
       // Update cursor in state
@@ -144,7 +201,12 @@ async function getAllProductSlugs(state) {
       await delay(CONFIG.REQUEST_DELAY);
 
       if (!hasNextPage) {
-        console.log("All product slugs fetched successfully!");
+        console.log("=== PRODUCT FETCH COMPLETE ===");
+        console.log(`Total unique products fetched: ${allProducts.length}`);
+        console.log(
+          `Total product database IDs: ${allProducts.map((p) => p.databaseId)}`
+        );
+
         state.completedProducts = true;
         await saveState(state);
       }
@@ -156,7 +218,6 @@ async function getAllProductSlugs(state) {
 
   return allProducts;
 }
-
 /**
  * Fetch all category slugs
  */
@@ -196,33 +257,98 @@ async function getAllCategorySlugs() {
  */
 async function warmCache(url, type, id) {
   try {
-    console.log(`Warming cache for ${url}`);
+    console.log(`Attempting to warm: ${url}`);
 
-    // Create a custom agent that ignores SSL errors for local development
-    const isLocalhost = url.includes("localhost") || url.includes("127.0.0.1");
-    const fetchOptions = {};
+    // Find mkcert certificates
+    const { cert, key } = await findMkcertCertificates();
+    console.log("Certificates found:", { cert, key });
 
-    if (isLocalhost && url.startsWith("https")) {
-      const https = require("https");
-      fetchOptions.agent = new https.Agent({
-        rejectUnauthorized: false, // Disable certificate verification for localhost
-      });
-      console.log("SSL verification disabled for localhost");
-    }
+    // Create a custom HTTPS agent that uses mkcert certificates if available
+    const agent = new https.Agent({
+      rejectUnauthorized: false,
+      ...(cert && key
+        ? {
+            cert: await fs.readFile(cert),
+            key: await fs.readFile(key),
+          }
+        : {}),
+    });
 
-    const startTime = Date.now();
-    const response = await fetch(url, fetchOptions);
-    const timeElapsed = Date.now() - startTime;
+    const fetchOptions = {
+      method: "GET",
+      headers: {
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": "Cache Warmer",
+      },
+      timeout: 10000,
+      // Add the custom agent for HTTPS requests
+      agent: url.startsWith("https:") ? agent : undefined,
+    };
 
-    if (response.ok) {
-      console.log(`✅ ${url} - ${response.status} (${timeElapsed}ms)`);
-      return true;
-    } else {
-      console.error(`❌ ${url} - ${response.status} (${timeElapsed}ms)`);
+    try {
+      const startTime = Date.now();
+      const response = await fetch(url, fetchOptions);
+      const timeElapsed = Date.now() - startTime;
+
+      console.log(`Fetch response status: ${response.status}`);
+      console.log(`Fetch time: ${timeElapsed}ms`);
+
+      if (response.ok) {
+        console.log(`✅ ${url} - ${response.status} (${timeElapsed}ms)`);
+        return true;
+      } else {
+        // Try HTTP fallback for localhost
+        if (url.startsWith("https://localhost")) {
+          const httpUrl = url.replace("https://", "http://");
+          console.log(`Attempting HTTP fallback: ${httpUrl}`);
+
+          const httpResponse = await fetch(httpUrl, {
+            ...fetchOptions,
+            agent: undefined, // Remove HTTPS agent for HTTP
+          });
+
+          if (httpResponse.ok) {
+            console.log(`✅ HTTP Fallback ${httpUrl} - ${httpResponse.status}`);
+            return true;
+          }
+        }
+
+        console.error(`❌ Fetch failed for ${url} - ${response.status}`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`❌ Error warming cache for ${url}:`, error);
+
+      // Additional HTTP fallback for localhost
+      if (url.startsWith("https://localhost")) {
+        try {
+          const httpUrl = url.replace("https://", "http://");
+          console.log(`Attempting HTTP fallback: ${httpUrl}`);
+
+          const httpResponse = await fetch(httpUrl, {
+            method: "GET",
+            headers: {
+              Accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "User-Agent": "Cache Warmer",
+            },
+            timeout: 10000,
+          });
+
+          if (httpResponse.ok) {
+            console.log(`✅ HTTP Fallback ${httpUrl} - ${httpResponse.status}`);
+            return true;
+          }
+        } catch (httpError) {
+          console.error(`❌ HTTP Fallback failed for ${url}:`, httpError);
+        }
+      }
+
       return false;
     }
-  } catch (error) {
-    console.error(`❌ Error warming cache for ${url}:`, error.message);
+  } catch (outerError) {
+    console.error(`❌ Outer error warming cache:`, outerError);
     return false;
   }
 }
@@ -283,12 +409,16 @@ async function revalidatePath(path) {
  * Process products in batches
  */
 async function processProducts(products, state) {
+  console.log("=== PROCESSING PRODUCTS ===");
+  console.log(`Total products to process: ${products.length}`);
+  console.log(`Already processed products: ${state.processedProducts.length}`);
+
   // Filter out already processed products (unless forced)
   const remainingProducts = CONFIG.FORCE_REFRESH
     ? products
     : products.filter((p) => !state.processedProducts.includes(p.databaseId));
 
-  console.log(`Processing ${remainingProducts.length} products...`);
+  console.log(`Remaining products to process: ${remainingProducts.length}`);
 
   // Process in small batches to avoid overwhelming the server
   const batchSize = 10;
