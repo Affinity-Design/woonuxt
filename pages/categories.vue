@@ -3,28 +3,22 @@ const { data } = await useAsyncGql("getProductCategories");
 
 // Mapping of desired categories to their exact slugs from the data
 const categoryMapping = [
-  // { display: "inline-skates", slug: "inline-skating" },
-  { display: "roller-skates", slug: "roller-skates" },
-  { display: "inline-skating", slug: "inline-skating" },
-  // { display: "roller-skating", slug: "roller-skating" },
-  { display: "Skate parts", slug: "replacement-parts" },
+  { display: "Inline Skates", slug: "inline-skates" },
+  { display: "Roller Skates", slug: "roller-skates" },
+  // { display: "Inline Skating", slug: "inline-skating" },
+  // { display: "Roller Skating", slug: "roller-skating" },
+  { display: "Skate Parts", slug: "replacement-parts" },
   { display: "Skate Tools", slug: "skate-tools" },
-  {
-    display: "protection-gear-and-apparel",
-    slug: "protection-gear-and-apparel",
-  },
+  { display: "Protection & Apparel", slug: "protection-gear-and-apparel" },
   { display: "Backpacks, Bags & Carriers", slug: "backpacks-bags-carriers" },
-  { display: "scooters", slug: "scooters" },
-  { display: "electric-scooters", slug: "trick-scooters" },
-  {
-    display: "skateboards-and-longboards",
-    slug: "skaterboards-and-longboards",
-  },
-  // { display: "e-boards", slug: "e-boards" },
-  { display: "winter-sports", slug: "winter-sports" },
-  { display: "Apline-Skies", slug: "alpine-skis" },
-  { display: "Cross-country-skies", slug: "cross-country-skis" },
-  // { display: "Nordic-poles", slug: "cross-country-poles" },
+  { display: "Scooters", slug: "scooters" },
+  // { display: "Electric Scooters", slug: "trick-scooters" },
+  { display: "Skateboards & Longboards", slug: "skaterboards-and-longboards" },
+  // { display: "E-Boards", slug: "e-boards" },
+  { display: "Winter Sports", slug: "winter-sports" },
+  { display: "Alpine Skis", slug: "alpine-skis" },
+  { display: "Cross-Country Skis", slug: "cross-country-skis" },
+  { display: "Nordic Poles", slug: "cross-country-poles" },
 ];
 
 // Filter and sort categories based on the desired slugs and order
@@ -37,7 +31,15 @@ const productCategories = computed(() => {
   );
 
   return categoryMapping
-    .map((category) => categoriesMap.get(category.slug))
+    .map((category) => {
+      const categoryData = categoriesMap.get(category.slug);
+      return categoryData
+        ? {
+            ...categoryData,
+            displayName: category.display,
+          }
+        : undefined;
+    })
     .filter((category) => category !== undefined);
 });
 
@@ -50,8 +52,8 @@ useHead({
 
 <template>
   <main class="container">
-    <h1 class="text-2xl font-semibold mb-6">Our Categories</h1>
-
+    <!-- TODO add SEO breacrumns etc -->
+    <!-- <h1 class="text-2xl font-semibold mb-6">Our Categories</h1> -->
     <div
       v-if="productCategories.length"
       class="grid grid-cols-2 gap-4 my-6 md:grid-cols-3 lg:gap-8 xl:grid-cols-4"
@@ -59,7 +61,10 @@ useHead({
       <CategoryCard
         v-for="(category, i) in productCategories"
         :key="category.slug"
-        :node="category"
+        :node="{
+          ...category,
+          name: category.displayName,
+        }"
         :image-loading="i <= 2 ? 'eager' : 'lazy'"
       />
     </div>

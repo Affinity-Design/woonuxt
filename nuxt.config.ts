@@ -61,7 +61,8 @@ export default defineNuxtConfig({
     // Homepage prerendered at build time
     "/": {
       cache: {
-        staleMaxAge: 60 * 60 * 24, // 7 days in seconds
+        staleMaxAge: 60 * 60 * 24, // 24 hours
+        maxAge: 60 * 60 * 24, // 24 hours
         swr: true,
       },
     },
@@ -131,7 +132,7 @@ export default defineNuxtConfig({
     },
   },
 
-  // Add this to your nuxt.config.ts
+  // TODO only for testing
   image: {
     // Disable for development/testing
     domains:
@@ -143,6 +144,7 @@ export default defineNuxtConfig({
     // Placeholder options
     placeholder: process.env.NODE_ENV === "production",
   },
+
   // Whitelisting for agent
   app: {
     head: {

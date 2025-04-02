@@ -34,7 +34,7 @@
       </div>
       <NuxtLink
         class="px-6 py-3 font-bold text-white bg-gray-800 rounded-xl hover:bg-gray-800"
-        to="/products"
+        to="/categories"
         >Shop now</NuxtLink
       >
     </div>

@@ -2,12 +2,55 @@
 import { ProductsOrderByEnum } from "#woo";
 const { siteName, description, shortDescription, siteImage } = useAppConfig();
 
-const { data } = await useAsyncGql("getProductCategories", { first: 6 });
-const productCategories = data.value?.productCategories?.nodes || [];
+// Get Gatagories all
+const { data } = await useAsyncGql("getProductCategories");
+const categoryMapping = [
+  { display: "Inline Skates", slug: "inline-skates" },
+  { display: "Roller Skates", slug: "roller-skates" },
+  { display: "Skate Parts", slug: "replacement-parts" },
+  { display: "Skate Tools", slug: "skate-tools" },
+  { display: "Scooters", slug: "scooters" },
+  { display: "winter-sports", slug: "winter-sports" },
+];
+const productCategories = computed(() => {
+  const categoriesMap = new Map(
+    data.value.productCategories?.nodes.map((cat: ProductCategory) => [
+      cat.slug,
+      cat,
+    ])
+  );
 
+  return categoryMapping
+    .map((category) => {
+      const categoryData = categoriesMap.get(category.slug);
+      return categoryData
+        ? {
+            ...categoryData,
+            displayName: category.display,
+          }
+        : undefined;
+    })
+    .filter((category) => category !== undefined);
+});
+
+// Get products for new
+const { data: newProductsData } = await useAsyncGql("getProducts", {
+  first: 5,
+  orderby: ProductsOrderByEnum.DATE,
+});
+const newProducts = newProductsData.value.products?.nodes || [];
+
+// Get products for clearance
+const { data: clearanceProductsData } = await useAsyncGql("getProducts", {
+  first: 5,
+  slug: "clearance-items",
+});
+const clearanceProducts = clearanceProductsData.value.products?.nodes || [];
+
+// Get products for POP
 const { data: productData } = await useAsyncGql("getProducts", {
   first: 5,
-  orderby: ProductsOrderByEnum.ON_SALE_TO,
+  orderby: ProductsOrderByEnum.POPULARITY,
 });
 const popularProducts = productData.value.products?.nodes || [];
 
@@ -24,7 +67,6 @@ useSeoMeta({
 <template>
   <main>
     <HeroBanner />
-    <!-- TODOBrands -->
     <!-- <div
       class="container flex flex-wrap items-center justify-center my-16 text-center gap-x-8 gap-y-4 brand lg:justify-between"
     >
@@ -80,9 +122,12 @@ useSeoMeta({
       >
         <CategoryCard
           v-for="(category, i) in productCategories"
-          :key="i"
-          class="w-full"
-          :node="category"
+          :key="category.slug"
+          :node="{
+            ...category,
+            name: category.displayName,
+          }"
+          :image-loading="i <= 2 ? 'eager' : 'lazy'"
         />
       </div>
     </section>
@@ -98,7 +143,7 @@ useSeoMeta({
         />
         <div>
           <h3 class="text-xl font-semibold">Free Shipping</h3>
-          <p class="text-sm">Free shipping on order over $99</p>
+          <p class="text-sm">Free shipping over $99</p>
         </div>
       </div>
       <div class="flex items-center gap-8 p-8 bg-white rounded-lg">
@@ -111,7 +156,7 @@ useSeoMeta({
         />
         <div>
           <h3 class="text-xl font-semibold">Peace of Mind</h3>
-          <p class="text-sm">30 days money back guarantee</p>
+          <p class="text-sm">Money back guarantee</p>
         </div>
       </div>
       <div class="flex items-center gap-8 p-8 bg-white rounded-lg">
@@ -123,8 +168,8 @@ useSeoMeta({
           loading="lazy"
         />
         <div>
-          <h3 class="text-xl font-semibold">100% Payment Secure</h3>
-          <p class="text-sm">Your payment are safe with us.</p>
+          <h3 class="text-xl font-semibold">100% Secure</h3>
+          <p class="text-sm">Payments are safe with us.</p>
         </div>
       </div>
       <div class="flex items-center gap-8 p-8 bg-white rounded-lg">
@@ -141,10 +186,36 @@ useSeoMeta({
         </div>
       </div>
     </section>
-    <!-- Sales -->
+    <!-- New -->
+    <section class="container my-16" v-if="newProducts">
+      <div class="flex items-end justify-between">
+        <h2 class="text-lg font-semibold md:text-2xl">New Products</h2>
+        <NuxtLink class="text-primary" to="/products">{{
+          $t("messages.general.viewAll")
+        }}</NuxtLink>
+      </div>
+      <ProductRow
+        :products="newProducts"
+        class="grid-cols-2 md:grid-cols-4 lg:grid-cols-5 mt-8"
+      />
+    </section>
+    <!-- Clearance -->
+    <section class="container my-16" v-if="clearanceProducts">
+      <div class="flex items-end justify-between">
+        <h2 class="text-lg font-semibold md:text-2xl">Clearance Products</h2>
+        <NuxtLink class="text-primary" to="/products">{{
+          $t("messages.general.viewAll")
+        }}</NuxtLink>
+      </div>
+      <ProductRow
+        :products="clearanceProducts"
+        class="grid-cols-2 md:grid-cols-4 lg:grid-cols-5 mt-8"
+      />
+    </section>
+    <!-- Popular -->
     <section class="container my-16" v-if="popularProducts">
       <div class="flex items-end justify-between">
-        <h2 class="text-lg font-semibold md:text-2xl">Sales Running Out</h2>
+        <h2 class="text-lg font-semibold md:text-2xl">Popular Items</h2>
         <NuxtLink class="text-primary" to="/products">{{
           $t("messages.general.viewAll")
         }}</NuxtLink>
