@@ -18,42 +18,39 @@ const {
   error,
   refresh,
 } = await useAsyncData(
-  // Key should be unique per product
   `product-${slug}`,
-  // Fetch function
   async () => {
-    try {
-      console.log(`📝 Fetching product data for: ${slug}`);
-      const startTime = Date.now();
+    // Check Nuxt's payload cache first
+    const nuxtApp = useNuxtApp();
+    const cachedPayload = nuxtApp.payload?.data?.[`product-${slug}`];
 
-      // This will be cached by Nuxt and served from the HTML page cache
-      // when the cache warmer visits this page
-      const { data } = await useAsyncGql("getProduct", { slug });
-
-      const timeElapsed = Date.now() - startTime;
-      console.log(`⏱️ GraphQL fetch time: ${timeElapsed}ms`);
-
-      if (!data.value?.product) {
-        console.error(`❌ No product found for slug: ${slug}`);
-        throw new Error(t("messages.shop.productNotFound"));
-      }
-
-      console.log(`✅ Product loaded successfully: ${data.value.product.name}`);
-      console.log(
-        `📊 Product data size: ~${JSON.stringify(data.value.product).length / 1024}KB`
-      );
-
-      return data.value.product;
-    } catch (error) {
-      console.error(`❌ Error fetching product:`, error);
-      throw error;
+    if (cachedPayload) {
+      console.log("📦 Using payload cached data!");
+      return cachedPayload;
     }
+
+    console.log("🔄 No cache found, fetching from GraphQL");
+
+    // Fallback to GraphQL query
+    const { data } = await useAsyncGql("getProduct", { slug });
+
+    if (!data.value?.product) {
+      throw new Error(t("messages.shop.productNotFound"));
+    }
+
+    return data.value.product;
   },
   {
-    // Cache options - align with your cache warmer settings
-    server: true,
-    lazy: false, // Load immediately to prevent hydration issues
-    watch: [], // Prevent unnecessary re-fetching
+    getCachedData: (key) => {
+      // Check for existing data before making any request
+      console.log(`🔍 Checking for cached data with key: ${key}`);
+      const nuxtApp = useNuxtApp();
+      const existingData = nuxtApp.payload?.data?.[key];
+      if (existingData) {
+        console.log("💰 Found cached data in payload!");
+      }
+      return existingData;
+    },
   }
 );
 

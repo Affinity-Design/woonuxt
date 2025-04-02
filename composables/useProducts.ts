@@ -2,14 +2,15 @@ let allProducts = [] as Product[];
 
 export function useProducts() {
   // Declare the state variables and the setter functions
-  const products = useState<Product[]>('products');
+  const products = useState<Product[]>("products");
 
   /**
    * Sets the products state variable and the allProducts variable.
    * @param {Product[]} newProducts - The new products to set.
    */
   function setProducts(newProducts: Product[]): void {
-    if (!Array.isArray(newProducts)) throw new Error('Products must be an array.');
+    if (!Array.isArray(newProducts))
+      throw new Error("Products must be an array.");
     products.value = newProducts ?? [];
     allProducts = JSON.parse(JSON.stringify(newProducts));
   }
@@ -18,14 +19,22 @@ export function useProducts() {
     const { scrollToTop } = useHelpers();
     const { isSortingActive, sortProducts } = useSorting();
     const { isFiltersActive, filterProducts } = useFiltering();
-    const { isSearchActive, searchProducts } = useSearching();
+    const { searchQuery, searchResults } = useSearch();
 
     // scroll to top of page
     scrollToTop();
 
     // return all products if no filters are active
-    if (!isFiltersActive.value && !isSearchActive.value && !isSortingActive.value) {
+    if (
+      !isFiltersActive.value &&
+      !isSearchActive.value &&
+      !isSortingActive.value
+    ) {
       products.value = allProducts;
+      return;
+    }
+    if (searchQuery.value) {
+      products.value = searchResults.value;
       return;
     }
 

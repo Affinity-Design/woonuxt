@@ -1,27 +1,83 @@
 <script lang="ts" setup>
 const { data } = await useAsyncGql("getProductCategories");
-const productCategories = data.value.productCategories
-  ?.nodes as ProductCategory[];
+
+// Mapping of desired categories to their exact slugs from the data
+const categoryMapping = [
+  // { display: "inline-skates", slug: "inline-skating" },
+  { display: "roller-skates", slug: "roller-skates" },
+  { display: "inline-skating", slug: "inline-skating" },
+  // { display: "roller-skating", slug: "roller-skating" },
+  { display: "Skate parts", slug: "replacement-parts" },
+  { display: "Skate Tools", slug: "skate-tools" },
+  {
+    display: "protection-gear-and-apparel",
+    slug: "protection-gear-and-apparel",
+  },
+  { display: "Backpacks, Bags & Carriers", slug: "backpacks-bags-carriers" },
+  { display: "scooters", slug: "scooters" },
+  { display: "electric-scooters", slug: "trick-scooters" },
+  {
+    display: "skateboards-and-longboards",
+    slug: "skaterboards-and-longboards",
+  },
+  // { display: "e-boards", slug: "e-boards" },
+  { display: "winter-sports", slug: "winter-sports" },
+  { display: "Apline-Skies", slug: "alpine-skis" },
+  { display: "Cross-country-skies", slug: "cross-country-skis" },
+  // { display: "Nordic-poles", slug: "cross-country-poles" },
+];
+
+// Filter and sort categories based on the desired slugs and order
+const productCategories = computed(() => {
+  const categoriesMap = new Map(
+    data.value.productCategories?.nodes.map((cat: ProductCategory) => [
+      cat.slug,
+      cat,
+    ])
+  );
+
+  return categoryMapping
+    .map((category) => categoriesMap.get(category.slug))
+    .filter((category) => category !== undefined);
+});
 
 useHead({
   title: `Categories`,
-  meta: [{ name: "description", content: "All product categories" }],
-  link: [{ rel: "canonical", href: "https://v3.woonuxt.com/categories" }],
+  meta: [{ name: "description", content: "Our Product Categories" }],
+  link: [{ rel: "canonical", href: "https://proskatersplace.ca/categories" }],
 });
 </script>
 
 <template>
   <main class="container">
+    <h1 class="text-2xl font-semibold mb-6">Our Categories</h1>
+
     <div
-      v-if="productCategories?.length"
+      v-if="productCategories.length"
       class="grid grid-cols-2 gap-4 my-6 md:grid-cols-3 lg:gap-8 xl:grid-cols-4"
     >
       <CategoryCard
         v-for="(category, i) in productCategories"
-        :key="i"
+        :key="category.slug"
         :node="category"
         :image-loading="i <= 2 ? 'eager' : 'lazy'"
       />
+    </div>
+
+    <div v-else class="text-center text-gray-500 py-12">
+      No categories found. Please check your category setup.
+      <p class="mt-4">
+        Expected categories:
+        <span class="block">{{
+          categoryMapping.map((c) => c.display).join(", ")
+        }}</span>
+      </p>
+      <p class="mt-2">
+        Actual Slugs:
+        <span class="block">{{
+          categoryMapping.map((c) => c.slug).join(", ")
+        }}</span>
+      </p>
     </div>
   </main>
 </template>

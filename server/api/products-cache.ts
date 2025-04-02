@@ -1,33 +1,30 @@
 // server/api/products-cache.ts
 import { defineEventHandler } from "h3";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 
 export default defineEventHandler(async (event) => {
   try {
-    // Get the storage instance
-    const storage = useStorage();
+    // Path to the cached products file
+    const cachePath = resolve(
+      process.cwd(),
+      ".nuxt/cache/cached-products.json"
+    );
 
-    // Try to get products from cache
-    const cachedProducts = await storage.getItem("cached-products");
-
-    if (!cachedProducts) {
-      return {
-        products: [],
-        cached: false,
-        message: "No products in cache",
-      };
-    }
+    // Read the file
+    const productsData = JSON.parse(readFileSync(cachePath, "utf-8"));
 
     return {
-      products: cachedProducts,
-      cached: true,
-      timestamp: (await storage.getItem("cached-products-updated")) || null,
+      success: true,
+      products: productsData,
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
-    console.error("Error retrieving cached products:", error);
+    console.error("Error reading cached products:", error);
     return {
-      products: [],
-      cached: false,
+      success: false,
       error: error.message,
+      products: [],
     };
   }
 });

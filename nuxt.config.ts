@@ -33,7 +33,8 @@ export default defineNuxtConfig({
 
   // Updated Nitro configuration for Cloudflare Pages
   nitro: {
-    preset: "cloudflare-pages",
+    preset: "node-server", // Use node-server preset for local development
+    // preset: "cloudflare-pages", // Use Cloudflare Pages preset for deployment TODO
     prerender: {
       crawlLinks: false, // Don't automatically crawl all links
       routes: ["/"], // Only prerender the homepage
@@ -46,19 +47,16 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    // Configure the storage for the cache
-    storage: {
-      cache: {
-        driver: "cloudflare-kv",
-        // Optional: Configure specific KV namespace if needed
-        // binding: 'YOUR_KV_NAMESPACE',
-      },
-    },
-    // Cloudflare-specific optimizations
+    // Configure the storage for the cache TODO
+    // storage: {
+    //   cache: {
+    //     driver:
+    //       process.env.NODE_ENV === "production"
+    //         ? "cloudflare-kv" // Use Cloudflare KV in production
+    //         : "fs", // Use filesystem in development/preview
+    //   },
+    // },
   },
-
-  // Enhanced route rules with ISR (Incremental Static Regeneration)
-  // Enhanced route rules with ISR (Incremental Static Regeneration)
   routeRules: {
     // Homepage prerendered at build time
     "/": {
@@ -78,6 +76,7 @@ export default defineNuxtConfig({
     "/product/**": {
       cache: {
         staleMaxAge: 60 * 60 * 72, // 7 days in seconds
+        maxAge: 60 * 60 * 24, // 24 hours
         swr: true,
       },
     },
@@ -130,6 +129,19 @@ export default defineNuxtConfig({
       // Replace the pages array
       pages.splice(0, pages.length, ...filteredPages);
     },
+  },
+
+  // Add this to your nuxt.config.ts
+  image: {
+    // Disable for development/testing
+    domains:
+      process.env.NODE_ENV === "production"
+        ? ["test.proskatersplace.com", "proskatersplace.ca"]
+        : [],
+    // Use simpler format for local testing
+    format: ["webp"],
+    // Placeholder options
+    placeholder: process.env.NODE_ENV === "production",
   },
   // Whitelisting for agent
   app: {
