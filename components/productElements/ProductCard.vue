@@ -31,6 +31,7 @@ const mainImage = computed<string>(
     props.node?.image?.sourceUrl ||
     "/images/placeholder.jpg"
 );
+
 const imagetoDisplay = computed<string>(() => {
   if (paColor.value.length) {
     const activeColorImage = props.node?.variations?.nodes.filter(
@@ -53,6 +54,11 @@ const imagetoDisplay = computed<string>(() => {
       );
   }
   return mainImage.value;
+});
+
+// Check if product is variable
+const isVariableProduct = computed(() => {
+  return props.node?.type === "VARIABLE";
 });
 </script>
 
@@ -97,6 +103,7 @@ const imagetoDisplay = computed<string>(() => {
         class="text-sm"
         :sale-price="node.salePrice"
         :regular-price="node.regularPrice"
+        :is-variable="isVariableProduct"
       />
     </div>
   </div>

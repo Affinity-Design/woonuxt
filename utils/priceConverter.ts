@@ -5,6 +5,23 @@ export const convertToCAD = (
 ): string => {
   if (!price || !exchangeRate) return "";
 
+  // Handle price range (e.g., "$10.00 - $20.00")
+  if (price.includes(" - ")) {
+    const [minPrice, maxPrice] = price.split(" - ");
+
+    // Convert each part individually
+    const convertedMinPrice = convertSinglePrice(minPrice, exchangeRate);
+    const convertedMaxPrice = convertSinglePrice(maxPrice, exchangeRate);
+
+    return `${convertedMinPrice} - ${convertedMaxPrice}`;
+  }
+
+  // Handle single price
+  return convertSinglePrice(price, exchangeRate);
+};
+
+// Helper function to convert a single price
+const convertSinglePrice = (price: string, exchangeRate: number): string => {
   // Determine currency type
   const isUSD = price.startsWith("US$");
   const isCAD = price.startsWith("CA$");
@@ -39,6 +56,19 @@ export const convertToCAD = (
 
 export const removeCurrencyPrefix = (price: string | null): string => {
   if (!price) return "";
+
+  // For variable products - handle special case for "From" text
+  if (price.startsWith("From ")) {
+    const priceWithoutFrom = price.replace(/^From\s+/, "");
+    return "From " + removeCurrencyPrefix(priceWithoutFrom);
+  }
+
+  // Handle price ranges
+  if (price.includes(" - ")) {
+    const [minPrice, maxPrice] = price.split(" - ");
+    return `${removeCurrencyPrefix(minPrice)} - ${removeCurrencyPrefix(maxPrice)}`;
+  }
+
   // Remove both CA$ and US$ prefixes while preserving existing $
   return price.replace(/^(CA|US)\$/, "$");
 };

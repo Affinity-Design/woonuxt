@@ -352,7 +352,7 @@ onMounted(async () => {
                 <h1
                   class="flex flex-wrap items-center gap-2 mb-2 text-2xl font-sesmibold"
                 >
-                  {{ type.name }}
+                  {{ product.name }}
                 </h1>
                 <StarRating
                   :rating="product.averageRating || 0"
@@ -362,8 +362,17 @@ onMounted(async () => {
               </div>
               <ProductPrice
                 class="text-xl"
-                :sale-price="type.salePrice"
-                :regular-price="type.regularPrice"
+                v-if="activeVariation"
+                :sale-price="activeVariation.salePrice"
+                :regular-price="activeVariation.regularPrice"
+              />
+              <ProductPrice
+                v-else
+                class="text-xl"
+                :sale-price="product.salePrice"
+                :regular-price="product.regularPrice"
+                :is-variable="isVariableProduct"
+                :show-as-range="isVariableProduct && !activeVariation"
               />
             </div>
 
