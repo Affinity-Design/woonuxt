@@ -1,5 +1,11 @@
-<script lang="ts" setup>
-import { StockStatusEnum, ProductTypesEnum, type AddToCartInput } from "#woo";
+// pages/product/[slug].vue
+<script setup lang="ts">
+import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+import { StockStatusEnum, ProductTypesEnum } from "#woo";
+import { useCachedProduct } from "~/composables/useCachedProduct";
+
+// Core setup and imports
 const route = useRoute();
 const { storeSettings } = useAppConfig();
 const { arraysEqual, formatArray, checkForVariationTypeOfAny } = useHelpers();
@@ -7,21 +13,23 @@ const { addToCart, isUpdatingCart } = useCart();
 const { t } = useI18n();
 const slug = route.params.slug as string;
 
-const { data } = await useAsyncGql("getProduct", { slug });
-if (!data.value?.product) {
-  throw showError({
-    statusCode: 404,
-    statusMessage: t("messages.shop.productNotFound"),
-  });
-}
+// Product state management
 const forceTreatAsSimple = ref(false);
 const selectedAttributes = ref([]);
-const product = ref<Product>(data?.value?.product);
+const product = ref<Product | null>(null);
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
 const variation = ref<VariationAttribute[]>([]);
+const isLoading = ref(true);
+const error = ref(null);
+const loadingSource = ref<"cache" | "api" | null>(null);
+
+// Get our cached product helper
+const { getProductFromCache, isFetchingCache } = useCachedProduct();
+
+// Computed properties
 const indexOfTypeAny = computed<number[]>(() =>
-  checkForVariationTypeOfAny(product.value)
+  product.value ? checkForVariationTypeOfAny(product.value) : []
 );
 const attrValues = ref();
 const isSimpleProduct = computed<boolean>(
@@ -35,220 +43,65 @@ const isExternalProduct = computed<boolean>(
 );
 const type = computed(() => activeVariation.value || product.value);
 
-const debugProductAttributes = () => {
-  console.log("=== DEBUG PRODUCT ATTRIBUTES ===");
-
-  // Log the product type and ID
-  console.log(`Product: ${product.value.name}`);
-  console.log(`Type: ${product.value.type}`);
-  console.log(`ID: ${product.value.databaseId}`);
-
-  // Log the product attributes
-  console.log("Product Attributes:", product.value.attributes?.nodes);
-
-  // Log variation attributes
-  if (
-    product.value.variations?.nodes &&
-    product.value.variations.nodes.length > 0
-  ) {
-    console.log(
-      "First Variation Attributes:",
-      product.value.variations.nodes[0].attributes?.nodes
-    );
-
-    // Log a sample API call for this product
-    const variation = product.value.variations.nodes[0];
-    console.log("Sample API payload that should work:");
-    console.log({
-      productId: product.value.databaseId,
-      variationId: variation.databaseId,
-      quantity: 1,
-    });
-  }
-
-  console.log("=== END DEBUG ===");
-};
-
-// Update the selectProductInput computed property in [slug].vue to better handle variation data
-const getExactAttributeName = (attributeInput) => {
-  // If the product doesn't have attributes, we can't find the exact name
-  if (!product.value?.attributes?.nodes) return attributeInput;
-
-  // Find the matching attribute in the product's attributes
-  const matchingAttribute = product.value.attributes.nodes.find((attr) => {
-    const inputName = attributeInput.toLowerCase();
-    const attrName = (attr.name || "").toLowerCase();
-
-    // Try various ways to match the attribute names
-    return (
-      inputName === attrName ||
-      inputName === attrName.replace("pa_", "") ||
-      "pa_" + inputName === attrName
-    );
-  });
-
-  if (matchingAttribute) {
-    // Return the exact name as defined in the product
-    return matchingAttribute.name;
-  }
-
-  // If no match found, return the original input
-  return attributeInput;
-};
-
-// Simplify the selectProductInput computed property for better reliability
-const selectProductInput = computed<any>(() => {
-  const input = {
-    productId: type.value?.databaseId,
-    quantity: quantity.value,
-  };
-
-  // If we have a variation ID, just use that
-  if (activeVariation.value) {
-    input.variationId = activeVariation.value.databaseId;
-  }
-
-  return input;
-}) as ComputedRef<AddToCartInput>;
-
-const mergeLiveStockStatus = (payload: Product): void => {
-  payload.variations?.nodes?.forEach((variation: Variation, index: number) => {
-    if (product.value?.variations?.nodes[index]) {
-      return (product.value.variations.nodes[index].stockStatus =
-        variation.stockStatus);
-    }
-  });
-
-  return (product.value.stockStatus =
-    payload.stockStatus ?? product.value?.stockStatus);
-};
-
-onMounted(async () => {
-  setTimeout(debugProductAttributes, 500); //TODO
-  try {
-    const { product } = await GqlGetStockStatus({ slug });
-    if (product) mergeLiveStockStatus(product as Product);
-  } catch (error: any) {
-    const errorMessage = error?.gqlErrors?.[0].message;
-    if (errorMessage) console.error(errorMessage);
-  }
-});
-
-const matchSizeValues = (selectedValue, variationValue) => {
-  if (!selectedValue || !variationValue) return false;
-
-  // Normalize both values to lowercase
-  const selected = selectedValue.toLowerCase();
-  const variation = variationValue.toLowerCase();
-
-  // Direct match
-  if (selected === variation) return true;
-
-  // Extract size numbers to compare (ignoring prefixes)
-  // This handles cases like "18-395eu" vs "35-39-40eu"
-  const extractSizeNumbers = (val) => {
-    // Match all numbers in the string, including decimals
-    const matches = val.match(/\d+(\.\d+)?/g);
-    return matches || [];
-  };
-
-  const selectedNums = extractSizeNumbers(selected);
-  const variationNums = extractSizeNumbers(variation);
-
-  // Check if any of the selected numbers appear in the variation
-  return selectedNums.some(
-    (num) =>
-      variationNums.includes(num) ||
-      // Also check for decimal point variations (39.5 vs 395)
-      variationNums.includes(num.replace(".", ""))
-  );
-};
-
-// Update the updateSelectedVariations function
-const updateSelectedVariations = (variations: VariationAttribute[]): void => {
-  if (!product.value.variations || !variations || variations.length === 0)
-    return;
-
-  // Create attribute values for cart with EXACT attribute names from the product
-  attrValues.value = variations.map((el) => {
-    // For each selected attribute, get the exact attribute name from the product
-    // This ensures we use the names exactly as WooCommerce expects them
-    return {
-      attributeName: getExactAttributeName(el.name),
-      attributeValue: el.value,
-    };
-  });
+// Attempt to load product - first from cache, then from API if needed
+const loadProduct = async () => {
+  isLoading.value = true;
+  error.value = null;
 
   try {
-    // Find a matching variation
-    let matchingVariation = null;
+    // First try to get from cache
+    loadingSource.value = "cache";
+    const cachedProduct = await getProductFromCache(slug);
 
-    if (product.value.variations?.nodes) {
-      // For each variation, check if it matches our selection
-      for (const variation of product.value.variations.nodes) {
-        if (!variation.attributes || !variation.attributes.nodes) continue;
-
-        // For this variation to match, all selected attributes must match
-        const allAttributesMatch = variations.every((selectedAttr) => {
-          // Find the matching attribute in this variation
-          const matchingAttr = variation.attributes.nodes.find((varAttr) => {
-            // Compare attribute names (using normalized versions)
-            const selectedName = selectedAttr.name.toLowerCase();
-            const varName = (varAttr.name || "").toLowerCase();
-
-            return (
-              selectedName === varName ||
-              `pa_${selectedName}` === varName ||
-              selectedName === varName.replace("pa_", "")
-            );
-          });
-
-          if (!matchingAttr) return false;
-
-          // Special handling for size attributes
-          const isSizeAttribute =
-            selectedAttr.name.toLowerCase().includes("size") ||
-            matchingAttr.name.toLowerCase().includes("size");
-
-          if (isSizeAttribute) {
-            // Use size matching logic
-            return matchSizeValues(selectedAttr.value, matchingAttr.value);
-          }
-
-          // For other attributes, standard comparison
-          return selectedAttr.value === matchingAttr.value;
-        });
-
-        if (allAttributesMatch) {
-          matchingVariation = variation;
-          break;
-        }
-      }
+    if (cachedProduct) {
+      console.log("Product loaded from cache");
+      product.value = cachedProduct;
+      isLoading.value = false;
+      return;
     }
 
-    // Set the active variation
-    activeVariation.value = matchingVariation;
-    variation.value = variations;
-  } catch (error) {
-    console.error("Error in updateSelectedVariations:", error);
+    // If not in cache, fall back to GraphQL
+    console.log("Cache miss - fetching from GraphQL");
+    loadingSource.value = "api";
+    const { data } = await useAsyncGql("getProduct", { slug });
+
+    if (!data.value?.product) {
+      throw new Error(t("messages.shop.productNotFound"));
+    }
+
+    product.value = data.value.product;
+
+    // Optionally, you could store this fetched product in the cache for next time
+    // This would require an additional API endpoint to update the cache
+  } catch (err) {
+    console.error("Error loading product:", err);
+    error.value = err;
+
+    // Show error to user
+    if (err.statusCode === 404) {
+      throw showError({
+        statusCode: 404,
+        statusMessage: t("messages.shop.productNotFound"),
+      });
+    } else {
+      throw showError({
+        statusCode: 500,
+        statusMessage: t("messages.general.errorOccurred"),
+      });
+    }
+  } finally {
+    isLoading.value = false;
+    loadingSource.value = null;
   }
 };
 
+// Stock status and other product-related computeds
 const stockStatus = computed(() => {
-  // Add debugging
-  // ;
-  // ;
-  // ;
-  // ;
-  // ;
-
   if (isVariableProduct.value && activeVariation.value) {
     return activeVariation.value.stockStatus || StockStatusEnum.OUT_OF_STOCK;
   }
-
-  // For simple products, prefer product.value.stockStatus over type.value?.stockStatus
   return (
-    product.value.stockStatus ||
+    product.value?.stockStatus ||
     type.value?.stockStatus ||
     StockStatusEnum.OUT_OF_STOCK
   );
@@ -256,15 +109,11 @@ const stockStatus = computed(() => {
 
 const isOutOfStock = (status: string | undefined) => {
   if (!status) return true; // If no status, assume out of stock for safety
-
-  // Normalize the status string for comparison (remove spaces, lowercase)
   const normalizedStatus = status.toLowerCase().replace(/[\s_-]/g, "");
   const normalizedEnum = StockStatusEnum.OUT_OF_STOCK.toLowerCase().replace(
     /[\s_-]/g,
     ""
   );
-
-  // Check if the status matches OUT_OF_STOCK
   return (
     normalizedStatus === normalizedEnum ||
     normalizedStatus.includes(normalizedEnum) ||
@@ -273,45 +122,24 @@ const isOutOfStock = (status: string | undefined) => {
 };
 
 const productRequiresVariationSelection = computed(() => {
-  // If it's not a variable product, no variations needed
-  if (!isVariableProduct.value) {
-    return false;
-  }
-
-  // Check if there are any variation attributes defined
+  if (!isVariableProduct.value) return false;
   const hasVariationAttributes = product.value?.attributes?.nodes?.some(
     (attr) => attr.variation === true
   );
-
-  // Check if there are actual variation options
   const hasVariationOptions = product.value?.variations?.nodes?.length > 0;
-
   return hasVariationAttributes && hasVariationOptions;
 });
 
 const allRequiredVariationsSelected = computed(() => {
-  // If it's not a variable product, no variations needed
-  if (!isVariableProduct.value) {
-    return true;
-  }
-
-  // If the product doesn't require variations, return true
-  if (!productRequiresVariationSelection.value) {
-    return true;
-  }
-
-  // Must have an active variation selected
+  if (!isVariableProduct.value) return true;
+  if (!productRequiresVariationSelection.value) return true;
   return !!activeVariation.value;
 });
 
-// Update the disabledAddToCart computed property
 const disabledAddToCart = computed(() => {
-  // If in fallback mode and not out of stock, enable the button
   if (forceTreatAsSimple.value && !isOutOfStock(stockStatus.value)) {
     return isUpdatingCart.value;
   }
-
-  // Regular variable product checks
   if (isVariableProduct.value) {
     return (
       !type.value ||
@@ -321,32 +149,112 @@ const disabledAddToCart = computed(() => {
       isUpdatingCart.value
     );
   }
-
-  // Simple product checks
   return !type.value || isOutOfStock(stockStatus.value) || isUpdatingCart.value;
 });
-const validateForm = () => {
-  // For variable products where a variation is required but not found
-  if (isVariableProduct.value && !activeVariation.value) {
-    // Check if we have attributes selected
-    if (attrValues.value && attrValues.value.length > 0) {
-      // Save the selected attributes for the cart
-      selectedAttributes.value = [...attrValues.value];
 
-      // Ask the customer if they want to continue without a specific variation
+// Selection and validation functions
+const getExactAttributeName = (attributeInput) => {
+  if (!product.value?.attributes?.nodes) return attributeInput;
+  const matchingAttribute = product.value.attributes.nodes.find((attr) => {
+    const inputName = attributeInput.toLowerCase();
+    const attrName = (attr.name || "").toLowerCase();
+    return (
+      inputName === attrName ||
+      inputName === attrName.replace("pa_", "") ||
+      "pa_" + inputName === attrName
+    );
+  });
+  return matchingAttribute ? matchingAttribute.name : attributeInput;
+};
+
+const selectProductInput = computed<any>(() => {
+  const input = {
+    productId: type.value?.databaseId,
+    quantity: quantity.value,
+  };
+  if (activeVariation.value) {
+    input.variationId = activeVariation.value.databaseId;
+  }
+  return input;
+});
+
+const updateSelectedVariations = (variations: VariationAttribute[]): void => {
+  if (!product.value?.variations || !variations || variations.length === 0)
+    return;
+  attrValues.value = variations.map((el) => {
+    return {
+      attributeName: getExactAttributeName(el.name),
+      attributeValue: el.value,
+    };
+  });
+  try {
+    let matchingVariation = null;
+    if (product.value.variations?.nodes) {
+      for (const variation of product.value.variations.nodes) {
+        if (!variation.attributes || !variation.attributes.nodes) continue;
+        const allAttributesMatch = variations.every((selectedAttr) => {
+          const matchingAttr = variation.attributes.nodes.find((varAttr) => {
+            const selectedName = selectedAttr.name.toLowerCase();
+            const varName = (varAttr.name || "").toLowerCase();
+            return (
+              selectedName === varName ||
+              `pa_${selectedName}` === varName ||
+              selectedName === varName.replace("pa_", "")
+            );
+          });
+          if (!matchingAttr) return false;
+          const isSizeAttribute =
+            selectedAttr.name.toLowerCase().includes("size") ||
+            matchingAttr.name.toLowerCase().includes("size");
+          if (isSizeAttribute) {
+            return matchSizeValues(selectedAttr.value, matchingAttr.value);
+          }
+          return selectedAttr.value === matchingAttr.value;
+        });
+        if (allAttributesMatch) {
+          matchingVariation = variation;
+          break;
+        }
+      }
+    }
+    activeVariation.value = matchingVariation;
+    variation.value = variations;
+  } catch (error) {
+    console.error("Error in updateSelectedVariations:", error);
+  }
+};
+
+const matchSizeValues = (selectedValue, variationValue) => {
+  if (!selectedValue || !variationValue) return false;
+  const selected = selectedValue.toLowerCase();
+  const variation = variationValue.toLowerCase();
+  if (selected === variation) return true;
+  const extractSizeNumbers = (val) => {
+    const matches = val.match(/\d+(\.\d+)?/g);
+    return matches || [];
+  };
+  const selectedNums = extractSizeNumbers(selected);
+  const variationNums = extractSizeNumbers(variation);
+  return selectedNums.some(
+    (num) =>
+      variationNums.includes(num) ||
+      variationNums.includes(num.replace(".", ""))
+  );
+};
+
+const validateForm = () => {
+  if (isVariableProduct.value && !activeVariation.value) {
+    if (attrValues.value && attrValues.value.length > 0) {
+      selectedAttributes.value = [...attrValues.value];
       const confirmMessage =
         t("messages.shop.noMatchingVariation") ||
         "We couldn't find an exact match for your selection. Continue with these options?";
-
       if (confirm(confirmMessage)) {
-        // Enable fallback mode
         forceTreatAsSimple.value = true;
         return true;
       }
-
       return false;
     } else {
-      // No attributes selected at all
       alert(
         t("messages.shop.pleaseSelectVariation") ||
           "Please select product options before adding to cart"
@@ -354,13 +262,70 @@ const validateForm = () => {
       return false;
     }
   }
-
   return true;
 };
+
+const mergeLiveStockStatus = (payload: Product): void => {
+  payload.variations?.nodes?.forEach((variation: Variation, index: number) => {
+    if (product.value?.variations?.nodes[index]) {
+      return (product.value.variations.nodes[index].stockStatus =
+        variation.stockStatus);
+    }
+  });
+  return (product.value.stockStatus =
+    payload.stockStatus ?? product.value?.stockStatus);
+};
+
+// Load the product when component mounts
+onMounted(async () => {
+  await loadProduct();
+
+  // After loading product, check for live stock status
+  if (product.value) {
+    try {
+      const { product: stockProduct } = await GqlGetStockStatus({ slug });
+      if (stockProduct) mergeLiveStockStatus(stockProduct as Product);
+    } catch (error: any) {
+      const errorMessage = error?.gqlErrors?.[0].message;
+      if (errorMessage) console.error(errorMessage);
+    }
+  }
+});
 </script>
 
 <template>
-  <main class="container relative py-6 xl:max-w-7xl">
+  <!-- Show loading state -->
+  <div
+    v-if="isLoading"
+    class="container flex items-center justify-center min-h-screen"
+  >
+    <div class="text-center">
+      <LoadingIcon size="48" />
+      <p class="mt-4 text-gray-500">
+        {{
+          loadingSource === "cache"
+            ? "Checking product cache..."
+            : "Loading product..."
+        }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Show error state -->
+  <div v-else-if="error" class="container my-12 text-center">
+    <div class="text-red-500 mb-4">
+      {{ error.message || t("messages.shop.productLoadError") }}
+    </div>
+    <button
+      @click="loadProduct"
+      class="px-4 py-2 bg-primary text-white rounded"
+    >
+      {{ t("messages.general.retry") }}
+    </button>
+  </div>
+
+  <!-- Show product content -->
+  <main v-else-if="product" class="container relative py-6 xl:max-w-7xl">
     <div v-if="product">
       <!-- <SEOHead :info="product" /> -->
       <Breadcrumb
@@ -368,11 +333,11 @@ const validateForm = () => {
         class="mb-6"
         v-if="storeSettings.showBreadcrumbOnSingleProduct"
       />
-      <!-- Product TOp -->
+      <!-- Product Top -->
       <div
         class="flex flex-col gap-10 md:flex-row md:justify-between lg:gap-24"
       >
-        <!-- left Cal Product -->
+        <!-- left Col Product -->
         <ProductImageGallery
           v-if="product.image"
           class="relative flex-1"
@@ -476,7 +441,7 @@ const validateForm = () => {
               {{ product?.buttonText || "View product" }}
             </a>
           </form>
-          <!-- Catagories -->
+          <!-- Categories -->
           <div
             v-if="
               storeSettings.showProductCategoriesOnSingleProduct &&

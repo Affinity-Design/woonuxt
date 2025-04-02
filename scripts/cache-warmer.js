@@ -1,278 +1,31 @@
 // scripts/cache-warmer.js
 require("dotenv").config();
-const fs = require("fs").promises;
-const path = require("path");
-const https = require("https");
+const { execSync } = require("child_process");
 const fetch = require("node-fetch");
-
-async function findMkcertCertificates() {
-  const currentDir = process.cwd();
-  const possibleCertPaths = [
-    path.join(currentDir, "localhost.pem"),
-    path.join(currentDir, "localhost-key.pem"),
-    path.join(process.env.HOME, ".local/share/mkcert/localhost.pem"),
-    path.join(process.env.HOME, ".local/share/mkcert/localhost-key.pem"),
-  ];
-
-  const certPath = await Promise.all(
-    possibleCertPaths.map(async (p) => {
-      try {
-        await fs.access(p);
-        return p;
-      } catch {
-        return null;
-      }
-    })
-  ).then((paths) => paths.find((p) => p !== null));
-
-  const keyPath = await Promise.all(
-    possibleCertPaths.map(async (p) => {
-      try {
-        await fs.access(p);
-        return p.includes("key") ? p : null;
-      } catch {
-        return null;
-      }
-    })
-  ).then((paths) => paths.find((p) => p !== null));
-
-  return {
-    cert: certPath,
-    key: keyPath,
-  };
-}
+const path = require("path");
+const {
+  createHttpsAgent,
+  delay,
+  loadState,
+  saveState,
+} = require("./cache-utils");
 
 // Configuration
 const CONFIG = {
-  // Base URL for the frontend site
-  FRONTEND_URL: process.env.FRONTEND_URL,
-  // GraphQL endpoint for WooCommerce
-  WP_GRAPHQL_URL: process.env.GQL_HOST,
-  // Secret token for revalidation
-  REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
-  // Batch size - how many products to process at once
-  BATCH_SIZE: 5,
-  // Delay between requests in ms
-  REQUEST_DELAY: 500,
-  // State file to track progress
+  FRONTEND_URL: process.env.FRONTEND_URL || "https://localhost:3000",
   STATE_FILE: path.join(__dirname, "../.cache-warmer-state.json"),
-  // Types to warm: 'products', 'categories', or 'all'
   TYPE: process.argv[2] || "all",
-  // Force refresh existing pages in cache
   FORCE_REFRESH: process.argv.includes("--force"),
+  REQUEST_DELAY: 500,
 };
 
-// GraphQL query for products
-const PRODUCTS_QUERY = `
-   query getProducts($after: String, $first: Int = 1700) {
-    products(
-      first: $first
-      after: $after
-      where: { visibility: VISIBLE, status: "publish" }
-    ) {
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-      nodes {
-        slug
-        databaseId  # Kept for tracking processed items
-      }
-    }
-  }
-
-`;
-
-// GraphQL query for categories
-const CATEGORIES_QUERY = `
-  query getProductCategories($first: Int = 99) {
-    productCategories(first: $first, where: { hideEmpty: true }) {
-      nodes {
-        slug
-        databaseId  # Kept for tracking processed items
-      }
-    }
-  }
-
-`;
-
-/**
- * Delay execution
- */
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * Load the state file or create a new one
- */
-async function loadState() {
-  try {
-    const data = await fs.readFile(CONFIG.STATE_FILE, "utf8");
-    return JSON.parse(data);
-  } catch (error) {
-    // Initialize fresh state
-    return {
-      lastRun: null,
-      productsCursor: null,
-      processedProducts: [],
-      processedCategories: [],
-      completedProducts: false,
-      completedCategories: false,
-    };
-  }
-}
-
-/**
- * Save the current state
- */
-async function saveState(state) {
-  try {
-    await fs.writeFile(
-      CONFIG.STATE_FILE,
-      JSON.stringify(state, null, 2),
-      "utf8"
-    );
-    console.log("State saved successfully");
-  } catch (error) {
-    console.error("Error saving state:", error);
-  }
-}
-
-/**
- * Fetch all product slugs in batches
- */
-async function getAllProductSlugs(state) {
-  let allProducts = [];
-  let hasNextPage = true;
-  let cursor = state.productsCursor;
-  let totalFetched = 0;
-
-  console.log("=== DETAILED PRODUCT FETCH ===");
-  console.log(`Starting with cursor: ${cursor || "null"}`);
-  console.log(`Existing processed products: ${state.processedProducts.length}`);
-
-  while (hasNextPage) {
-    try {
-      const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: PRODUCTS_QUERY,
-          variables: {
-            first: CONFIG.BATCH_SIZE,
-            after: cursor,
-          },
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.errors) {
-        console.error("GraphQL errors:", data.errors);
-        break;
-      }
-
-      const products = data.data.products.nodes;
-
-      // Log detailed product information
-      console.log("Batch products:");
-      products.forEach((product) => {
-        console.log(
-          `- ${product.name} (ID: ${product.databaseId}, Slug: ${product.slug})`
-        );
-      });
-
-      allProducts = [...allProducts, ...products];
-      totalFetched += products.length;
-
-      hasNextPage = data.data.products.pageInfo.hasNextPage;
-      cursor = data.data.products.pageInfo.endCursor;
-
-      console.log(
-        `Fetched ${products.length} products. Total so far: ${totalFetched}`
-      );
-
-      // Update cursor in state
-      state.productsCursor = cursor;
-      await saveState(state);
-
-      // Avoid overwhelming the GraphQL server
-      await delay(CONFIG.REQUEST_DELAY);
-
-      if (!hasNextPage) {
-        console.log("=== PRODUCT FETCH COMPLETE ===");
-        console.log(`Total unique products fetched: ${allProducts.length}`);
-        console.log(
-          `Total product database IDs: ${allProducts.map((p) => p.databaseId)}`
-        );
-
-        state.completedProducts = true;
-        await saveState(state);
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      break;
-    }
-  }
-
-  return allProducts;
-}
-/**
- * Fetch all category slugs
- */
-async function getAllCategorySlugs() {
-  console.log("Fetching categories...");
-
-  try {
-    const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: CATEGORIES_QUERY,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.errors) {
-      console.error("GraphQL errors:", data.errors);
-      return [];
-    }
-
-    const categories = data.data.productCategories.nodes;
-    console.log(`Fetched ${categories.length} categories`);
-
-    return categories;
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    return [];
-  }
-}
-
-/**
- * Warm the cache for a specific URL
- */
+// Warm a specific URL
 async function warmCache(url, type, id) {
   try {
-    console.log(`Attempting to warm: ${url}`);
+    console.log(`Warming: ${url}`);
 
-    // Find mkcert certificates
-    const { cert, key } = await findMkcertCertificates();
-    console.log("Certificates found:", { cert, key });
-
-    // Create a custom HTTPS agent that uses mkcert certificates if available
-    const agent = new https.Agent({
-      rejectUnauthorized: false,
-      ...(cert && key
-        ? {
-            cert: await fs.readFile(cert),
-            key: await fs.readFile(key),
-          }
-        : {}),
-    });
+    const agent = await createHttpsAgent();
+    const startTime = Date.now();
 
     const fetchOptions = {
       method: "GET",
@@ -282,17 +35,12 @@ async function warmCache(url, type, id) {
         "User-Agent": "Cache Warmer",
       },
       timeout: 10000,
-      // Add the custom agent for HTTPS requests
       agent: url.startsWith("https:") ? agent : undefined,
     };
 
     try {
-      const startTime = Date.now();
       const response = await fetch(url, fetchOptions);
       const timeElapsed = Date.now() - startTime;
-
-      console.log(`Fetch response status: ${response.status}`);
-      console.log(`Fetch time: ${timeElapsed}ms`);
 
       if (response.ok) {
         console.log(`✅ ${url} - ${response.status} (${timeElapsed}ms)`);
@@ -305,7 +53,7 @@ async function warmCache(url, type, id) {
 
           const httpResponse = await fetch(httpUrl, {
             ...fetchOptions,
-            agent: undefined, // Remove HTTPS agent for HTTP
+            agent: undefined,
           });
 
           if (httpResponse.ok) {
@@ -314,238 +62,159 @@ async function warmCache(url, type, id) {
           }
         }
 
-        console.error(`❌ Fetch failed for ${url} - ${response.status}`);
+        console.error(`❌ Failed for ${url} - ${response.status}`);
         return false;
       }
     } catch (error) {
-      console.error(`❌ Error warming cache for ${url}:`, error);
-
-      // Additional HTTP fallback for localhost
-      if (url.startsWith("https://localhost")) {
-        try {
-          const httpUrl = url.replace("https://", "http://");
-          console.log(`Attempting HTTP fallback: ${httpUrl}`);
-
-          const httpResponse = await fetch(httpUrl, {
-            method: "GET",
-            headers: {
-              Accept:
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-              "User-Agent": "Cache Warmer",
-            },
-            timeout: 10000,
-          });
-
-          if (httpResponse.ok) {
-            console.log(`✅ HTTP Fallback ${httpUrl} - ${httpResponse.status}`);
-            return true;
-          }
-        } catch (httpError) {
-          console.error(`❌ HTTP Fallback failed for ${url}:`, httpError);
-        }
-      }
-
-      return false;
-    }
-  } catch (outerError) {
-    console.error(`❌ Outer error warming cache:`, outerError);
-    return false;
-  }
-}
-
-/**
- * Revalidate a specific path
- */
-/**
- * Revalidate a specific path
- */
-async function revalidatePath(path) {
-  try {
-    console.log(`Revalidating path: ${path}`);
-
-    // Create a custom agent that ignores SSL errors for local development
-    const isLocalhost =
-      CONFIG.FRONTEND_URL.includes("localhost") ||
-      CONFIG.FRONTEND_URL.includes("127.0.0.1");
-    const fetchOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        secret: CONFIG.REVALIDATION_SECRET,
-        path,
-      }),
-    };
-
-    if (isLocalhost && CONFIG.FRONTEND_URL.startsWith("https")) {
-      const https = require("https");
-      fetchOptions.agent = new https.Agent({
-        rejectUnauthorized: false, // Disable certificate verification for localhost
-      });
-      console.log("SSL verification disabled for localhost");
-    }
-
-    const response = await fetch(
-      `${CONFIG.FRONTEND_URL}/api/revalidate`,
-      fetchOptions
-    );
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log(`✅ Revalidated ${path}`);
-      return true;
-    } else {
-      console.error(`❌ Failed to revalidate ${path}:`, data);
+      console.error(`❌ Error warming ${url}:`, error.message);
       return false;
     }
   } catch (error) {
-    console.error(`❌ Error revalidating ${path}:`, error.message);
+    console.error(`❌ Outer error:`, error.message);
     return false;
   }
 }
 
-/**
- * Process products in batches
- */
-async function processProducts(products, state) {
-  console.log("=== PROCESSING PRODUCTS ===");
-  console.log(`Total products to process: ${products.length}`);
-  console.log(`Already processed products: ${state.processedProducts.length}`);
+// Process URLs from cache files
+async function processUrlsFromCache(urlType, state) {
+  console.log(`Processing ${urlType} URLs...`);
 
-  // Filter out already processed products (unless forced)
-  const remainingProducts = CONFIG.FORCE_REFRESH
-    ? products
-    : products.filter((p) => !state.processedProducts.includes(p.databaseId));
-
-  console.log(`Remaining products to process: ${remainingProducts.length}`);
-
-  // Process in small batches to avoid overwhelming the server
-  const batchSize = 10;
-  for (let i = 0; i < remainingProducts.length; i += batchSize) {
-    const batch = remainingProducts.slice(i, i + batchSize);
-
-    console.log(
-      `Processing batch ${i / batchSize + 1} of ${Math.ceil(remainingProducts.length / batchSize)}`
+  try {
+    // Load appropriate cache file
+    const cachePath = path.join(
+      process.cwd(),
+      ".nuxt",
+      "cache",
+      urlType === "products" ? "cached-products.json" : "cached-categories.json"
     );
 
-    await Promise.all(
-      batch.map(async (product) => {
-        const productUrl = `${CONFIG.FRONTEND_URL}/product/${product.slug}`;
-        const success = await warmCache(
-          productUrl,
-          "product",
-          product.databaseId
-        );
+    const items = require(cachePath);
+    console.log(`Loaded ${items.length} ${urlType} from cache`);
 
-        if (success && !state.processedProducts.includes(product.databaseId)) {
-          state.processedProducts.push(product.databaseId);
-        }
-      })
-    );
+    // Process in batches
+    const batchSize = 5;
+    const processedKey =
+      urlType === "products" ? "processedProducts" : "processedCategories";
 
-    // Save progress after each batch
-    await saveState(state);
+    // Filter out already processed items
+    const remaining = CONFIG.FORCE_REFRESH
+      ? items
+      : items.filter((item) => !state[processedKey].includes(item.databaseId));
 
-    // Add delay between batches
-    if (i + batchSize < remainingProducts.length) {
-      console.log(`Waiting ${CONFIG.REQUEST_DELAY * 2}ms before next batch...`);
-      await delay(CONFIG.REQUEST_DELAY * 2);
-    }
-  }
+    console.log(`${remaining.length} ${urlType} need warming`);
 
-  console.log(
-    `Finished processing products. Total processed: ${state.processedProducts.length}`
-  );
-}
+    for (let i = 0; i < remaining.length; i += batchSize) {
+      const batch = remaining.slice(i, i + batchSize);
 
-/**
- * Process categories
- */
-async function processCategories(categories, state) {
-  // Filter out already processed categories (unless forced)
-  const remainingCategories = CONFIG.FORCE_REFRESH
-    ? categories
-    : categories.filter(
-        (c) => !state.processedCategories.includes(c.databaseId)
+      console.log(
+        `Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(remaining.length / batchSize)}`
       );
 
-  console.log(`Processing ${remainingCategories.length} categories...`);
+      await Promise.all(
+        batch.map(async (item) => {
+          const urlPath =
+            urlType === "products"
+              ? `/product/${item.slug}`
+              : `/product-category/${item.slug}`;
 
-  // Process categories one by one with delay
-  for (const category of remainingCategories) {
-    const categoryUrl = `${CONFIG.FRONTEND_URL}/product-category/${category.slug}`;
-    const success = await warmCache(
-      categoryUrl,
-      "category",
-      category.databaseId
-    );
+          const url = `${CONFIG.FRONTEND_URL}${urlPath}`;
+          const success = await warmCache(url, urlType, item.databaseId);
 
-    if (success && !state.processedCategories.includes(category.databaseId)) {
-      state.processedCategories.push(category.databaseId);
+          if (success && !state[processedKey].includes(item.databaseId)) {
+            state[processedKey].push(item.databaseId);
+          }
+        })
+      );
+
+      // Save progress
+      await saveState(CONFIG.STATE_FILE, state);
+
+      // Delay between batches
+      if (i + batchSize < remaining.length) {
+        await delay(CONFIG.REQUEST_DELAY * 2);
+      }
     }
 
-    // Save progress after each category
-    await saveState(state);
+    // Mark as completed
+    state[
+      urlType === "products" ? "completedProducts" : "completedCategories"
+    ] = true;
+    await saveState(CONFIG.STATE_FILE, state);
 
-    // Add delay between categories
-    await delay(CONFIG.REQUEST_DELAY);
+    console.log(
+      `Finished processing ${urlType}. Total processed: ${state[processedKey].length}`
+    );
+  } catch (error) {
+    console.error(`Error processing ${urlType}:`, error);
   }
-
-  state.completedCategories = true;
-  await saveState(state);
-
-  console.log(
-    `Finished processing categories. Total processed: ${state.processedCategories.length}`
-  );
 }
 
-/**
- * Main function
- */
+// Main function
 async function main() {
   console.log(
     `Starting cache warmer - Type: ${CONFIG.TYPE}, Force refresh: ${CONFIG.FORCE_REFRESH}`
   );
 
-  // Load state
-  const state = await loadState();
+  // Load or create state
+  const state = await loadState(CONFIG.STATE_FILE);
   state.lastRun = new Date().toISOString();
+  await saveState(CONFIG.STATE_FILE, state);
+
+  // Build caches first if needed
+  if (
+    CONFIG.FORCE_REFRESH ||
+    CONFIG.TYPE === "all" ||
+    CONFIG.TYPE === "products"
+  ) {
+    console.log("Running product cache builder...");
+    try {
+      execSync("node scripts/build-products-cache.js", { stdio: "inherit" });
+    } catch (error) {
+      console.error("Error building product cache:", error.message);
+    }
+  }
+
+  if (
+    CONFIG.FORCE_REFRESH ||
+    CONFIG.TYPE === "all" ||
+    CONFIG.TYPE === "categories"
+  ) {
+    console.log("Running category cache builder...");
+    try {
+      execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
+    } catch (error) {
+      console.error("Error building category cache:", error.message);
+    }
+  }
 
   // Process products
   if (CONFIG.TYPE === "all" || CONFIG.TYPE === "products") {
-    // Reset completion status if forced
     if (CONFIG.FORCE_REFRESH) {
       state.completedProducts = false;
     }
 
     if (!state.completedProducts) {
-      const products = await getAllProductSlugs(state);
-      await processProducts(products, state);
+      await processUrlsFromCache("products", state);
     } else {
-      console.log("Products already processed. Use --force to process again.");
+      console.log("Products already processed. Use --force to reprocess.");
     }
   }
 
   // Process categories
   if (CONFIG.TYPE === "all" || CONFIG.TYPE === "categories") {
-    // Reset completion status if forced
     if (CONFIG.FORCE_REFRESH) {
       state.completedCategories = false;
     }
 
     if (!state.completedCategories) {
-      const categories = await getAllCategorySlugs();
-      await processCategories(categories, state);
+      await processUrlsFromCache("categories", state);
     } else {
-      console.log(
-        "Categories already processed. Use --force to process again."
-      );
+      console.log("Categories already processed. Use --force to reprocess.");
     }
   }
 
-  // Warm the homepage
-  await warmCache(CONFIG.FRONTEND_URL, "homepage", "home");
+  // Warm homepage
+  await warmCache(`${CONFIG.FRONTEND_URL}/`, "homepage", "home");
 
   console.log("Cache warming completed!");
 }

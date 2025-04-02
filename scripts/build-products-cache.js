@@ -31,56 +31,225 @@ const CONFIG = {
 
 // GraphQL query to fetch products with search-relevant fields
 const PRODUCTS_QUERY = `
-  query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
-    products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}}) {
-      pageInfo {
-        hasNextPage
-        endCursor
+query getProducts($after: String, $first: Int = 100) {
+  products(
+    first: $first
+    after: $after
+    where: { visibility: VISIBLE, status: "publish" }
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      name
+      type
+      databaseId
+      id
+      metaData {
+        id
+        key
+        value
       }
-      nodes {
-        databaseId
-        name
-        slug
-        sku
-        shortDescription
-        productCategories {
-          nodes {
-            name
+      slug
+      sku
+      description
+      rawDescription: description(format: RAW)
+      shortDescription
+      attributes {
+        nodes {
+          variation
+          name
+          id
+          options
+          label
+          scope
+          ... on GlobalProductAttribute {
             slug
+            terms(where: { orderby: MENU_ORDER, order: ASC }) {
+              nodes {
+                name
+                slug
+                taxonomyName
+                databaseId
+              }
+            }
           }
         }
-        # Use fragments for specific product types
-        ... on SimpleProduct {
-          price
-          regularPrice
-          salePrice
-          stockStatus
-          stockQuantity
-          onSale
+      }
+      productCategories {
+        nodes {
+          databaseId
+          slug
+          name
+          count
         }
-        ... on VariableProduct {
-          price
-          regularPrice
-          salePrice
-          stockStatus
-          stockQuantity
-          onSale
+      }
+      terms {
+        nodes {
+          taxonomyName
+          slug
         }
-        ... on ExternalProduct {
-          price
-          regularPrice
-          salePrice
-          externalUrl
-        }
-        # Add any other product types you need
+      }
+      ... on SimpleProduct {
+        name
+        slug
+        price
+        rawPrice: price(format: RAW)
+        date
+        regularPrice
+        rawRegularPrice: regularPrice(format: RAW)
+        salePrice
+        rawSalePrice: salePrice(format: RAW)
+        stockStatus
+        stockQuantity
+        lowStockAmount
+        averageRating
+        weight
+        length
+        width
+        height
+        reviewCount
+        onSale
+        virtual
         image {
           sourceUrl
           altText
+          title
+          databaseId
+          cartSourceUrl: sourceUrl(size: THUMBNAIL)
+          producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
+        }
+        galleryImages(first: 20) {
+          nodes {
+            sourceUrl
+            altText
+            title
+            databaseId
+          }
+        }
+      }
+      ... on ExternalProduct {
+        externalUrl
+        buttonText
+        price
+        regularPrice
+        salePrice
+      }
+      ... on VariableProduct {
+        name
+        slug
+        price
+        rawPrice: price(format: RAW)
+        date
+        weight
+        length
+        width
+        height
+        image {
+          sourceUrl
+          altText
+          title
+          databaseId
+          cartSourceUrl: sourceUrl(size: THUMBNAIL)
+          producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
+        }
+        averageRating
+        reviewCount
+        onSale
+        regularPrice
+        rawRegularPrice: regularPrice(format: RAW)
+        salePrice
+        rawSalePrice: salePrice(format: RAW)
+        stockStatus
+        totalSales
+        stockQuantity
+        lowStockAmount
+        defaultAttributes {
+          nodes {
+            name
+            attributeId
+            value
+            label
+          }
+        }
+        variations(first: 100) {
+          nodes {
+            name
+            databaseId
+            price
+            regularPrice
+            salePrice
+            rawSalePrice: salePrice(format: RAW)
+            slug
+            stockQuantity
+            stockStatus
+            hasAttributes
+            image {
+              sourceUrl
+              altText
+              title
+              databaseId
+              cartSourceUrl: sourceUrl(size: THUMBNAIL)
+              producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
+            }
+            attributes {
+              nodes {
+                name
+                attributeId
+                value
+                label
+              }
+            }
+          }
+        }
+        galleryImages(first: 20) {
+          nodes {
+            sourceUrl
+            altText
+            title
+            databaseId
+          }
+        }
+      }
+      related(first: 5) {
+        nodes {
+          name
+          slug
+          price
+          rawPrice: price(format: RAW)
+          regularPrice
+          salePrice
+          stockStatus
+          databaseId
+          image {
+            sourceUrl
+            altText
+          }
+        }
+      }
+      reviews {
+        averageRating
+        edges {
+          rating
+          node {
+            content
+            id
+            date
+            author {
+              node {
+                name
+                avatar {
+                  url
+                }
+              }
+            }
+          }
         }
       }
     }
   }
-`;
+}`;
 
 // Helper function to delay execution
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

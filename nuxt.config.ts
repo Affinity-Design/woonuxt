@@ -62,20 +62,24 @@ export default defineNuxtConfig({
   routeRules: {
     // Homepage prerendered at build time
     "/": {
-      prerender: true,
+      cache: {
+        staleMaxAge: 60 * 60 * 24, // 7 days in seconds
+        swr: true,
+      },
     },
     // Product category pages with stale-while-revalidate for 1 week
     "/product-category/**": {
-      swr: 60 * 60 * 24 * 7, // 7 days in seconds
       cache: {
-        headersToKeep: ["Set-Cookie"],
-        // Don't vary cache by query params:
-        key: (request) => new URL(request.url).pathname,
+        staleMaxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+        swr: true,
       },
     },
     // Product pages with stale-while-revalidate for 72 hours
     "/product/**": {
-      swr: 60 * 60 * 72, // 72 hours in seconds
+      cache: {
+        staleMaxAge: 60 * 60 * 72, // 7 days in seconds
+        swr: true,
+      },
     },
     // Dynamic routes with no caching - client-side rendering only
     "/checkout/**": {

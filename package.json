@@ -10,8 +10,12 @@
     "postinstall": "nuxt prepare",
     "serve": "nuxi generate && npx serve .output/public -l 8080",
     "setup-cache": "node scripts/setup-script.js",
-    "warm-cache": "node scripts/cache-warmer.js",
     "build-product-cache": "node scripts/build-products-cache.js",
+    "build-category-cache": "node scripts/build-categories-cache.js",
+    "warm-cache": "node scripts/cache-warmer.js",
+    "warm-products": "node scripts/cache-warmer.js products",
+    "warm-categories": "node scripts/cache-warmer.js categories",
+    "rebuild-cache": "npm run build-product-cache && npm run build-category-cache && npm run warm-cache -- --force",
     "debug:cache": "node scripts/debug-cache.js"
   },
   "dependencies": {
