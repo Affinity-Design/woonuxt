@@ -76,6 +76,7 @@ async function warmCache(url, type, id) {
 }
 
 // Process URLs from cache files
+// Process URLs from cache files
 async function processUrlsFromCache(urlType, state) {
   console.log(`Processing ${urlType} URLs...`);
 
@@ -91,6 +92,18 @@ async function processUrlsFromCache(urlType, state) {
     const items = require(cachePath);
     console.log(`Loaded ${items.length} ${urlType} from cache`);
 
+    // Debug first item to see structure
+    if (items.length > 0) {
+      console.log(
+        `First item structure:`,
+        JSON.stringify(items[0]).slice(0, 200) + "..."
+      );
+    }
+
+    // Helper to get ID safely from various possible properties
+    const getItemId = (item) =>
+      item.databaseId || item.id || item.productId || item.slug;
+
     // Process in batches
     const batchSize = 5;
     const processedKey =
@@ -99,7 +112,10 @@ async function processUrlsFromCache(urlType, state) {
     // Filter out already processed items
     const remaining = CONFIG.FORCE_REFRESH
       ? items
-      : items.filter((item) => !state[processedKey].includes(item.databaseId));
+      : items.filter((item) => {
+          const id = getItemId(item);
+          return id && !state[processedKey].includes(id);
+        });
 
     console.log(`${remaining.length} ${urlType} need warming`);
 
@@ -118,15 +134,23 @@ async function processUrlsFromCache(urlType, state) {
               : `/product-category/${item.slug}`;
 
           const url = `${CONFIG.FRONTEND_URL}${urlPath}`;
-          const success = await warmCache(url, urlType, item.databaseId);
+          const itemId = getItemId(item);
 
-          if (success && !state[processedKey].includes(item.databaseId)) {
-            state[processedKey].push(item.databaseId);
+          console.log(`Processing item with ID: ${itemId}, slug: ${item.slug}`);
+
+          const success = await warmCache(url, urlType, itemId);
+
+          if (success && itemId && !state[processedKey].includes(itemId)) {
+            state[processedKey].push(itemId);
+            console.log(`Added ${itemId} to processed ${urlType}`);
           }
         })
       );
 
-      // Save progress
+      // Save progress after each batch
+      console.log(
+        `Saving state with ${state[processedKey].length} processed ${urlType}`
+      );
       await saveState(CONFIG.STATE_FILE, state);
 
       // Delay between batches

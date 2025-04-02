@@ -31,222 +31,35 @@ const CONFIG = {
 
 // GraphQL query to fetch products with search-relevant fields
 const PRODUCTS_QUERY = `
-query getProducts($after: String, $first: Int = 100) {
-  products(
-    first: $first
-    after: $after
-    where: { visibility: VISIBLE, status: "publish" }
-  ) {
+query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
+  products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}}) {
     pageInfo {
       hasNextPage
       endCursor
     }
     nodes {
-      name
-      type
       databaseId
-      id
-      metaData {
-        id
-        key
-        value
-      }
+      name
       slug
       sku
-      description
-      rawDescription: description(format: RAW)
       shortDescription
-      attributes {
-        nodes {
-          variation
-          name
-          id
-          options
-          label
-          scope
-          ... on GlobalProductAttribute {
-            slug
-            terms(where: { orderby: MENU_ORDER, order: ASC }) {
-              nodes {
-                name
-                slug
-                taxonomyName
-                databaseId
-              }
-            }
-          }
-        }
-      }
       productCategories {
         nodes {
-          databaseId
-          slug
-          name
-          count
-        }
-      }
-      terms {
-        nodes {
-          taxonomyName
-          slug
-        }
-      }
-      ... on SimpleProduct {
-        name
-        slug
-        price
-        rawPrice: price(format: RAW)
-        date
-        regularPrice
-        rawRegularPrice: regularPrice(format: RAW)
-        salePrice
-        rawSalePrice: salePrice(format: RAW)
-        stockStatus
-        stockQuantity
-        lowStockAmount
-        averageRating
-        weight
-        length
-        width
-        height
-        reviewCount
-        onSale
-        virtual
-        image {
-          sourceUrl
-          altText
-          title
-          databaseId
-          cartSourceUrl: sourceUrl(size: THUMBNAIL)
-          producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
-        }
-        galleryImages(first: 20) {
-          nodes {
-            sourceUrl
-            altText
-            title
-            databaseId
-          }
-        }
-      }
-      ... on ExternalProduct {
-        externalUrl
-        buttonText
-        price
-        regularPrice
-        salePrice
-      }
-      ... on VariableProduct {
-        name
-        slug
-        price
-        rawPrice: price(format: RAW)
-        date
-        weight
-        length
-        width
-        height
-        image {
-          sourceUrl
-          altText
-          title
-          databaseId
-          cartSourceUrl: sourceUrl(size: THUMBNAIL)
-          producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
-        }
-        averageRating
-        reviewCount
-        onSale
-        regularPrice
-        rawRegularPrice: regularPrice(format: RAW)
-        salePrice
-        rawSalePrice: salePrice(format: RAW)
-        stockStatus
-        totalSales
-        stockQuantity
-        lowStockAmount
-        defaultAttributes {
-          nodes {
-            name
-            attributeId
-            value
-            label
-          }
-        }
-        variations(first: 100) {
-          nodes {
-            name
-            databaseId
-            price
-            regularPrice
-            salePrice
-            rawSalePrice: salePrice(format: RAW)
-            slug
-            stockQuantity
-            stockStatus
-            hasAttributes
-            image {
-              sourceUrl
-              altText
-              title
-              databaseId
-              cartSourceUrl: sourceUrl(size: THUMBNAIL)
-              producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
-            }
-            attributes {
-              nodes {
-                name
-                attributeId
-                value
-                label
-              }
-            }
-          }
-        }
-        galleryImages(first: 20) {
-          nodes {
-            sourceUrl
-            altText
-            title
-            databaseId
-          }
-        }
-      }
-      related(first: 5) {
-        nodes {
           name
           slug
+        }
+      }
+  # Use fragments for specific product types
+        ... on SimpleProduct {
           price
-          rawPrice: price(format: RAW)
-          regularPrice
-          salePrice
           stockStatus
-          databaseId
-          image {
-            sourceUrl
-            altText
-          }
+          onSale
         }
-      }
-      reviews {
-        averageRating
-        edges {
-          rating
-          node {
-            content
-            id
-            date
-            author {
-              node {
-                name
-                avatar {
-                  url
-                }
-              }
-            }
-          }
+        ... on VariableProduct {
+          price
+          stockStatus
+          onSale
         }
-      }
     }
   }
 }`;

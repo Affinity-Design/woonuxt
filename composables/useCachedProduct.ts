@@ -2,6 +2,7 @@
 import { ref, Ref } from "vue";
 
 export function useCachedProduct() {
+  const nuxtApp = useNuxtApp();
   const isFetchingCache = ref(false);
   const cacheError = ref(null);
 
@@ -10,6 +11,9 @@ export function useCachedProduct() {
    */
   const getProductFromCache = async (slug: string): Promise<any | null> => {
     isFetchingCache.value = true;
+    if (nuxtApp.payload?.data?.[`product-${slug}`]) {
+      return nuxtApp.payload.data[`product-${slug}`];
+    }
 
     try {
       // Try to fetch from our product cache
