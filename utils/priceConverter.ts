@@ -69,8 +69,9 @@ export const removeCurrencyPrefix = (price: string | null): string => {
     return `${removeCurrencyPrefix(minPrice)} - ${removeCurrencyPrefix(maxPrice)}`;
   }
 
-  // Remove both CA$ and US$ prefixes while preserving existing $
-  return price.replace(/^(CA|US)\$/, "$");
+  // Remove currency prefixes more comprehensively
+  // Handle CA$ and US$ as well as currency codes like CAD and USD
+  return price.replace(/^(CA|US)\$/, "$").replace(/ (CAD|USD)$/i, ""); // Also clean up trailing currency codes
 };
 
 // Format a dollar amount with the CAD suffix, handling zero values properly

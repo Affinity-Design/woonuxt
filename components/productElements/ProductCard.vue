@@ -6,8 +6,9 @@ const props = defineProps({
   index: { type: Number, default: 1 },
 });
 
-const imgWidth = 280;
-const imgHeight = 280;
+// Use consistent dimensions for a perfect square (1:1 aspect ratio)
+const imgWidth = 300;
+const imgHeight = 300;
 
 // example: ?filter=pa_color[green,blue],pa_size[large]
 const filterQuery = ref(route.query?.filter as string);
@@ -56,9 +57,10 @@ const imagetoDisplay = computed<string>(() => {
   return mainImage.value;
 });
 
-// Check if product is variable
+// Check if product is variable - ensure case insensitive comparison
 const isVariableProduct = computed(() => {
-  return props.node?.type === "VARIABLE";
+  // Check for 'VARIABLE' type case-insensitive to handle different API responses
+  return props.node?.type?.toUpperCase() === "VARIABLE";
 });
 </script>
 
@@ -70,19 +72,22 @@ const isVariableProduct = computed(() => {
       :title="node.name"
     >
       <SaleBadge :node class="absolute top-2 right-2" />
-      <NuxtImg
-        v-if="imagetoDisplay"
-        :width="imgWidth"
-        :height="imgHeight"
-        :src="imagetoDisplay"
-        :alt="node.image?.altText || node.name || 'Product image'"
-        :title="node.image?.title || node.name"
-        :loading="index <= 3 ? 'eager' : 'lazy'"
-        :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
-        class="rounded-lg object-top object-cover w-full aspect-9/8"
-        placeholder
-        placeholder-class="blur-xl"
-      />
+      <div class="relative w-full pt-[100%] overflow-hidden rounded-lg">
+        <!-- The pt-[100%] creates a perfect square aspect ratio container -->
+        <NuxtImg
+          v-if="imagetoDisplay"
+          :width="imgWidth"
+          :height="imgWidth"
+          :src="imagetoDisplay"
+          :alt="node.image?.altText || node.name || 'Product image'"
+          :title="node.image?.title || node.name"
+          :loading="index <= 3 ? 'eager' : 'lazy'"
+          :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
+          class="absolute top-0 left-0 w-full h-full object-cover object-center"
+          placeholder
+          placeholder-class="blur-xl"
+        />
+      </div>
     </NuxtLink>
     <div class="p-2">
       <StarRating
@@ -104,6 +109,8 @@ const isVariableProduct = computed(() => {
         :sale-price="node.salePrice"
         :regular-price="node.regularPrice"
         :is-variable="isVariableProduct"
+        :show-as-range="false"
+        :show-both-prices="false"
       />
     </div>
   </div>

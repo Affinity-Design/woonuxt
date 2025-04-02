@@ -360,20 +360,29 @@ onMounted(async () => {
                   v-if="storeSettings.showReviews"
                 />
               </div>
-              <ProductPrice
-                class="text-xl"
-                v-if="activeVariation"
-                :sale-price="activeVariation.salePrice"
-                :regular-price="activeVariation.regularPrice"
-              />
-              <ProductPrice
-                v-else
-                class="text-xl"
-                :sale-price="product.salePrice"
-                :regular-price="product.regularPrice"
-                :is-variable="isVariableProduct"
-                :show-as-range="isVariableProduct && !activeVariation"
-              />
+              <!-- Modified Product Price Display -->
+              <div class="text-xl font-semibold">
+                <!-- Active Variation Price -->
+                <div v-if="activeVariation" class="flex">
+                  <!-- Show only sale price if it exists, otherwise show regular price -->
+                  <span
+                    v-if="activeVariation.salePrice"
+                    v-html="activeVariation.salePrice"
+                  />
+                  <span v-else v-html="activeVariation.regularPrice" />
+                </div>
+                <!-- Default Product Price -->
+                <div v-else class="flex">
+                  <!-- For variable products with price range, show only starting price -->
+                  <ProductPrice
+                    class="text-xl"
+                    :sale-price="product.salePrice"
+                    :regular-price="product.regularPrice"
+                    :is-variable="isVariableProduct"
+                    :show-as-range="false"
+                  />
+                </div>
+              </div>
             </div>
 
             <div class="grid gap-2 my-8 text-sm empty:hidden">
