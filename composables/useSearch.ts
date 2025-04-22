@@ -9,6 +9,7 @@ export function useSearch() {
   const searchQuery = ref("");
   const searchResults = ref([]);
   const isShowingSearch = useState("isShowingSearch", () => false);
+  const isSearchActive = computed(() => !!searchQuery.value); // Added for useProducts.ts
 
   // Initialize from route query
   searchQuery.value = (route.query.search as string) || "";
@@ -102,10 +103,26 @@ export function useSearch() {
     }
   );
 
-  // Initialize on mount
-  onMounted(() => {
-    initializeSearchEngine();
-  });
+  // Function to handle searching products for other composables
+  const searchProducts = (products) => {
+    if (!searchQuery.value) return products;
+
+    const searchTerm = searchQuery.value.toLowerCase();
+    return products.filter(
+      (product) =>
+        product.name?.toLowerCase().includes(searchTerm) ||
+        product.description?.toLowerCase().includes(searchTerm) ||
+        (product.shortDescription &&
+          product.shortDescription.toLowerCase().includes(searchTerm))
+    );
+  };
+
+  // Move the onMounted hook to a dedicated initialization function
+  const initOnMounted = () => {
+    onMounted(() => {
+      initializeSearchEngine();
+    });
+  };
 
   // Expose necessary functions and state
   return {
@@ -113,9 +130,12 @@ export function useSearch() {
     searchResults,
     isLoading,
     isShowingSearch,
+    isSearchActive,
     setSearchQuery,
     clearSearch,
     toggleSearch,
+    initOnMounted,
+    searchProducts,
     hasResults: computed(() => searchResults.value.length > 0),
   };
 }

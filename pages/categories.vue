@@ -15,8 +15,8 @@ const categoryMapping = [
   // { display: "Electric Scooters", slug: "trick-scooters" },
   { display: "Skateboards & Longboards", slug: "skaterboards-and-longboards" },
   // { display: "E-Boards", slug: "e-boards" },
-  { display: "Winter Sports", slug: "winter-sports" },
   { display: "Alpine Skis", slug: "alpine-skis" },
+  { display: "Apline Poles", slug: "alpine-poles" },
   { display: "Cross-Country Skis", slug: "cross-country-skis" },
   { display: "Nordic Poles", slug: "cross-country-poles" },
 ];

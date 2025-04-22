@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const { wooNuxtVersionInfo } = useHelpers();
 const { wishlistLink } = useAuth();
 </script>
 
@@ -33,13 +32,15 @@ const { wishlistLink } = useAuth();
             class="py-1.5 block"
             >{{ "Skate Parts" }}</NuxtLink
           >
-          <NuxtLink to="product-category/winter-sports" class="py-1.5 block">{{
-            "Winter Sports"
-          }}</NuxtLink>
+          <NuxtLink
+            to="/product-category/clearance-items"
+            class="py-1.5 block"
+            >{{ "Clearance" }}</NuxtLink
+          >
         </div>
       </div>
-      <!-- products -->
-      <div class="w-3/7 lg:w-auto">
+      <!-- TODO products -->
+      <!-- <div class="w-3/7 lg:w-auto">
         <div class="mb-1 font-semibold">Products</div>
         <div class="text-sm">
           <NuxtLink to="/products" class="py-1.5 block">{{
@@ -59,7 +60,7 @@ const { wishlistLink } = useAuth();
             >{{ "Clearance" }}</NuxtLink
           >
         </div>
-      </div>
+      </div> -->
       <!-- contact -->
       <div class="w-3/7 lg:w-auto">
         <div class="mb-1 font-semibold">

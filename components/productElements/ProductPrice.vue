@@ -21,15 +21,15 @@ const {
 
 // For debugging
 if (import.meta.env.DEV) {
-  console.log("ProductPrice props:", {
-    regularPrice,
-    salePrice,
-    showAsRange,
-    isVariable,
-    hasRange: regularPrice?.includes(" - ") || salePrice?.includes(" - "),
-  });
+  //   console.log("ProductPrice props:", {
+  //     regularPrice,
+  //     salePrice,
+  //     showAsRange,
+  //     isVariable,
+  //     hasRange: regularPrice?.includes(" - ") || salePrice?.includes(" - "),
+  //   });
+  // }
 }
-
 // Fetch the exchange rate
 const { exchangeRate } = useExchangeRate();
 

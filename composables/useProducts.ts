@@ -21,6 +21,9 @@ export function useProducts() {
     const { isFiltersActive, filterProducts } = useFiltering();
     const { searchQuery, searchResults } = useSearch();
 
+    // Check if search is active based on searchQuery
+    const isSearchActive = computed(() => !!searchQuery.value);
+
     // scroll to top of page
     scrollToTop();
 
@@ -33,6 +36,7 @@ export function useProducts() {
       products.value = allProducts;
       return;
     }
+
     if (searchQuery.value) {
       products.value = searchResults.value;
       return;
@@ -42,7 +46,23 @@ export function useProducts() {
     try {
       let newProducts = [...allProducts];
       if (isFiltersActive.value) newProducts = filterProducts(newProducts);
-      if (isSearchActive.value) newProducts = searchProducts(newProducts);
+
+      // If we reach here and search is active, we need to filter by search
+      if (isSearchActive.value) {
+        // Make sure searchProducts is defined or use a fallback
+        if (typeof searchProducts === "function") {
+          newProducts = searchProducts(newProducts);
+        } else {
+          // Simple fallback search function if searchProducts is not defined
+          const searchTerm = searchQuery.value.toLowerCase();
+          newProducts = newProducts.filter(
+            (product) =>
+              product.name?.toLowerCase().includes(searchTerm) ||
+              product.description?.toLowerCase().includes(searchTerm)
+          );
+        }
+      }
+
       if (isSortingActive.value) newProducts = sortProducts(newProducts);
 
       products.value = newProducts;

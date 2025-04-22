@@ -1,0 +1,47 @@
+query getProductsWithCursor(
+  $after: String
+  $slug: [String]
+  $first: Int = 24
+  $orderby: ProductsOrderByEnum = DATE
+  $order: OrderEnum = DESC
+  $search: String
+  $onSale: Boolean
+  $minPrice: Float
+  $maxPrice: Float
+) {
+  products(
+    first: $first
+    after: $after
+    where: {
+      categoryIn: $slug
+      visibility: VISIBLE
+      search: $search
+      onSale: $onSale
+      minPrice: $minPrice
+      maxPrice: $maxPrice
+      orderby: { field: $orderby, order: $order }
+      status: "publish"
+    }
+  ) {
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    nodes {
+      name
+      slug
+      type
+      databaseId
+      id
+      averageRating
+      reviewCount
+      ...Terms
+      ...ProductCategories
+      ...SimpleProduct
+      ...VariableProduct
+      ...ExternalProduct
+    }
+  }
+}

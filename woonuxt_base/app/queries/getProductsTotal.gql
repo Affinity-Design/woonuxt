@@ -1,0 +1,5 @@
+query getProductsTotal($slug: [String]) {
+  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish" }) {
+    found
+  }
+}
