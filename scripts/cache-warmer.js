@@ -34,7 +34,7 @@ async function warmCache(url, type, id) {
           "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "User-Agent": "Cache Warmer",
       },
-      timeout: 10000,
+      timeout: 30000,
       agent: url.startsWith("https:") ? agent : undefined,
     };
 

@@ -1,0 +1,271 @@
+<script lang="ts" setup>
+import { defineAsyncComponent } from "vue";
+const PulseLoader = defineAsyncComponent(
+  () => import("vue-spinner/src/PulseLoader.vue")
+);
+//catagory.vue
+const { setProducts, updateProductList } = useProducts();
+const { isQueryEmpty } = useHelpers();
+const { storeSettings } = useAppConfig();
+const route = useRoute();
+const slug = route.params.slug;
+const nuxtApp = useNuxtApp();
+
+/**
+ * Formats a slug string to a readable title
+ * Example: "skate-tools" becomes "Skate Tools"
+ */
+const formatSlug = (slugValue: string | string[]): string => {
+  if (!slugValue) return "";
+
+  // Handle array params (from route.params.slug)
+  if (Array.isArray(slugValue)) {
+    slugValue = slugValue.join("-");
+  }
+
+  // Replace hyphens with spaces
+  let title = slugValue.toString().replace(/-/g, " ");
+
+  // Handle special cases
+  title = title.replace(/pa /g, ""); // Remove 'pa' prefix if present
+
+  // Capitalize each word
+  title = title
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+
+  return title;
+};
+const isDesktop = ref(false);
+const cacheKey = `cat-${slug}`;
+
+// Format the slug for display
+const categoryTitle = computed(() => formatSlug(slug));
+const productCount = ref(150);
+
+const countResult = await useAsyncGql("getProductsTotal", { slug });
+productCount.value = countResult.data.value?.products?.found;
+
+const { data, pending, error, refresh } = await useAsyncData(
+  cacheKey,
+  async () => {
+    console.log(`🔄 Fetching products for category: ${slug}`);
+
+    // Use the Gql function directly for better control
+    const result = await GqlGetProducts({
+      slug,
+      first: slug === "clearance-items" ? 255 : productCount.value,
+    });
+
+    console.log(
+      `✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`
+    );
+    return await result;
+  },
+  {
+    transform(payload) {
+      // Transform the data if needed TODO seo stuff
+      return { ...payload };
+    },
+  },
+  {
+    options: {
+      server: true, // Enable server-side caching
+      lazy: true, // Start fetching immediately
+      immediate: true, // Don't wait for onMounted
+      dedupe: true, // Deduplicate identical requests
+    },
+
+    // Custom cache lookup function
+    getCachedData(key) {
+      console.log(`🔍 CAT Looking for cached data with key: ${key}`);
+      const existingData =
+        nuxtApp.payload?.data?.[cacheKey] || nuxtApp.static?.data?.[cacheKey];
+
+      if (existingData) {
+        console.log(`💰 CAT Found cached data for ${key}!`);
+        return existingData;
+      }
+
+      console.log(`❌ CAT No cached data found for ${key}`);
+      return undefined;
+    },
+  }
+);
+
+//atempt 1
+// const { data, pending, error, refresh } = await useAsyncGql(
+//   "getProducts",
+//   {
+//     slug,
+//     first: slug === "clearance-items" ? 255 : productCount.value,
+//   },
+//   {
+//     // Add these options to leverage Nuxt's payload cache
+//     server: true, // Ensure cache is stored in SSR payload
+//     deep: false, // Optimize performance
+//   }
+// );
+// if (process.client && nuxtApp.isHydrating) {
+//   nuxtApp.hooks.hook("app:created", () => {
+//     nuxtApp.payload.data[`getProducts-${slug}`] = data.value;
+//   });
+// }
+
+//atempt 2
+// const { data, pending, error, refresh } = await useAsyncData(
+//   cacheKey,
+//   async () => {
+//     const result = await GqlGetProducts({
+//       slug,
+//       first: slug === "clearance-items" ? 255 : productCount.value,
+//     });
+//     return result; // or result.data if needed
+//   },
+//   {
+//     transform(payload) {
+//       // Transform the data if needed
+//       return { ...payload };
+//     },
+//     getCachedData(key) {
+//       // Custom cache logic
+//       const existingData =
+//         nuxtApp.payload?.data?.[key] || nuxtApp.static?.data?.[key];
+//       if (!existingData) return;
+//       return existingData;
+//     },
+//   }
+// );
+
+const productsInCategory = ref([]);
+
+const dataReadyState = ref(false);
+
+watch(
+  () => data.value,
+  (newData) => {
+    if (newData?.products?.nodes) {
+      console.log("✅ Product data is now available, setting products");
+      productsInCategory.value = newData.products.nodes;
+      dataReadyState.value = true; // Update the ref instead
+      setProducts(productsInCategory.value);
+    }
+  },
+  { immediate: true } // This makes it run once immediately if data is already there
+);
+
+watch(
+  () => route.query,
+  () => {
+    if (route.name !== "product-category-slug") return;
+    updateProductList();
+  }
+);
+
+onMounted(() => {
+  if (!isQueryEmpty.value) updateProductList();
+  if (dataReadyState) setProducts(productsInCategory.value);
+  // Check if we're on client side
+});
+
+useHead({
+  title: categoryTitle.value,
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content: `Browse our ${categoryTitle.value} collection`,
+    },
+  ],
+});
+</script>
+
+<template>
+  <!-- Single root element to fix hydration issues -->
+  <div>
+    <!-- Show loading state -->
+    <div v-if="pending" class="flex justify-center items-center py-16">
+      <div class="text-center">
+        <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
+        <p class="mt-4 text-gray-500">Loading products...</p>
+      </div>
+    </div>
+
+    <!-- Show error state -->
+    <div v-else-if="error" class="container my-12 text-center">
+      <div class="text-red-500 mb-4">
+        {{ error.message }}
+      </div>
+    </div>
+
+    <!-- Show data when it's ready -->
+    <div v-else class="container py-8">
+      <!-- Filters and Products Layout -->
+      <div class="container flex items-start gap-16">
+        <!-- Filters sidebar - fixed width -->
+        <div
+          v-if="storeSettings.showFilters === true"
+          class="w-full md:w-64 flex-shrink-0"
+        >
+          <Filters :hide-categories="true" />
+        </div>
+
+        <!-- Product area - flex 1 -->
+        <div class="flex-1">
+          <!-- Product header with title and sorting -->
+          <div
+            class="flex flex-col md:flex-row md:items-center md:justify-between mb-6"
+          >
+            <div class="flex items-baseline gap-4">
+              <h1
+                class="text-3xl font-bold text-gray-900 font-system tracking-tight"
+              >
+                {{ categoryTitle }}
+              </h1>
+              <ProductResultCount v-if="productsInCategory.length > 0" />
+            </div>
+
+            <div class="flex items-center gap-3 mt-4 md:mt-0">
+              <OrderByDropdown
+                v-if="storeSettings.showOrderByDropdown === true"
+                class="ml-auto md:ml-0"
+              />
+              <ShowFilterTrigger
+                v-if="storeSettings.showFilters && !isDesktop"
+                class="md:hidden"
+              />
+            </div>
+          </div>
+
+          <!-- Product grid -->
+          <ProductGrid
+            v-if="productsInCategory.length > 0"
+            :count="productCount"
+            :slug="slug"
+          />
+
+          <!-- No products message -->
+          <div v-else class="text-center py-12">
+            <p>No products found in this category.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.font-system {
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@media (max-width: 768px) {
+  .text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+</style>

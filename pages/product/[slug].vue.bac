@@ -1,9 +1,6 @@
 <script lang="ts" setup>
+//Product.vue
 import { StockStatusEnum, ProductTypesEnum, type AddToCartInput } from "#woo";
-const PulseLoader = defineAsyncComponent(
-  () => import("vue-spinner/src/PulseLoader.vue")
-);
-// Core setup and imports
 const route = useRoute();
 const { storeSettings } = useAppConfig();
 const { arraysEqual, formatArray, checkForVariationTypeOfAny } = useHelpers();
@@ -11,63 +8,60 @@ const { addToCart, isUpdatingCart } = useCart();
 const { t } = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
-
-// Create cache key based on the slug
 const cacheKey = `prod-${slug}`;
-console.log(`🔑 Using product cache key: ${cacheKey}`);
 
-// ----------------------------------------
-// CRITICAL FIX: Use state to manage cached data
-// ----------------------------------------
-// Create product data state that persists between route changes
-const globalCachedProduct = useState(cacheKey, () => null);
-// Loading state that we control manually
-const isLoading = ref(true);
-const errorState = ref(null);
-// ----------------------------------------
+// const { data } = await useAsyncGql("getProduct", { slug });
 
-// Store for product data
-const product = ref(null);
+// Use Nuxt's built-in caching mechanism
+const { data, pending, error, refresh } = await useAsyncData(
+  cacheKey,
+  async () => {
+    console.log(`🔄 Fetching product: ${slug}`);
 
-// Function to load product (either from cache or API)
-async function loadProduct() {
-  try {
-    isLoading.value = true;
-    errorState.value = null;
-
-    // Check if we already have data in our global state
-    console.log(`🔍 Checking global state cache for ${cacheKey}`);
-    if (globalCachedProduct.value) {
-      console.log(`✅ Found cached product in global state for ${cacheKey}`);
-      product.value = globalCachedProduct.value;
-      isLoading.value = false;
-      return;
-    }
-
-    console.log(`🔄 No cache found, fetching product: ${slug}`);
-    // Use the Gql function directly
+    // Use the Gql function directly for better control
     const result = await GqlGetProduct({
       slug,
     });
 
-    if (!result?.product) {
-      throw new Error(t("messages.shop.productNotFound"));
-    }
+    console.log(
+      `✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`
+    );
 
-    // Store in our global state cache
-    console.log(`💾 Saving product to global state`);
-    globalCachedProduct.value = result.product;
-    product.value = result.product;
-  } catch (err) {
-    console.error("Error loading product:", err);
-    errorState.value = err.message || "Failed to load product";
-    product.value = null;
-  } finally {
-    isLoading.value = false;
+    return result.product;
+  },
+  {
+    transform(payload) {
+      // Transform the data if needed TODO seo stuff
+      return { ...payload };
+    },
+  },
+  {
+    // Cache configuration
+    server: true, // Enable server-side caching
+    lazy: false, // Start fetching immediately
+    immediate: true, // Don't wait for onMounted
+    dedupe: true, // Deduplicate identical requests
+
+    // Custom cache lookup function
+    getCachedData(key) {
+      console.log(`🔍 PRODUCT Looking for cached data with key: ${key}`);
+      const existingData =
+        nuxtApp.payload?.data?.[key] || nuxtApp.static?.data?.[key];
+
+      if (existingData) {
+        console.log(`💰 PRODUCT Found cached data for ${key}!`);
+        return existingData;
+      }
+
+      console.log(`❌ PRODUCT No cached data found for ${key}`);
+      return undefined;
+    },
   }
-}
+);
 
-// Product setup vars
+// Handle navigation/loading states
+const product = ref(data.value);
+
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
 const variation = ref<VariationAttribute[]>([]);
@@ -262,19 +256,10 @@ const mergeLiveStockStatus = (payload) => {
 
   product.value.stockStatus = payload.stockStatus ?? product.value.stockStatus;
   console.log(`✅ Stock status updated: ${product.value.stockStatus}`);
-
-  // Update the global cached product too
-  if (globalCachedProduct.value) {
-    globalCachedProduct.value = { ...product.value };
-  }
 };
 
-// When the component mounts
+// Check for live stock status after load
 onMounted(async () => {
-  // Load product (from cache or API)
-  await loadProduct();
-
-  // Check for live stock status after load
   if (product.value) {
     console.log(`🔄 Checking live stock status for ${product.value.name}`);
     try {
@@ -292,52 +277,27 @@ onMounted(async () => {
     console.log(`⚠️ Cannot check stock - product data not available`);
   }
 });
-
-// Function to refresh data
-async function refreshData() {
-  // Clear the cached data
-  globalCachedProduct.value = null;
-  // Reload
-  await loadProduct();
-}
-
-useHead({
-  title: product.value?.name || "Product",
-  meta: [
-    {
-      name: "description",
-      content:
-        product.value?.shortDescription ||
-        product.value?.description ||
-        "Product details",
-    },
-  ],
-});
 </script>
 
 <template>
   <div>
     <!-- Show loading state -->
-    <!-- Replace the current loading container with this -->
     <div
-      v-if="isLoading"
+      v-if="pending"
       class="container flex items-center justify-center min-h-screen"
     >
       <div class="text-center">
-        <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
+        <LoadingIcon size="48" />
         <p class="mt-4 text-gray-500">Loading product...</p>
       </div>
     </div>
 
     <!-- Show error state -->
-    <div v-else-if="errorState" class="container my-12 text-center">
+    <div v-else-if="error" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ errorState }}
+        {{ error.message || t("messages.shop.productLoadError") }}
       </div>
-      <button
-        @click="refreshData"
-        class="px-4 py-2 bg-primary text-white rounded"
-      >
+      <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded">
         {{ t("messages.general.retry") }}
       </button>
     </div>
@@ -415,6 +375,8 @@ useHead({
                 <span class="text-gray-400"
                   >{{ $t("messages.shop.availability") }}:
                 </span>
+                <!-- TODO -->
+
                 <StockStatus
                   :stockStatus="stockStatus"
                   @updated="mergeLiveStockStatus"
