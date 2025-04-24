@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { StockStatusEnum, ProductTypesEnum, type AddToCartInput } from "#woo";
-import { defineAsyncComponent } from "vue";
 const PulseLoader = defineAsyncComponent(
   () => import("vue-spinner/src/PulseLoader.vue")
 );
-
 // Core setup and imports
 const route = useRoute();
 const { storeSettings } = useAppConfig();
@@ -14,17 +12,40 @@ const { t } = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
-// Create a consistent cache key based on the slug
-const cacheKey = `product-${slug}`;
+// Create cache key based on the slug
+const cacheKey = `prod-${slug}`;
 console.log(`🔑 Using product cache key: ${cacheKey}`);
 
-// Use Nuxt's useAsyncData with proper caching options
-const { data, pending, error, refresh } = await useAsyncData(
-  cacheKey,
-  async () => {
-    console.log(`🔄 Fetching product: ${slug}`);
+// ----------------------------------------
+// CRITICAL FIX: Use state to manage cached data
+// ----------------------------------------
+// Create product data state that persists between route changes
+const globalCachedProduct = useState(cacheKey, () => null);
+// Loading state that we control manually
+const isLoading = ref(true);
+const errorState = ref(null);
+// ----------------------------------------
 
-    // Use GqlGetProduct directly for the data fetch
+// Store for product data
+const product = ref(null);
+
+// Function to load product (either from cache or API)
+async function loadProduct() {
+  try {
+    isLoading.value = true;
+    errorState.value = null;
+
+    // Check if we already have data in our global state
+    console.log(`🔍 Checking global state cache for ${cacheKey}`);
+    if (globalCachedProduct.value) {
+      console.log(`✅ Found cached product in global state for ${cacheKey}`);
+      product.value = globalCachedProduct.value;
+      isLoading.value = false;
+      return;
+    }
+
+    console.log(`🔄 No cache found, fetching product: ${slug}`);
+    // Use the Gql function directly
     const result = await GqlGetProduct({
       slug,
     });
@@ -33,47 +54,18 @@ const { data, pending, error, refresh } = await useAsyncData(
       throw new Error(t("messages.shop.productNotFound"));
     }
 
-    console.log(`✅ Fetched product: ${result.product.name}`);
-    return result.product;
-  },
-  {
-    // Caching options per Nuxt docs
-    server: true, // Enable server-side caching
-    lazy: false, // Start fetching immediately
-    immediate: true, // Don't wait for onMounted
-    watch: [], // Don't watch reactive dependencies
-
-    // Transform data for our needs
-    transform: (product) => {
-      return product; // Return as-is, but you could transform here if needed
-    },
-
-    // CRITICAL: Check for cached data explicitly
-    getCachedData: (key) => {
-      console.log(`🔍 Checking for cached data with key: ${key}`);
-
-      // Check in payload first (client-side navigation)
-      const payloadData = nuxtApp.payload?.data?.[key];
-      if (payloadData) {
-        console.log(`💰 Found cached product in payload for ${key}`);
-        return payloadData;
-      }
-
-      // Check in static data (if using SSG/prerendering)
-      const staticData = nuxtApp.static?.data?.[key];
-      if (staticData) {
-        console.log(`📘 Found cached product in static data for ${key}`);
-        return staticData;
-      }
-
-      console.log(`❌ No cached data found for ${key}`);
-      return undefined;
-    },
+    // Store in our global state cache
+    console.log(`💾 Saving product to global state`);
+    globalCachedProduct.value = result.product;
+    product.value = result.product;
+  } catch (err) {
+    console.error("Error loading product:", err);
+    errorState.value = err.message || "Failed to load product";
+    product.value = null;
+  } finally {
+    isLoading.value = false;
   }
-);
-
-// Product reference for template
-const product = computed(() => data.value);
+}
 
 // Product setup vars
 const quantity = ref<number>(1);
@@ -271,14 +263,18 @@ const mergeLiveStockStatus = (payload) => {
   product.value.stockStatus = payload.stockStatus ?? product.value.stockStatus;
   console.log(`✅ Stock status updated: ${product.value.stockStatus}`);
 
-  // Update the cache data to reflect stock changes
-  if (nuxtApp.payload?.data?.[cacheKey]) {
-    nuxtApp.payload.data[cacheKey] = { ...product.value };
+  // Update the global cached product too
+  if (globalCachedProduct.value) {
+    globalCachedProduct.value = { ...product.value };
   }
 };
 
-// Check for live stock status after load
+// When the component mounts
 onMounted(async () => {
+  // Load product (from cache or API)
+  await loadProduct();
+
+  // Check for live stock status after load
   if (product.value) {
     console.log(`🔄 Checking live stock status for ${product.value.name}`);
     try {
@@ -297,33 +293,36 @@ onMounted(async () => {
   }
 });
 
-// Set page metadata when product data is available
-watch(
-  () => product.value,
-  (newProduct) => {
-    if (newProduct) {
-      useHead({
-        title: newProduct.name,
-        meta: [
-          {
-            name: "description",
-            content:
-              newProduct.shortDescription ||
-              newProduct.description ||
-              "Product details",
-          },
-        ],
-      });
-    }
-  },
-  { immediate: true }
-);
+// Function to refresh data
+async function refreshData() {
+  // Clear the cached data
+  globalCachedProduct.value = null;
+  // Reload
+  await loadProduct();
+}
+
+useHead({
+  title: product.value?.name || "Product",
+  meta: [
+    {
+      name: "description",
+      content:
+        product.value?.shortDescription ||
+        product.value?.description ||
+        "Product details",
+    },
+  ],
+});
 </script>
 
 <template>
   <div>
-    <!-- Show loading state with full-height centered spinner -->
-    <div v-if="pending" class="flex justify-center items-center min-h-screen">
+    <!-- Show loading state -->
+    <!-- Replace the current loading container with this -->
+    <div
+      v-if="isLoading"
+      class="container flex items-center justify-center min-h-screen"
+    >
       <div class="text-center">
         <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
         <p class="mt-4 text-gray-500">Loading product...</p>
@@ -331,11 +330,14 @@ watch(
     </div>
 
     <!-- Show error state -->
-    <div v-else-if="error" class="container my-12 text-center">
+    <div v-else-if="errorState" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error.message || t("messages.shop.productLoadError") }}
+        {{ errorState }}
       </div>
-      <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded">
+      <button
+        @click="refreshData"
+        class="px-4 py-2 bg-primary text-white rounded"
+      >
         {{ t("messages.general.retry") }}
       </button>
     </div>
