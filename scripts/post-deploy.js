@@ -65,45 +65,32 @@ async function warmCriticalPages() {
  */
 async function triggerFullCacheWarming() {
   try {
-    console.log("Triggering full page cache warming in the background...");
+    console.log("🔄 Triggering full cache warming...");
 
-    // First warm categories since they're fewer
-    fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-warming`, {
+    // First, warm products and categories cache
+    await fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-products`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secret: CONFIG.REVALIDATION_SECRET,
-        type: "categories",
       }),
-    }).catch((error) => {
-      console.error("Error triggering category cache warming:", error);
     });
 
-    // Slight delay before starting products to avoid overwhelming the server
-    await delay(10000);
-
-    // Then trigger product cache warming
-    fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-warming`, {
+    // Then trigger page cache warming
+    await fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-warming`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secret: CONFIG.REVALIDATION_SECRET,
-        type: "products",
+        type: "all", // Warm all pages
       }),
-    }).catch((error) => {
-      console.error("Error triggering product cache warming:", error);
     });
 
-    console.log("Cache warming processes triggered in the background");
+    console.log("✅ Cache warming completed successfully");
   } catch (error) {
-    console.error("Error triggering cache warming:", error);
+    console.error("❌ Cache warming failed:", error);
   }
 }
-
 /**
  * Complete the full product cache building in the background
  */
@@ -141,6 +128,8 @@ async function main() {
 
     // Check if we need to warm the full cache
     if (CONFIG.RUN_CACHE_WARMING) {
+      await triggerFullCacheWarming();
+      console.log("✅ Post-deployment script completed");
       if (CONFIG.WARM_CRITICAL_ONLY) {
         console.log(
           "Only warming critical pages as specified in configuration"

@@ -13,12 +13,11 @@ kv_namespaces = [
   NODE_VERSION = "20.16.0"
 
 [build]
-  command = "npm run build && npm run setup-cache"
-  output_directory = ".output/public"
+command = "npm run build && npm run setup-cache && npm run build-product-cache && npm run build-category-cache"
 
 # Post-upload command to run AFTER deployment (not during build)
-[build.upload]
-  format = "directory"
+[build.uploadDirectory]
+command = "node scripts/post-deploy.js"
   
 [build.upload.main]
   dir = ".output/public"

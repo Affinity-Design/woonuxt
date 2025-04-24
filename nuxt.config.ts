@@ -33,8 +33,8 @@ export default defineNuxtConfig({
 
   // Updated Nitro configuration for Cloudflare Pages
   nitro: {
-    preset: "node-server", // Use node-server preset for local development
-    // preset: "cloudflare-pages", // Use Cloudflare Pages preset for deployment TODO
+    //preset: "node-server", // Use node-server preset for local developmentTODO
+    preset: "cloudflare-pages", // Use Cloudflare Pages preset for deployment
     prerender: {
       crawlLinks: false, // Don't automatically crawl all links
       routes: ["/"], // Only prerender the homepage

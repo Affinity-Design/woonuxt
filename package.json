@@ -18,6 +18,7 @@
     "warm-products": "node scripts/cache-warmer.js products",
     "warm-categories": "node scripts/cache-warmer.js categories",
     "rebuild-cache": "npm run build-product-cache && npm run build-category-cache && npm run warm-cache -- --force",
+    "postdeploy": "node scripts/post-deploy.js",
     "debug:cache": "node scripts/debug-cache.js"
   },
   "dependencies": {
