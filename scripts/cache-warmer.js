@@ -1,8 +1,9 @@
 // scripts/cache-warmer.js
 require("dotenv").config();
-const { execSync } = require("child_process");
 const fetch = require("node-fetch");
+const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 const {
   createHttpsAgent,
   delay,
@@ -18,6 +19,18 @@ const CONFIG = {
   FORCE_REFRESH: process.argv.includes("--force"),
   REQUEST_DELAY: 500,
 };
+
+// Ensure cache directories exist
+const nuxtCacheDir = path.join(process.cwd(), ".nuxt", "cache");
+if (!fs.existsSync(nuxtCacheDir)) {
+  fs.mkdirSync(nuxtCacheDir, { recursive: true });
+}
+
+// Ensure .cache directory exists
+const baseCacheDir = path.join(process.cwd(), ".cache");
+if (!fs.existsSync(baseCacheDir)) {
+  fs.mkdirSync(baseCacheDir, { recursive: true });
+}
 
 // Warm a specific URL
 async function warmCache(url, type, id) {
@@ -76,7 +89,6 @@ async function warmCache(url, type, id) {
 }
 
 // Process URLs from cache files
-// Process URLs from cache files
 async function processUrlsFromCache(urlType, state) {
   console.log(`Processing ${urlType} URLs...`);
 
@@ -89,7 +101,25 @@ async function processUrlsFromCache(urlType, state) {
       urlType === "products" ? "cached-products.json" : "cached-categories.json"
     );
 
-    const items = require(cachePath);
+    // Check if the file exists before trying to require it
+    if (!fs.existsSync(cachePath)) {
+      console.log(
+        `Cache file ${cachePath} does not exist. Creating an empty one.`
+      );
+      fs.writeFileSync(cachePath, JSON.stringify([]));
+    }
+
+    let items = [];
+    try {
+      const fileContent = fs.readFileSync(cachePath, "utf8");
+      items = JSON.parse(fileContent);
+    } catch (parseError) {
+      console.error(`Error parsing ${cachePath}: ${parseError.message}`);
+      console.log("Creating an empty cache file as fallback");
+      fs.writeFileSync(cachePath, JSON.stringify([]));
+      items = [];
+    }
+
     console.log(`Loaded ${items.length} ${urlType} from cache`);
 
     // Debug first item to see structure
@@ -100,6 +130,16 @@ async function processUrlsFromCache(urlType, state) {
       );
     }
 
+    // If no items were found, mark as completed and skip
+    if (items.length === 0) {
+      console.log(`No ${urlType} found in cache. Marking as completed.`);
+      state[
+        urlType === "products" ? "completedProducts" : "completedCategories"
+      ] = true;
+      await saveState(CONFIG.STATE_FILE, state);
+      return;
+    }
+
     // Helper to get ID safely from various possible properties
     const getItemId = (item) =>
       item.databaseId || item.id || item.productId || item.slug;
@@ -108,6 +148,11 @@ async function processUrlsFromCache(urlType, state) {
     const batchSize = 5;
     const processedKey =
       urlType === "products" ? "processedProducts" : "processedCategories";
+
+    // Initialize the processed array if it doesn't exist
+    if (!state[processedKey]) {
+      state[processedKey] = [];
+    }
 
     // Filter out already processed items
     const remaining = CONFIG.FORCE_REFRESH
@@ -128,6 +173,11 @@ async function processUrlsFromCache(urlType, state) {
 
       await Promise.all(
         batch.map(async (item) => {
+          if (!item || !item.slug) {
+            console.log(`Skipping item without slug:`, item);
+            return;
+          }
+
           const urlPath =
             urlType === "products"
               ? `/product/${item.slug}`
@@ -170,6 +220,12 @@ async function processUrlsFromCache(urlType, state) {
     );
   } catch (error) {
     console.error(`Error processing ${urlType}:`, error);
+
+    // Even on error, mark as completed to prevent repeated failures
+    state[
+      urlType === "products" ? "completedProducts" : "completedCategories"
+    ] = true;
+    await saveState(CONFIG.STATE_FILE, state);
   }
 }
 
@@ -182,6 +238,11 @@ async function main() {
   // Load or create state
   const state = await loadState(CONFIG.STATE_FILE);
   state.lastRun = new Date().toISOString();
+
+  // Ensure state has proper structure
+  if (!state.processedProducts) state.processedProducts = [];
+  if (!state.processedCategories) state.processedCategories = [];
+
   await saveState(CONFIG.STATE_FILE, state);
 
   // Build caches first if needed
@@ -195,6 +256,19 @@ async function main() {
       execSync("node scripts/build-products-cache.js", { stdio: "inherit" });
     } catch (error) {
       console.error("Error building product cache:", error.message);
+
+      // Create empty cache file as fallback if it doesn't exist
+      const productCachePath = path.join(
+        process.cwd(),
+        ".nuxt",
+        "cache",
+        "cached-products.json"
+      );
+
+      if (!fs.existsSync(productCachePath)) {
+        console.log("Creating empty product cache file as fallback");
+        fs.writeFileSync(productCachePath, JSON.stringify([]));
+      }
     }
   }
 
@@ -208,6 +282,19 @@ async function main() {
       execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
     } catch (error) {
       console.error("Error building category cache:", error.message);
+
+      // Create empty cache file as fallback if it doesn't exist
+      const categoryCachePath = path.join(
+        process.cwd(),
+        ".nuxt",
+        "cache",
+        "cached-categories.json"
+      );
+
+      if (!fs.existsSync(categoryCachePath)) {
+        console.log("Creating empty category cache file as fallback");
+        fs.writeFileSync(categoryCachePath, JSON.stringify([]));
+      }
     }
   }
 

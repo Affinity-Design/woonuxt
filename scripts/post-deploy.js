@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const fetch = require("node-fetch");
-const { execSync } = require("child_process");
+const { execSync, spawn } = require("child_process");
 
 // Configuration
 const CONFIG = {
@@ -55,59 +55,77 @@ async function warmCriticalPages() {
 
   console.log(`Warming ${criticalUrls.length} critical pages...`);
 
+  // Process critical pages one at a time to avoid rate limits
   for (const url of criticalUrls) {
     await warmUrl(url);
-    await delay(500); // Small delay between requests
+    // Add a delay between requests to avoid rate limiting
+    await delay(1500);
   }
 }
 
 /**
- * Run the product cache builder directly
+ * Run the product cache builder directly as a promise
  */
 function buildProductCache() {
-  try {
+  return new Promise((resolve) => {
     console.log("🔄 Building full product cache...");
-    execSync("node scripts/build-products-cache.js", {
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        LIMIT_PRODUCTS: "false", // Ensure full product build
-      },
-    });
-    console.log("✅ Product cache build completed");
-    return true;
-  } catch (error) {
-    console.error("❌ Product cache build failed:", error.message);
-    return false;
-  }
+    try {
+      execSync("node scripts/build-products-cache.js", {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          LIMIT_PRODUCTS: "false", // Ensure full product build
+        },
+      });
+      console.log("✅ Product cache build completed");
+      resolve(true);
+    } catch (error) {
+      console.error("❌ Product cache build failed:", error.message);
+      resolve(false);
+    }
+  });
 }
 
 /**
- * Run the category cache builder directly
+ * Run the category cache builder directly as a promise
  */
 function buildCategoryCache() {
-  try {
+  return new Promise((resolve) => {
     console.log("🔄 Building category cache...");
-    execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
-    console.log("✅ Category cache build completed");
-    return true;
-  } catch (error) {
-    console.error("❌ Category cache build failed:", error.message);
-    return false;
-  }
+    try {
+      execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
+      console.log("✅ Category cache build completed");
+      resolve(true);
+    } catch (error) {
+      console.error("❌ Category cache build failed:", error.message);
+      resolve(false);
+    }
+  });
 }
 
 /**
- * Run the cache warmer directly
+ * Run the cache warmer directly in the background
+ * This runs in a detached process so it can continue after this script exits
  */
 function runCacheWarmer(type = "all") {
+  console.log(`🔄 Starting cache warmer for ${type} in background...`);
   try {
-    console.log(`🔄 Running cache warmer for ${type}...`);
-    execSync(`node scripts/cache-warmer.js ${type}`, { stdio: "inherit" });
-    console.log(`✅ Cache warming for ${type} completed`);
+    // Create a detached process that will continue after script exits
+    const warmerProcess = spawn("node", ["scripts/cache-warmer.js", type], {
+      detached: true,
+      stdio: "ignore",
+      env: process.env,
+    });
+
+    // Unref the child process so parent can exit
+    warmerProcess.unref();
+
+    console.log(
+      `✅ Cache warmer for ${type} started with PID: ${warmerProcess.pid}`
+    );
     return true;
   } catch (error) {
-    console.error(`❌ Cache warming for ${type} failed:`, error.message);
+    console.error(`❌ Error starting cache warmer for ${type}:`, error.message);
     return false;
   }
 }
@@ -119,41 +137,55 @@ async function main() {
   console.log("🚀 Post-deployment script started");
 
   try {
-    // Always warm critical pages immediately after deployment
+    // 1. First warm critical pages immediately after deployment
     await warmCriticalPages();
 
-    // Check if we need to do full cache warming
+    // 2. Check if we need to do full cache warming
     if (CONFIG.RUN_CACHE_WARMING) {
       if (CONFIG.WARM_CRITICAL_ONLY) {
         console.log(
           "Only warming critical pages as specified in configuration"
         );
       } else {
-        // Run full caching processes directly
-        console.log("Running full cache processes...");
+        console.log("Running full cache processes in sequence...");
 
-        // Build product cache
-        buildProductCache();
+        // 3. First build category cache (this is smaller and faster)
+        await buildCategoryCache();
 
-        // Build category cache
-        buildCategoryCache();
+        // 4. Add a delay to avoid rate limiting
+        console.log("Waiting 3 seconds before building product cache...");
+        await delay(3000);
 
-        // Run cache warmer with delay to avoid overwhelming the server
-        setTimeout(() => {
-          runCacheWarmer("all");
-        }, 5000);
+        // 5. Then build product cache
+        await buildProductCache();
+
+        // 6. Add another delay before starting page warming
+        console.log("Waiting 5 seconds before starting page warming...");
+        await delay(5000);
+
+        // 7. Finally, start cache warmer in the background
+        // This will continue running after this script exits
+        runCacheWarmer("all");
       }
     } else {
       console.log("Full cache warming disabled by configuration");
     }
 
-    console.log("✅ Post-deployment script completed");
+    console.log("✅ Post-deployment script completed successfully");
+
+    // Give a moment for any final console output to be flushed
+    await delay(500);
+
+    // Exit with success code
+    process.exit(0);
   } catch (error) {
     console.error("❌ Error in post-deployment script:", error);
+    process.exit(1);
   }
 }
 
 // Run the main function
 main().catch((error) => {
   console.error("Unhandled error in post-deployment script:", error);
+  process.exit(1);
 });
