@@ -47,14 +47,6 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    // Remove the problematic storage configuration or modify it
-    storage: {
-      // For Cloudflare Pages, KV binding happens automatically
-      // Don't specify a driver directly as it causes build issues
-      cache: {
-        // Let Cloudflare Pages handle the storage driver automatically
-      },
-    },
   },
   routeRules: {
     // Homepage prerendered at build time
