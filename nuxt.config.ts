@@ -47,13 +47,12 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    // Configure the storage for the cache TODO
+    // Remove the problematic storage configuration or modify it
     storage: {
+      // For Cloudflare Pages, KV binding happens automatically
+      // Don't specify a driver directly as it causes build issues
       cache: {
-        driver:
-          process.env.NODE_ENV === "production"
-            ? "cloudflare-kv" // Use Cloudflare KV in production
-            : "fs", // Use filesystem in development/preview
+        // Let Cloudflare Pages handle the storage driver automatically
       },
     },
   },
