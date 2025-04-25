@@ -48,14 +48,14 @@ export default defineNuxtConfig({
       openAPI: true,
     },
     // Configure the storage for the cache TODO
-    // storage: {
-    //   cache: {
-    //     driver:
-    //       process.env.NODE_ENV === "production"
-    //         ? "cloudflare-kv" // Use Cloudflare KV in production
-    //         : "fs", // Use filesystem in development/preview
-    //   },
-    // },
+    storage: {
+      cache: {
+        driver:
+          process.env.NODE_ENV === "production"
+            ? "cloudflare-kv" // Use Cloudflare KV in production
+            : "fs", // Use filesystem in development/preview
+      },
+    },
   },
   routeRules: {
     // Homepage prerendered at build time
@@ -133,17 +133,17 @@ export default defineNuxtConfig({
   },
 
   // TODO only for testing
-  image: {
-    // Disable for development/testing
-    domains:
-      process.env.NODE_ENV === "production"
-        ? ["test.proskatersplace.com", "proskatersplace.ca"]
-        : [],
-    // Use simpler format for local testing
-    format: ["webp"],
-    // Placeholder options
-    placeholder: process.env.NODE_ENV === "production",
-  },
+  // image: {
+  //   // Disable for development/testing
+  //   domains:
+  //     process.env.NODE_ENV === "production"
+  //       ? ["test.proskatersplace.com", "proskatersplace.ca"]
+  //       : [],
+  //   // Use simpler format for local testing
+  //   format: ["webp"],
+  //   // Placeholder options
+  //   placeholder: process.env.NODE_ENV === "production",
+  // },
 
   // Whitelisting for agent
   app: {

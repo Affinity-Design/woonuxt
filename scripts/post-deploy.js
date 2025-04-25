@@ -2,15 +2,16 @@
 const fs = require("fs");
 const path = require("path");
 const fetch = require("node-fetch");
+const { execSync } = require("child_process");
 
 // Configuration
 const CONFIG = {
   // Base URL for the frontend site
-  FRONTEND_URL: process.env.FRONTEND_URL || "https://proskatersplace.ca",
+  FRONTEND_URL: process.env.FRONTEND_URL || "https://localhost:3000",
   // GraphQL endpoint for WooCommerce
-  WP_GRAPHQL_URL: process.env.GQL_HOST || "https://proskatersplace.ca/graphql",
+  WP_GRAPHQL_URL: process.env.GQL_HOST,
   // Secret token for revalidation
-  REVALIDATION_SECRET: process.env.REVALIDATION_SECRET || "your-secret-key",
+  REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
   // Whether to run cache warming after deployment
   RUN_CACHE_WARMING: process.env.RUN_CACHE_WARMING !== "false",
   // Whether to warm only critical pages
@@ -61,58 +62,53 @@ async function warmCriticalPages() {
 }
 
 /**
- * Trigger the full cache warming process in the background
+ * Run the product cache builder directly
  */
-async function triggerFullCacheWarming() {
+function buildProductCache() {
   try {
-    console.log("🔄 Triggering full cache warming...");
-
-    // First, warm products and categories cache
-    await fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-products`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret: CONFIG.REVALIDATION_SECRET,
-      }),
+    console.log("🔄 Building full product cache...");
+    execSync("node scripts/build-products-cache.js", {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        LIMIT_PRODUCTS: "false", // Ensure full product build
+      },
     });
-
-    // Then trigger page cache warming
-    await fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-warming`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret: CONFIG.REVALIDATION_SECRET,
-        type: "all", // Warm all pages
-      }),
-    });
-
-    console.log("✅ Cache warming completed successfully");
+    console.log("✅ Product cache build completed");
+    return true;
   } catch (error) {
-    console.error("❌ Cache warming failed:", error);
+    console.error("❌ Product cache build failed:", error.message);
+    return false;
   }
 }
+
 /**
- * Complete the full product cache building in the background
+ * Run the category cache builder directly
  */
-async function triggerFullProductCacheBuilding() {
+function buildCategoryCache() {
   try {
-    console.log("Triggering full product cache building in the background...");
-
-    fetch(`${CONFIG.FRONTEND_URL}/api/trigger-cache-products`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        secret: CONFIG.REVALIDATION_SECRET,
-      }),
-    }).catch((error) => {
-      console.error("Error triggering product cache building:", error);
-    });
-
-    console.log("Product cache building triggered in the background");
+    console.log("🔄 Building category cache...");
+    execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
+    console.log("✅ Category cache build completed");
+    return true;
   } catch (error) {
-    console.error("Error triggering product cache building:", error);
+    console.error("❌ Category cache build failed:", error.message);
+    return false;
+  }
+}
+
+/**
+ * Run the cache warmer directly
+ */
+function runCacheWarmer(type = "all") {
+  try {
+    console.log(`🔄 Running cache warmer for ${type}...`);
+    execSync(`node scripts/cache-warmer.js ${type}`, { stdio: "inherit" });
+    console.log(`✅ Cache warming for ${type} completed`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Cache warming for ${type} failed:`, error.message);
+    return false;
   }
 }
 
@@ -126,19 +122,26 @@ async function main() {
     // Always warm critical pages immediately after deployment
     await warmCriticalPages();
 
-    // Check if we need to warm the full cache
+    // Check if we need to do full cache warming
     if (CONFIG.RUN_CACHE_WARMING) {
-      await triggerFullCacheWarming();
-      console.log("✅ Post-deployment script completed");
       if (CONFIG.WARM_CRITICAL_ONLY) {
         console.log(
           "Only warming critical pages as specified in configuration"
         );
       } else {
-        // Trigger full cache warming
-        await triggerFullProductCacheBuilding();
-        await delay(5000); // Wait a bit before starting page warming
-        await triggerFullCacheWarming();
+        // Run full caching processes directly
+        console.log("Running full cache processes...");
+
+        // Build product cache
+        buildProductCache();
+
+        // Build category cache
+        buildCategoryCache();
+
+        // Run cache warmer with delay to avoid overwhelming the server
+        setTimeout(() => {
+          runCacheWarmer("all");
+        }, 5000);
       }
     } else {
       console.log("Full cache warming disabled by configuration");
