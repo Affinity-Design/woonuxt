@@ -9,8 +9,8 @@ const categoryMapping = [
   { display: "Roller Skates", slug: "roller-skates" },
   { display: "Skate Parts", slug: "replacement-parts" },
   { display: "Skate Tools", slug: "skate-tools" },
+  { display: "Protection Gear", slug: "protection-gear-and-apparel" },
   { display: "Scooters", slug: "scooters" },
-  { display: "winter-sports", slug: "winter-sports" },
 ];
 const productCategories = computed(() => {
   const categoriesMap = new Map(

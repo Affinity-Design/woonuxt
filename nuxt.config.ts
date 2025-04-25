@@ -33,12 +33,11 @@ export default defineNuxtConfig({
 
   // Updated Nitro configuration for Cloudflare Pages
   nitro: {
-    //preset: "node-server", // Use node-server preset for local developmentTODO
-    preset: "cloudflare-pages", // Use Cloudflare Pages preset for deployment
+    preset: "cloudflare-pages",
     prerender: {
-      crawlLinks: false, // Don't automatically crawl all links
-      routes: ["/"], // Only prerender the homepage
-      ignore: ["/product/**", "/product-category/**"], // Explicitly ignore product and category pages during prerendering
+      crawlLinks: false,
+      routes: ["/"],
+      ignore: ["/product/**", "/product-category/**"],
       concurrency: 10,
       interval: 1000,
       failOnError: false,
@@ -49,51 +48,38 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    // Homepage prerendered at build time
+    // Homepage - rebuild every 24 hours
     "/": {
       cache: {
-        staleMaxAge: 60 * 60 * 24, // 24 hours
-        maxAge: 60 * 60 * 24, // 24 hours
-        swr: true,
+        maxAge: 60 * 60 * 24, // 24-hour TTL
       },
+      prerender: true,
     },
-    // Product category pages with stale-while-revalidate for 1 week
+
+    // Product categories - rebuild every 7 days
     "/product-category/**": {
       cache: {
-        staleMaxAge: 60 * 60 * 24 * 7, // 7 days in seconds
-        swr: true,
+        maxAge: 60 * 60 * 24 * 7, // 7-day TTL
       },
     },
-    // Product pages with stale-while-revalidate for 72 hours
+
+    // Product pages - rebuild every 72 hours
     "/product/**": {
       cache: {
-        staleMaxAge: 60 * 60 * 72, // 7 days in seconds
-        maxAge: 60 * 60 * 24, // 24 hours
-        swr: true,
+        maxAge: 60 * 60 * 72, // 72-hour TTL
       },
     },
-    // Dynamic routes with no caching - client-side rendering only
-    "/checkout/**": {
-      ssr: false,
-    },
-    "/cart": {
-      ssr: false,
-    },
-    "/account/**": {
-      ssr: false,
-    },
-    // Static pages prerendered
-    "/contact": {
-      prerender: true,
-    },
-    "/terms": {
-      prerender: true,
-    },
-    "/privacy": {
-      prerender: true,
-    },
-  },
 
+    // Client-side only routes
+    "/checkout/**": { ssr: false },
+    "/cart": { ssr: false },
+    "/account/**": { ssr: false },
+
+    // Static pages
+    "/contact": { prerender: true },
+    "/terms": { prerender: true },
+    "/privacy": { prerender: true },
+  },
   // Hook overides
   hooks: {
     "pages:extend"(pages) {
