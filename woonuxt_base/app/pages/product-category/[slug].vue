@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// OLD
 const { setProducts, updateProductList } = useProducts();
 const { isQueryEmpty } = useHelpers();
 const { storeSettings } = useAppConfig();

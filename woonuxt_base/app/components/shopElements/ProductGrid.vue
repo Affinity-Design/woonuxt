@@ -1,4 +1,5 @@
 <script setup lang="ts">
+//old
 const route = useRoute();
 const { productsPerPage } = useHelpers();
 const { products } = useProducts();

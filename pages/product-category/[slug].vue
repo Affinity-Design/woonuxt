@@ -180,42 +180,44 @@ useHead({
     </div>
 
     <!-- Show data when it's ready -->
-    <div v-else-if="productsInCategory.length > 0" class="container py-8">
+    <div
+      v-else-if="productsInCategory.length > 0"
+      class="container py-4 md:py-8"
+    >
       <!-- Filters and Products Layout -->
-      <div class="container flex items-start gap-16">
+      <div class="flex flex-col md:flex-row items-start md:gap-8">
         <!-- Filters sidebar - fixed width -->
         <div
           v-if="storeSettings.showFilters === true"
-          class="w-full md:w-64 flex-shrink-0"
+          class="w-full md:w-64 flex-shrink-0 md:mr-8"
         >
           <Filters :hide-categories="true" />
         </div>
 
         <!-- Product area - flex 1 -->
-        <div class="flex-1">
+        <div class="flex-1 w-full">
           <!-- Product header with title and sorting -->
-          <div
-            class="flex flex-col md:flex-row md:items-center md:justify-between mb-6"
-          >
-            <div class="flex items-baseline gap-4">
-              <h1
-                class="text-3xl font-bold text-gray-900 font-system tracking-tight"
-              >
-                {{ categoryTitle }}
-              </h1>
-              <ProductResultCount />
-            </div>
+          <div class="flex flex-row items-center justify-between">
+            <h1
+              class="text-2xl md:text-3xl font-bold text-gray-900 font-system tracking-tight"
+            >
+              {{ categoryTitle }}
+            </h1>
 
-            <div class="flex items-center gap-3 mt-4 md:mt-0">
+            <div class="flex items-center ml-auto">
               <OrderByDropdown
                 v-if="storeSettings.showOrderByDropdown === true"
-                class="ml-auto md:ml-0"
+                class="ml-auto"
               />
               <ShowFilterTrigger
                 v-if="storeSettings.showFilters && !isDesktop"
-                class="md:hidden"
+                class="md:hidden ml-2"
               />
             </div>
+          </div>
+
+          <div class="flex items-center mt-1 mb-4">
+            <ProductResultCount />
           </div>
 
           <!-- Product grid -->

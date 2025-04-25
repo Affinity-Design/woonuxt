@@ -9,15 +9,10 @@ const { productsPerPage } = useHelpers();
 const { products } = useProducts();
 
 // Get current page from URL query parameter (default to 1 if not present)
-const currentPage = ref(parseInt(route.query.page as string) || 1);
-
-// Watch for route query changes and update the current page
-watch(
-  () => route.query.page,
-  (newPage) => {
-    currentPage.value = parseInt(newPage as string) || 1;
-  }
-);
+const currentPage = computed(() => {
+  const pageParam = route.query.page;
+  return pageParam ? parseInt(pageParam as string) : 1;
+});
 
 // Filter products based on current page
 const productsToShow = computed(() => {
@@ -52,9 +47,10 @@ const productsToShow = computed(() => {
 <style lang="postcss" scoped>
 .product-grid {
   @apply my-4 min-h-[600px] grid transition-all gap-8 lg:my-8;
-
   grid-template-columns: repeat(2, 1fr);
+  width: 100%;
 }
+
 .product-grid:empty {
   display: none;
 }
