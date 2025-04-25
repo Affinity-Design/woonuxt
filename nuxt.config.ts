@@ -34,6 +34,12 @@ export default defineNuxtConfig({
   // Updated Nitro configuration for Cloudflare Pages
   nitro: {
     preset: "cloudflare-pages",
+    storage: {
+      cache: {
+        driver: "cloudflare-kv-binding",
+        binding: "NUXT_CACHE", // <-- your Cloudflare KV binding name
+      },
+    },
     prerender: {
       crawlLinks: false,
       routes: ["/"],
@@ -47,35 +53,30 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
+
   routeRules: {
-    // Homepage - rebuild every 24 hours
     "/": {
       cache: {
-        maxAge: 60 * 60 * 24, // 24-hour TTL
+        maxAge: 60 * 60 * 24, // 24 hours
+        base: "cache",
       },
       prerender: true,
     },
-
-    // Product categories - rebuild every 7 days
     "/product-category/**": {
       cache: {
-        maxAge: 60 * 60 * 24 * 7, // 7-day TTL
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        base: "cache",
       },
     },
-
-    // Product pages - rebuild every 72 hours
     "/product/**": {
       cache: {
-        maxAge: 60 * 60 * 72, // 72-hour TTL
+        maxAge: 60 * 60 * 72, // 72 hours
+        base: "cache",
       },
     },
-
-    // Client-side only routes
     "/checkout/**": { ssr: false },
     "/cart": { ssr: false },
     "/account/**": { ssr: false },
-
-    // Static pages
     "/contact": { prerender: true },
     "/terms": { prerender: true },
     "/privacy": { prerender: true },
