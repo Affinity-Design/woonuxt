@@ -40,6 +40,11 @@ export default defineNuxtConfig({
         binding: "NUXT_CACHE", // <-- your Cloudflare KV binding name
       },
     },
+    devStorage: {
+      cache: {
+        driver: "fs",
+      },
+    },
     prerender: {
       crawlLinks: false,
       routes: ["/"],
@@ -49,29 +54,29 @@ export default defineNuxtConfig({
       failOnError: false,
       autoSubfolderIndex: false,
     },
-    experimental: {
-      openAPI: true,
-    },
   },
 
   routeRules: {
     "/": {
       cache: {
         maxAge: 60 * 60 * 24, // 24 hours
-        base: "cache",
+        isr: true,
+        storage: "cache",
       },
       prerender: true,
     },
     "/product-category/**": {
       cache: {
         maxAge: 60 * 60 * 24 * 7, // 7 days
-        base: "cache",
+        isr: true,
+        storage: "cache",
       },
     },
     "/product/**": {
       cache: {
         maxAge: 60 * 60 * 72, // 72 hours
-        base: "cache",
+        isr: true,
+        storage: "cache",
       },
     },
     "/checkout/**": { ssr: false },

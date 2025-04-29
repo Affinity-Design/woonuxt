@@ -20,9 +20,9 @@ const CONFIG = {
   // Secret token for revalidation
   REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
   // How many products to fetch per batch
-  BATCH_SIZE: isBuildMode ? 10 : 5,
+  BATCH_SIZE: 10,
   // Delay between batches (in ms)
-  BATCH_DELAY: isBuildMode ? 500 : 1000,
+  BATCH_DELAY: 500,
   // Are we limiting products for build mode?
   IS_BUILD_MODE: isBuildMode,
   // Maximum products to fetch in build mode
