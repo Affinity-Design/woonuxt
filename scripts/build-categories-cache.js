@@ -1,13 +1,17 @@
 // scripts/build-categories-cache.js
 require("dotenv").config();
 const fetch = require("node-fetch");
-const fs = require("fs");
+const fs = require("fs"); // Using synchronous fs for simplicity in build script
 const path = require("path");
 
 // Configuration
 const CONFIG = {
   WP_GRAPHQL_URL: process.env.GQL_HOST,
   BATCH_SIZE: 50, // Categories are usually fewer than products
+  // --- START: New output path configuration ---
+  OUTPUT_DIR: path.join(process.cwd(), ".output", "public", "_script_data"),
+  OUTPUT_FILE: "categories.json",
+  // --- END: New output path configuration ---
 };
 
 // GraphQL query for categories with all needed data
@@ -56,10 +60,39 @@ async function fetchCategories() {
       body: JSON.stringify({ query: CATEGORIES_QUERY }),
     });
 
+    // Check for non-OK response status
+    if (!response.ok) {
+      console.error(
+        `Error fetching categories: ${response.status} ${response.statusText}`
+      );
+      // Attempt to read the body for more details if possible
+      try {
+        const errorBody = await response.text();
+        console.error("Response body:", errorBody);
+      } catch (e) {
+        console.error("Could not read error response body.");
+      }
+      return [];
+    }
+
     const data = await response.json();
 
     if (data.errors) {
       console.error("GraphQL errors:", data.errors);
+      return [];
+    }
+
+    // Check if the expected data structure exists
+    if (
+      !data ||
+      !data.data ||
+      !data.data.productCategories ||
+      !data.data.productCategories.nodes
+    ) {
+      console.error(
+        "Unexpected data structure received from GraphQL:",
+        JSON.stringify(data, null, 2)
+      );
       return [];
     }
 
@@ -68,29 +101,36 @@ async function fetchCategories() {
 
     return categories;
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error("Error during category fetch operation:", error);
     return [];
   }
 }
 
-// Store categories in cache
-async function storeCategoriesInCache(categories) {
-  console.log(`Storing ${categories.length} categories in cache...`);
+// Store categories in the build output directory
+function storeCategoriesInBuildOutput(categories) {
+  console.log(`Storing ${categories.length} categories in build output...`);
+  const outputPath = path.join(CONFIG.OUTPUT_DIR, CONFIG.OUTPUT_FILE);
 
-  // Create cache directory
-  const cacheDir = path.join(process.cwd(), ".nuxt", "cache");
-  if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
+  try {
+    // Ensure the output directory exists
+    // The '.output/public' part should be created by Nuxt build,
+    // but we ensure our specific '_script_data' subdirectory is there.
+    if (!fs.existsSync(CONFIG.OUTPUT_DIR)) {
+      fs.mkdirSync(CONFIG.OUTPUT_DIR, { recursive: true });
+      console.log(`Created directory: ${CONFIG.OUTPUT_DIR}`);
+    }
+
+    // Write the categories data to the JSON file
+    fs.writeFileSync(outputPath, JSON.stringify(categories, null, 2));
+
+    console.log(
+      `Successfully stored ${categories.length} categories to ${outputPath}`
+    );
+    return true;
+  } catch (error) {
+    console.error(`Error storing categories to ${outputPath}:`, error);
+    return false;
   }
-
-  // Store categories in cache
-  fs.writeFileSync(
-    path.join(cacheDir, "cached-categories.json"),
-    JSON.stringify(categories, null, 2)
-  );
-
-  console.log(`Successfully stored ${categories.length} categories in cache`);
-  return true;
 }
 
 // Main function
@@ -101,22 +141,26 @@ async function main() {
     // Fetch categories
     const categories = await fetchCategories();
 
-    if (categories.length === 0) {
-      console.error("No categories fetched");
-      process.exit(1);
-    }
-
-    // Store categories in cache
-    const success = await storeCategoriesInCache(categories);
-
-    if (success) {
-      console.log(`Successfully cached ${categories.length} categories`);
+    if (!categories || categories.length === 0) {
+      console.warn(
+        "No categories fetched or an error occurred. Attempting to write empty file."
+      );
+      // Write an empty array to ensure the file exists for the later API step
+      storeCategoriesInBuildOutput([]);
+      // Decide if you want to exit here or continue. Continuing allows build to finish.
+      // process.exit(1); // Uncomment to make build fail if no categories are fetched
+      console.log("Continuing build with empty categories file.");
     } else {
-      console.error("Failed to cache categories");
-      process.exit(1);
+      // Store categories in the build output
+      const success = storeCategoriesInBuildOutput(categories);
+
+      if (!success) {
+        console.error("Failed to store categories in build output.");
+        process.exit(1); // Exit if writing failed
+      }
     }
   } catch (error) {
-    console.error("Error in category cache builder:", error);
+    console.error("Error in category cache builder main function:", error);
     process.exit(1);
   }
 }

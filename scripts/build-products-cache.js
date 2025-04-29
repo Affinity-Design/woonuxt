@@ -1,6 +1,8 @@
 // scripts/build-products-cache.js
 require("dotenv").config();
 const fetch = require("node-fetch");
+const fs = require("fs"); // Using synchronous fs for simplicity in build script
+const path = require("path");
 
 // Check if running in build mode with product limit
 const isBuildMode =
@@ -8,25 +10,20 @@ const isBuildMode =
   process.env.LIMIT_PRODUCTS === "true";
 
 const maxProducts = isBuildMode
-  ? parseInt(process.env.MAX_PRODUCTS || "2000", 10) // Increase default limit
+  ? parseInt(process.env.MAX_PRODUCTS || "2000", 10) // Default limit for build mode
   : null; // No limit when not in build mode
 
 // Configuration
 const CONFIG = {
-  // GraphQL endpoint for WooCommerce
   WP_GRAPHQL_URL: process.env.GQL_HOST,
-  // Frontend URL
-  FRONTEND_URL: process.env.FRONTEND_URL,
-  // Secret token for revalidation
-  REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
-  // How many products to fetch per batch
   BATCH_SIZE: 10,
-  // Delay between batches (in ms)
   BATCH_DELAY: 500,
-  // Are we limiting products for build mode?
   IS_BUILD_MODE: isBuildMode,
-  // Maximum products to fetch in build mode
   MAX_PRODUCTS: maxProducts,
+  // --- START: New output path configuration ---
+  OUTPUT_DIR: path.join(process.cwd(), ".output", "public", "_script_data"),
+  OUTPUT_FILE: "products.json",
+  // --- END: New output path configuration ---
 };
 
 // GraphQL query to fetch products with search-relevant fields
@@ -49,17 +46,46 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
           slug
         }
       }
-  # Use fragments for specific product types
-        ... on SimpleProduct {
-          price
-          stockStatus
-          onSale
-        }
-        ... on VariableProduct {
-          price
-          stockStatus
-          onSale
-        }
+      # Use fragments for specific product types
+      ... on SimpleProduct {
+        price(format: RAW) # Request raw price
+        regularPrice(format: RAW)
+        salePrice(format: RAW)
+        stockStatus
+        onSale
+        manageStock
+        stockQuantity
+      }
+      ... on VariableProduct {
+        price(format: RAW) # Request raw price
+        regularPrice(format: RAW)
+        salePrice(format: RAW)
+        stockStatus
+        onSale
+        manageStock
+        stockQuantity
+        # Include variations if needed for search/display later
+        # variations {
+        #   nodes {
+        #     databaseId
+        #     name
+        #     sku
+        #     price(format: RAW)
+        #     regularPrice(format: RAW)
+        #     salePrice(format: RAW)
+        #     stockStatus
+        #     stockQuantity
+        #     manageStock
+        #     attributes {
+        #       nodes {
+        #         name
+        #         value
+        #       }
+        #     }
+        #   }
+        # }
+      }
+      # Add other product types if necessary (e.g., ExternalProduct, GroupProduct)
     }
   }
 }`;
@@ -90,7 +116,11 @@ async function fetchProducts() {
     );
 
     // Check if we've reached the limit for build mode
-    if (CONFIG.IS_BUILD_MODE && allProducts.length >= CONFIG.MAX_PRODUCTS) {
+    if (
+      CONFIG.IS_BUILD_MODE &&
+      CONFIG.MAX_PRODUCTS !== null &&
+      allProducts.length >= CONFIG.MAX_PRODUCTS
+    ) {
       console.log(
         `Reached build mode limit of ${CONFIG.MAX_PRODUCTS} products. Stopping fetch.`
       );
@@ -108,36 +138,77 @@ async function fetchProducts() {
           variables: {
             first: CONFIG.BATCH_SIZE,
             after: endCursor,
-            // In build mode, prioritize recent and popular products
-            orderby: CONFIG.IS_BUILD_MODE ? "RATING" : "DATE",
+            // In build mode, prioritize recent products if desired, otherwise by DATE
+            orderby: CONFIG.IS_BUILD_MODE ? "DATE" : "DATE", // Example: Use DATE for both, adjust if needed
             order: "DESC",
           },
         }),
       });
 
+      // Check for non-OK response status
+      if (!response.ok) {
+        console.error(
+          `Error fetching products batch: ${response.status} ${response.statusText}`
+        );
+        try {
+          const errorBody = await response.text();
+          console.error("Response body:", errorBody);
+        } catch (e) {
+          console.error("Could not read error response body.");
+        }
+        // Decide how to handle batch errors: break, retry, or skip? Breaking for now.
+        break;
+      }
+
       const result = await response.json();
 
       if (result.errors) {
         console.error("GraphQL errors:", result.errors);
-        break;
+        break; // Stop fetching if there are GraphQL errors
+      }
+
+      // Check for expected data structure
+      if (
+        !result ||
+        !result.data ||
+        !result.data.products ||
+        !result.data.products.nodes ||
+        !result.data.products.pageInfo
+      ) {
+        console.error(
+          "Unexpected data structure received from GraphQL:",
+          JSON.stringify(result, null, 2)
+        );
+        break; // Stop if the structure is wrong
       }
 
       const products = result.data.products.nodes;
-      allProducts = [...allProducts, ...products];
+      const fetchedCount = products.length;
+      const potentialTotal = allProducts.length + fetchedCount;
 
-      hasNextPage = result.data.products.pageInfo.hasNextPage;
-      endCursor = result.data.products.pageInfo.endCursor;
-
-      console.log(
-        `Fetched ${products.length} products. Running total: ${allProducts.length}`
-      );
-
-      // If we're in build mode and have enough products, stop fetching
-      if (CONFIG.IS_BUILD_MODE && allProducts.length >= CONFIG.MAX_PRODUCTS) {
+      // If in build mode, check if adding this batch exceeds the limit
+      if (
+        CONFIG.IS_BUILD_MODE &&
+        CONFIG.MAX_PRODUCTS !== null &&
+        potentialTotal > CONFIG.MAX_PRODUCTS
+      ) {
+        const needed = CONFIG.MAX_PRODUCTS - allProducts.length;
+        allProducts = [...allProducts, ...products.slice(0, needed)];
         console.log(
-          `Reached build mode limit of ${CONFIG.MAX_PRODUCTS} products. Stopping fetch.`
+          `Fetched ${needed} products (reached limit). Running total: ${allProducts.length}`
         );
-        break;
+        hasNextPage = false; // Stop fetching
+      } else {
+        allProducts = [...allProducts, ...products];
+        console.log(
+          `Fetched ${fetchedCount} products. Running total: ${allProducts.length}`
+        );
+      }
+
+      // Update page info only if we haven't manually stopped
+      if (hasNextPage) {
+        hasNextPage = result.data.products.pageInfo.hasNextPage;
+        endCursor = result.data.products.pageInfo.endCursor;
       }
 
       // Add delay between batches to avoid overwhelming the server
@@ -146,23 +217,10 @@ async function fetchProducts() {
         await delay(CONFIG.BATCH_DELAY);
       }
     } catch (error) {
-      console.error("Error fetching products batch:", error);
-      // Try to continue with the next batch
-      if (hasNextPage && endCursor) {
-        console.log("Attempting to continue with next batch...");
-        await delay(CONFIG.BATCH_DELAY * 2);
-      } else {
-        break;
-      }
+      console.error("Error during product fetch operation:", error);
+      // Decide how to handle: break, retry, or skip? Breaking for now.
+      break;
     }
-  }
-
-  // If we're in build mode and have more products than the limit, trim the array
-  if (CONFIG.IS_BUILD_MODE && allProducts.length > CONFIG.MAX_PRODUCTS) {
-    allProducts = allProducts.slice(0, CONFIG.MAX_PRODUCTS);
-    console.log(
-      `Trimmed products array to ${CONFIG.MAX_PRODUCTS} for build mode`
-    );
   }
 
   console.log(`Finished fetching products. Total: ${allProducts.length}`);
@@ -170,79 +228,28 @@ async function fetchProducts() {
 }
 
 /**
- * Store products in cache for searching
+ * Store products in the build output directory
  */
-/**
- * Store products in cache for searching
- */
-async function storeProductsInCache(products) {
-  console.log(`Storing ${products.length} products in search cache...`);
+function storeProductsInBuildOutput(products) {
+  console.log(`Storing ${products.length} products in build output...`);
+  const outputPath = path.join(CONFIG.OUTPUT_DIR, CONFIG.OUTPUT_FILE);
 
   try {
-    // For local development, write to a file instead of calling API
-    const fs = require("fs");
-    const path = require("path");
-
-    // Create the .nuxt/cache directory if it doesn't exist
-    const cacheDir = path.join(process.cwd(), ".nuxt", "cache");
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
+    // Ensure the output directory exists
+    if (!fs.existsSync(CONFIG.OUTPUT_DIR)) {
+      fs.mkdirSync(CONFIG.OUTPUT_DIR, { recursive: true });
+      console.log(`Created directory: ${CONFIG.OUTPUT_DIR}`);
     }
 
-    // Write the products to a file
-    fs.writeFileSync(
-      path.join(cacheDir, "cached-products.json"),
-      JSON.stringify(products, null, 2)
-    );
+    // Write the products data to the JSON file
+    fs.writeFileSync(outputPath, JSON.stringify(products, null, 2));
 
     console.log(
-      `Successfully stored ${products.length} products in local cache file`
+      `Successfully stored ${products.length} products to ${outputPath}`
     );
-
-    // If we're running in a development environment, also try to store in API
-    // but only for testing that the API works - don't fail if it doesn't
-    if (process.env.NODE_ENV === "development" && CONFIG.FRONTEND_URL) {
-      try {
-        // Create custom agent that ignores SSL errors for local development
-        const https = require("https");
-        const agent = new https.Agent({
-          rejectUnauthorized: false, // Disable certificate verification
-        });
-
-        console.log("Testing API endpoint (with SSL verification disabled)...");
-
-        const response = await fetch(
-          `${CONFIG.FRONTEND_URL}/api/cache-products`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              secret: CONFIG.REVALIDATION_SECRET,
-              products: products.slice(0, 5), // Just send a few products as a test
-              buildMode: true,
-            }),
-            agent: CONFIG.FRONTEND_URL.startsWith("https") ? agent : undefined,
-          }
-        );
-
-        const result = await response.json();
-        console.log("API test result:", result);
-      } catch (apiError) {
-        console.log(
-          "API test failed (expected in development):",
-          apiError.message
-        );
-        console.log(
-          "This is normal in development if the API endpoint is not running."
-        );
-      }
-    }
-
     return true;
   } catch (error) {
-    console.error("Error storing products in cache:", error);
+    console.error(`Error storing products to ${outputPath}:`, error);
     return false;
   }
 }
@@ -250,7 +257,6 @@ async function storeProductsInCache(products) {
 /**
  * Main function
  */
-// In the main function
 async function main() {
   console.log(
     `Starting products cache builder${CONFIG.IS_BUILD_MODE ? " (BUILD MODE)" : ""}...`
@@ -264,26 +270,26 @@ async function main() {
     // Fetch products
     const products = await fetchProducts();
 
-    if (products.length === 0) {
-      console.error(
-        "No products fetched. Check your GraphQL endpoint configuration."
+    if (!products || products.length === 0) {
+      console.warn(
+        "No products fetched or an error occurred. Attempting to write empty file."
       );
-      process.exit(1);
-    }
-
-    // Store products in cache
-    const success = await storeProductsInCache(products);
-
-    if (success) {
-      console.log(
-        `Successfully cached ${products.length} products for search.`
-      );
+      // Write an empty array to ensure the file exists for the later API step
+      storeProductsInBuildOutput([]);
+      // Decide if you want to exit here or continue. Continuing allows build to finish.
+      // process.exit(1); // Uncomment to make build fail if no products are fetched
+      console.log("Continuing build with empty products file.");
     } else {
-      console.error("Failed to cache products for search.");
-      process.exit(1);
+      // Store products in the build output
+      const success = storeProductsInBuildOutput(products);
+
+      if (!success) {
+        console.error("Failed to store products in build output.");
+        process.exit(1); // Exit if writing failed
+      }
     }
   } catch (error) {
-    console.error("Error in products cache builder:", error);
+    console.error("Error in products cache builder main function:", error);
     process.exit(1);
   }
 }
