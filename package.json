@@ -19,7 +19,8 @@
     "warm-categories": "node scripts/cache-warmer.js categories",
     "rebuild-cache": "npm run build-product-cache && npm run build-category-cache && npm run warm-cache -- --force",
     "postdeploy": "node scripts/post-deploy.js",
-    "debug:cache": "node scripts/debug-cache.js"
+    "debug:cache": "node scripts/debug-cache.js",
+    "preinstall": "npx only-allow npm"
   },
   "dependencies": {
     "@nuxtjs/seo": "^2.0.3",
@@ -34,20 +35,20 @@
     "stripe": "^17.7.0",
     "vue-instantsearch": "^4.20.5",
     "vue-spinner": "^1.0.4",
-    "vue-turnstile": "^1.0.11"
-  },
-  "devDependencies": {
-    "@iconify-json/ion": "^1.2.2",
+    "vue-turnstile": "^1.0.11",
     "@nuxt/icon": "^1.10.3",
     "@nuxt/image": "1.9.0",
     "@nuxtjs/i18n": "^8.5.5",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/lodash-es": "^4.17.12",
-    "nuxt": "^3.6.0",
+    "nuxt": "^3.13.2",
     "nuxt-graphql-client": "^0.2.43",
     "prettier": "^3.5.1",
     "woonuxt-settings": "^1.0.66"
+  },
+  "devDependencies": {
+    "@iconify-json/ion": "^1.2.2"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.34.8"
