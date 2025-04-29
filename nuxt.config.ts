@@ -35,14 +35,28 @@ export default defineNuxtConfig({
   nitro: {
     preset: "cloudflare-pages",
     storage: {
+      // Existing cache configuration for Nitro's internal ISR/route caching
       cache: {
         driver: "cloudflare-kv-binding",
-        binding: "NUXT_CACHE", // <-- your Cloudflare KV binding name
+        binding: "NUXT_CACHE", // <-- your Cloudflare KV binding name for ISR cache
+      },
+      // New configuration for script data
+      script_data: {
+        driver: "cloudflare-kv-binding",
+        binding: "NUXT_SCRIPT_DATA", // <-- Your NEW Cloudflare KV binding for script data
       },
     },
     devStorage: {
+      // Existing dev storage for ISR cache
       cache: {
         driver: "fs",
+        base: "./.nuxt/dev-cache/isr", // Explicit base path for dev ISR cache
+      },
+      // New dev configuration for script data
+      script_data: {
+        driver: "fs",
+        // Store script data locally during development in a separate folder
+        base: "./.nuxt/dev-cache/script_data",
       },
     },
     prerender: {
@@ -56,36 +70,41 @@ export default defineNuxtConfig({
     },
   },
 
+  // --- START: Updated Route Rules ---
   routeRules: {
     "/": {
+      // Cache options for the homepage
       cache: {
-        maxAge: 60 * 60 * 24, // 24 hours
-        isr: true,
-        storage: "cache",
+        maxAge: 60 * 60 * 24, // Cache duration: 24 hours
+        base: "cache", // Target the 'cache' storage mount point
       },
-      prerender: true,
+      prerender: true, // Prerender this route during build
     },
     "/product-category/**": {
+      // Cache options for product category pages
       cache: {
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        isr: true,
-        storage: "cache",
+        maxAge: 60 * 60 * 24 * 7, // Cache duration: 7 days
+        base: "cache", // Target the 'cache' storage mount point
       },
     },
     "/product/**": {
+      // Cache options for individual product pages
       cache: {
-        maxAge: 60 * 60 * 72, // 72 hours
-        isr: true,
-        storage: "cache",
+        maxAge: 60 * 60 * 72, // Cache duration: 72 hours
+        base: "cache", // Target the 'cache' storage mount point
       },
     },
+    // Routes that should not be server-side rendered (client-side only)
     "/checkout/**": { ssr: false },
     "/cart": { ssr: false },
     "/account/**": { ssr: false },
+    // Static pages to be prerendered
     "/contact": { prerender: true },
     "/terms": { prerender: true },
     "/privacy": { prerender: true },
   },
+  // --- END: Updated Route Rules ---
+
   // Hook overides
   hooks: {
     "pages:extend"(pages) {
