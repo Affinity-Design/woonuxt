@@ -1,7 +1,7 @@
 // scripts/build-products-cache.js
 require("dotenv").config();
-const fetch = require("node-fetch");
-const fs = require("fs"); // Using synchronous fs for simplicity in build script
+const fetch = require("node-fetch"); // Make sure node-fetch is in your package.json devDependencies
+const fs = require("fs"); // Retained for potential local debugging, not primary storage
 const path = require("path");
 
 // Check if running in build mode with product limit
@@ -10,8 +10,8 @@ const isBuildMode =
   process.env.LIMIT_PRODUCTS === "true";
 
 const maxProducts = isBuildMode
-  ? parseInt(process.env.MAX_PRODUCTS || "2000", 10) // Default limit for build mode
-  : null; // No limit when not in build mode
+  ? parseInt(process.env.MAX_PRODUCTS || "2000", 10)
+  : null;
 
 // Configuration
 const CONFIG = {
@@ -20,13 +20,14 @@ const CONFIG = {
   BATCH_DELAY: 500,
   IS_BUILD_MODE: isBuildMode,
   MAX_PRODUCTS: maxProducts,
-  // --- START: New output path configuration ---
-  OUTPUT_DIR: path.join(process.cwd(), ".output", "public", "_script_data"),
-  OUTPUT_FILE: "products.json",
-  // --- END: New output path configuration ---
+  // Cloudflare API Details (from environment variables)
+  CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+  CF_API_TOKEN: process.env.CF_API_TOKEN,
+  CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA, // Specific KV namespace for script data
+  KV_KEY_PRODUCTS: "products-list", // The key to use in KV for storing products
 };
 
-// GraphQL query to fetch products with search-relevant fields
+// GraphQL query to fetch products
 const PRODUCTS_QUERY = `
 query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
   products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}}) {
@@ -46,9 +47,8 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
           slug
         }
       }
-      # Use fragments for specific product types
       ... on SimpleProduct {
-        price(format: RAW) # Request raw price
+        price(format: RAW)
         regularPrice(format: RAW)
         salePrice(format: RAW)
         stockStatus
@@ -57,35 +57,15 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
         stockQuantity
       }
       ... on VariableProduct {
-        price(format: RAW) # Request raw price
+        price(format: RAW)
         regularPrice(format: RAW)
         salePrice(format: RAW)
         stockStatus
         onSale
         manageStock
         stockQuantity
-        # Include variations if needed for search/display later
-        # variations {
-        #   nodes {
-        #     databaseId
-        #     name
-        #     sku
-        #     price(format: RAW)
-        #     regularPrice(format: RAW)
-        #     salePrice(format: RAW)
-        #     stockStatus
-        #     stockQuantity
-        #     manageStock
-        #     attributes {
-        #       nodes {
-        #         name
-        #         value
-        #       }
-        #     }
-        #   }
-        # }
       }
-      # Add other product types if necessary (e.g., ExternalProduct, GroupProduct)
+      # Add other product types if necessary
     }
   }
 }`;
@@ -98,10 +78,14 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  */
 async function fetchProducts() {
   console.log(
-    `Starting to fetch products${CONFIG.IS_BUILD_MODE ? " (BUILD MODE - LIMITED)" : ""}...`
+    `Starting to fetch products from GraphQL${CONFIG.IS_BUILD_MODE ? " (BUILD MODE - LIMITED)" : ""}...`
   );
-  if (CONFIG.IS_BUILD_MODE) {
-    console.log(`Limited to ${CONFIG.MAX_PRODUCTS} products for build mode`);
+  if (CONFIG.IS_BUILD_MODE && CONFIG.MAX_PRODUCTS !== null) {
+    console.log(`Limited to a maximum of ${CONFIG.MAX_PRODUCTS} products.`);
+  }
+  if (!CONFIG.WP_GRAPHQL_URL) {
+    console.error("GQL_HOST is not defined. Skipping product fetch.");
+    return [];
   }
 
   let allProducts = [];
@@ -112,10 +96,9 @@ async function fetchProducts() {
   while (hasNextPage) {
     batchCount++;
     console.log(
-      `Fetching batch ${batchCount} of products with cursor: ${endCursor || "Start"}`
+      `Fetching product batch ${batchCount} with cursor: ${endCursor || "Start"}`
     );
 
-    // Check if we've reached the limit for build mode
     if (
       CONFIG.IS_BUILD_MODE &&
       CONFIG.MAX_PRODUCTS !== null &&
@@ -130,126 +113,149 @@ async function fetchProducts() {
     try {
       const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: PRODUCTS_QUERY,
           variables: {
             first: CONFIG.BATCH_SIZE,
             after: endCursor,
-            // In build mode, prioritize recent products if desired, otherwise by DATE
-            orderby: CONFIG.IS_BUILD_MODE ? "DATE" : "DATE", // Example: Use DATE for both, adjust if needed
+            orderby: "DATE",
             order: "DESC",
           },
         }),
       });
 
-      // Check for non-OK response status
       if (!response.ok) {
         console.error(
           `Error fetching products batch: ${response.status} ${response.statusText}`
         );
-        try {
-          const errorBody = await response.text();
-          console.error("Response body:", errorBody);
-        } catch (e) {
-          console.error("Could not read error response body.");
-        }
-        // Decide how to handle batch errors: break, retry, or skip? Breaking for now.
+        const errorBody = await response
+          .text()
+          .catch(() => "Could not read error body.");
+        console.error("Response body:", errorBody);
         break;
       }
 
       const result = await response.json();
-
       if (result.errors) {
         console.error("GraphQL errors:", result.errors);
-        break; // Stop fetching if there are GraphQL errors
+        break;
       }
-
-      // Check for expected data structure
       if (
-        !result ||
         !result.data ||
         !result.data.products ||
         !result.data.products.nodes ||
         !result.data.products.pageInfo
       ) {
         console.error(
-          "Unexpected data structure received from GraphQL:",
+          "Unexpected data structure from GraphQL:",
           JSON.stringify(result, null, 2)
         );
-        break; // Stop if the structure is wrong
+        break;
       }
 
-      const products = result.data.products.nodes;
-      const fetchedCount = products.length;
-      const potentialTotal = allProducts.length + fetchedCount;
+      const fetchedProducts = result.data.products.nodes;
+      const numFetched = fetchedProducts.length;
 
-      // If in build mode, check if adding this batch exceeds the limit
       if (
         CONFIG.IS_BUILD_MODE &&
         CONFIG.MAX_PRODUCTS !== null &&
-        potentialTotal > CONFIG.MAX_PRODUCTS
+        allProducts.length + numFetched > CONFIG.MAX_PRODUCTS
       ) {
-        const needed = CONFIG.MAX_PRODUCTS - allProducts.length;
-        allProducts = [...allProducts, ...products.slice(0, needed)];
+        const limit = CONFIG.MAX_PRODUCTS - allProducts.length;
+        allProducts.push(...fetchedProducts.slice(0, limit));
         console.log(
-          `Fetched ${needed} products (reached limit). Running total: ${allProducts.length}`
+          `Fetched ${limit} products (hit limit). Total: ${allProducts.length}.`
         );
-        hasNextPage = false; // Stop fetching
+        hasNextPage = false; // Reached max products for build mode
       } else {
-        allProducts = [...allProducts, ...products];
+        allProducts.push(...fetchedProducts);
         console.log(
-          `Fetched ${fetchedCount} products. Running total: ${allProducts.length}`
+          `Fetched ${numFetched} products. Total: ${allProducts.length}.`
         );
       }
 
-      // Update page info only if we haven't manually stopped
       if (hasNextPage) {
+        // Only update if we haven't manually stopped
         hasNextPage = result.data.products.pageInfo.hasNextPage;
         endCursor = result.data.products.pageInfo.endCursor;
       }
 
-      // Add delay between batches to avoid overwhelming the server
-      if (hasNextPage) {
+      if (hasNextPage && CONFIG.BATCH_DELAY > 0) {
         console.log(`Waiting ${CONFIG.BATCH_DELAY}ms before next batch...`);
         await delay(CONFIG.BATCH_DELAY);
       }
     } catch (error) {
       console.error("Error during product fetch operation:", error);
-      // Decide how to handle: break, retry, or skip? Breaking for now.
       break;
     }
   }
-
-  console.log(`Finished fetching products. Total: ${allProducts.length}`);
+  console.log(
+    `Finished fetching products. Total collected: ${allProducts.length}`
+  );
   return allProducts;
 }
 
 /**
- * Store products in the build output directory
+ * Store products directly into Cloudflare KV
  */
-function storeProductsInBuildOutput(products) {
-  console.log(`Storing ${products.length} products in build output...`);
-  const outputPath = path.join(CONFIG.OUTPUT_DIR, CONFIG.OUTPUT_FILE);
+async function storeProductsInKV(products) {
+  console.log(`Storing ${products.length} products in Cloudflare KV...`);
+
+  if (
+    !CONFIG.CF_ACCOUNT_ID ||
+    !CONFIG.CF_API_TOKEN ||
+    !CONFIG.CF_KV_NAMESPACE_ID
+  ) {
+    console.error(
+      "Cloudflare API credentials or KV Namespace ID are not configured. Skipping KV store."
+    );
+    console.error(
+      "Please set CF_ACCOUNT_ID, CF_API_TOKEN, and CF_KV_NAMESPACE_ID_SCRIPT_DATA environment variables."
+    );
+    return false;
+  }
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID}/values/${CONFIG.KV_KEY_PRODUCTS}`;
 
   try {
-    // Ensure the output directory exists
-    if (!fs.existsSync(CONFIG.OUTPUT_DIR)) {
-      fs.mkdirSync(CONFIG.OUTPUT_DIR, { recursive: true });
-      console.log(`Created directory: ${CONFIG.OUTPUT_DIR}`);
+    // Cloudflare KV has a 25 MiB limit per value.
+    // If your products list is very large, you might need to chunk it.
+    // For now, assuming it fits. If not, this will fail.
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
+        "Content-Type": "application/json", // KV expects the value to be a string for JSON
+      },
+      body: JSON.stringify(products), // Send the array as a JSON string
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok || !responseData.success) {
+      console.error(
+        `Error storing products in KV: ${response.status} ${response.statusText}`
+      );
+      console.error("Cloudflare API response:", responseData);
+      // Log the first few characters of the body if it's large to avoid flooding logs
+      const bodyPreview = JSON.stringify(products).substring(0, 200);
+      console.error(
+        "Attempted to store body (preview):",
+        bodyPreview + (JSON.stringify(products).length > 200 ? "..." : "")
+      );
+      return false;
     }
 
-    // Write the products data to the JSON file
-    fs.writeFileSync(outputPath, JSON.stringify(products, null, 2));
-
     console.log(
-      `Successfully stored ${products.length} products to ${outputPath}`
+      `Successfully stored ${products.length} products in KV under key "${CONFIG.KV_KEY_PRODUCTS}".`
     );
     return true;
   } catch (error) {
-    console.error(`Error storing products to ${outputPath}:`, error);
+    console.error(
+      `Error making API call to Cloudflare KV for products:`,
+      error
+    );
     return false;
   }
 }
@@ -259,40 +265,34 @@ function storeProductsInBuildOutput(products) {
  */
 async function main() {
   console.log(
-    `Starting products cache builder${CONFIG.IS_BUILD_MODE ? " (BUILD MODE)" : ""}...`
+    `Starting products data build process${CONFIG.IS_BUILD_MODE ? " (BUILD MODE)" : ""}...`
   );
 
-  if (CONFIG.IS_BUILD_MODE) {
-    console.log(`Limited to ${CONFIG.MAX_PRODUCTS} products for build mode`);
-  }
+  const products = await fetchProducts();
 
-  try {
-    // Fetch products
-    const products = await fetchProducts();
-
-    if (!products || products.length === 0) {
-      console.warn(
-        "No products fetched or an error occurred. Attempting to write empty file."
+  if (!products || products.length === 0) {
+    console.warn("No products fetched or an error occurred during fetch.");
+    // Attempt to store an empty array in KV to clear previous data or indicate no products
+    console.log("Attempting to store empty products list in KV...");
+    const success = await storeProductsInKV([]);
+    if (!success) {
+      console.error(
+        "Failed to store empty products list in KV. This might be a critical error."
       );
-      // Write an empty array to ensure the file exists for the later API step
-      storeProductsInBuildOutput([]);
-      // Decide if you want to exit here or continue. Continuing allows build to finish.
-      // process.exit(1); // Uncomment to make build fail if no products are fetched
-      console.log("Continuing build with empty products file.");
-    } else {
-      // Store products in the build output
-      const success = storeProductsInBuildOutput(products);
-
-      if (!success) {
-        console.error("Failed to store products in build output.");
-        process.exit(1); // Exit if writing failed
-      }
+      process.exit(1); // Exit if storing even an empty list fails
     }
-  } catch (error) {
-    console.error("Error in products cache builder main function:", error);
-    process.exit(1);
+  } else {
+    const success = await storeProductsInKV(products);
+    if (!success) {
+      console.error("Failed to store products in Cloudflare KV.");
+      process.exit(1); // Exit if storing fetched products fails
+    }
   }
+  console.log("Products data build process finished.");
 }
 
 // Run the main function
-main();
+main().catch((error) => {
+  console.error("Unhandled error in products build main function:", error);
+  process.exit(1);
+});

@@ -1,21 +1,21 @@
 // scripts/post-deploy.js
-const fs = require("fs");
-const path = require("path");
-const fetch = require("node-fetch");
-const { execSync, spawn } = require("child_process");
+require("dotenv").config(); // Ensure .env variables are loaded
+const fetch = require("node-fetch"); // For warmUrl
+const { spawn } = require("child_process"); // For running cache-warmer in background
+const { createHttpsAgent } = require("./cache-utils"); // For warmUrl if using HTTPS localhost
 
 // Configuration
 const CONFIG = {
-  // Base URL for the frontend site
-  FRONTEND_URL: process.env.FRONTEND_URL || "https://localhost:3000",
-  // GraphQL endpoint for WooCommerce
-  WP_GRAPHQL_URL: process.env.GQL_HOST,
-  // Secret token for revalidation
-  REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
-  // Whether to run cache warming after deployment
-  RUN_CACHE_WARMING: process.env.RUN_CACHE_WARMING !== "false",
-  // Whether to warm only critical pages
-  WARM_CRITICAL_ONLY: process.env.WARM_CRITICAL_ONLY === "true",
+  // Base URL for the frontend site to warm up
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+  // Whether to run the full cache warming process after this script warms critical pages
+  RUN_FULL_CACHE_WARMING: process.env.RUN_FULL_CACHE_WARMING !== "false", // Default true
+  // Whether the full cache warming should only focus on critical, or do everything
+  // This is more of a flag for how 'cache-warmer.js' itself behaves if triggered.
+  // The 'cache-warmer.js' script itself can take 'all', 'products', 'categories', 'home' as args.
+  CACHE_WARMER_TYPE: process.env.CACHE_WARMER_TYPE || "all", // Type of warming for the full run
+  // REVALIDATION_SECRET will be needed by cache-warmer.js for its API calls.
+  // Ensure it's available in the environment.
 };
 
 // Helper function to delay execution
@@ -24,17 +24,36 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /**
  * Warm a specific URL
  */
-async function warmUrl(url) {
+async function warmUrl(urlToWarm, pageType = "critical") {
   try {
-    console.log(`Warming: ${url}`);
+    console.log(`Warming ${pageType} page: ${urlToWarm}`);
+    const agent = urlToWarm.startsWith("https:")
+      ? await createHttpsAgent()
+      : undefined;
     const startTime = Date.now();
-    const response = await fetch(url);
+    const response = await fetch(urlToWarm, {
+      method: "GET",
+      headers: {
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": `PostDeployWarmer/1.0 (${pageType})`,
+      },
+      timeout: 45000, // 45 seconds timeout for critical pages
+      agent: agent,
+    });
     const timeElapsed = Date.now() - startTime;
 
-    console.log(`✅ ${url} - ${response.status} (${timeElapsed}ms)`);
-    return true;
+    if (response.ok) {
+      console.log(`✅ ${urlToWarm} - ${response.status} (${timeElapsed}ms)`);
+      return true;
+    } else {
+      console.error(
+        `❌ Failed to warm ${urlToWarm} - ${response.status} ${response.statusText}`
+      );
+      return false;
+    }
   } catch (error) {
-    console.error(`❌ Error warming ${url}: ${error.message}`);
+    console.error(`❌ Error warming ${urlToWarm}: ${error.message}`);
     return false;
   }
 }
@@ -43,89 +62,72 @@ async function warmUrl(url) {
  * Warm critical pages that should be immediately available
  */
 async function warmCriticalPages() {
+  // Define your most critical URLs
   const criticalUrls = [
     `${CONFIG.FRONTEND_URL}/`, // Homepage
-    `${CONFIG.FRONTEND_URL}/categories`, // Categories list
-    `${CONFIG.FRONTEND_URL}/products`, // All products
-    `${CONFIG.FRONTEND_URL}/contact`, // Contact page
-    `${CONFIG.FRONTEND_URL}/terms`, // Terms page
-    `${CONFIG.FRONTEND_URL}/privacy`, // Privacy page
-    // Add any other critical pages here
+    // Add a few other absolutely essential pages if any
+    // For example:
+    // `${CONFIG.FRONTEND_URL}/some-key-category`,
+    // `${CONFIG.FRONTEND_URL}/about-us`,
   ];
 
-  console.log(`Warming ${criticalUrls.length} critical pages...`);
+  if (criticalUrls.length === 0) {
+    console.log("No critical URLs defined to warm immediately.");
+    return;
+  }
 
-  // Process critical pages one at a time to avoid rate limits
+  console.log(`Warming ${criticalUrls.length} critical page(s)...`);
+
   for (const url of criticalUrls) {
     await warmUrl(url);
-    // Add a delay between requests to avoid rate limiting
-    await delay(1500);
+    await delay(1000); // Delay between warming critical pages
   }
+  console.log("Finished warming critical pages.");
 }
 
 /**
- * Run the product cache builder directly as a promise
+ * Run the cache warmer script in the background.
+ * This script (cache-warmer.js) now reads data from KV (via API)
+ * and manages its state in KV (via API).
  */
-function buildProductCache() {
-  return new Promise((resolve) => {
-    console.log("🔄 Building full product cache...");
-    try {
-      execSync("node scripts/build-products-cache.js", {
-        stdio: "inherit",
-        env: {
-          ...process.env,
-          LIMIT_PRODUCTS: "false", // Ensure full product build
-        },
-      });
-      console.log("✅ Product cache build completed");
-      resolve(true);
-    } catch (error) {
-      console.error("❌ Product cache build failed:", error.message);
-      resolve(false);
-    }
-  });
-}
-
-/**
- * Run the category cache builder directly as a promise
- */
-function buildCategoryCache() {
-  return new Promise((resolve) => {
-    console.log("🔄 Building category cache...");
-    try {
-      execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
-      console.log("✅ Category cache build completed");
-      resolve(true);
-    } catch (error) {
-      console.error("❌ Category cache build failed:", error.message);
-      resolve(false);
-    }
-  });
-}
-
-/**
- * Run the cache warmer directly in the background
- * This runs in a detached process so it can continue after this script exits
- */
-function runCacheWarmer(type = "all") {
-  console.log(`🔄 Starting cache warmer for ${type} in background...`);
+function runFullCacheWarmerDetached(type = "all") {
+  console.log(
+    `🔄 Starting full cache warmer for type '${type}' in background...`
+  );
   try {
-    // Create a detached process that will continue after script exits
+    // Ensure REVALIDATION_SECRET is available for the child process
+    if (!process.env.REVALIDATION_SECRET) {
+      console.warn(
+        "WARNING: REVALIDATION_SECRET is not set. The detached cache-warmer.js might fail its API calls if they are secured."
+      );
+    }
+    if (!process.env.FRONTEND_URL) {
+      console.warn(
+        "WARNING: FRONTEND_URL is not set. The detached cache-warmer.js needs this for its API calls and warming targets."
+      );
+    }
+
     const warmerProcess = spawn("node", ["scripts/cache-warmer.js", type], {
       detached: true,
-      stdio: "ignore",
-      env: process.env,
+      stdio: "ignore", // Or 'inherit' if you want to see its output where this script runs
+      env: {
+        ...process.env, // Pass all current environment variables
+        // You can override or ensure specific ones here if needed,
+        // but cache-warmer.js should pick them up from process.env
+      },
     });
 
-    // Unref the child process so parent can exit
-    warmerProcess.unref();
+    warmerProcess.unref(); // Allows parent process (this script) to exit independently
 
     console.log(
-      `✅ Cache warmer for ${type} started with PID: ${warmerProcess.pid}`
+      `✅ Full cache warmer (type: ${type}) started in background with PID: ${warmerProcess.pid}. It will continue running independently.`
     );
     return true;
   } catch (error) {
-    console.error(`❌ Error starting cache warmer for ${type}:`, error.message);
+    console.error(
+      `❌ Error starting full cache warmer for type '${type}':`,
+      error.message
+    );
     return false;
   }
 }
@@ -134,58 +136,43 @@ function runCacheWarmer(type = "all") {
  * Main function
  */
 async function main() {
-  console.log("🚀 Post-deployment script started");
+  console.log("🚀 Post-deployment script started.");
+  console.log(
+    `Configuration: RUN_FULL_CACHE_WARMING=${CONFIG.RUN_FULL_CACHE_WARMING}, CACHE_WARMER_TYPE=${CONFIG.CACHE_WARMER_TYPE}`
+  );
 
   try {
-    // 1. First warm critical pages immediately after deployment
+    // 1. Always warm critical pages immediately after deployment
     await warmCriticalPages();
 
-    // 2. Check if we need to do full cache warming
-    if (CONFIG.RUN_CACHE_WARMING) {
-      if (CONFIG.WARM_CRITICAL_ONLY) {
-        console.log(
-          "Only warming critical pages as specified in configuration"
-        );
-      } else {
-        console.log("Running full cache processes in sequence...");
-
-        // 3. First build category cache (this is smaller and faster)
-        await buildCategoryCache();
-
-        // 4. Add a delay to avoid rate limiting
-        console.log("Waiting 3 seconds before building product cache...");
-        await delay(3000);
-
-        // 5. Then build product cache
-        await buildProductCache();
-
-        // 6. Add another delay before starting page warming
-        console.log("Waiting 5 seconds before starting page warming...");
-        await delay(5000);
-
-        // 7. Finally, start cache warmer in the background
-        // This will continue running after this script exits
-        runCacheWarmer("all");
-      }
+    // 2. Check if we need to run the full cache warmer (which reads from KV)
+    if (CONFIG.RUN_FULL_CACHE_WARMING) {
+      console.log("Proceeding to run full cache warmer in background...");
+      // Add a small delay before starting the background process
+      await delay(5000); // 5 seconds
+      runFullCacheWarmerDetached(CONFIG.CACHE_WARMER_TYPE);
     } else {
-      console.log("Full cache warming disabled by configuration");
+      console.log(
+        "Full cache warming is disabled by RUN_FULL_CACHE_WARMING setting."
+      );
     }
 
-    console.log("✅ Post-deployment script completed successfully");
+    console.log("✅ Post-deployment script main tasks initiated.");
+    console.log(
+      "If full cache warming was started, it is now running in a detached background process."
+    );
 
-    // Give a moment for any final console output to be flushed
-    await delay(500);
-
-    // Exit with success code
-    process.exit(0);
+    // Give a moment for any final console output to be flushed, especially if warmer was detached
+    await delay(1000);
+    process.exit(0); // Exit successfully
   } catch (error) {
-    console.error("❌ Error in post-deployment script:", error);
-    process.exit(1);
+    console.error(
+      "❌ Unhandled error in post-deployment script main function:",
+      error
+    );
+    process.exit(1); // Exit with failure
   }
 }
 
 // Run the main function
-main().catch((error) => {
-  console.error("Unhandled error in post-deployment script:", error);
-  process.exit(1);
-});
+main();

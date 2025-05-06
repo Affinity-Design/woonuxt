@@ -1,85 +1,78 @@
 // scripts/setup-script.js
-const fs = require("fs"); // Using synchronous fs for simplicity in build script
-const path = require("path");
+require("dotenv").config(); // Ensure environment variables are loaded
 const { execSync } = require("child_process");
 
-console.log("🚀 Setting up caching system during build phase...");
+console.log("🚀 Starting build-time data population for Cloudflare KV...");
 
 // Helper function for delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Configuration with default fallbacks
+// Configuration for build process behavior (e.g., limiting products)
 const CONFIG = {
-  RUN_CACHE_WARMING: process.env.RUN_CACHE_WARMING === "true",
-  WARM_CRITICAL_ONLY: process.env.WARM_CRITICAL_ONLY === "true",
   LIMIT_PRODUCTS: process.env.LIMIT_PRODUCTS === "true",
   MAX_PRODUCTS: parseInt(process.env.MAX_PRODUCTS || "2000", 10),
-  // --- START: New output path configuration ---
-  OUTPUT_DIR: path.join(process.cwd(), ".output", "public", "_script_data"),
-  DEPLOYMENT_DATA_FILE: "deployment-data.json",
-  // --- END: New output path configuration ---
+  // Add any other relevant build-time configurations here
+  // RUN_CACHE_WARMING and WARM_CRITICAL_ONLY might be relevant for a post-deploy trigger,
+  // but their data isn't directly handled by this script anymore.
 };
 
-console.log("Configuration:", JSON.stringify(CONFIG, null, 2));
+console.log("Build Configuration:", JSON.stringify(CONFIG, null, 2));
 
 /**
- * Run the category cache builder as a promise
+ * Run the category data population script (writes to KV).
  */
-function buildCategoryCache() {
-  return new Promise((resolve) => {
-    console.log("📦 Building category cache...");
+function populateCategoryData() {
+  return new Promise((resolve, reject) => {
+    console.log("📦 Populating category data in Cloudflare KV...");
     try {
-      // Execute the updated build-categories-cache.js script
+      // Execute the build-categories-cache.js script
+      // It will use environment variables for CF API access.
       execSync("node scripts/build-categories-cache.js", { stdio: "inherit" });
-      console.log(
-        "✅ Category cache build seems complete (check script output above)."
-      );
-      resolve(true); // Resolve true even if the script internally handles errors/empty files
-    } catch (categoryError) {
-      // This catch block might be hit if the script itself throws an unhandled error or exits non-zero
+      console.log("✅ Category data population script finished.");
+      resolve(true);
+    } catch (error) {
       console.error(
-        "⚠️ Error executing build-categories-cache.js script:",
-        categoryError.message
+        "⚠️ Error executing script to populate category data in KV:",
+        error.message
       );
-      console.log("Continuing build despite script execution error...");
-      resolve(false); // Indicate that the execution failed
+      // Depending on your CI/CD, you might want to reject or resolve(false)
+      // to allow the build to continue or fail it.
+      reject(error); // Fail the build if category data can't be populated
     }
   });
 }
 
 /**
- * Run the product cache builder as a promise
+ * Run the product data population script (writes to KV).
  */
-function buildProductCache() {
-  return new Promise((resolve) => {
-    console.log("📦 Building product search cache...");
+function populateProductData() {
+  return new Promise((resolve, reject) => {
+    console.log("📦 Populating product data in Cloudflare KV...");
     try {
-      // Determine if build mode flag should be passed
+      // Determine if build mode flag should be passed to the products script
       const buildModeFlag = CONFIG.LIMIT_PRODUCTS ? "--build-mode" : "";
-      const buildProductCacheCommand = `node scripts/build-products-cache.js ${buildModeFlag}`;
+      const populateProductsCommand = `node scripts/build-products-cache.js ${buildModeFlag}`;
 
-      // Execute the updated build-products-cache.js script
-      execSync(buildProductCacheCommand, {
+      // Execute the build-products-cache.js script
+      // It will use environment variables for CF API access and LIMIT_PRODUCTS/MAX_PRODUCTS.
+      execSync(populateProductsCommand, {
         stdio: "inherit",
-        // Pass relevant env vars if the script relies on them (it does)
         env: {
-          ...process.env,
+          ...process.env, // Pass all existing environment variables
+          // Explicitly pass these if the script relies on them directly from process.env
+          // (which it does as per its current implementation)
           LIMIT_PRODUCTS: CONFIG.LIMIT_PRODUCTS ? "true" : "false",
           MAX_PRODUCTS: CONFIG.MAX_PRODUCTS.toString(),
         },
       });
-      console.log(
-        "✅ Product cache build seems complete (check script output above)."
-      );
-      resolve(true); // Resolve true even if the script internally handles errors/empty files
-    } catch (productError) {
-      // This catch block might be hit if the script itself throws an unhandled error or exits non-zero
+      console.log("✅ Product data population script finished.");
+      resolve(true);
+    } catch (error) {
       console.error(
-        "⚠️ Error executing build-products-cache.js script:",
-        productError.message
+        "⚠️ Error executing script to populate product data in KV:",
+        error.message
       );
-      console.log("Continuing build despite script execution error...");
-      resolve(false); // Indicate that the execution failed
+      reject(error); // Fail the build if product data can't be populated
     }
   });
 }
@@ -87,72 +80,61 @@ function buildProductCache() {
 // Main function to sequence operations
 async function main() {
   try {
-    // Ensure the target output directory exists before writing deployment data
-    // The build scripts themselves also ensure this directory exists, but doesn't hurt to double-check.
-    if (!fs.existsSync(CONFIG.OUTPUT_DIR)) {
-      fs.mkdirSync(CONFIG.OUTPUT_DIR, { recursive: true });
-      console.log(`Created directory for build output: ${CONFIG.OUTPUT_DIR}`);
-    }
+    console.log("Starting data population for categories...");
+    await populateCategoryData();
 
-    // 1. First build category cache (smaller and faster)
-    await buildCategoryCache();
+    // Optional: Add a small delay if there are concerns about rapid API calls,
+    // though each script makes multiple calls already.
+    console.log("Waiting 1 second before populating product data...");
+    await delay(1000);
 
-    // Add delay to potentially avoid filesystem contention or rate limiting if applicable
-    console.log("Waiting 1 second before building product cache...");
-    await delay(1000); // Reduced delay
+    console.log("Starting data population for products...");
+    await populateProductData();
 
-    // 2. Then build product cache (larger and more intensive)
-    await buildProductCache();
+    // The 'deployment-data.json' file is no longer created here as data goes directly to KV.
+    // If you need to signal the post-deploy script (cache warmer) or pass build-time metadata,
+    // consider writing a small JSON object to a specific key in your NUXT_SCRIPT_DATA KV
+    // namespace here, which the post-deploy script can then read.
+    // For example:
+    // await storeBuildMetadataInKV({ buildTime: new Date().toISOString(), limitedProducts: CONFIG.LIMIT_PRODUCTS });
 
-    // 3. Create deployment data file in the same output directory
     console.log(
-      "🏁 Creating deployment data file for post-deployment actions..."
+      "✅ All build-time data population scripts completed successfully!"
     );
-    const deploymentData = {
-      buildTime: new Date().toISOString(),
-      // These flags signal to the post-deploy process what needs to happen
-      needsFullCacheWarming: CONFIG.RUN_CACHE_WARMING,
-      warmedCriticalOnly: CONFIG.WARM_CRITICAL_ONLY,
-      buildModeLimitedProducts: CONFIG.LIMIT_PRODUCTS,
-      buildModeMaxProducts: CONFIG.LIMIT_PRODUCTS ? CONFIG.MAX_PRODUCTS : null,
-      // Include original config for reference if needed
-      // configuration: CONFIG,
-    };
-
-    const deploymentDataPath = path.join(
-      CONFIG.OUTPUT_DIR,
-      CONFIG.DEPLOYMENT_DATA_FILE
-    );
-
-    try {
-      fs.writeFileSync(
-        deploymentDataPath,
-        JSON.stringify(deploymentData, null, 2)
-      );
-      console.log(`✅ Deployment data file written to ${deploymentDataPath}`);
-    } catch (writeError) {
-      console.error(
-        `❌ Failed to write deployment data file to ${deploymentDataPath}:`,
-        writeError
-      );
-      // Decide if this is a critical failure for the build
-      process.exit(1);
-    }
-
-    console.log("✅ Build-time cache setup complete!");
-
-    // Give a moment for any final console output to be flushed
-    await delay(500);
-
-    // Exit with success code (assuming previous steps didn't exit)
-    process.exit(0);
+    process.exit(0); // Explicitly exit with success
   } catch (error) {
-    // Catch errors from the main async function itself (e.g., delay issues)
-    console.error("❌ Error in build-time cache setup (main function):", error);
-    console.log("⚠️ Continuing with deployment despite setup script error...");
-    process.exit(1); // Exit with failure code
+    console.error(
+      "❌ Error during build-time data population process:",
+      error.message || error
+    );
+    // Ensure the process exits with a failure code to fail the build
+    process.exit(1);
   }
 }
 
 // Run the main function
-main(); // No need for .catch here as errors are handled within main()
+main(); // Errors are caught within main and lead to process.exit(1)
+
+// Example function if you want to store build metadata in KV
+// async function storeBuildMetadataInKV(metadata) {
+//   if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN || !process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA) {
+//     console.warn("CF credentials for KV not set. Skipping storing build metadata in KV.");
+//     return;
+//   }
+//   const key = "build-metadata";
+//   console.log(`Storing build metadata in KV under key: ${key}`);
+//   const url = `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/storage/kv/namespaces/${process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA}/values/${key}`;
+//   try {
+//     await fetch(url, { // Make sure 'fetch' is available (e.g., require 'node-fetch')
+//       method: "PUT",
+//       headers: {
+//         "Authorization": `Bearer ${process.env.CF_API_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(metadata),
+//     });
+//     console.log("Successfully stored build metadata in KV.");
+//   } catch (e) {
+//     console.error("Failed to store build metadata in KV:", e);
+//   }
+// }
