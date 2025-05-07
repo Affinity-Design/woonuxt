@@ -1,21 +1,21 @@
 // scripts/build-categories-cache.js
 require("dotenv").config();
-const fetch = require("node-fetch"); // Make sure node-fetch is in your package.json devDependencies
-const fs = require("fs"); // Retained for potential local debugging if needed, but not for primary storage
+const fetch = require("node-fetch");
+// fs is no longer needed as we don't write the prerender list file here
+// const fs = require("fs");
 const path = require("path");
 
 // Configuration
 const CONFIG = {
   WP_GRAPHQL_URL: process.env.GQL_HOST,
-  BATCH_SIZE: 50,
-  // Cloudflare API Details (from environment variables)
+  // Cloudflare API Details (ensure these are set in the build environment)
   CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
   CF_API_TOKEN: process.env.CF_API_TOKEN,
   CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA, // Specific KV namespace for script data
   KV_KEY_CATEGORIES: "categories-list", // The key to use in KV for storing categories
 };
 
-// GraphQL query for categories
+// GraphQL query for categories (ensure this matches your needs)
 const CATEGORIES_QUERY = `
   query getProductCategories($first: Int = 100) {
     productCategories(first: $first, where: { hideEmpty: true }) {
@@ -47,12 +47,9 @@ const CATEGORIES_QUERY = `
   }
 `;
 
-// Helper function for delay
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 // Fetch categories from GraphQL
 async function fetchCategories() {
-  console.log("Fetching categories from GraphQL...");
+  console.log("Fetching categories from GraphQL for KV store...");
   if (!CONFIG.WP_GRAPHQL_URL) {
     console.error("GQL_HOST is not defined. Skipping category fetch.");
     return [];
@@ -62,7 +59,10 @@ async function fetchCategories() {
     const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: CATEGORIES_QUERY }),
+      body: JSON.stringify({
+        query: CATEGORIES_QUERY,
+        variables: { first: 500 },
+      }), // Increased limit potentially
     });
 
     if (!response.ok) {
@@ -123,13 +123,15 @@ async function storeCategoriesInKV(categories) {
   const url = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID}/values/${CONFIG.KV_KEY_CATEGORIES}`;
 
   try {
+    // Ensure categories is an array before stringifying
+    const dataToStore = Array.isArray(categories) ? categories : [];
     const response = await fetch(url, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
-        "Content-Type": "application/json", // Cloudflare KV expects JSON value to be a string
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(categories), // Send the array as a JSON string
+      body: JSON.stringify(dataToStore), // Store the array (or empty array)
     });
 
     const responseData = await response.json();
@@ -143,7 +145,7 @@ async function storeCategoriesInKV(categories) {
     }
 
     console.log(
-      `Successfully stored ${categories.length} categories in KV under key "${CONFIG.KV_KEY_CATEGORIES}".`
+      `Successfully stored ${dataToStore.length} categories in KV under key "${CONFIG.KV_KEY_CATEGORIES}".`
     );
     return true;
   } catch (error) {
@@ -157,32 +159,19 @@ async function storeCategoriesInKV(categories) {
 
 // Main function
 async function main() {
-  console.log("Starting category data build process...");
+  console.log("Starting category data build process (KV Population Only)...");
 
   const categories = await fetchCategories();
 
-  if (!categories || categories.length === 0) {
-    console.warn("No categories fetched or an error occurred during fetch.");
-    // Optionally, you might want to write an empty array to KV to clear previous data
-    // or handle this case as an error. For now, we'll attempt to store whatever was fetched (even if empty).
-    console.log(
-      "Attempting to store empty or partial categories list in KV..."
-    );
-    const success = await storeCategoriesInKV([]); // Store empty array if nothing fetched
-    if (!success) {
-      console.error(
-        "Failed to store empty categories list in KV. This might be a critical error."
-      );
-      process.exit(1); // Exit if storing even an empty list fails, as it indicates KV connection issue
-    }
-  } else {
-    const success = await storeCategoriesInKV(categories);
-    if (!success) {
-      console.error("Failed to store categories in Cloudflare KV.");
-      process.exit(1); // Exit if storing fetched categories fails
-    }
+  // Populate KV store (even if categories array is empty)
+  const kvSuccess = await storeCategoriesInKV(categories);
+
+  if (!kvSuccess) {
+    console.error("Failed to store categories in Cloudflare KV. Exiting.");
+    process.exit(1); // Fail build if KV population fails
   }
-  console.log("Category data build process finished.");
+
+  console.log("Category KV population process finished successfully.");
 }
 
 // Run the main function

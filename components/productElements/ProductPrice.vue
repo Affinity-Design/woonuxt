@@ -1,96 +1,151 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useExchangeRate } from "~/composables/useExchangeRate";
-import { convertToCAD, removeCurrencyPrefix } from "~/utils/priceConverter";
+// Import the necessary functions from your updated price converter utility
+import {
+  convertToCAD,
+  formatPriceWithCAD,
+  cleanAndExtractPriceInfo,
+} from "~/utils/priceConverter";
 
 interface ProductPriceProps {
   regularPrice?: string | null;
   salePrice?: string | null;
-  showAsRange?: boolean;
-  isVariable?: boolean;
-  showBothPrices?: boolean;
+  // Removed showAsRange, isVariable, showBothPrices as the logic will be self-contained
+  // Add them back if the component *needs* to behave differently based on these,
+  // but the core formatting should be consistent.
 }
 
 const props = defineProps<ProductPriceProps>();
-const {
-  regularPrice,
-  salePrice,
-  showAsRange = false,
-  isVariable = false,
-  showBothPrices = false,
-} = props;
 
-// For debugging
-if (import.meta.env.DEV) {
-  //   console.log("ProductPrice props:", {
-  //     regularPrice,
-  //     salePrice,
-  //     showAsRange,
-  //     isVariable,
-  //     hasRange: regularPrice?.includes(" - ") || salePrice?.includes(" - "),
-  //   });
-  // }
-}
-// Fetch the exchange rate
+// Get the reactive exchange rate
 const { exchangeRate } = useExchangeRate();
 
-// Check if in development environment
-const isDev = import.meta.env.DEV;
-
-// Process price format for variable products
-const processPriceDisplay = (price: string | null | undefined) => {
-  if (!price) return "";
-
-  // For variable products where we don't want to show range
-  if (isVariable && !showAsRange) {
-    // Check if price is already a range (contains " - ")
-    if (price.includes(" - ")) {
-      const [minPrice] = price.split(" - ");
-      // Always show "From $XX.XX" format for variable products
-      return `From ${removeCurrencyPrefix(minPrice || "")}`;
-    }
-
-    // Even for single prices, show "From" for variable products
-    return `From ${removeCurrencyPrefix(price)}`;
+// Determine the price to display (prioritize sale price)
+const priceStringToFormat = computed(() => {
+  // Use sale price if it exists and is not empty, otherwise use regular price
+  if (props.salePrice && String(props.salePrice).trim() !== "") {
+    return props.salePrice;
   }
-
-  // For regular products or when explicitly showing range
-  return removeCurrencyPrefix(price);
-};
-
-// Computed properties for formatted prices
-const formattedRegularPrice = computed(() => {
-  if (isDev || exchangeRate.value === null) {
-    // If in development environment or exchange rate is not available, return the original price
-    return processPriceDisplay(regularPrice);
-  }
-  return convertToCAD(regularPrice, exchangeRate.value);
+  return props.regularPrice;
 });
 
-const formattedSalePrice = computed(() => {
-  if (isDev || exchangeRate.value === null) {
-    // If in development environment or exchange rate is not available, return the original price
-    return processPriceDisplay(salePrice);
+// Computed property for the final, formatted display price
+const formattedDisplayPrice = computed(() => {
+  const rawPrice = priceStringToFormat.value; // The raw string (e.g., "$55.99&nbsp;CAD", "60.00")
+
+  if (
+    rawPrice === null ||
+    rawPrice === undefined ||
+    String(rawPrice).trim() === ""
+  ) {
+    return ""; // Or a placeholder like "N/A" or t('priceUnavailable')
   }
-  return convertToCAD(salePrice, exchangeRate.value);
+
+  // --- Fallback Logic (SSR / Exchange Rate NULL) ---
+  if (exchangeRate.value === null) {
+    // console.warn(`[ProductPrice] Exchange rate is NULL. Displaying basic format for: "${rawPrice}"`);
+    // Clean the raw price and get the basic numeric string
+    const { numericString } = cleanAndExtractPriceInfo(rawPrice);
+    if (numericString) {
+      // ONLY prepend '$'. No conversion, no "CAD" suffix yet.
+      return `$${numericString}`;
+    }
+    // If not numeric after cleaning (e.g., "Call for price"), return the cleaned original
+    return String(rawPrice)
+      .replace(/&nbsp;/g, " ")
+      .trim();
+  }
+
+  // --- Exchange Rate IS Available ---
+  // console.log(`[ProductPrice] Exchange rate IS available (${exchangeRate.value}). Converting: "${rawPrice}"`);
+
+  // 1. Convert the raw price string to a CAD numeric string (e.g., "75.99")
+  // `convertToCAD` handles internal cleaning via `cleanAndExtractPriceInfo`
+  const cadNumericString = convertToCAD(rawPrice, exchangeRate.value);
+
+  if (cadNumericString === "") {
+    // console.warn(`[ProductPrice] CAD conversion failed for price: "${rawPrice}". Displaying cleaned original fallback.`);
+    const { numericString: cleanedOriginalNumeric } =
+      cleanAndExtractPriceInfo(rawPrice);
+    if (cleanedOriginalNumeric) {
+      return `$${cleanedOriginalNumeric}`; // Basic $ prefix fallback
+    }
+    return String(rawPrice)
+      .replace(/&nbsp;/g, " ")
+      .trim(); // Last resort fallback
+  }
+
+  // 2. Format the CAD numeric string with "$" and " CAD" suffix
+  // `formatPriceWithCAD` handles adding the currency symbol and code correctly.
+  return formatPriceWithCAD(cadNumericString);
+});
+
+// Computed property for the regular price when showing both (e.g., for strikethrough)
+const formattedRegularPriceForDisplay = computed(() => {
+  // Only needed if salePrice exists and we want to show regular crossed out
+  if (!props.salePrice || !props.regularPrice) return null;
+
+  const rawPrice = props.regularPrice;
+
+  if (exchangeRate.value === null) {
+    const { numericString } = cleanAndExtractPriceInfo(rawPrice);
+    return numericString
+      ? `$${numericString}`
+      : String(rawPrice)
+          .replace(/&nbsp;/g, " ")
+          .trim();
+  }
+
+  const cadNumericString = convertToCAD(rawPrice, exchangeRate.value);
+  if (cadNumericString === "") {
+    const { numericString: cleanedOriginalNumeric } =
+      cleanAndExtractPriceInfo(rawPrice);
+    return cleanedOriginalNumeric
+      ? `$${cleanedOriginalNumeric}`
+      : String(rawPrice)
+          .replace(/&nbsp;/g, " ")
+          .trim();
+  }
+  // We might not want the " CAD" suffix for the strikethrough price, adjust formatPriceWithCAD if needed
+  // or create a simpler formatting function. For now, using the full format.
+  return formatPriceWithCAD(cadNumericString);
 });
 </script>
 
 <template>
   <div class="product-price">
-    <div v-if="regularPrice" class="flex font-semibold">
-      <!-- When sale price exists, only show it (simplified view) -->
-      <template v-if="salePrice && !showBothPrices">
-        <span v-html="formattedSalePrice" />
-      </template>
-      <!-- Traditional view with regular price crossed out when on sale -->
-      <template v-else>
-        <span
-          :class="{ 'text-gray-400 line-through font-normal': salePrice }"
-          v-html="formattedRegularPrice"
-        />
-        <span v-if="salePrice" class="ml-2" v-html="formattedSalePrice" />
-      </template>
-    </div>
-    <div v-if="!exchangeRate && !isDev">Loading exchange rate...</div>
+    <span
+      v-if="formattedDisplayPrice"
+      :class="{
+        'text-red-600': salePrice && regularPrice && salePrice !== regularPrice,
+      }"
+    >
+      {{ formattedDisplayPrice }}
+    </span>
+
+    <span
+      v-if="
+        salePrice &&
+        regularPrice &&
+        salePrice !== regularPrice &&
+        formattedRegularPriceForDisplay
+      "
+      class="ml-2 text-gray-400 line-through font-normal"
+    >
+      {{ formattedRegularPriceForDisplay }}
+    </span>
+
+    <span v-else-if="!formattedDisplayPrice" class="text-gray-500 text-sm">
+      &nbsp;
+    </span>
   </div>
 </template>
+
+<style scoped>
+/* Add any specific styling for ProductPrice component here */
+.product-price span {
+  /* Example: ensure consistent vertical alignment */
+  vertical-align: middle;
+}
+</style>
