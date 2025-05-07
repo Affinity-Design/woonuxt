@@ -104,7 +104,8 @@ const isVariableProduct = computed(() => {
           {{ node.name }}
         </h2>
       </NuxtLink>
-      <ProductPrice
+      <span>$</span
+      ><ProductPrice
         class="text-sm"
         :sale-price="node.salePrice"
         :regular-price="node.regularPrice"
