@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 import { useDebounceFn, onClickOutside } from "@vueuse/core";
 import { useSearch } from "~/composables/useSearch"; // Assuming this path is correct
 
@@ -55,7 +55,8 @@ const navigateToProduct = (slug) => {
 const searchInputDOM = ref(null);
 const localInputValue = ref(searchQuery.value); // Sync local input with composable state
 
-// Add flag to prevent unwanted dismissals on mobile
+// Add flag to prevent unwanted dismissals after activating search
+const isSearchJustOpened = ref(false);
 const isInputFocused = ref(false);
 
 // Debounced function to update search query in composable
@@ -104,6 +105,7 @@ const handleFocus = () => {
     `[${componentName}] handleFocus called. Current isShowingSearch:`,
     isShowingSearch.value
   );
+
   // Set focus flag to true
   isInputFocused.value = true;
 
@@ -112,7 +114,13 @@ const handleFocus = () => {
     console.log(
       `[${componentName}] handleFocus: Search not visible. Calling toggleSearch().`
     );
+    isSearchJustOpened.value = true; // Mark that we just opened the search
     toggleSearch(); // Shows the dropdown
+
+    // Reset the flag after a delay to allow for normal interactions later
+    setTimeout(() => {
+      isSearchJustOpened.value = false;
+    }, 300); // Time to prevent immediate dismissal
   }
 };
 
@@ -122,7 +130,7 @@ const handleBlur = () => {
   // This delay ensures click events on search results can happen before blur processing
   setTimeout(() => {
     isInputFocused.value = false;
-  }, 200);
+  }, 300);
 };
 
 // Watcher to sync local input value if composable's searchQuery changes externally
@@ -139,15 +147,50 @@ watch(searchQuery, (newComposableQuery) => {
 // Ref for the main search wrapper div
 const searchWrapper = ref(null);
 
-// Modified click outside handler to respect focus state
+// Prevent auto-closing when search is activated by search icon click
+watch(isShowingSearch, (newValue, oldValue) => {
+  console.log(
+    `[${componentName}] Watcher: isShowingSearch (composable) changed to:`,
+    newValue
+  );
+
+  // If search was just opened (false -> true), focus the input after a small delay
+  if (newValue && !oldValue) {
+    isSearchJustOpened.value = true;
+
+    // Focus the input after DOM update
+    nextTick(() => {
+      if (searchInputDOM.value) {
+        searchInputDOM.value.focus();
+
+        // Reset the flag after a delay to allow for normal interactions later
+        setTimeout(() => {
+          isSearchJustOpened.value = false;
+        }, 500);
+      }
+    });
+  }
+});
+
+// Modified click outside handler to respect search state
 onClickOutside(searchWrapper, (event) => {
-  // Only close if search is showing AND the input is not focused
-  // This prevents closing on touch events that are part of the focus action
-  if (isShowingSearch.value && !isInputFocused.value) {
+  // Only close if:
+  // 1. Search is showing AND
+  // 2. The input is not focused AND
+  // 3. The search was not just opened (to prevent immediate closing)
+  if (
+    isShowingSearch.value &&
+    !isInputFocused.value &&
+    !isSearchJustOpened.value
+  ) {
     console.log(
       `[${componentName}] onClickOutside detected. Closing search panel.`
     );
     toggleSearch(); // Hides the dropdown
+  } else {
+    console.log(
+      `[${componentName}] onClickOutside detected but ignored due to conditions: isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
+    );
   }
 });
 
@@ -168,14 +211,6 @@ const showNoResultsMessage = computed(() => {
     localInputValue.value &&
     !isLoading.value &&
     !hasResults.value
-  );
-});
-
-// Watcher for debugging or reacting to search visibility changes
-watch(isShowingSearch, (newValue) => {
-  console.log(
-    `[${componentName}] Watcher: isShowingSearch (composable) changed to:`,
-    newValue
   );
 });
 </script>
@@ -218,7 +253,7 @@ watch(isShowingSearch, (newValue) => {
       <div
         v-if="shouldShowResultsDropdown"
         id="search-results-dropdown"
-        class="absolute z-30 mt-[50px] w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
+        class="absolute z-30 mt-2 w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
         role="listbox"
         aria-labelledby="search-results-info"
       >
