@@ -4,10 +4,10 @@
  * Cleans a raw price string to extract a potentially convertible numeric string.
  * Handles common currency symbols, codes, and HTML entities.
  * @param rawPrice - The raw price string (e.g., "$55.99&nbsp;USD", "CA$ 70.00", "55.99")
- * @returns An object { numericString: string, isUSD: boolean, isCAD: boolean }
+ * @returns An object { numericString: string, isUSD: boolean, isCAD: boolean, originalHadSymbol: boolean }
  * numericString will be like "55.99" or empty if not parseable.
  */
-const cleanAndExtractPriceInfo = (
+export const cleanAndExtractPriceInfo = (
   rawPrice: string | null | undefined
 ): {
   numericString: string;
@@ -49,19 +49,18 @@ const cleanAndExtractPriceInfo = (
 
   // Handle potential "From " prefix if it's still there after symbol removal
   if (cleanedStr.toLowerCase().startsWith("from ")) {
-    // For "From X.XX" type strings, we might not want to treat them as simple numerics here
-    // Or, decide to parse out the number after "From ". For now, let's assume these are not directly convertible.
-    // This part might need adjustment based on how "From" prices should be handled by conversion.
-    // If "From" prices should also be converted, then:
-    // cleanedStr = cleanedStr.substring(5).trim(); // "From ".length is 5
+    // This logic might need to be more sophisticated if "From X.XX" needs conversion
+    // For now, if "From" is present, we won't consider it a simple numeric string for direct conversion.
+    // It might be better to return the "From " part and then try to process the rest.
+    // However, cleanAndExtractPriceInfo's primary goal is to get a *number* if possible.
+    // Let's assume for now "From" prices are handled differently or not converted here.
+    // If you need to convert "From $X.XX", this part needs refinement.
+    // For now, parseFloat will fail, and numericString will be "".
   }
 
-  // Attempt to parse, but primarily return the cleaned string if it looks numeric
   const numericValue = parseFloat(cleanedStr);
   if (isNaN(numericValue)) {
-    // If it's not a number after all that cleaning, it might be a string like "Contact us"
-    // or was a "From" string we didn't parse further.
-    return { numericString: "", isUSD: false, isCAD: false, originalHadSymbol }; // Return empty if not clearly numeric
+    return { numericString: "", isUSD: false, isCAD: false, originalHadSymbol };
   }
 
   return {
@@ -88,16 +87,14 @@ const convertSinglePriceToCADNumericString = (
     return ""; // Cannot convert if no valid numeric string
   }
 
-  const numericValue = parseFloat(numericString); // Should be safe due to previous check
+  const numericValue = parseFloat(numericString);
 
   if (isUSD) {
     const convertedValue = numericValue * exchangeRate;
     const dollars = Math.floor(convertedValue); // Your specific rounding
     return (dollars + 0.99).toFixed(2);
   }
-  // If not USD, assume it's already in the target currency (CAD for this function's purpose)
-  // or doesn't need currency conversion based on your data.
-  return numericValue.toFixed(2);
+  return numericValue.toFixed(2); // Assume already CAD or target currency if not USD
 };
 
 /**
@@ -148,14 +145,18 @@ export const formatPriceWithCAD = (
     cadNumericString === undefined ||
     cadNumericString === ""
   ) {
-    return ""; // Or a placeholder like "Price unavailable"
+    return "";
   }
 
   if (cadNumericString.includes(" - ")) {
     const [minNumeric, maxNumeric] = cadNumericString.split(" - ");
     const formattedMin = formatSingleNumericPriceWithCAD(minNumeric);
     const formattedMax = formatSingleNumericPriceWithCAD(maxNumeric);
-    return formattedMin && formattedMax
+    // Ensure both parts are valid before returning range
+    return formattedMin &&
+      formattedMax &&
+      !formattedMin.includes("NaN") &&
+      !formattedMax.includes("NaN")
       ? `${formattedMin} - ${formattedMax}`
       : "";
   }
@@ -166,7 +167,10 @@ export const formatPriceWithCAD = (
 const formatSingleNumericPriceWithCAD = (numericStr: string): string => {
   const numericAmount = parseFloat(numericStr);
   if (isNaN(numericAmount)) {
-    return numericStr; // Return original if not parseable (e.g. "Contact Us")
+    // If it's not a number (e.g. "Contact Us"), return the original string.
+    // This case should ideally be handled before calling formatPriceWithCAD,
+    // as this function expects a numeric string.
+    return numericStr;
   }
   if (numericAmount === 0) {
     return "$0.00 CAD";
@@ -174,10 +178,8 @@ const formatSingleNumericPriceWithCAD = (numericStr: string): string => {
   return `$${numericAmount.toFixed(2)} CAD`;
 };
 
-// This utility might be less needed if the main pipeline is robust.
 export const removeCurrencyPrefix = (price: string | null): string => {
   if (!price) return "";
-  // Simplified: primary cleaning should happen in cleanAndExtractPriceInfo
   return price
     .replace(/^(US\$|CA\$|\$)\s*/, "")
     .replace(/\s+(USD|CAD)$/i, "")
