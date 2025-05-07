@@ -106,7 +106,7 @@ const handleFocus = () => {
   );
   // Set focus flag to true
   isInputFocused.value = true;
-  
+
   // If search is not visible, show it
   if (!isShowingSearch.value) {
     console.log(
@@ -343,3 +343,4 @@ watch(isShowingSearch, (newValue) => {
   opacity: 1 !important;
   transition: none !important;
 }
+</style>
