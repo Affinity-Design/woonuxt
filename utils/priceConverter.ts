@@ -1,99 +1,189 @@
 // utils/priceConverter.ts
-export const convertToCAD = (
-  price: string | null,
-  exchangeRate: number | null
-): string => {
-  if (!price || !exchangeRate) return "";
 
-  // Handle price range (e.g., "$10.00 - $20.00")
-  if (price.includes(" - ")) {
-    const [minPrice, maxPrice] = price.split(" - ");
-
-    // Convert each part individually
-    const convertedMinPrice = convertSinglePrice(minPrice, exchangeRate);
-    const convertedMaxPrice = convertSinglePrice(maxPrice, exchangeRate);
-
-    return `${convertedMinPrice} - ${convertedMaxPrice}`;
+/**
+ * Cleans a raw price string to extract a potentially convertible numeric string.
+ * Handles common currency symbols, codes, and HTML entities.
+ * @param rawPrice - The raw price string (e.g., "$55.99&nbsp;USD", "CA$ 70.00", "55.99")
+ * @returns An object { numericString: string, isUSD: boolean, isCAD: boolean }
+ * numericString will be like "55.99" or empty if not parseable.
+ */
+const cleanAndExtractPriceInfo = (
+  rawPrice: string | null | undefined
+): {
+  numericString: string;
+  isUSD: boolean;
+  isCAD: boolean;
+  originalHadSymbol: boolean;
+} => {
+  if (rawPrice === null || rawPrice === undefined) {
+    return {
+      numericString: "",
+      isUSD: false,
+      isCAD: false,
+      originalHadSymbol: false,
+    };
   }
 
-  // Handle single price
-  return convertSinglePrice(price, exchangeRate);
+  let cleanedStr = String(rawPrice)
+    .replace(/&nbsp;/g, " ")
+    .trim();
+
+  const originalHadSymbol =
+    cleanedStr.startsWith("$") ||
+    cleanedStr.toUpperCase().startsWith("US$") ||
+    cleanedStr.toUpperCase().startsWith("CA$");
+
+  const isUSD =
+    cleanedStr.toUpperCase().includes("USD") ||
+    cleanedStr.toUpperCase().startsWith("US$");
+  const isCAD =
+    cleanedStr.toUpperCase().includes("CAD") ||
+    cleanedStr.toUpperCase().startsWith("CA$"); // Explicitly CAD
+
+  // Remove currency symbols and codes to get to the number
+  cleanedStr = cleanedStr.replace(/US\$/i, "");
+  cleanedStr = cleanedStr.replace(/CA\$/i, "");
+  cleanedStr = cleanedStr.replace(/\$/g, ""); // Remove all dollar signs
+  cleanedStr = cleanedStr.replace(/\s+(USD|CAD)$/i, ""); // Remove trailing codes
+  cleanedStr = cleanedStr.trim();
+
+  // Handle potential "From " prefix if it's still there after symbol removal
+  if (cleanedStr.toLowerCase().startsWith("from ")) {
+    // For "From X.XX" type strings, we might not want to treat them as simple numerics here
+    // Or, decide to parse out the number after "From ". For now, let's assume these are not directly convertible.
+    // This part might need adjustment based on how "From" prices should be handled by conversion.
+    // If "From" prices should also be converted, then:
+    // cleanedStr = cleanedStr.substring(5).trim(); // "From ".length is 5
+  }
+
+  // Attempt to parse, but primarily return the cleaned string if it looks numeric
+  const numericValue = parseFloat(cleanedStr);
+  if (isNaN(numericValue)) {
+    // If it's not a number after all that cleaning, it might be a string like "Contact us"
+    // or was a "From" string we didn't parse further.
+    return { numericString: "", isUSD: false, isCAD: false, originalHadSymbol }; // Return empty if not clearly numeric
+  }
+
+  return {
+    numericString: numericValue.toFixed(2),
+    isUSD,
+    isCAD,
+    originalHadSymbol,
+  };
 };
 
-// Helper function to convert a single price
-const convertSinglePrice = (price: string, exchangeRate: number): string => {
-  // Determine currency type
-  const isUSD = price.startsWith("US$");
-  const isCAD = price.startsWith("CA$");
+/**
+ * Converts a single raw price string to a CAD numeric string (e.g., "75.99").
+ * @param rawPrice - The raw price string.
+ * @param exchangeRate - The USD to CAD exchange rate.
+ * @returns CAD price as a string (e.g., "75.99"), or empty string if conversion fails.
+ */
+const convertSinglePriceToCADNumericString = (
+  rawPrice: string | null | undefined,
+  exchangeRate: number
+): string => {
+  const { numericString, isUSD } = cleanAndExtractPriceInfo(rawPrice);
 
-  // Clean price by removing currency symbols and non-numeric characters
-  const cleanedPrice = price.replace("US$", "").replace("CA$", "");
+  if (numericString === "") {
+    return ""; // Cannot convert if no valid numeric string
+  }
 
-  const numericPrice = parseFloat(cleanedPrice);
-  if (isNaN(numericPrice)) return "";
-
-  let finalValue: number;
+  const numericValue = parseFloat(numericString); // Should be safe due to previous check
 
   if (isUSD) {
-    // Convert USD to CAD
-    const convertedPrice = numericPrice * exchangeRate;
+    const convertedValue = numericValue * exchangeRate;
+    const dollars = Math.floor(convertedValue); // Your specific rounding
+    return (dollars + 0.99).toFixed(2);
+  }
+  // If not USD, assume it's already in the target currency (CAD for this function's purpose)
+  // or doesn't need currency conversion based on your data.
+  return numericValue.toFixed(2);
+};
 
-    // Round up cents to .99
-    const dollars = Math.floor(convertedPrice); // Get the dollar amount
-    finalValue = dollars + 0.99; // Add .99 to the dollar amount
-  } else if (isCAD) {
-    // Keep CAD price as is
-    finalValue = numericPrice;
-  } else {
-    // Invalid currency format
+/**
+ * Main function to convert a price (single or range) to a CAD numeric string or range string.
+ * @param price - The raw price string, possibly a range.
+ * @param exchangeRate - The USD to CAD exchange rate.
+ * @returns Converted CAD price(s) as a string (e.g., "75.99" or "75.99 - 85.99"), or empty string.
+ */
+export const convertToCAD = (
+  price: string | null | undefined,
+  exchangeRate: number | null
+): string => {
+  if (price === null || price === undefined || exchangeRate === null) {
     return "";
   }
 
-  // Format with $ and use helper to ensure consistent prefix removal
-  // return `$${finalValue.toFixed(2)}`;
-  return finalValue.toFixed(2);
-};
+  const priceStr = String(price);
 
-export const removeCurrencyPrefix = (price: string | null): string => {
-  if (!price) return "";
-
-  // For variable products - handle special case for "From" text
-  if (price.startsWith("From ")) {
-    const priceWithoutFrom = price.replace(/^From\s+/, "");
-    return "From " + removeCurrencyPrefix(priceWithoutFrom);
+  if (priceStr.includes(" - ")) {
+    const [minRawPrice, maxRawPrice] = priceStr.split(" - ");
+    const convertedMinNumeric = convertSinglePriceToCADNumericString(
+      minRawPrice,
+      exchangeRate
+    );
+    const convertedMaxNumeric = convertSinglePriceToCADNumericString(
+      maxRawPrice,
+      exchangeRate
+    );
+    return convertedMinNumeric && convertedMaxNumeric
+      ? `${convertedMinNumeric} - ${convertedMaxNumeric}`
+      : "";
   }
 
-  // Handle price ranges
-  if (price.includes(" - ")) {
-    const [minPrice, maxPrice] = price.split(" - ");
-    return `${removeCurrencyPrefix(minPrice)} - ${removeCurrencyPrefix(maxPrice)}`;
-  }
-
-  // Remove currency prefixes more comprehensively
-  // Handle CA$ and US$ as well as currency codes like CAD and USD
-  return price.replace(/^(CA|US)\$/, "$").replace(/ (CAD|USD)$/i, ""); // Also clean up trailing currency codes
+  return convertSinglePriceToCADNumericString(priceStr, exchangeRate);
 };
 
-// Format a dollar amount with the CAD suffix, handling zero values properly
-export const formatPriceWithCAD = (amount: number | string): string => {
-  if (amount === 0 || amount === "0" || amount === "0.00") {
+/**
+ * Formats a CAD numeric string (e.g., "75.99") into a display string (e.g., "$75.99 CAD").
+ * Also handles ranges if the input numeric string is a range.
+ * @param cadNumericString - The CAD price as a numeric string, or a range like "75.99 - 85.99".
+ * @returns Formatted display string.
+ */
+export const formatPriceWithCAD = (
+  cadNumericString: string | null | undefined
+): string => {
+  if (
+    cadNumericString === null ||
+    cadNumericString === undefined ||
+    cadNumericString === ""
+  ) {
+    return ""; // Or a placeholder like "Price unavailable"
+  }
+
+  if (cadNumericString.includes(" - ")) {
+    const [minNumeric, maxNumeric] = cadNumericString.split(" - ");
+    const formattedMin = formatSingleNumericPriceWithCAD(minNumeric);
+    const formattedMax = formatSingleNumericPriceWithCAD(maxNumeric);
+    return formattedMin && formattedMax
+      ? `${formattedMin} - ${formattedMax}`
+      : "";
+  }
+
+  return formatSingleNumericPriceWithCAD(cadNumericString);
+};
+
+const formatSingleNumericPriceWithCAD = (numericStr: string): string => {
+  const numericAmount = parseFloat(numericStr);
+  if (isNaN(numericAmount)) {
+    return numericStr; // Return original if not parseable (e.g. "Contact Us")
+  }
+  if (numericAmount === 0) {
     return "$0.00 CAD";
   }
-
-  // Convert to a string if it's a number
-  const amountStr =
-    typeof amount === "number" ? amount.toFixed(2) : amount.toString();
-
-  // If the amount already has a $ prefix, leave it; otherwise add it
-  const withDollarSign = amountStr.startsWith("$")
-    ? amountStr
-    : `$${amountStr}`;
-
-  // Add the CAD suffix with a regular space (not &nbsp;)
-  return `${withDollarSign} CAD`;
+  return `$${numericAmount.toFixed(2)} CAD`;
 };
 
-// Utility function specifically for zero values
+// This utility might be less needed if the main pipeline is robust.
+export const removeCurrencyPrefix = (price: string | null): string => {
+  if (!price) return "";
+  // Simplified: primary cleaning should happen in cleanAndExtractPriceInfo
+  return price
+    .replace(/^(US\$|CA\$|\$)\s*/, "")
+    .replace(/\s+(USD|CAD)$/i, "")
+    .trim();
+};
+
 export const formatZeroPrice = (): string => {
   return "$0.00 CAD";
 };

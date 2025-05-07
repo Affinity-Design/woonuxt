@@ -195,7 +195,7 @@ watch(isShowingSearch, (newValue) => {
     <Transition name="fade">
       <div
         v-if="shouldShowResultsDropdown"
-        class="absolute z-30 mt-1 w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
+        class="absolute z-30 mt-[50px] w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
       >
         <div v-if="isLoading" class="p-4 text-center text-gray-500">
           <Icon name="ion:reload" size="24" class="animate-spin" />
