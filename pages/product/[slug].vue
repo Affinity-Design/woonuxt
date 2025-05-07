@@ -1,6 +1,25 @@
 <script lang="ts" setup>
-import { StockStatusEnum, ProductTypesEnum, type AddToCartInput } from "#woo";
-import { defineAsyncComponent } from "vue";
+import {
+  StockStatusEnum,
+  ProductTypesEnum,
+  type AddToCartInput,
+  type Variation,
+  type VariationAttribute,
+} from "#woo"; // Assuming Variation types come from #woo
+import { defineAsyncComponent, computed, ref, onMounted, watch } from "vue";
+import {
+  useRoute,
+  useNuxtApp,
+  useAppConfig,
+  useCart,
+  useI18n,
+  useHead,
+  useAsyncData,
+} from "#imports"; // Ensure all imports are from #imports or vue
+import { useHelpers } from "~/composables/useHelpers"; // Assuming this is a local composable
+import { useExchangeRate } from "~/composables/useExchangeRate"; // Import your exchange rate composable
+import { convertToCAD, formatPriceWithCAD } from "~/utils/priceConverter"; // Import your price conversion utilities
+
 const PulseLoader = defineAsyncComponent(
   () => import("vue-spinner/src/PulseLoader.vue")
 );
@@ -14,79 +33,112 @@ const { t } = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
+// --- Exchange Rate ---
+const {
+  exchangeRate,
+  lastUpdated: exchangeRateLastUpdated,
+  refresh: refreshExchangeRate,
+} = useExchangeRate();
+
 // Create a consistent cache key based on the slug
 const cacheKey = `product-${slug}`;
 console.log(`🔑 Using product cache key: ${cacheKey}`);
 
-// Use Nuxt's useAsyncData with proper caching options
 const { data, pending, error, refresh } = await useAsyncData(
   cacheKey,
   async () => {
     console.log(`🔄 Fetching product: ${slug}`);
-
-    // Use GqlGetProduct directly for the data fetch
-    const result = await GqlGetProduct({
-      slug,
-    });
-
+    // @ts-ignore GqlGetProduct is globally available via nuxt-graphql-client
+    const result = await GqlGetProduct({ slug });
     if (!result?.product) {
-      throw new Error(t("messages.shop.productNotFound"));
+      // @ts-ignore
+      throw new Error(t("messages.shop.productNotFound", "Product not found"));
     }
-
     console.log(`✅ Fetched product: ${result.product.name}`);
     return result.product;
   },
   {
-    // Caching options per Nuxt docs
-    server: true, // Enable server-side caching
-    lazy: false, // Start fetching immediately
-    immediate: true, // Don't wait for onMounted
-    watch: [], // Don't watch reactive dependencies
-
-    // Transform data for our needs
-    transform: (product) => {
-      return product; // Return as-is, but you could transform here if needed
-    },
-
-    // CRITICAL: Check for cached data explicitly
+    server: true,
+    lazy: false,
+    immediate: true,
+    watch: [],
+    transform: (product) => product,
     getCachedData: (key) => {
       console.log(`🔍 Checking for cached data with key: ${key}`);
-
-      // Check in payload first (client-side navigation)
       const payloadData = nuxtApp.payload?.data?.[key];
       if (payloadData) {
         console.log(`💰 Found cached product in payload for ${key}`);
         return payloadData;
       }
-
-      // Check in static data (if using SSG/prerendering)
       const staticData = nuxtApp.static?.data?.[key];
       if (staticData) {
         console.log(`📘 Found cached product in static data for ${key}`);
         return staticData;
       }
-
       console.log(`❌ No cached data found for ${key}`);
       return undefined;
     },
   }
 );
 
-// Product reference for template
 const product = computed(() => data.value);
+
+// --- Price Formatting Logic ---
+const getFormattedPrice = (
+  priceValue: string | null | undefined,
+  regularPriceValue?: string | null | undefined
+) => {
+  if (!priceValue && !regularPriceValue) return ""; // No price to format
+
+  // Determine the price to use (sale price if available, otherwise regular)
+  const priceToShow = priceValue || regularPriceValue;
+  if (!priceToShow) return "";
+
+  // Ensure price is a string and take the first one if comma-separated
+  let singlePrice = String(priceToShow);
+  if (singlePrice.includes(",")) {
+    singlePrice = singlePrice.split(",")[0].trim();
+  }
+
+  if (exchangeRate.value === null) {
+    console.warn(
+      `[${slug}.vue] Exchange rate not yet available. Price for "${singlePrice}" will not be converted or fully formatted yet.`
+    );
+    // Return raw price or a placeholder if exchange rate is not ready, especially on server/initial load
+    return singlePrice.startsWith("$") ? singlePrice : `$${singlePrice}`; // Basic $ prefix
+  }
+
+  // Convert to CAD using your utility
+  const convertedPrice = convertToCAD(singlePrice, exchangeRate.value);
+  if (!convertedPrice) return `$${singlePrice}`; // Fallback if conversion fails
+
+  // Format with $ and CAD suffix using your utility
+  return formatPriceWithCAD(convertedPrice);
+};
+
+const displayPrice = computed(() => {
+  if (!product.value) return "";
+  if (activeVariation.value) {
+    return getFormattedPrice(
+      activeVariation.value.salePrice,
+      activeVariation.value.regularPrice
+    );
+  }
+  return getFormattedPrice(product.value.salePrice, product.value.regularPrice);
+});
 
 // Product setup vars
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
-const variation = ref<VariationAttribute[]>([]);
+const variationAttributes = ref<VariationAttribute[]>([]); // Renamed from 'variation' to avoid conflict
 const forceTreatAsSimple = ref(false);
-const selectedAttributes = ref([]);
+const selectedAttributes = ref<any[]>([]); // Consider defining a more specific type
 
 // Product type computing
 const indexOfTypeAny = computed<number[]>(() =>
   product.value ? checkForVariationTypeOfAny(product.value) : []
 );
-const attrValues = ref();
+const attrValues = ref<any[]>(); // Consider defining a type
 const isSimpleProduct = computed<boolean>(
   () => product.value?.type === ProductTypesEnum.SIMPLE
 );
@@ -99,13 +151,15 @@ const isExternalProduct = computed<boolean>(
 const type = computed(() => activeVariation.value || product.value);
 
 // Selection and product helpers
-const selectProductInput = computed<any>(() => {
-  const input = {
+const selectProductInput = computed<AddToCartInput>(() => {
+  const input: AddToCartInput = {
     productId: type.value?.databaseId,
     quantity: quantity.value,
   };
-  if (activeVariation.value) {
+  if (activeVariation.value?.databaseId) {
     input.variationId = activeVariation.value.databaseId;
+    // If you need to pass variation attributes
+    // input.variation = activeVariation.value.attributes?.nodes.map(attr => ({ attributeName: attr.name, attributeValue: attr.value }));
   }
   return input;
 });
@@ -122,7 +176,7 @@ const stockStatus = computed(() => {
   );
 });
 
-const isOutOfStock = (status) => {
+const isOutOfStock = (status: string | undefined | null): boolean => {
   if (!status) return true;
   const normalizedStatus = status.toLowerCase().replace(/[\s_-]/g, "");
   const normalizedEnum = StockStatusEnum.OUT_OF_STOCK.toLowerCase().replace(
@@ -152,11 +206,19 @@ const disabledAddToCart = computed(() => {
 });
 
 // Update variations function
-const updateSelectedVariations = (variations) => {
-  if (!product.value?.variations || !variations || variations.length === 0)
+const updateSelectedVariations = (
+  variationsFromComponent: { name: string; value: string }[]
+) => {
+  if (
+    !product.value?.variations?.nodes ||
+    !variationsFromComponent ||
+    variationsFromComponent.length === 0
+  ) {
+    activeVariation.value = null; // Clear active variation if no selection or no variations
     return;
+  }
 
-  attrValues.value = variations.map((el) => {
+  attrValues.value = variationsFromComponent.map((el) => {
     return {
       attributeName: getExactAttributeName(el.name),
       attributeValue: el.value,
@@ -164,68 +226,82 @@ const updateSelectedVariations = (variations) => {
   });
 
   try {
-    let matchingVariation = null;
-    if (product.value.variations?.nodes) {
-      for (const variation of product.value.variations.nodes) {
-        if (!variation.attributes || !variation.attributes.nodes) continue;
-        const allAttributesMatch = variations.every((selectedAttr) => {
-          const matchingAttr = variation.attributes.nodes.find((varAttr) => {
-            const selectedName = selectedAttr.name.toLowerCase();
-            const varName = (varAttr.name || "").toLowerCase();
+    let matchingVariationNode = null;
+    for (const variationNode of product.value.variations.nodes) {
+      if (!variationNode.attributes?.nodes) continue;
+
+      // Check if the number of attributes matches
+      if (
+        variationNode.attributes.nodes.length !== variationsFromComponent.length
+      )
+        continue;
+
+      const allAttributesMatch = variationsFromComponent.every(
+        (selectedAttr) => {
+          const selectedAttrNameLower = selectedAttr.name.toLowerCase();
+          return variationNode.attributes!.nodes.some((varAttr) => {
+            if (!varAttr.name || !varAttr.value) return false;
+            const varAttrNameLower = varAttr.name.toLowerCase();
+            const attributeNameMatch =
+              selectedAttrNameLower === varAttrNameLower ||
+              `pa_${selectedAttrNameLower}` === varAttrNameLower ||
+              selectedAttrNameLower === varAttrNameLower.replace(/^pa_/, "");
+            if (!attributeNameMatch) return false;
+
+            const isSizeAttribute =
+              selectedAttrNameLower.includes("size") ||
+              varAttrNameLower.includes("size");
+            if (isSizeAttribute) {
+              return matchSizeValues(selectedAttr.value, varAttr.value);
+            }
             return (
-              selectedName === varName ||
-              `pa_${selectedName}` === varName ||
-              selectedName === varName.replace("pa_", "")
+              selectedAttr.value.toLowerCase() === varAttr.value.toLowerCase()
             );
           });
-          if (!matchingAttr) return false;
-          const isSizeAttribute =
-            selectedAttr.name.toLowerCase().includes("size") ||
-            matchingAttr.name.toLowerCase().includes("size");
-          if (isSizeAttribute) {
-            return matchSizeValues(selectedAttr.value, matchingAttr.value);
-          }
-          return selectedAttr.value === matchingAttr.value;
-        });
-        if (allAttributesMatch) {
-          matchingVariation = variation;
-          break;
         }
+      );
+
+      if (allAttributesMatch) {
+        matchingVariationNode = variationNode;
+        break;
       }
     }
-    activeVariation.value = matchingVariation;
-    variation.value = variations;
+    activeVariation.value = matchingVariationNode;
+    variationAttributes.value = variationsFromComponent; // Store the selected attributes
   } catch (error) {
     console.error("Error in updateSelectedVariations:", error);
+    activeVariation.value = null;
   }
 };
 
-// Other helper functions from your original component
-const getExactAttributeName = (attributeInput) => {
+const getExactAttributeName = (attributeInput: string): string => {
   if (!product.value?.attributes?.nodes) return attributeInput;
   const matchingAttribute = product.value.attributes.nodes.find((attr) => {
+    if (!attr.name) return false;
     const inputName = attributeInput.toLowerCase();
-    const attrName = (attr.name || "").toLowerCase();
+    const attrName = attr.name.toLowerCase();
     return (
       inputName === attrName ||
-      inputName === attrName.replace("pa_", "") ||
-      "pa_" + inputName === attrName
+      inputName === attrName.replace(/^pa_/, "") || // pa_size -> size
+      `pa_${inputName}` === attrName // size -> pa_size
     );
   });
-  return matchingAttribute ? matchingAttribute.name : attributeInput;
+  return matchingAttribute?.name || attributeInput;
 };
 
-const matchSizeValues = (selectedValue, variationValue) => {
+const matchSizeValues = (
+  selectedValue: string,
+  variationValue: string
+): boolean => {
   if (!selectedValue || !variationValue) return false;
-  const selected = selectedValue.toLowerCase();
-  const variation = variationValue.toLowerCase();
+  const selected = selectedValue.toLowerCase().trim();
+  const variation = variationValue.toLowerCase().trim();
   if (selected === variation) return true;
-  const extractSizeNumbers = (val) => {
-    const matches = val.match(/\d+(\.\d+)?/g);
-    return matches || [];
-  };
+
+  const extractSizeNumbers = (val: string) => val.match(/\d+(\.\d+)?/g) || [];
   const selectedNums = extractSizeNumbers(selected);
   const variationNums = extractSizeNumbers(variation);
+
   return selectedNums.some(
     (num) =>
       variationNums.includes(num) ||
@@ -233,22 +309,43 @@ const matchSizeValues = (selectedValue, variationValue) => {
   );
 };
 
-const validateForm = () => {
+const handleAddToCart = async () => {
+  if (!validateForm()) return;
+  try {
+    // @ts-ignore addToCart is globally available
+    await addToCart(selectProductInput.value);
+    // Handle success (e.g., show notification)
+  } catch (e) {
+    console.error("Add to cart error:", e);
+    // Handle error (e.g., show notification)
+  }
+};
+
+const validateForm = (): boolean => {
   if (isVariableProduct.value && !activeVariation.value) {
-    if (attrValues.value && attrValues.value.length > 0) {
+    if (
+      attrValues.value &&
+      attrValues.value.length > 0 &&
+      product.value?.attributes?.nodes.length === attrValues.value.length
+    ) {
       selectedAttributes.value = [...attrValues.value];
-      const confirmMessage =
-        t("messages.shop.noMatchingVariation") ||
-        "We couldn't find an exact match for your selection. Continue with these options?";
+      // @ts-ignore
+      const confirmMessage = t(
+        "messages.shop.noMatchingVariation",
+        "We couldn't find an exact match for your selection. Continue with these options?"
+      );
       if (confirm(confirmMessage)) {
         forceTreatAsSimple.value = true;
         return true;
       }
       return false;
     } else {
+      // @ts-ignore
       alert(
-        t("messages.shop.pleaseSelectVariation") ||
+        t(
+          "messages.shop.pleaseSelectVariation",
           "Please select product options before adding to cart"
+        )
       );
       return false;
     }
@@ -256,54 +353,63 @@ const validateForm = () => {
   return true;
 };
 
-// Stock status update functionality
-const mergeLiveStockStatus = (payload) => {
+const mergeLiveStockStatus = (payload: {
+  stockStatus?: string | null;
+  variations?: { nodes: { stockStatus?: string | null }[] } | null;
+}) => {
   if (!product.value) return;
-
   console.log(`🔄 Updating stock status for ${product.value.name}`);
 
-  payload.variations?.nodes?.forEach((variation, index) => {
+  payload.variations?.nodes?.forEach((variationPayload, index) => {
     if (product.value?.variations?.nodes[index]) {
-      product.value.variations.nodes[index].stockStatus = variation.stockStatus;
+      product.value.variations.nodes[index].stockStatus =
+        variationPayload.stockStatus;
     }
   });
 
-  product.value.stockStatus = payload.stockStatus ?? product.value.stockStatus;
-  console.log(`✅ Stock status updated: ${product.value.stockStatus}`);
+  if (payload.stockStatus !== undefined) {
+    product.value.stockStatus = payload.stockStatus;
+  }
+  console.log(`✅ Stock status updated: Main=${product.value.stockStatus}`);
 
-  // Update the cache data to reflect stock changes
-  if (nuxtApp.payload?.data?.[cacheKey]) {
+  if (nuxtApp.payload?.data?.[cacheKey] && product.value) {
     nuxtApp.payload.data[cacheKey] = { ...product.value };
   }
 };
 
-// Check for live stock status after load
 onMounted(async () => {
   if (product.value) {
     console.log(`🔄 Checking live stock status for ${product.value.name}`);
     try {
+      // @ts-ignore GqlGetStockStatus is globally available
       const { product: stockProduct } = await GqlGetStockStatus({ slug });
       if (stockProduct) {
         mergeLiveStockStatus(stockProduct);
       } else {
         console.log(`⚠️ No stock data received from API`);
       }
-    } catch (error) {
-      const errorMessage = error?.gqlErrors?.[0]?.message;
-      console.error(`❌ Error fetching stock status:`, errorMessage || error);
+    } catch (err: any) {
+      const errorMessage = err?.gqlErrors?.[0]?.message;
+      console.error(`❌ Error fetching stock status:`, errorMessage || err);
     }
   } else {
-    console.log(`⚠️ Cannot check stock - product data not available`);
+    console.log(`⚠️ Cannot check stock - product data not available on mount`);
+  }
+  // Attempt to refresh exchange rate on client mount if needed
+  if (exchangeRate.value === null) {
+    console.log(
+      `[${slug}.vue] Exchange rate is null on mount, attempting refresh.`
+    );
+    await refreshExchangeRate();
   }
 });
 
-// Set page metadata when product data is available
 watch(
   () => product.value,
   (newProduct) => {
     if (newProduct) {
       useHead({
-        title: newProduct.name,
+        title: newProduct.name || "Product",
         meta: [
           {
             name: "description",
@@ -314,15 +420,26 @@ watch(
           },
         ],
       });
+    } else {
+      useHead({ title: "Product not found" }); // Fallback title
     }
   },
   { immediate: true }
 );
+
+// Watch for exchange rate changes to potentially re-compute prices if they were displayed with placeholders
+watch(exchangeRate, (newRate, oldRate) => {
+  if (newRate !== null && oldRate === null) {
+    console.log(
+      `[${slug}.vue] Exchange rate became available: ${newRate}. Prices might re-render.`
+    );
+    // The `displayPrice` computed property will automatically update.
+  }
+});
 </script>
 
 <template>
   <div>
-    <!-- Show loading state with full-height centered spinner -->
     <div v-if="pending" class="flex justify-center items-center min-h-screen">
       <div class="text-center">
         <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
@@ -330,30 +447,28 @@ watch(
       </div>
     </div>
 
-    <!-- Show error state -->
     <div v-else-if="error" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error.message || t("messages.shop.productLoadError") }}
+        {{
+          error.message ||
+          t("messages.shop.productLoadError", "Error loading product.")
+        }}
       </div>
       <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded">
-        {{ t("messages.general.retry") }}
+        {{ t("messages.general.retry", "Retry") }}
       </button>
     </div>
 
-    <!-- Show product content -->
     <main v-else-if="product" class="container relative py-6 xl:max-w-7xl">
-      <div v-if="product">
-        <!-- <SEOHead :info="product" /> -->
+      <div>
         <Breadcrumb
-          :product
+          :product="product"
           class="mb-6"
           v-if="storeSettings.showBreadcrumbOnSingleProduct"
         />
-        <!-- Product Top -->
         <div
           class="flex flex-col gap-10 md:flex-row md:justify-between lg:gap-24"
         >
-          <!-- left Col Product -->
           <ProductImageGallery
             v-if="product.image"
             class="relative flex-1"
@@ -367,8 +482,9 @@ watch(
             class="relative flex-1 skeleton"
             src="/images/placeholder.jpg"
             :alt="product?.name || 'Product'"
+            width="600"
+            height="600"
           />
-          <!-- Right Col Product -->
           <div class="lg:max-w-md xl:max-w-lg md:py-2 w-full">
             <div class="flex justify-between mb-4">
               <div class="flex-1">
@@ -383,36 +499,26 @@ watch(
                   v-if="storeSettings.showReviews"
                 />
               </div>
-              <!-- Modified Product Price Display -->
               <div class="text-xl font-semibold">
-                <!-- Active Variation Price -->
-                <div v-if="activeVariation" class="flex">
-                  <!-- Show only sale price if it exists, otherwise show regular price -->
-                  <span
-                    v-if="activeVariation.salePrice"
-                    v-html="activeVariation.salePrice"
-                  />
-                  <span v-else v-html="activeVariation.regularPrice" />
-                </div>
-                <!-- Default Product Price -->
-                <div v-else class="flex">
-                  <!-- For variable products with price range, show only starting price -->
-                  <ProductPrice
-                    class="text-xl"
-                    :sale-price="product.salePrice"
-                    :regular-price="product.regularPrice"
-                    :is-variable="isVariableProduct"
-                    :show-as-range="false"
-                  />
-                </div>
+                <span v-if="displayPrice">{{ displayPrice }}</span>
+                <span v-else-if="product.price && exchangeRate === null">
+                  {{
+                    product.price.includes(",")
+                      ? `$${product.price.split(",")[0].trim()}`
+                      : `$${product.price}`
+                  }}
+                </span>
+                <span v-else-if="!product.price && !activeVariation?.price">
+                  {{ t("messages.shop.priceUnavailable", "Price unavailable") }}
+                </span>
               </div>
             </div>
 
             <div class="grid gap-2 my-8 text-sm empty:hidden">
               <div v-if="!isExternalProduct" class="flex items-center gap-2">
                 <span class="text-gray-400"
-                  >{{ $t("messages.shop.availability") }}:
-                </span>
+                  >{{ t("messages.shop.availability", "Availability") }}:</span
+                >
                 <StockStatus
                   :stockStatus="stockStatus"
                   @updated="mergeLiveStockStatus"
@@ -423,8 +529,8 @@ watch(
                 v-if="storeSettings.showSKU && product.sku"
               >
                 <span class="text-gray-400"
-                  >{{ $t("messages.shop.sku") }}:
-                </span>
+                  >{{ t("messages.shop.sku", "SKU") }}:</span
+                >
                 <span>{{ product.sku || "N/A" }}</span>
               </div>
             </div>
@@ -433,12 +539,9 @@ watch(
               class="mb-8 font-light prose"
               v-html="product.shortDescription || product.description"
             />
-
             <hr />
-            <!-- Selectors -->
-            <form
-              @submit.prevent="validateForm() && addToCart(selectProductInput)"
-            >
+
+            <form @submit.prevent="handleAddToCart">
               <AttributeSelections
                 v-if="
                   isVariableProduct && product.attributes && product.variations
@@ -454,7 +557,7 @@ watch(
                 class="fixed bottom-0 left-0 z-10 flex items-center w-full gap-4 p-4 mt-12 bg-white md:static md:bg-transparent bg-opacity-90 md:p-0"
               >
                 <input
-                  v-model="quantity"
+                  v-model.number="quantity"
                   type="number"
                   min="1"
                   aria-label="Quantity"
@@ -475,17 +578,17 @@ watch(
                 {{ product?.buttonText || "View product" }}
               </a>
             </form>
-            <!-- Categories -->
+
             <div
               v-if="
                 storeSettings.showProductCategoriesOnSingleProduct &&
-                product.productCategories
+                product.productCategories?.nodes?.length
               "
             >
               <div class="grid gap-2 my-8 text-sm">
                 <div class="flex items-center gap-2">
                   <span class="text-gray-400"
-                    >{{ $t("messages.shop.category", 2) }}:</span
+                    >{{ t("messages.shop.category", 2, { count: 2 }) }}:</span
                   >
                   <div class="product-categories">
                     <NuxtLink
@@ -501,24 +604,23 @@ watch(
               </div>
               <hr />
             </div>
-            <!-- share / wish -->
             <div class="flex flex-wrap gap-4">
-              <WishlistButton :product />
-              <ShareButton :product />
+              <WishlistButton :product="product" />
+              <ShareButton :product="product" />
             </div>
           </div>
         </div>
-        <!-- Description -->
         <div v-if="product.description || product.reviews" class="my-32">
-          <ProductTabs :product />
+          <ProductTabs :product="product" />
         </div>
-        <!-- You may like -->
         <div
           class="my-32"
-          v-if="product.related && storeSettings.showRelatedProducts"
+          v-if="
+            product.related?.nodes?.length && storeSettings.showRelatedProducts
+          "
         >
           <div class="mb-4 text-xl font-semibold">
-            {{ $t("messages.shop.youMayLike") }}
+            {{ t("messages.shop.youMayLike", "You may also like...") }}
           </div>
           <ProductRow
             :products="product.related.nodes"

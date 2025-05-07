@@ -3,24 +3,58 @@ import { ref, watch, computed } from "vue";
 import { useDebounceFn, onClickOutside } from "@vueuse/core";
 import { useSearch } from "~/composables/useSearch";
 
-const componentName = "SearchComponent"; // For easier log identification
+const componentName = "SearchComponent";
 const router = useRouter();
+const { t } = useI18n(); // Import t function for translations
 
 const {
   searchQuery,
   searchResults,
   isLoading,
-  isShowingSearch, // This is the key state from the composable
+  isShowingSearch,
   setSearchQuery,
   clearSearch,
-  toggleSearch, // This is the key function to call from the composable
+  toggleSearch,
   hasResults,
-  // initializeSearchEngine, // Generally not called directly from component anymore
 } = useSearch();
 
-// Format price
-const formatPrice = (price) => {
-  return price ? price.replace(/&nbsp;/g, " ").trim() : "";
+// Format price:
+// 1. Handle comma-separated prices (take the first one).
+// 2. Remove &nbsp;.
+// 3. (Future step: Add currency symbol like '$')
+const formatPrice = (priceString) => {
+  if (!priceString) return ""; // Return empty if no price string
+
+  let priceToFormat = String(priceString); // Ensure it's a string
+
+  // If the price string contains commas, it might be a list (e.g., "9.97, 9.97")
+  // We'll take the first price in such cases.
+  if (priceToFormat.includes(",")) {
+    priceToFormat = priceToFormat.split(",")[0];
+  }
+
+  // Remove &nbsp; and trim
+  priceToFormat = priceToFormat.replace(/&nbsp;/g, " ").trim();
+
+  // Prepend '$' if it's not already there and it looks like a simple price number
+  // This is a basic check; more robust currency formatting might be needed for complex cases or i18n.
+  const numericPart = priceToFormat.replace(/[^0-9.-]+/g, ""); // Attempt to extract numeric part
+
+  if (priceToFormat.startsWith("$")) {
+    // Already has a dollar sign (e.g., if data source provides it)
+    return priceToFormat;
+  } else if (
+    numericPart &&
+    !isNaN(parseFloat(numericPart)) &&
+    priceToFormat === numericPart
+  ) {
+    // If the cleaned priceToFormat is purely numeric, prepend '$'
+    return `$${priceToFormat}`;
+  }
+  // If it's not a simple numeric string after cleaning (e.g., "From ...", or contains other text),
+  // return it as is, as prepending '$' might be incorrect.
+  // Your more sophisticated priceConverter.ts would handle these cases better for site-wide consistency.
+  return priceToFormat;
 };
 
 // Handle product click
@@ -29,14 +63,13 @@ const navigateToProduct = (slug) => {
   router.push(`/product/${slug}`);
   if (isShowingSearch.value) {
     console.log(`[${componentName}] Closing search panel after navigation.`);
-    toggleSearch(); // This will set isShowingSearch to false
+    toggleSearch();
   }
 };
 
 const searchInputDOM = ref(null);
-const localInputValue = ref(searchQuery.value); // Initialize with current searchQuery
+const localInputValue = ref(searchQuery.value);
 
-// Debounced function to update the composable's searchQuery
 const debouncedSetSearchQuery = useDebounceFn((value) => {
   console.log(
     `[${componentName}] Debounced: Calling setSearchQuery with:`,
@@ -45,33 +78,25 @@ const debouncedSetSearchQuery = useDebounceFn((value) => {
   setSearchQuery(value);
 }, 300);
 
-// Handle input changes from the text field
 const onInputChange = (e) => {
   const value = e.target.value;
   console.log(`[${componentName}] onInputChange - value:`, value);
   localInputValue.value = value;
   debouncedSetSearchQuery(value);
 
-  // If user types and the search composable is not yet "active" (isShowingSearch is false),
-  // then activate it.
   if (value && !isShowingSearch.value) {
     console.log(
       `[${componentName}] onInputChange: Input has value and search not active. Calling toggleSearch().`
     );
-    toggleSearch(); // This should make isShowingSearch true & trigger init in composable
+    toggleSearch();
   }
-  // If input is cleared and search is active, results will clear via composable's logic.
-  // The dropdown visibility is handled by shouldShowResultsDropdown.
 };
 
-// Clear search input and hide results
 const handleClear = () => {
   console.log(`[${componentName}] handleClear called.`);
   localInputValue.value = "";
-  // setSearchQuery(''); // Debounced call will handle this, or call directly if immediate clear needed
-  clearSearch(); // Clears composable's query and results, doesn't change isShowingSearch
+  clearSearch();
 
-  // If the search panel was visible, toggle it to close it.
   if (isShowingSearch.value) {
     console.log(
       `[${componentName}] handleClear: Search was visible. Calling toggleSearch() to close.`
@@ -81,14 +106,11 @@ const handleClear = () => {
   searchInputDOM.value?.focus();
 };
 
-// Handle focus on the search input
 const handleFocus = () => {
   console.log(
     `[${componentName}] handleFocus called. Current isShowingSearch:`,
     isShowingSearch.value
   );
-  // If the search panel is not already showing, toggle it to show.
-  // This will call initializeSearchEngine in the composable if it hasn't run yet.
   if (!isShowingSearch.value) {
     console.log(
       `[${componentName}] handleFocus: Search not visible. Calling toggleSearch().`
@@ -97,7 +119,6 @@ const handleFocus = () => {
   }
 };
 
-// Watch for external changes to searchQuery (e.g., from URL via composable)
 watch(searchQuery, (newComposableQuery) => {
   console.log(
     `[${componentName}] Watcher: searchQuery (composable) changed to:`,
@@ -110,26 +131,21 @@ watch(searchQuery, (newComposableQuery) => {
 
 const searchWrapper = ref(null);
 onClickOutside(searchWrapper, (event) => {
-  // Only close if isShowingSearch is true
   if (isShowingSearch.value) {
     console.log(
       `[${componentName}] onClickOutside detected. Closing search panel.`
     );
-    toggleSearch(); // This will set isShowingSearch.value to false
+    toggleSearch();
   }
 });
 
 const shouldShowResultsDropdown = computed(() => {
-  // console.log(
-  //   `[${componentName}] computed shouldShowResultsDropdown: isShowingSearch=${isShowingSearch.value}, isLoading=${isLoading.value}, localInputValue='${localInputValue.value}', hasResults=${hasResults.value}`
-  // );
-  if (!isShowingSearch.value) return false; // If composable says search is not active, don't show
-  if (isLoading.value) return true; // Show for loading
-  if (localInputValue.value && hasResults.value) return true; // Show if there's input and results
-  // Show "no results" if there's input, not loading, and no results
+  if (!isShowingSearch.value) return false;
+  if (isLoading.value) return true;
+  if (localInputValue.value && hasResults.value) return true;
   if (localInputValue.value && !isLoading.value && !hasResults.value)
     return true;
-  return false; // Default to not showing
+  return false;
 });
 
 const showNoResultsMessage = computed(() => {
@@ -141,7 +157,6 @@ const showNoResultsMessage = computed(() => {
   );
 });
 
-// Watch isShowingSearch from the composable for debugging
 watch(isShowingSearch, (newValue) => {
   console.log(
     `[${componentName}] Watcher: isShowingSearch (composable) changed to:`,
@@ -162,7 +177,7 @@ watch(isShowingSearch, (newValue) => {
         ref="searchInputDOM"
         v-model="localInputValue"
         type="text"
-        :placeholder="$t('messages.shop.searchProducts')"
+        :placeholder="t('messages.shop.searchProducts', 'Search products...')"
         class="w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
         @input="onInputChange"
         @focus="handleFocus"
@@ -184,13 +199,18 @@ watch(isShowingSearch, (newValue) => {
       >
         <div v-if="isLoading" class="p-4 text-center text-gray-500">
           <Icon name="ion:reload" size="24" class="animate-spin" />
-          <p>{{ $t("messages.shop.loading") || "Loading results..." }}</p>
+          <p>{{ t("messages.shop.loading", "Loading results...") }}</p>
         </div>
 
         <div v-else-if="hasResults">
           <div class="p-2 text-xs text-gray-500 border-b">
-            {{ searchResults.length }}
-            {{ $t("messages.shop.resultsFound") || "results found" }}
+            {{
+              t(
+                "messages.shop.resultsFound",
+                { count: searchResults.length },
+                searchResults.length + " results found"
+              )
+            }}
           </div>
           <ul>
             <li
@@ -230,8 +250,10 @@ watch(isShowingSearch, (newValue) => {
         >
           <p>
             {{
-              $t("messages.shop.noResults") ||
-              "No products found matching your query."
+              t(
+                "messages.shop.noResults",
+                "No products found matching your query."
+              )
             }}
           </p>
         </div>
