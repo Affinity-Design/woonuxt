@@ -23,46 +23,33 @@ export const cleanAndExtractPriceInfo = (
       originalHadSymbol: false,
     };
   }
-
   let cleanedStr = String(rawPrice)
     .replace(/&nbsp;/g, " ")
     .trim();
-
   const originalHadSymbol =
     cleanedStr.startsWith("$") ||
     cleanedStr.toUpperCase().startsWith("US$") ||
     cleanedStr.toUpperCase().startsWith("CA$");
-
   const isUSD =
     cleanedStr.toUpperCase().includes("USD") ||
     cleanedStr.toUpperCase().startsWith("US$");
   const isCAD =
     cleanedStr.toUpperCase().includes("CAD") ||
-    cleanedStr.toUpperCase().startsWith("CA$"); // Explicitly CAD
-
-  // Remove currency symbols and codes to get to the number
+    cleanedStr.toUpperCase().startsWith("CA$");
   cleanedStr = cleanedStr.replace(/US\$/i, "");
   cleanedStr = cleanedStr.replace(/CA\$/i, "");
-  cleanedStr = cleanedStr.replace(/\$/g, ""); // Remove all dollar signs
-  cleanedStr = cleanedStr.replace(/\s+(USD|CAD)$/i, ""); // Remove trailing codes
+  cleanedStr = cleanedStr.replace(/\$/g, "");
+  cleanedStr = cleanedStr.replace(/\s+(USD|CAD)$/i, "");
   cleanedStr = cleanedStr.trim();
-
-  // Handle potential "From " prefix if it's still there after symbol removal
+  // Basic handling for "From " - might need refinement if conversion is needed
   if (cleanedStr.toLowerCase().startsWith("from ")) {
-    // This logic might need to be more sophisticated if "From X.XX" needs conversion
-    // For now, if "From" is present, we won't consider it a simple numeric string for direct conversion.
-    // It might be better to return the "From " part and then try to process the rest.
-    // However, cleanAndExtractPriceInfo's primary goal is to get a *number* if possible.
-    // Let's assume for now "From" prices are handled differently or not converted here.
-    // If you need to convert "From $X.XX", this part needs refinement.
-    // For now, parseFloat will fail, and numericString will be "".
+    // For now, treat "From" prices as non-numeric for direct conversion/formatting
+    return { numericString: "", isUSD: false, isCAD: false, originalHadSymbol };
   }
-
   const numericValue = parseFloat(cleanedStr);
   if (isNaN(numericValue)) {
     return { numericString: "", isUSD: false, isCAD: false, originalHadSymbol };
   }
-
   return {
     numericString: numericValue.toFixed(2),
     isUSD,
@@ -73,46 +60,31 @@ export const cleanAndExtractPriceInfo = (
 
 /**
  * Converts a single raw price string to a CAD numeric string (e.g., "75.99").
- * @param rawPrice - The raw price string.
- * @param exchangeRate - The USD to CAD exchange rate.
- * @returns CAD price as a string (e.g., "75.99"), or empty string if conversion fails.
  */
 const convertSinglePriceToCADNumericString = (
   rawPrice: string | null | undefined,
   exchangeRate: number
 ): string => {
   const { numericString, isUSD } = cleanAndExtractPriceInfo(rawPrice);
-
-  if (numericString === "") {
-    return ""; // Cannot convert if no valid numeric string
-  }
-
+  if (numericString === "") return "";
   const numericValue = parseFloat(numericString);
-
   if (isUSD) {
     const convertedValue = numericValue * exchangeRate;
-    const dollars = Math.floor(convertedValue); // Your specific rounding
+    const dollars = Math.floor(convertedValue);
     return (dollars + 0.99).toFixed(2);
   }
-  return numericValue.toFixed(2); // Assume already CAD or target currency if not USD
+  return numericValue.toFixed(2);
 };
 
 /**
  * Main function to convert a price (single or range) to a CAD numeric string or range string.
- * @param price - The raw price string, possibly a range.
- * @param exchangeRate - The USD to CAD exchange rate.
- * @returns Converted CAD price(s) as a string (e.g., "75.99" or "75.99 - 85.99"), or empty string.
  */
 export const convertToCAD = (
   price: string | null | undefined,
   exchangeRate: number | null
 ): string => {
-  if (price === null || price === undefined || exchangeRate === null) {
-    return "";
-  }
-
+  if (price === null || price === undefined || exchangeRate === null) return "";
   const priceStr = String(price);
-
   if (priceStr.includes(" - ")) {
     const [minRawPrice, maxRawPrice] = priceStr.split(" - ");
     const convertedMinNumeric = convertSinglePriceToCADNumericString(
@@ -127,15 +99,14 @@ export const convertToCAD = (
       ? `${convertedMinNumeric} - ${convertedMaxNumeric}`
       : "";
   }
-
   return convertSinglePriceToCADNumericString(priceStr, exchangeRate);
 };
 
 /**
- * Formats a CAD numeric string (e.g., "75.99") into a display string (e.g., "$75.99 CAD").
- * Also handles ranges if the input numeric string is a range.
+ * Formats a CAD numeric string (e.g., "75.99") into a display string WITHOUT the leading '$'
+ * but WITH the trailing ' CAD' (e.g., "75.99 CAD"). Handles ranges.
  * @param cadNumericString - The CAD price as a numeric string, or a range like "75.99 - 85.99".
- * @returns Formatted display string.
+ * @returns Formatted display string like "75.99 CAD" or "75.99 - 85.99 CAD".
  */
 export const formatPriceWithCAD = (
   cadNumericString: string | null | undefined
@@ -144,40 +115,42 @@ export const formatPriceWithCAD = (
     cadNumericString === null ||
     cadNumericString === undefined ||
     cadNumericString === ""
-  ) {
+  )
     return "";
-  }
 
   if (cadNumericString.includes(" - ")) {
     const [minNumeric, maxNumeric] = cadNumericString.split(" - ");
-    const formattedMin = formatSingleNumericPriceWithCAD(minNumeric);
-    const formattedMax = formatSingleNumericPriceWithCAD(maxNumeric);
-    // Ensure both parts are valid before returning range
+    // Format each part individually (without $) and append CAD only at the end
+    const formattedMin = formatSingleNumericPriceWithoutDollar(minNumeric);
+    const formattedMax = formatSingleNumericPriceWithoutDollar(maxNumeric);
+    // Ensure both parts formatted correctly before combining
     return formattedMin &&
       formattedMax &&
       !formattedMin.includes("NaN") &&
       !formattedMax.includes("NaN")
-      ? `${formattedMin} - ${formattedMax}`
+      ? `${formattedMin} - ${formattedMax} CAD` // Append CAD once for range
       : "";
   }
-
-  return formatSingleNumericPriceWithCAD(cadNumericString);
+  // Format single price and append CAD
+  return formatSingleNumericPriceWithoutDollar(cadNumericString) + " CAD";
 };
 
-const formatSingleNumericPriceWithCAD = (numericStr: string): string => {
+/**
+ * Helper: Formats a single numeric string to two decimal places (e.g., "75.99").
+ * Returns empty string for 0 or NaN.
+ */
+const formatSingleNumericPriceWithoutDollar = (numericStr: string): string => {
   const numericAmount = parseFloat(numericStr);
-  if (isNaN(numericAmount)) {
-    // If it's not a number (e.g. "Contact Us"), return the original string.
-    // This case should ideally be handled before calling formatPriceWithCAD,
-    // as this function expects a numeric string.
-    return numericStr;
+  if (isNaN(numericAmount) || numericAmount === 0) {
+    // Return empty string for zero or invalid numbers to avoid "$0.00 CAD" if desired,
+    // or return "0.00" if you want zero prices formatted. Let's return empty for now.
+    // If you want zero prices like "$0.00 CAD", change formatPriceWithCAD.
+    return ""; // Or handle 0 explicitly: if (numericAmount === 0) return "0.00";
   }
-  if (numericAmount === 0) {
-    return "$0.00 CAD";
-  }
-  return `$${numericAmount.toFixed(2)} CAD`;
+  return numericAmount.toFixed(2); // Just the number string "XX.YY"
 };
 
+// Other utilities (removeCurrencyPrefix might need adjustment if used elsewhere)
 export const removeCurrencyPrefix = (price: string | null): string => {
   if (!price) return "";
   return price
@@ -187,5 +160,6 @@ export const removeCurrencyPrefix = (price: string | null): string => {
 };
 
 export const formatZeroPrice = (): string => {
-  return "$0.00 CAD";
+  // This might not be needed if formatPriceWithCAD handles zero appropriately
+  return "0.00 CAD"; // Example: without $ prefix
 };
