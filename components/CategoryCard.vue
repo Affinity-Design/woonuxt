@@ -68,13 +68,6 @@ const handleImageError = (event) => {
   // Only change the source if we haven't already errored
   if (!hasErrored.value) {
     hasErrored.value = true;
-
-    // Force a refresh to use the fallback image
-    if (props.node.image?.sourceUrl) {
-      event.target.src = props.node.image.sourceUrl;
-    } else {
-      event.target.src = FALLBACK_IMG;
-    }
   }
 };
 </script>
