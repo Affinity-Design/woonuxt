@@ -55,6 +55,9 @@ const navigateToProduct = (slug) => {
 const searchInputDOM = ref(null);
 const localInputValue = ref(searchQuery.value); // Sync local input with composable state
 
+// Add flag to prevent unwanted dismissals on mobile
+const isInputFocused = ref(false);
+
 // Debounced function to update search query in composable
 const debouncedSetSearchQuery = useDebounceFn((value) => {
   console.log(
@@ -101,6 +104,9 @@ const handleFocus = () => {
     `[${componentName}] handleFocus called. Current isShowingSearch:`,
     isShowingSearch.value
   );
+  // Set focus flag to true
+  isInputFocused.value = true;
+  
   // If search is not visible, show it
   if (!isShowingSearch.value) {
     console.log(
@@ -108,6 +114,15 @@ const handleFocus = () => {
     );
     toggleSearch(); // Shows the dropdown
   }
+};
+
+// Handler for input blur
+const handleBlur = () => {
+  // Set focus flag to false after a delay
+  // This delay ensures click events on search results can happen before blur processing
+  setTimeout(() => {
+    isInputFocused.value = false;
+  }, 200);
 };
 
 // Watcher to sync local input value if composable's searchQuery changes externally
@@ -123,9 +138,12 @@ watch(searchQuery, (newComposableQuery) => {
 
 // Ref for the main search wrapper div
 const searchWrapper = ref(null);
-// Close search dropdown when clicking outside the search component
+
+// Modified click outside handler to respect focus state
 onClickOutside(searchWrapper, (event) => {
-  if (isShowingSearch.value) {
+  // Only close if search is showing AND the input is not focused
+  // This prevents closing on touch events that are part of the focus action
+  if (isShowingSearch.value && !isInputFocused.value) {
     console.log(
       `[${componentName}] onClickOutside detected. Closing search panel.`
     );
@@ -179,6 +197,7 @@ watch(isShowingSearch, (newValue) => {
         class="search-bar-input w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
         @input="onInputChange"
         @focus="handleFocus"
+        @blur="handleBlur"
         aria-label="Search products"
         role="searchbox"
         :aria-expanded="shouldShowResultsDropdown"
@@ -301,8 +320,7 @@ watch(isShowingSearch, (newValue) => {
 }
 .fade-leave-active {
   /* For when the dropdown disappears */
-  /* MODIFICATION: Removed transition for opacity on leave. */
-  /* transition: opacity 0.2s ease; */ /* Original line */
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from {
@@ -311,18 +329,17 @@ watch(isShowingSearch, (newValue) => {
 }
 .fade-leave-to {
   /* End state for disappearing (dropdown is transparent) */
-  /* MODIFICATION: Removed opacity: 0 on leave. */
-  /* opacity: 0; */ /* Original line */
+  opacity: 0;
 }
 
-/* NEW STYLE: Attempt to force the search input to be opaque when focused.
-   This is a workaround for an issue where the input bar itself might be fading
-   on mobile due to external CSS or JavaScript.
-   The root cause should ideally be found in global styles or the useSearch composable.
-*/
+/* Ensure the search input is always fully visible */
+.search-bar-input {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/* Make sure the input is always visible when focused */
 .search-bar-input:focus {
   opacity: 1 !important;
-  /* If it's still slowly fading TO opacity 1, the transition itself needs to be disabled: */
-  /* transition: opacity 0s linear !important; */
+  transition: none !important;
 }
-</style>

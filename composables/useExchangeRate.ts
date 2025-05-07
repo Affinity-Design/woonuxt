@@ -20,17 +20,10 @@ export const useExchangeRate = () => {
       if (buildTimeRateRaw) {
         const buildTimeRate = parseFloat(String(buildTimeRateRaw));
         if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-          console.log(
-            `[useExchangeRate - Init] Using build-time fallback rate: ${buildTimeRate}`
-          );
           return buildTimeRate;
         } else {
-          console.warn(
-            `[useExchangeRate - Init] Invalid buildTimeExchangeRate found: "${buildTimeRateRaw}".`
-          );
         }
       } else {
-        console.log("[useExchangeRate - Init] No buildTimeExchangeRate found.");
       }
     }
     // Default to null if not server context or no valid build-time rate
@@ -55,13 +48,8 @@ export const useExchangeRate = () => {
     // This runs only once on the client after hydration
     if (isServerContext()) return; // Should not run on server
 
-    console.log("[useExchangeRate - Client Init] Checking state and cookie...");
-
     // 1. Check if state already has a value (could be from build-time fallback via payload)
     if (exchangeRate.value !== null) {
-      console.log(
-        `[useExchangeRate - Client Init] State already has value: ${exchangeRate.value} (likely from build-time fallback).`
-      );
       // We might still check the cookie or fetch if the build-time value is potentially stale
     }
 
@@ -79,9 +67,7 @@ export const useExchangeRate = () => {
           // Optional: Check cookie age
           // const MAX_COOKIE_AGE = 24 * 60 * 60 * 1000;
           // if (Date.now() - parsed.lastUpdated < MAX_COOKIE_AGE) {
-          console.log(
-            `[useExchangeRate - Client Init] Found valid cookie. Rate: ${parsed.rate}, Updated: ${new Date(parsed.lastUpdated).toISOString()}`
-          );
+
           rateFromCookie = parsed.rate;
           updateTimeFromCookie = parsed.lastUpdated;
           // } else {
@@ -89,28 +75,18 @@ export const useExchangeRate = () => {
           //     cookie.value = null; // Clear expired cookie
           // }
         } else {
-          console.warn(
-            "[useExchangeRate - Client Init] Cookie data structure invalid."
-          );
           cookie.value = null; // Clear invalid cookie
         }
       } catch (e) {
-        console.warn(
-          "[useExchangeRate - Client Init] Failed to parse cookie data."
-        );
         cookie.value = null; // Clear invalid cookie
       }
     } else {
-      console.log("[useExchangeRate - Client Init] No client cookie found.");
     }
 
     // 3. Decide initial client state: Prioritize fresh cookie over potentially stale build-time value
     if (rateFromCookie !== null && updateTimeFromCookie !== null) {
       // If cookie is valid, use it as the initial client state
       if (exchangeRate.value !== rateFromCookie) {
-        console.log(
-          `[useExchangeRate - Client Init] Overwriting initial/build state (${exchangeRate.value}) with cookie value (${rateFromCookie}).`
-        );
         exchangeRate.value = rateFromCookie;
       }
       lastClientUpdate.value = updateTimeFromCookie;
@@ -118,14 +94,9 @@ export const useExchangeRate = () => {
       // If no valid cookie, but we have a build-time value, keep it for now
       // but mark lastClientUpdate as null so fetchExchangeRate knows to check freshness
       lastClientUpdate.value = null;
-      console.log(
-        `[useExchangeRate - Client Init] Using build-time rate (${exchangeRate.value}) as initial client value (no valid cookie).`
-      );
     } else {
       // No build-time value, no cookie value
-      console.log(
-        "[useExchangeRate - Client Init] No initial rate available. Will attempt fetch."
-      );
+
       lastClientUpdate.value = null;
     }
 
@@ -151,9 +122,6 @@ export const useExchangeRate = () => {
       return;
     }
 
-    console.log(
-      "[useExchangeRate] Attempting client-side fetch/refresh via /api/exchange-rate..."
-    );
     try {
       // Use useFetch for client-side fetching
       const { data, error } = await useFetch("/api/exchange-rate", {
@@ -168,10 +136,6 @@ export const useExchangeRate = () => {
         const newRate = data.value.data.rate;
         const apiLastUpdated = data.value.data.lastUpdated; // When the API last updated *its* source
 
-        console.log(
-          `[useExchangeRate] Client fetch successful. Rate: ${newRate}. API source updated: ${new Date(apiLastUpdated).toISOString()}`
-        );
-
         // Update state
         exchangeRate.value = newRate;
         lastClientUpdate.value = now; // Record time of *this* client update
@@ -179,7 +143,7 @@ export const useExchangeRate = () => {
         // Update cookie
         cookie.value = JSON.stringify({ rate: newRate, lastUpdated: now });
       } else {
-        console.error(
+        console.warn(
           "[useExchangeRate] Client fetch returned unexpected data:",
           data.value
         );
