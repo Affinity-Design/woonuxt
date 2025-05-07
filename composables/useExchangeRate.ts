@@ -1,75 +1,207 @@
 // composables/useExchangeRate.ts
-import { useState, useAsyncData, useCookie } from "#imports";
+import {
+  useState,
+  useRuntimeConfig,
+  useFetch,
+  useCookie,
+  onMounted,
+} from "#imports";
+
+// Helper function to check if running on the server/build context
+const isServerContext = () => process.server;
 
 export const useExchangeRate = () => {
-  const exchangeRate = useState<number | null>("exchangeRate", () => null);
-  const lastUpdated = useState<number | null>("lastUpdated", () => null);
+  const config = useRuntimeConfig();
 
-  // Check for cookie data first (to avoid unnecessary calls)
-  const cookieData = useCookie("exchange-rate-data");
-
-  if (cookieData.value && !exchangeRate.value) {
-    try {
-      const parsed = JSON.parse(cookieData.value as string);
-      exchangeRate.value = parsed.rate;
-      lastUpdated.value = parsed.lastUpdated;
-    } catch (e) {
-      // Invalid cookie data, will fetch from API
-    }
-  }
-
-  const fetchExchangeRate = async () => {
-    // Only fetch if we don't have data or it's older than 23 hours
-    // (slightly less than the server's 24 hours to ensure freshness)
-    const shouldFetch =
-      !exchangeRate.value ||
-      !lastUpdated.value ||
-      Date.now() - lastUpdated.value > 23 * 60 * 60 * 1000;
-
-    if (!shouldFetch) {
-      return {
-        exchangeRate: exchangeRate.value,
-        lastUpdated: lastUpdated.value,
-      };
-    }
-
-    const { data, error } = await useAsyncData(
-      "exchangeRate",
-      async () => {
-        const response = await fetch("/api/exchange-rate");
-        return response.json();
-      },
-      {
-        server: false, // Allow this to run on client as well
-        fresh: shouldFetch, // Only refetch when needed
-        watch: [], // Don't reactively refetch
+  // Initialize useState. Try build-time fallback ONLY during server/build context.
+  const exchangeRate = useState<number | null>("exchangeRate", () => {
+    if (isServerContext()) {
+      const buildTimeRateRaw = config.public.buildTimeExchangeRate;
+      if (buildTimeRateRaw) {
+        const buildTimeRate = parseFloat(String(buildTimeRateRaw));
+        if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
+          console.log(
+            `[useExchangeRate - Init] Using build-time fallback rate: ${buildTimeRate}`
+          );
+          return buildTimeRate;
+        } else {
+          console.warn(
+            `[useExchangeRate - Init] Invalid buildTimeExchangeRate found: "${buildTimeRateRaw}".`
+          );
+        }
+      } else {
+        console.log("[useExchangeRate - Init] No buildTimeExchangeRate found.");
       }
-    );
+    }
+    // Default to null if not server context or no valid build-time rate
+    return null;
+  });
 
-    if (error.value) {
-      console.error("Failed to fetch exchange rate:", error.value);
-      return {
-        exchangeRate: exchangeRate.value,
-        lastUpdated: lastUpdated.value,
-      };
+  // State to track the timestamp of the last *client-side* fetch/update
+  const lastClientUpdate = useState<number | null>(
+    "exchangeRateLastClientUpdate",
+    () => null
+  );
+
+  // Client-side cookie for persistence between sessions
+  const cookie = useCookie<string | null>("exchange-rate-data", {
+    maxAge: 24 * 60 * 60, // 1 day expiry
+    path: "/",
+    // Consider `secure: true` and `sameSite: 'lax'` or 'strict' for production
+  });
+
+  // --- Client-Side Initialization Logic ---
+  const initializeOnClient = () => {
+    // This runs only once on the client after hydration
+    if (isServerContext()) return; // Should not run on server
+
+    console.log("[useExchangeRate - Client Init] Checking state and cookie...");
+
+    // 1. Check if state already has a value (could be from build-time fallback via payload)
+    if (exchangeRate.value !== null) {
+      console.log(
+        `[useExchangeRate - Client Init] State already has value: ${exchangeRate.value} (likely from build-time fallback).`
+      );
+      // We might still check the cookie or fetch if the build-time value is potentially stale
     }
 
-    if (data.value && data.value.success && data.value.data) {
-      exchangeRate.value = data.value.data.rate;
-      lastUpdated.value = data.value.data.lastUpdated;
+    // 2. Check client-side cookie
+    let rateFromCookie: number | null = null;
+    let updateTimeFromCookie: number | null = null;
+    if (cookie.value) {
+      try {
+        const parsed = JSON.parse(cookie.value);
+        if (
+          parsed &&
+          typeof parsed.rate === "number" &&
+          typeof parsed.lastUpdated === "number"
+        ) {
+          // Optional: Check cookie age
+          // const MAX_COOKIE_AGE = 24 * 60 * 60 * 1000;
+          // if (Date.now() - parsed.lastUpdated < MAX_COOKIE_AGE) {
+          console.log(
+            `[useExchangeRate - Client Init] Found valid cookie. Rate: ${parsed.rate}, Updated: ${new Date(parsed.lastUpdated).toISOString()}`
+          );
+          rateFromCookie = parsed.rate;
+          updateTimeFromCookie = parsed.lastUpdated;
+          // } else {
+          //     console.log("[useExchangeRate - Client Init] Cookie data is expired.");
+          //     cookie.value = null; // Clear expired cookie
+          // }
+        } else {
+          console.warn(
+            "[useExchangeRate - Client Init] Cookie data structure invalid."
+          );
+          cookie.value = null; // Clear invalid cookie
+        }
+      } catch (e) {
+        console.warn(
+          "[useExchangeRate - Client Init] Failed to parse cookie data."
+        );
+        cookie.value = null; // Clear invalid cookie
+      }
+    } else {
+      console.log("[useExchangeRate - Client Init] No client cookie found.");
     }
 
-    return { exchangeRate: exchangeRate.value, lastUpdated: lastUpdated.value };
+    // 3. Decide initial client state: Prioritize fresh cookie over potentially stale build-time value
+    if (rateFromCookie !== null && updateTimeFromCookie !== null) {
+      // If cookie is valid, use it as the initial client state
+      if (exchangeRate.value !== rateFromCookie) {
+        console.log(
+          `[useExchangeRate - Client Init] Overwriting initial/build state (${exchangeRate.value}) with cookie value (${rateFromCookie}).`
+        );
+        exchangeRate.value = rateFromCookie;
+      }
+      lastClientUpdate.value = updateTimeFromCookie;
+    } else if (exchangeRate.value !== null) {
+      // If no valid cookie, but we have a build-time value, keep it for now
+      // but mark lastClientUpdate as null so fetchExchangeRate knows to check freshness
+      lastClientUpdate.value = null;
+      console.log(
+        `[useExchangeRate - Client Init] Using build-time rate (${exchangeRate.value}) as initial client value (no valid cookie).`
+      );
+    } else {
+      // No build-time value, no cookie value
+      console.log(
+        "[useExchangeRate - Client Init] No initial rate available. Will attempt fetch."
+      );
+      lastClientUpdate.value = null;
+    }
+
+    // 4. Trigger fetch if needed based on current state and last update time
+    fetchExchangeRate(); // fetchExchangeRate has internal logic to check if fetch is necessary
   };
 
-  // Fetch immediately if we don't have data
-  if (!exchangeRate.value || !lastUpdated.value) {
-    fetchExchangeRate();
-  }
+  // --- Client-Side Fetch/Refresh Logic ---
+  const fetchExchangeRate = async () => {
+    if (isServerContext()) return; // Only run client-side
+
+    const now = Date.now();
+    const FETCH_INTERVAL = 23 * 60 * 60 * 1000; // Re-fetch if older than 23 hours
+
+    // Fetch if no rate, or no known last update time, or if last update is too old
+    const shouldFetch =
+      exchangeRate.value === null ||
+      lastClientUpdate.value === null ||
+      now - lastClientUpdate.value > FETCH_INTERVAL;
+
+    if (!shouldFetch) {
+      // console.log("[useExchangeRate] Client fetch skipped, data is fresh enough based on lastClientUpdate.");
+      return;
+    }
+
+    console.log(
+      "[useExchangeRate] Attempting client-side fetch/refresh via /api/exchange-rate..."
+    );
+    try {
+      // Use useFetch for client-side fetching
+      const { data, error } = await useFetch("/api/exchange-rate", {
+        key: "apiExchangeRateFetch" /* Optional key */,
+      });
+
+      if (error.value) {
+        throw error.value; // Throw error to be caught below
+      }
+
+      if (data.value && data.value.success && data.value.data?.rate) {
+        const newRate = data.value.data.rate;
+        const apiLastUpdated = data.value.data.lastUpdated; // When the API last updated *its* source
+
+        console.log(
+          `[useExchangeRate] Client fetch successful. Rate: ${newRate}. API source updated: ${new Date(apiLastUpdated).toISOString()}`
+        );
+
+        // Update state
+        exchangeRate.value = newRate;
+        lastClientUpdate.value = now; // Record time of *this* client update
+
+        // Update cookie
+        cookie.value = JSON.stringify({ rate: newRate, lastUpdated: now });
+      } else {
+        console.error(
+          "[useExchangeRate] Client fetch returned unexpected data:",
+          data.value
+        );
+      }
+    } catch (fetchError) {
+      console.error("[useExchangeRate] Client fetch failed:", fetchError);
+      // Decide if you want to clear the rate or keep the potentially stale one
+      // exchangeRate.value = null; // Option: clear on failure
+      // lastClientUpdate.value = null;
+      // cookie.value = null;
+    }
+  };
+
+  // --- Run Initialization ---
+  // Use onMounted to ensure this runs once on the client after hydration
+  onMounted(() => {
+    initializeOnClient();
+  });
 
   return {
-    exchangeRate,
-    lastUpdated,
-    refresh: fetchExchangeRate, // Expose refresh function
+    exchangeRate, // The reactive exchange rate ref
+    // lastUpdated: lastClientUpdate, // Expose client update time if needed
+    refresh: fetchExchangeRate, // Function to manually trigger client-side refresh
   };
 };

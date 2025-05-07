@@ -1,6 +1,5 @@
 import { createResolver } from "@nuxt/kit";
-// Import the static JSON file
-import categoryRoutesToPrerender from "./data/category-routes.json"; // Adjust path if needed
+import categoryRoutesToPrerender from "./data/category-routes.json"; // Assuming static list
 
 const { resolve } = createResolver(import.meta.url);
 
@@ -9,11 +8,29 @@ console.log(
 );
 
 export default defineNuxtConfig({
-  // ... (your existing config: extends, components, runtimeConfig, etc.) ...
   extends: ["./woonuxt_base"],
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
   runtimeConfig: {
-    /* ... */
+    // Server-only secrets
+    stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
+    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+    SENDING_EMAIL: process.env.SENDING_EMAIL,
+    RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
+    REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
+    // Public config (available client+server/build)
+    public: {
+      stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
+      exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key",
+      turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
+      turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
+      turnstile: {
+        siteKey: process.env.TURNSTYLE_SITE_KEY,
+      },
+      // --- NEW: Build-time fallback exchange rate ---
+      // Provide a default value (e.g., 1.0) if the env var isn't set during build
+      buildTimeExchangeRate:
+        process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || 1.37,
+    },
   },
   devtools: { enabled: true },
   ssr: true,
@@ -34,24 +51,16 @@ export default defineNuxtConfig({
       cache: { driver: "fs", base: "./.nuxt/dev-cache/isr" },
       script_data: { driver: "fs", base: "./.nuxt/dev-cache/script_data" },
     },
-
-    // --- Updated Prerender Config ---
     prerender: {
       crawlLinks: false,
       routes: [
-        "/", // Prerender homepage
+        "/",
         "/contact",
         "/terms",
         "/privacy",
-        // Spread the list imported from the JSON file
-        ...(categoryRoutesToPrerender || []), // Use || [] as fallback
+        ...(categoryRoutesToPrerender || []),
       ],
-      ignore: [
-        "/product/**", // Keep products using KV cache (ISR)
-        "/checkout/**",
-        "/cart",
-        "/account/**",
-      ],
+      ignore: ["/product/**", "/checkout/**", "/cart", "/account/**"],
       concurrency: 10,
       interval: 1000,
       failOnError: false,
@@ -59,22 +68,13 @@ export default defineNuxtConfig({
     },
   },
 
-  // --- Updated Route Rules ---
   routeRules: {
-    "/": {
-      prerender: true,
-      cache: { maxAge: 60 * 60 * 24, base: "cache" },
-    },
-    // Mark category pages as prerendered
+    "/": { prerender: true, cache: { maxAge: 60 * 60 * 24, base: "cache" } },
     "/product-category/**": {
       prerender: true,
-      // You can optionally remove the 'cache' rule here if prerendering is sufficient,
-      // or keep it for potential KV fallback (though less likely to be hit).
-      // cache: { maxAge: 60 * 60 * 24 * 7, base: "cache" },
-    },
-    "/product/**": {
-      cache: { maxAge: 60 * 60 * 72, base: "cache" },
-    },
+      cache: { maxAge: 60 * 60 * 24 * 7, base: "cache" },
+    }, // Rely on prerendering
+    "/product/**": { cache: { maxAge: 60 * 60 * 72, base: "cache" } }, // Use KV cache for products
     "/checkout/**": { ssr: false },
     "/cart": { ssr: false },
     "/account/**": { ssr: false },
