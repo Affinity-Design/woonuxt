@@ -20,6 +20,9 @@ const {
   hasResults,
 } = useSearch();
 
+// Added: Flag to prevent click outside from closing the dropdown
+const preventAutoClose = ref(true);
+
 // Helper to format price string
 const formatPrice = (priceString) => {
   if (!priceString) return "";
@@ -99,6 +102,14 @@ const handleClear = () => {
   searchInputDOM.value?.focus(); // Re-focus the input
 };
 
+// NEW: Explicit close button handler
+const handleClose = () => {
+  console.log(`[${componentName}] handleClose called.`);
+  if (isShowingSearch.value) {
+    toggleSearch(); // Hide the dropdown
+  }
+};
+
 // Handler for input focus
 const handleFocus = () => {
   console.log(
@@ -126,8 +137,7 @@ const handleFocus = () => {
 
 // Handler for input blur
 const handleBlur = () => {
-  // Set focus flag to false after a delay
-  // This delay ensures click events on search results can happen before blur processing
+  // We no longer automatically hide on blur
   setTimeout(() => {
     isInputFocused.value = false;
   }, 300);
@@ -172,13 +182,11 @@ watch(isShowingSearch, (newValue, oldValue) => {
   }
 });
 
-// Modified click outside handler to respect search state
+// MODIFIED: Click outside handler now respects preventAutoClose flag
 onClickOutside(searchWrapper, (event) => {
-  // Only close if:
-  // 1. Search is showing AND
-  // 2. The input is not focused AND
-  // 3. The search was not just opened (to prevent immediate closing)
+  // Only close if explicitly allowed and conditions are met
   if (
+    !preventAutoClose.value && // Check our new flag
     isShowingSearch.value &&
     !isInputFocused.value &&
     !isSearchJustOpened.value
@@ -189,7 +197,7 @@ onClickOutside(searchWrapper, (event) => {
     toggleSearch(); // Hides the dropdown
   } else {
     console.log(
-      `[${componentName}] onClickOutside detected but ignored due to conditions: isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
+      `[${componentName}] onClickOutside detected but ignored due to conditions: preventAutoClose=${preventAutoClose.value}, isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
     );
   }
 });
@@ -217,19 +225,18 @@ const showNoResultsMessage = computed(() => {
 
 <template>
   <div ref="searchWrapper" class="relative w-full">
-    <div class="relative flex items-center">
+    <div class="relative flex items-center w-full">
       <Icon
         name="ion:search-outline"
         size="20"
-        class="absolute left-3 z-10 text-gray-400 pointer-events-none"
-        aria-hidden="true"
+        class="absolute z-10 opacity-50 pointer-events-none left-2"
       />
       <input
         ref="searchInputDOM"
         v-model="localInputValue"
         type="text"
         :placeholder="t('messages.shop.searchProducts', 'Search products...')"
-        class="search-bar-input w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
+        class="z-0 inline-flex items-center w-full p-2 pl-10 text-sm text-gray-500 border border-gray-300 rounded-md shadow-inner outline-none bg-gray-50 shadow-gray-200"
         @input="onInputChange"
         @focus="handleFocus"
         @blur="handleBlur"
@@ -238,25 +245,58 @@ const showNoResultsMessage = computed(() => {
         :aria-expanded="shouldShowResultsDropdown"
         aria-controls="search-results-dropdown"
       />
-      <button
+      <span
         v-if="localInputValue"
-        type="button"
-        aria-label="Clear search query"
-        class="absolute right-3 z-10 text-gray-400 hover:text-gray-600"
+        class="absolute z-10 flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary right-2"
         @click="handleClear"
       >
-        <Icon name="ion:close-circle" size="20" aria-hidden="true" />
-      </button>
+        <span>{{ $t("messages.general.clear") }}</span>
+        <Icon name="ion:close-outline" size="18" />
+      </span>
     </div>
 
+    <!-- DROP DOWN -->
     <Transition name="fade">
       <div
         v-if="shouldShowResultsDropdown"
         id="search-results-dropdown"
-        class="absolute z-30 mt-2 w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
+        class="absolute z-30 mt-[50px] w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
         role="listbox"
         aria-labelledby="search-results-info"
       >
+        <!-- Added header with close button -->
+        <div class="flex justify-between items-center p-2 border-b bg-gray-50">
+          <div
+            id="search-results-info"
+            class="text-xs text-gray-500"
+            aria-live="polite"
+          >
+            <span v-if="hasResults">
+              {{
+                t(
+                  "messages.shop.resultsFound",
+                  { count: searchResults.length },
+                  searchResults.length + " results found"
+                )
+              }}
+            </span>
+            <span v-else-if="isLoading">
+              {{ t("messages.shop.searching", "Searching...") }}
+            </span>
+            <span v-else>
+              {{ t("messages.shop.search", "Search") }}
+            </span>
+          </div>
+          <button
+            type="button"
+            aria-label="Close search results"
+            class="text-gray-400 hover:text-gray-600 p-1"
+            @click="handleClose"
+          >
+            <Icon name="ion:close" size="16" aria-hidden="true" />
+          </button>
+        </div>
+
         <div v-if="isLoading" class="p-4 text-center text-gray-500">
           <Icon
             name="ion:reload"
@@ -268,19 +308,6 @@ const showNoResultsMessage = computed(() => {
         </div>
 
         <div v-else-if="hasResults">
-          <div
-            id="search-results-info"
-            class="p-2 text-xs text-gray-500 border-b"
-            aria-live="polite"
-          >
-            {{
-              t(
-                "messages.shop.resultsFound",
-                { count: searchResults.length },
-                searchResults.length + " results found"
-              )
-            }}
-          </div>
           <ul>
             <li
               v-for="product in searchResults"

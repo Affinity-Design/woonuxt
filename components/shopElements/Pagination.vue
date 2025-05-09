@@ -5,6 +5,11 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  // Maximum number of page buttons to show at once
+  maxVisibleButtons: {
+    type: Number,
+    default: 10, // Show at most 10 page buttons at a time
+  },
 });
 
 const route = useRoute();
@@ -21,6 +26,31 @@ const currentPage = computed(() => {
 const numberOfPages = computed<number>(() =>
   Math.ceil(props.count / productsPerPage)
 );
+
+// Calculate the range of page numbers to display
+const pageRange = computed(() => {
+  const maxVisibleButtons = props.maxVisibleButtons;
+
+  // If we have fewer pages than the max visible buttons, show them all
+  if (numberOfPages.value <= maxVisibleButtons) {
+    return Array.from({ length: numberOfPages.value }, (_, i) => i + 1);
+  }
+
+  // Calculate start and end of page range
+  let start = Math.max(
+    currentPage.value - Math.floor(maxVisibleButtons / 2),
+    1
+  );
+  let end = start + maxVisibleButtons - 1;
+
+  // Adjust if end is beyond the last page
+  if (end > numberOfPages.value) {
+    end = numberOfPages.value;
+    start = Math.max(end - maxVisibleButtons + 1, 1);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
 
 // Client-side navigation handlers
 const navigateToPage = (pageNumber: number) => {
@@ -53,6 +83,14 @@ const isFirstPage = computed(() => currentPage.value === 1);
 
 // Check if we're on the last page
 const isLastPage = computed(() => currentPage.value >= numberOfPages.value);
+
+// Should we show first page button
+const showFirstPageButton = computed(() => pageRange.value[0] > 1);
+
+// Should we show last page button
+const showLastPageButton = computed(
+  () => pageRange.value[pageRange.value.length - 1] < numberOfPages.value
+);
 </script>
 
 <template>
@@ -75,9 +113,21 @@ const isLastPage = computed(() => currentPage.value >= numberOfPages.value);
         <Icon name="ion:chevron-back-outline" size="20" class="w-5 h-5" />
       </button>
 
+      <!-- First page button with ellipsis -->
+      <template v-if="showFirstPageButton">
+        <button
+          @click="navigateToPage(1)"
+          :aria-current="1 === currentPage ? 'page' : undefined"
+          class="page-number"
+        >
+          1
+        </button>
+        <span v-if="pageRange[0] > 2" class="ellipsis">...</span>
+      </template>
+
       <!-- NUMBERS -->
       <button
-        v-for="pageNumber in numberOfPages"
+        v-for="pageNumber in pageRange"
         :key="pageNumber"
         @click="navigateToPage(pageNumber)"
         :aria-current="pageNumber === currentPage ? 'page' : undefined"
@@ -85,6 +135,22 @@ const isLastPage = computed(() => currentPage.value >= numberOfPages.value);
       >
         {{ pageNumber }}
       </button>
+
+      <!-- Last page button with ellipsis -->
+      <template v-if="showLastPageButton">
+        <span
+          v-if="pageRange[pageRange.length - 1] < numberOfPages - 1"
+          class="ellipsis"
+          >...</span
+        >
+        <button
+          @click="navigateToPage(numberOfPages)"
+          :aria-current="numberOfPages === currentPage ? 'page' : undefined"
+          class="page-number"
+        >
+          {{ numberOfPages }}
+        </button>
+      </template>
 
       <!-- NEXT -->
       <button
@@ -104,7 +170,8 @@ const isLastPage = computed(() => currentPage.value >= numberOfPages.value);
 <style lang="postcss" scoped>
 .prev,
 .next,
-.page-number {
+.page-number,
+.ellipsis {
   @apply bg-white border font-medium border-gray-300 text-sm p-2 text-gray-500 relative inline-flex items-center hover:bg-gray-50 focus:z-10;
 }
 
@@ -118,6 +185,10 @@ const isLastPage = computed(() => currentPage.value >= numberOfPages.value);
 
 .page-number {
   @apply px-3;
+}
+
+.ellipsis {
+  @apply px-3 cursor-default hover:bg-white;
 }
 
 .page-number[aria-current="page"] {

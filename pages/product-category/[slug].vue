@@ -41,7 +41,11 @@ const categoryTitle = computed(() => formatSlug(slug));
 
 // Get product count first
 const countResult = await useAsyncGql("getProductsTotal", { slug });
-const productCount = ref(countResult.data.value?.products?.found || 150);
+const getCount =
+  slug === "clearance-items"
+    ? 255
+    : countResult.data.value?.products?.found || 150;
+const productCount = ref(getCount);
 
 // Use Nuxt's useAsyncData with proper caching options
 const { data, pending, error, refresh } = await useAsyncData(
