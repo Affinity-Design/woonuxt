@@ -2,7 +2,6 @@
 import { ref, computed, watch, PropType, toRaw } from "vue";
 
 // Import StockStatusEnum as a value for runtime access.
-// Other types that are only used for type annotations can remain type-only imports.
 import { StockStatusEnum } from "#woo";
 import type {
   Variation as WooVariation,
@@ -11,41 +10,30 @@ import type {
   TermNode, // Assuming TermNode is exported or define it if not
 } from "#woo";
 
-// --- Local Type Definitions (align with your #woo types or GraphQL schema) ---
-
-// If TermNode is not exported from #woo, you might need a local definition:
+// --- Local Type Definitions ---
+// Define TermNode if not properly exported/typed by #woo, e.g.:
 // interface TermNode {
 //   name: string;
 //   slug: string;
-//   taxonomyName?: string;
-//   databaseId?: number;
+//   taxonomyName?: string; // Optional
+//   databaseId?: number; // Optional
 // }
 
-// Represents an attribute on a specific variation (e.g., Color: Blue)
-interface VariationAttributeNode extends WooVariationAttribute {
-  // Inherits name, value from WooVariationAttribute
-}
+interface VariationAttributeNode extends WooVariationAttribute {}
 
-// Represents a single product variation
 interface VariationNode extends WooVariation {
-  // Inherits databaseId, name, stockStatus, salePrice, regularPrice, image, etc.
   attributes?: {
     nodes: VariationAttributeNode[];
   } | null;
 }
 
-// Represents a product attribute definition (e.g., Color with options Red, Blue, Green)
 interface ProductAttributeNode extends WooProductAttribute {
-  // Inherits name, label, options from WooProductAttribute
-  // Ensure 'options' is an array of strings: string[]
   terms?: {
-    // This structure comes from your log
-    nodes: TermNode[]; // Array of term objects, each having a name and a slug
+    nodes: TermNode[];
   } | null;
 }
 
 // --- Component Props ---
-
 const props = defineProps({
   attributes: {
     type: Array as PropType<ProductAttributeNode[]>,
@@ -62,7 +50,6 @@ const props = defineProps({
 });
 
 // --- Component Emits ---
-
 const emit = defineEmits<{
   (
     e: "attrs-changed",
@@ -71,16 +58,67 @@ const emit = defineEmits<{
 }>();
 
 // --- Internal State ---
-
-const selectedOptions = ref<Record<string, string>>({});
-// console.log('[AttrsSelect] Initialized. Props received:', { attributes: JSON.parse(JSON.stringify(props.attributes)), variations: props.variations.length, defaultAttributes: props.defaultAttributes });
+const selectedOptions = ref<Record<string, string>>({}); // Stores selected slugs, keyed by normalized attribute name
 
 // --- Helper Functions ---
+
+/**
+ * Formats a slug for display according to specified rules:
+ * 1. Capitalizes "eu" to "EU".
+ * 2. Inserts decimals for patterns like "N-D" -> "N.D" (e.g., "35-5eu" -> "35.5EU").
+ * 3. Inserts decimals for patterns like "XY5" -> "XY.5" within segments (e.g., "36-425eu" -> "36-42.5EU").
+ * @param slug The original slug string.
+ */
+const formatSlugForDisplayWorkaround = (slug: string): string => {
+  if (!slug) return "";
+
+  let formattedSlug = slug.toLowerCase();
+
+  // Step 1: Handle cases like "N-D" -> "N.D" where D is a single digit not followed by another digit.
+  // This specifically targets hyphens followed by a single digit.
+  // Example: "43-5-44-5eu" -> "43.5-44.5eu", "35-5eu" -> "35.5eu"
+  formattedSlug = formattedSlug.replace(/(\d+)-(\d)(?![0-9])/g, "$1.$2");
+
+  // Step 2: Handle cases like "XYZ" -> "XY.Z" if Z is 5, for segments.
+  // This is to address "36-425eu" -> "36-42.5eu" and "25-36-425euadjustable" -> "25-36-42.5euadjustable".
+  // It processes parts of the slug that are separated by hyphens.
+  const parts = formattedSlug.split("-");
+  const processedParts = parts.map((part) => {
+    // If the part already contains a decimal (from Step 1), leave it.
+    if (part.includes(".")) return part;
+
+    // Try to match a numeric prefix and any following non-numeric suffix (like 'eu', 'adjustable')
+    const numericPartMatch = part.match(/^(\d+)(.*)$/);
+    if (numericPartMatch) {
+      let numStr = numericPartMatch[1]; // e.g., "425"
+      const restOfPart = numericPartMatch[2]; // e.g., "eu", "euadjustable", or ""
+
+      // If the numeric string has at least two digits and ends with '5',
+      // insert a decimal before the '5'. Handles "425" -> "42.5".
+      // Does not affect "35" -> "3.5" if "35" is a whole segment (Step 1 handles "X-5").
+      // Does not affect "5" if "5" is a whole segment.
+      if (numStr.length >= 2 && numStr.endsWith("5")) {
+        const charBeforeLast = numStr.charAt(numStr.length - 2);
+        // Ensure the character before '5' is also a digit (e.g., "X5", "XX5")
+        if (charBeforeLast >= "0" && charBeforeLast <= "9") {
+          numStr = numStr.slice(0, -1) + "." + numStr.slice(-1);
+        }
+      }
+      return numStr + restOfPart;
+    }
+    return part; // Not a primarily numeric part, or doesn't fit the pattern for this step
+  });
+  formattedSlug = processedParts.join("-");
+
+  // Step 3: Capitalize "eu" to "EU" globally
+  formattedSlug = formattedSlug.replace(/eu/g, "EU");
+
+  return formattedSlug;
+};
 
 const normalizeAttributeName = (name?: string): string => {
   if (!name) return "";
   const lowerName = name.toLowerCase().trim();
-
   const productLevelAttribute = props.attributes.find((attr) => {
     const attrNameLower = attr.name?.toLowerCase().trim();
     if (!attrNameLower) return false;
@@ -90,10 +128,7 @@ const normalizeAttributeName = (name?: string): string => {
       (lowerName.startsWith("pa_") && attrNameLower === lowerName.substring(3))
     );
   });
-
-  if (productLevelAttribute?.name) {
-    return productLevelAttribute.name;
-  }
+  if (productLevelAttribute?.name) return productLevelAttribute.name;
   return lowerName.startsWith("pa_") ? lowerName : `pa_${lowerName}`;
 };
 
@@ -101,31 +136,20 @@ const isOptionAvailable = (
   attributeNameToEvaluate: string,
   optionSlugToEvaluate: string
 ): boolean => {
-  // console.log(`[AttrsSelect] isOptionAvailable: Checking option SLUG '${optionSlugToEvaluate}' for attribute '${attributeNameToEvaluate}'`);
-  // console.log(`[AttrsSelect] isOptionAvailable: Current selectedOptions:`, JSON.parse(JSON.stringify(selectedOptions.value)));
-
-  if (!props.variations || props.variations.length === 0) {
-    return false;
-  }
-
+  if (!props.variations || props.variations.length === 0) return false;
   const normalizedAttrNameToEvaluate = normalizeAttributeName(
     attributeNameToEvaluate
   );
 
   return props.variations.some((variation) => {
-    const stockStatusUpper = variation.stockStatus?.toUpperCase();
+    const stockStatusValue = variation.stockStatus;
     const isVariationInStock =
-      StockStatusEnum &&
-      (stockStatusUpper === StockStatusEnum.IN_STOCK ||
-        stockStatusUpper === StockStatusEnum.ON_BACKORDER);
-
-    if (!isVariationInStock) {
-      return false;
-    }
+      stockStatusValue?.toUpperCase() === StockStatusEnum.IN_STOCK ||
+      stockStatusValue?.toUpperCase() === StockStatusEnum.ON_BACKORDER;
+    if (!isVariationInStock) return false;
 
     let variationContainsOptionToEvaluate = false;
     variation.attributes?.nodes?.forEach((varAttr) => {
-      // Variation attributes store slugs as their 'value'
       if (
         normalizeAttributeName(varAttr.name) === normalizedAttrNameToEvaluate &&
         varAttr.value?.toLowerCase() === optionSlugToEvaluate.toLowerCase()
@@ -133,17 +157,12 @@ const isOptionAvailable = (
         variationContainsOptionToEvaluate = true;
       }
     });
-
-    if (!variationContainsOptionToEvaluate) {
-      return false;
-    }
+    if (!variationContainsOptionToEvaluate) return false;
 
     for (const selectedNormalizedAttrName in selectedOptions.value) {
-      if (selectedNormalizedAttrName === normalizedAttrNameToEvaluate) {
-        continue;
-      }
+      if (selectedNormalizedAttrName === normalizedAttrNameToEvaluate) continue;
       const selectedValueForOtherAttr =
-        selectedOptions.value[selectedNormalizedAttrName]; // This is a slug
+        selectedOptions.value[selectedNormalizedAttrName];
       let variationMatchesOtherSelectedAttr = false;
       variation.attributes?.nodes?.forEach((varAttr) => {
         if (
@@ -154,86 +173,69 @@ const isOptionAvailable = (
           variationMatchesOtherSelectedAttr = true;
         }
       });
-
-      if (!variationMatchesOtherSelectedAttr) {
-        return false;
-      }
+      if (!variationMatchesOtherSelectedAttr) return false;
     }
     return true;
   });
 };
 
 // --- Event Handlers ---
-
 const handleOptionSelect = (
   productLevelAttributeName: string,
   optionSlug: string
 ) => {
   const normalizedNameKey = normalizeAttributeName(productLevelAttributeName);
-  // console.log(`[AttrsSelect] handleOptionSelect: Attribute '${productLevelAttributeName}' (normalized: '${normalizedNameKey}'), Option SLUG: '${optionSlug}'`);
-
   const newSelectedOptions = { ...toRaw(selectedOptions.value) };
-  if (newSelectedOptions[normalizedNameKey] === optionSlug) {
-    // console.log(`[AttrsSelect] handleOptionSelect: Option SLUG '${optionSlug}' was already selected. No change (toggle disabled).`);
-  } else {
+  if (newSelectedOptions[normalizedNameKey] !== optionSlug) {
     newSelectedOptions[normalizedNameKey] = optionSlug;
   }
   selectedOptions.value = newSelectedOptions;
-  // console.log(`[AttrsSelect] handleOptionSelect: Updated selectedOptions (slugs):`, JSON.parse(JSON.stringify(selectedOptions.value)));
-
   const selectedAttributesForEmit = Object.entries(selectedOptions.value).map(
     ([name, value]) => ({ name, value })
-  ); // value here is the slug
+  );
   emit("attrs-changed", selectedAttributesForEmit);
-  // console.log(`[AttrsSelect] handleOptionSelect: Emitted 'attrs-changed' (slugs):`, selectedAttributesForEmit);
 };
 
 // --- Computed Properties ---
-
 const displayAttributes = computed(() => {
-  // console.log('[AttrsSelect] Recomputing displayAttributes. Current selectedOptions (slugs):', JSON.parse(JSON.stringify(selectedOptions.value)));
   if (!props.attributes) {
-    // console.log('[AttrsSelect] displayAttributes: props.attributes is null/undefined. Returning [].');
     return [];
   }
   return props.attributes.map((productAttribute) => {
-    const originalAttributeName = productAttribute.name; // e.g., "pa_size"
+    const originalAttributeName = productAttribute.name;
     const normalizedForSelectionKey = normalizeAttributeName(
       originalAttributeName
     );
 
-    // Create a lookup map for term names by their slugs for this specific attribute
     const termNameMap = new Map<string, string>();
     if (productAttribute.terms?.nodes) {
       productAttribute.terms.nodes.forEach((term) => {
         if (term.slug && term.name) {
-          termNameMap.set(term.slug.toLowerCase(), term.name);
+          const lowerTermSlug = term.slug.toLowerCase();
+          termNameMap.set(lowerTermSlug, term.name);
         }
       });
     }
-    // console.log(`[AttrsSelect] Term map for ${originalAttributeName}:`, termNameMap);
 
     const optionsForDisplay = productAttribute.options.map((optionSlug) => {
-      // optionSlug is e.g., '35-39-40eu'
-      // Get the display name from the term map, fallback to the slug itself if not found
-      const displayName =
-        termNameMap.get(optionSlug.toLowerCase()) || optionSlug;
+      const lowerOptionSlug = optionSlug.toLowerCase();
+      let displayName = termNameMap.get(lowerOptionSlug);
+
+      if (!displayName) {
+        // console.warn(`[AttrsSelect] For attribute '${originalAttributeName}', slug '${optionSlug}' not found in terms.nodes. Applying workaround formatting.`);
+        displayName = formatSlugForDisplayWorkaround(optionSlug); // Apply workaround
+      }
+
       const isSel =
         selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() ===
-        optionSlug.toLowerCase();
-      // console.log(`[AttrsSelect] Attr: ${originalAttributeName}, Slug: ${optionSlug}, Display: ${displayName}, Selected: ${isSel}`);
-
+        lowerOptionSlug;
       return {
-        value: optionSlug, // The actual value (slug) used for logic and as key
-        displayName: displayName, // The human-readable name for display
+        value: optionSlug,
+        displayName: displayName,
         available: isOptionAvailable(originalAttributeName, optionSlug),
         selected: isSel,
       };
     });
-    console.log(
-      `[AttrsSelect] displayAttributes: Processed attribute '${originalAttributeName}', Key: '${normalizedForSelectionKey}', Options for display:`,
-      optionsForDisplay
-    );
     return {
       ...productAttribute,
       keyForSelection: normalizedForSelectionKey,
@@ -243,76 +245,54 @@ const displayAttributes = computed(() => {
 });
 
 // --- Watchers ---
-
 watch(
   () => [props.attributes, props.defaultAttributes],
   ([newAttributes, newDefaultAttributes]) => {
-    // console.log('[AttrsSelect] Watcher triggered for props.attributes/defaultAttributes.');
-    // console.log('[AttrsSelect] Watcher: newAttributes count:', newAttributes?.length);
-    // console.log('[AttrsSelect] Watcher: newDefaultAttributes count:', newDefaultAttributes?.length);
-
-    const initialSelections: Record<string, string> = {}; // Stores slug values
+    const initialSelections: Record<string, string> = {};
     if (newAttributes && newAttributes.length > 0) {
       newAttributes.forEach((attr) => {
         const originalAttrName = attr.name;
         const normalizedAttrNameKey = normalizeAttributeName(originalAttrName);
-        // console.log(`[AttrsSelect] Watcher: Processing attr '${originalAttrName}' (normalized key: '${normalizedAttrNameKey}') for initial selection.`);
-
         const defaultAttr = newDefaultAttributes?.find(
           (da) => normalizeAttributeName(da.name) === normalizedAttrNameKey
         );
 
-        if (defaultAttr?.value) {
-          // defaultAttr.value is a slug
-          // console.log(`[AttrsSelect] Watcher: Found default for '${originalAttrName}': Slug '${defaultAttr.value}'. Checking availability...`);
-          if (isOptionAvailable(originalAttrName, defaultAttr.value)) {
-            initialSelections[normalizedAttrNameKey] = defaultAttr.value;
-            // console.log(`[AttrsSelect] Watcher: Default option SLUG '${defaultAttr.value}' for '${originalAttrName}' is available and selected.`);
-          } else {
-            // console.log(`[AttrsSelect] Watcher: Default option SLUG '${defaultAttr.value}' for '${originalAttrName}' is NOT available.`);
-          }
+        if (
+          defaultAttr?.value &&
+          isOptionAvailable(originalAttrName, defaultAttr.value)
+        ) {
+          initialSelections[normalizedAttrNameKey] = defaultAttr.value;
         } else {
-          // console.log(`[AttrsSelect] Watcher: No default found for '${originalAttrName}'. Attempting to select first available.`);
           const currentSelectionsForAvailabilityCheck = {
             ...initialSelections,
           };
           const firstAvailableOptionSlug = attr.options.find((optSlug) => {
-            // optSlug from attr.options
             const originalSelectedOptionsSnapshot = {
               ...selectedOptions.value,
             };
             selectedOptions.value = currentSelectionsForAvailabilityCheck;
             const available = isOptionAvailable(originalAttrName, optSlug);
             selectedOptions.value = originalSelectedOptionsSnapshot;
-            // if(available) console.log(`[AttrsSelect] Watcher: Option SLUG '${optSlug}' for '${originalAttrName}' is available for initial selection.`);
             return available;
           });
-
           if (firstAvailableOptionSlug) {
             initialSelections[normalizedAttrNameKey] = firstAvailableOptionSlug;
-            // console.log(`[AttrsSelect] Watcher: Selected first available option SLUG '${firstAvailableOptionSlug}' for '${originalAttrName}'.`);
-          } else {
-            // console.log(`[AttrsSelect] Watcher: No available options found for '${originalAttrName}' to select initially.`);
           }
         }
       });
     }
     selectedOptions.value = initialSelections;
-    // console.log('[AttrsSelect] Watcher: Initial selections set (slugs):', JSON.parse(JSON.stringify(initialSelections)));
-
     if (Object.keys(initialSelections).length > 0) {
       const selectedAttributesForEmit = Object.entries(initialSelections).map(
         ([name, value]) => ({ name, value })
-      ); // value here is the slug
+      );
       emit("attrs-changed", selectedAttributesForEmit);
-      // console.log('[AttrsSelect] Watcher: Emitted initial "attrs-changed" (slugs):', selectedAttributesForEmit);
     }
   },
   { immediate: true, deep: true }
 );
 
-// Placeholder for t function if useI18n is not set up in this specific component
-const t = (key: string, fallback: string): string => fallback;
+const t = (key: string, fallback: string): string => fallback; // Placeholder
 </script>
 
 <template>
@@ -331,7 +311,10 @@ const t = (key: string, fallback: string): string => fallback;
                     (opt) =>
                       opt.value.toLowerCase() ===
                       selectedOptions[attribute.keyForSelection]?.toLowerCase()
-                  )?.displayName || selectedOptions[attribute.keyForSelection]
+                  )?.displayName ||
+                  formatSlugForDisplayWorkaround(
+                    selectedOptions[attribute.keyForSelection]
+                  )
                 : t("messages.shop.selectOption", "Select")
             }}
           </span>
@@ -381,10 +364,6 @@ const t = (key: string, fallback: string): string => fallback;
 </template>
 
 <style scoped>
-/* Add any component-specific styles here if needed. Tailwind utility classes are used primarily. */
-.attribute-selections {
-  /* Example: could add a border or specific spacing if not handled by parent */
-}
 .attribute-group {
   /* Example: margin or padding for individual groups */
 }

@@ -5,6 +5,8 @@ import {
   type AddToCartInput,
   type Variation,
   type VariationAttribute,
+  type ProductAttribute as WooProductAttribute, // Import ProductAttribute type
+  type TermNode, // Import TermNode type
 } from "#woo";
 import { defineAsyncComponent, computed, ref, onMounted, watch } from "vue";
 import {
@@ -41,15 +43,36 @@ const { exchangeRate, refresh: refreshExchangeRate } = useExchangeRate();
 
 const cacheKey = `product-${slug}`;
 
+console.log(`[[slug].vue] Initializing for product slug: ${slug}`);
+
+// Define a more specific type for product attributes if available from #woo or locally
+interface ProductAttributeWithTerms extends WooProductAttribute {
+  terms?: {
+    nodes: TermNode[];
+  } | null;
+  options: string[]; // Ensure options is explicitly part of the type
+}
+
 const { data, pending, error, refresh } = await useAsyncData(
   cacheKey,
   async () => {
+    console.log(
+      `[[slug].vue] useAsyncData: Fetching product data for slug: ${slug}`
+    );
     // @ts-ignore
     const result = await GqlGetProduct({ slug });
     if (!result?.product) {
+      console.error(
+        `[[slug].vue] useAsyncData: Product not found for slug: ${slug}`
+      );
       // @ts-ignore
       throw new Error(t("messages.shop.productNotFound", "Product not found"));
     }
+    console.log(
+      `[[slug].vue] useAsyncData: Product data fetched successfully for slug: ${slug}`
+    );
+    // Log the entire product object once fetched
+    // console.log('[[slug].vue] Full fetched product data:', JSON.parse(JSON.stringify(result.product)));
     return result.product;
   },
   {
@@ -86,12 +109,7 @@ const getFormattedPriceDisplay = (
     return t("messages.shop.priceUnavailable", "Price unavailable");
   }
 
-  // If exchange rate is not yet available, show a cleaned, basic version of the price.
   if (exchangeRate.value === null) {
-    console.warn(
-      `[${slug}.vue] Exchange rate not available for price: "${rawPriceToConsider}". Displaying basic pre-conversion format.`
-    );
-    // Use cleanAndExtractPriceInfo to get a somewhat clean numeric string and original symbol presence
     const { numericString, originalHadSymbol } =
       cleanAndExtractPriceInfo(rawPriceToConsider);
     if (numericString) {
@@ -99,21 +117,14 @@ const getFormattedPriceDisplay = (
         ? `$${numericString.replace(/^\$/, "")}`
         : `$${numericString}`;
     }
-    // If cleaning results in nothing numeric, return the original (it might be "Call for price")
     return String(rawPriceToConsider)
       .replace(/&nbsp;/g, " ")
       .trim();
   }
 
-  // Exchange rate IS available.
-  // 1. Convert to CAD (this function now handles cleaning and returns a numeric string like "75.99" or "75.99 - 85.99")
   const cadNumericString = convertToCAD(rawPriceToConsider, exchangeRate.value);
 
   if (cadNumericString === "") {
-    console.warn(
-      `[${slug}.vue] CAD conversion returned empty for price: "${rawPriceToConsider}". Displaying cleaned original.`
-    );
-    // Fallback to a cleaned version of the original price if conversion fails
     const {
       numericString: cleanedOriginalNumeric,
       originalHadSymbol: cleanedHadSymbol,
@@ -127,34 +138,45 @@ const getFormattedPriceDisplay = (
       .replace(/&nbsp;/g, " ")
       .trim();
   }
-
-  // 2. Format with "$" and " CAD"
   return formatPriceWithCAD(cadNumericString);
 };
 
 const displayPrice = computed(() => {
   if (!product.value) return ""; // Or some placeholder
+  let priceString = "";
   if (activeVariation.value) {
-    return getFormattedPriceDisplay(
+    priceString = getFormattedPriceDisplay(
       activeVariation.value.salePrice,
       activeVariation.value.regularPrice
     );
+  } else {
+    priceString = getFormattedPriceDisplay(
+      product.value.salePrice,
+      product.value.regularPrice
+    );
   }
-  return getFormattedPriceDisplay(
-    product.value.salePrice,
-    product.value.regularPrice
-  );
+  // Ensure $ is prepended if not already, and handle cases where price might be text like "Price unavailable"
+  if (
+    typeof priceString === "string" &&
+    !priceString.includes(
+      t("messages.shop.priceUnavailable", "Price unavailable")
+    ) &&
+    !priceString.trim().startsWith("$")
+  ) {
+    return `$${priceString}`;
+  }
+  return priceString;
 });
 
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
 const variationAttributes = ref<VariationAttribute[]>([]);
 const forceTreatAsSimple = ref(false);
-const selectedAttributes = ref<any[]>([]);
 const indexOfTypeAny = computed<number[]>(() =>
   product.value ? checkForVariationTypeOfAny(product.value) : []
 );
 const attrValues = ref<any[]>();
+
 const isSimpleProduct = computed<boolean>(
   () => product.value?.type === ProductTypesEnum.SIMPLE
 );
@@ -168,151 +190,174 @@ const type = computed(() => activeVariation.value || product.value);
 
 const selectProductInput = computed<AddToCartInput>(() => {
   const input: AddToCartInput = {
-    productId: type.value?.databaseId,
+    productId: product.value?.databaseId,
     quantity: quantity.value,
   };
-  if (activeVariation.value?.databaseId)
+  if (activeVariation.value?.databaseId) {
     input.variationId = activeVariation.value.databaseId;
+  }
   return input;
 });
 
 const stockStatus = computed(() => {
-  if (isVariableProduct.value && activeVariation.value)
-    return activeVariation.value.stockStatus || StockStatusEnum.OUT_OF_STOCK;
-  return (
-    product.value?.stockStatus ||
-    type.value?.stockStatus ||
-    StockStatusEnum.OUT_OF_STOCK
-  );
+  // console.log("[[slug].vue] Computing stockStatus...");
+  if (isVariableProduct.value && activeVariation.value) {
+    // console.log("[[slug].vue] Variable product with activeVariation. Stock status from activeVariation:", activeVariation.value.stockStatus);
+    return activeVariation.value.stockStatus &&
+      String(activeVariation.value.stockStatus).trim() !== ""
+      ? activeVariation.value.stockStatus
+      : StockStatusEnum.OUT_OF_STOCK;
+  }
+  if (isVariableProduct.value && !activeVariation.value) {
+    // console.log("[[slug].vue] Variable product, but NO activeVariation. Defaulting to OUT_OF_STOCK for overall status.");
+    return StockStatusEnum.OUT_OF_STOCK;
+  }
+  // console.log("[[slug].vue] Simple or other product type. Stock status from product.value:", product.value?.stockStatus);
+  return product.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
 });
 
 const isOutOfStock = (status: string | undefined | null): boolean => {
-  if (!status) return true;
-  const norm = (s: string) => s.toLowerCase().replace(/[\s_-]/g, "");
-  return (
-    norm(status) === norm(StockStatusEnum.OUT_OF_STOCK) ||
-    norm(status).includes(norm(StockStatusEnum.OUT_OF_STOCK)) ||
-    norm(StockStatusEnum.OUT_OF_STOCK).includes(norm(status))
-  );
+  if (!status) {
+    return true;
+  }
+  const norm = (s: string) =>
+    String(s)
+      .toUpperCase()
+      .replace(/[\s_-]/g, "");
+  const normalizedStatus = norm(status);
+  const normalizedOutOfStock = norm(StockStatusEnum.OUT_OF_STOCK);
+  return normalizedStatus === normalizedOutOfStock;
 };
 
 const disabledAddToCart = computed(() => {
-  if (forceTreatAsSimple.value && !isOutOfStock(stockStatus.value))
+  const currentStockStatus = stockStatus.value;
+  if (forceTreatAsSimple.value && !isOutOfStock(currentStockStatus))
     return isUpdatingCart.value;
-  if (isVariableProduct.value)
+  if (isVariableProduct.value) {
     return (
-      !type.value ||
-      isOutOfStock(stockStatus.value) ||
-      (!forceTreatAsSimple.value && !activeVariation.value) ||
+      !activeVariation.value ||
+      isOutOfStock(currentStockStatus) ||
       isUpdatingCart.value
     );
-  return !type.value || isOutOfStock(stockStatus.value) || isUpdatingCart.value;
+  }
+  return isOutOfStock(currentStockStatus) || isUpdatingCart.value;
 });
 
 const updateSelectedVariations = (
-  variationsFromComponent: { name: string; value: string }[]
+  variationsFromChild: { name: string; value: string }[]
 ) => {
+  // console.log('[[slug].vue] updateSelectedVariations CALLED. Attributes from child:', JSON.parse(JSON.stringify(variationsFromChild)));
+  variationAttributes.value = variationsFromChild;
+
   if (
     !product.value?.variations?.nodes ||
-    !variationsFromComponent ||
-    variationsFromComponent.length === 0
+    !variationsFromChild ||
+    variationsFromChild.length === 0
   ) {
     activeVariation.value = null;
     return;
   }
-  attrValues.value = variationsFromComponent.map((el) => ({
+
+  attrValues.value = variationsFromChild.map((el) => ({
     attributeName: getExactAttributeName(el.name),
     attributeValue: el.value,
   }));
+  // console.log('[[slug].vue] updateSelectedVariations: Mapped attrValues for validation:', JSON.parse(JSON.stringify(attrValues.value)));
+
   try {
-    let matchingVariationNode = null;
+    let matchingVariationNode: Variation | null = null;
+    // console.log(`[[slug].vue] updateSelectedVariations: Searching for match in ${product.value.variations.nodes.length} variations.`);
+
     for (const variationNode of product.value.variations.nodes) {
       if (
         !variationNode.attributes?.nodes ||
-        variationNode.attributes.nodes.length !== variationsFromComponent.length
-      )
+        variationNode.attributes.nodes.length !== variationsFromChild.length
+      ) {
         continue;
-      const allAttributesMatch = variationsFromComponent.every(
-        (selectedAttr) => {
-          const selNameLower = selectedAttr.name.toLowerCase();
-          return variationNode.attributes!.nodes.some((varAttr) => {
-            if (!varAttr.name || !varAttr.value) return false;
-            const varNameLower = varAttr.name.toLowerCase();
+      }
+
+      const allAttributesMatch = variationsFromChild.every(
+        (selectedAttrFromChild) => {
+          const normalizedSelectedAttrName = getExactAttributeName(
+            selectedAttrFromChild.name
+          ).toLowerCase();
+          return variationNode.attributes!.nodes.some((variationAttrNode) => {
+            if (!variationAttrNode.name || !variationAttrNode.value)
+              return false;
+            const normalizedVariationNodeAttrName = getExactAttributeName(
+              variationAttrNode.name
+            ).toLowerCase();
             const nameMatch =
-              selNameLower === varNameLower ||
-              `pa_${selNameLower}` === varNameLower ||
-              selNameLower === varNameLower.replace(/^pa_/, "");
+              normalizedSelectedAttrName === normalizedVariationNodeAttrName;
             if (!nameMatch) return false;
-            const isSize =
-              selNameLower.includes("size") || varNameLower.includes("size");
-            return isSize
-              ? matchSizeValues(selectedAttr.value, varAttr.value)
-              : selectedAttr.value.toLowerCase() ===
-                  varAttr.value.toLowerCase();
+            const valueMatch =
+              variationAttrNode.value.toLowerCase() ===
+              selectedAttrFromChild.value.toLowerCase();
+            return valueMatch;
           });
         }
       );
+
       if (allAttributesMatch) {
+        // console.log(`[[slug].vue] updateSelectedVariations: ALL ATTRIBUTES MATCHED for variation ID: ${variationNode.databaseId}, Stock: ${variationNode.stockStatus}`);
         matchingVariationNode = variationNode;
         break;
       }
     }
+
+    // if (matchingVariationNode) {
+    //   console.log('[[slug].vue] updateSelectedVariations: Setting activeVariation:', JSON.parse(JSON.stringify(matchingVariationNode)));
+    // } else {
+    //   console.log('[[slug].vue] updateSelectedVariations: NO MATCHING VARIATION FOUND. Setting activeVariation to null.');
+    // }
     activeVariation.value = matchingVariationNode;
-    variationAttributes.value = variationsFromComponent;
   } catch (e) {
-    console.error("Error in updateSelectedVariations:", e);
+    console.error("[[slug].vue] Error in updateSelectedVariations:", e);
     activeVariation.value = null;
   }
 };
 
 const getExactAttributeName = (attributeInput: string): string => {
   if (!product.value?.attributes?.nodes) return attributeInput;
-  const match = product.value.attributes.nodes.find((attr) => {
+  const match = (
+    product.value.attributes.nodes as ProductAttributeWithTerms[]
+  ).find((attr) => {
     if (!attr.name) return false;
-    const inp = attributeInput.toLowerCase(),
-      att = attr.name.toLowerCase();
+    const inpLower = attributeInput.toLowerCase();
+    const attrNameLower = attr.name.toLowerCase();
     return (
-      inp === att || inp === att.replace(/^pa_/, "") || `pa_${inp}` === att
+      attrNameLower === inpLower ||
+      attrNameLower === `pa_${inpLower}` ||
+      (inpLower.startsWith("pa_") && attrNameLower === inpLower.substring(3))
     );
   });
   return match?.name || attributeInput;
-};
-
-const matchSizeValues = (
-  selectedValue: string,
-  variationValue: string
-): boolean => {
-  if (!selectedValue || !variationValue) return false;
-  const sel = selectedValue.toLowerCase().trim(),
-    vVal = variationValue.toLowerCase().trim();
-  if (sel === vVal) return true;
-  const ext = (s: string) => s.match(/\d+(\.\d+)?/g) || [];
-  return ext(sel).some(
-    (n) => ext(vVal).includes(n) || ext(vVal).includes(n.replace(".", ""))
-  );
 };
 
 const handleAddToCart = async () => {
   // @ts-ignore
   if (!validateForm()) return;
   try {
+    // console.log('[[slug].vue] handleAddToCart: Adding to cart with input:', JSON.parse(JSON.stringify(selectProductInput.value)));
     await addToCart(selectProductInput.value);
   } catch (e) {
-    console.error("Add to cart error:", e);
+    console.error("[[slug].vue] Add to cart error:", e);
   }
 };
 
 const validateForm = (): boolean => {
   if (isVariableProduct.value && !activeVariation.value) {
-    // @ts-ignore
     if (
       attrValues.value?.length > 0 &&
       product.value?.attributes?.nodes.length === attrValues.value.length
     ) {
-      selectedAttributes.value = [...attrValues.value]; // @ts-ignore
+      // @ts-ignore
       if (
         confirm(
-          t("messages.shop.noMatchingVariation", "No exact match. Continue?")
+          t(
+            "messages.shop.noMatchingVariation",
+            "No exact match for the selected options. Do you want to add the main product to the cart if possible?"
+          )
         )
       ) {
         forceTreatAsSimple.value = true;
@@ -321,7 +366,12 @@ const validateForm = (): boolean => {
       return false;
     } else {
       // @ts-ignore
-      alert(t("messages.shop.pleaseSelectVariation", "Please select options."));
+      alert(
+        t(
+          "messages.shop.pleaseSelectVariation",
+          "Please select options for all attributes."
+        )
+      );
       return false;
     }
   }
@@ -333,36 +383,57 @@ const mergeLiveStockStatus = (payload: {
   variations?: { nodes: { stockStatus?: string | null }[] } | null;
 }) => {
   if (!product.value) return;
+  // console.log("[[slug].vue] mergeLiveStockStatus: Merging live stock status:", payload);
   payload.variations?.nodes?.forEach((vp, i) => {
-    if (product.value?.variations?.nodes[i])
+    if (product.value?.variations?.nodes[i]) {
+      // console.log(`[[slug].vue] mergeLiveStockStatus: Updating variation index ${i} stock to ${vp.stockStatus}`);
       product.value.variations.nodes[i].stockStatus = vp.stockStatus;
+    }
   });
-  if (payload.stockStatus !== undefined)
+  if (payload.stockStatus !== undefined) {
+    // console.log(`[[slug].vue] mergeLiveStockStatus: Updating main product stock to ${payload.stockStatus}`);
     product.value.stockStatus = payload.stockStatus;
-  if (nuxtApp.payload?.data?.[cacheKey] && product.value)
-    nuxtApp.payload.data[cacheKey] = { ...product.value };
+  }
+  if (nuxtApp.payload?.data?.[cacheKey] && product.value) {
+    nuxtApp.payload.data[cacheKey] = JSON.parse(JSON.stringify(product.value));
+  }
+  if (nuxtApp.static?.data?.[cacheKey] && product.value) {
+    nuxtApp.static.data[cacheKey] = JSON.parse(JSON.stringify(product.value));
+  }
 };
 
 onMounted(async () => {
+  // console.log('[[slug].vue] Component mounted.');
   if (product.value) {
+    // console.log('[[slug].vue] onMounted: Product data exists. Attempting to fetch live stock status.');
     // @ts-ignore
     try {
       const { product: sp } = await GqlGetStockStatus({ slug });
-      if (sp) mergeLiveStockStatus(sp);
+      if (sp) {
+        // console.log('[[slug].vue] onMounted: Live stock status fetched:', sp);
+        mergeLiveStockStatus(sp);
+      } else {
+        // console.log('[[slug].vue] onMounted: No live stock status data returned from GqlGetStockStatus.');
+      }
     } catch (e: any) {
       console.error(
-        `Error GqlGetStockStatus:`,
+        `[[slug].vue] onMounted: Error GqlGetStockStatus:`,
         e?.gqlErrors?.[0]?.message || e
       );
     }
+  } else {
+    // console.log('[[slug].vue] onMounted: No product data available yet for live stock status fetch.');
   }
-  if (exchangeRate.value === null) await refreshExchangeRate();
+  if (exchangeRate.value === null) {
+    // console.log('[[slug].vue] onMounted: Exchange rate is null, refreshing.');
+    await refreshExchangeRate();
+  }
 });
 
 watch(
   () => product.value,
   (np) => {
-    if (np)
+    if (np) {
       useHead({
         title: np.name || "Product",
         meta: [
@@ -372,14 +443,21 @@ watch(
           },
         ],
       });
-    else useHead({ title: "Product not found" });
+    } else {
+      useHead({ title: "Product not found" });
+    }
   },
   { immediate: true }
 );
 
-watch(exchangeRate, (newRate, oldRate) => {
-  // console.log(`[${slug}.vue] Exchange rate changed from ${oldRate} to ${newRate}. DisplayPrice will recompute.`);
-});
+watch(
+  activeVariation,
+  (newActiveVariation) => {
+    // console.log('[[slug].vue] Watcher: activeVariation changed. New value:', JSON.parse(JSON.stringify(newActiveVariation)));
+    // console.log('[[slug].vue] Watcher: Corresponding computed stockStatus is now:', stockStatus.value);
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -428,6 +506,7 @@ watch(exchangeRate, (newRate, oldRate) => {
             :alt="product?.name || 'Product'"
             width="600"
             height="600"
+            placeholder
           />
           <div class="lg:max-w-md xl:max-w-lg md:py-2 w-full">
             <div class="flex justify-between mb-4">
@@ -475,7 +554,9 @@ watch(exchangeRate, (newRate, oldRate) => {
             <form @submit.prevent="handleAddToCart">
               <AttributeSelections
                 v-if="
-                  isVariableProduct && product.attributes && product.variations
+                  isVariableProduct &&
+                  product.attributes &&
+                  product.variations?.nodes?.length
                 "
                 class="mt-4 mb-8"
                 :attributes="product.attributes.nodes"
@@ -483,6 +564,21 @@ watch(exchangeRate, (newRate, oldRate) => {
                 :variations="product.variations.nodes"
                 @attrs-changed="updateSelectedVariations"
               />
+              <div
+                v-else-if="
+                  isVariableProduct &&
+                  (!product.attributes || !product.variations?.nodes?.length)
+                "
+                class="mt-4 mb-8 text-sm text-gray-500"
+              >
+                {{
+                  t(
+                    "messages.shop.noVariationsRequired",
+                    "This product has no selectable options."
+                  )
+                }}
+              </div>
+
               <div
                 v-if="isVariableProduct || isSimpleProduct"
                 class="fixed bottom-0 left-0 z-10 flex items-center w-full gap-4 p-4 mt-12 bg-white md:static md:bg-transparent bg-opacity-90 md:p-0"

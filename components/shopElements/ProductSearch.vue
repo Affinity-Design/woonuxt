@@ -11,13 +11,13 @@ const { t } = useI18n();
 // Search composable state and functions
 const {
   searchQuery,
-  searchResults,
+  searchResults, // This will be an array of product objects
   isLoading,
   isShowingSearch,
   setSearchQuery,
   clearSearch,
   toggleSearch,
-  hasResults,
+  hasResults, // Computed: !!searchResults.value?.length
 } = useSearch();
 
 // Added: Flag to prevent click outside from closing the dropdown
@@ -44,7 +44,7 @@ const formatPrice = (priceString) => {
   return priceToFormat;
 };
 
-// Navigation handler for product selection
+// Navigation handler for product selection (used by click and now by Enter key)
 const navigateToProduct = (slug) => {
   console.log(`[${componentName}] Navigating to product:`, slug);
   router.push(`/product/${slug}`);
@@ -78,12 +78,11 @@ const onInputChange = (e) => {
   localInputValue.value = value;
   debouncedSetSearchQuery(value);
 
-  // If there's input and search is not active, show search
   if (value && !isShowingSearch.value) {
     console.log(
       `[${componentName}] onInputChange: Input has value and search not active. Calling toggleSearch().`
     );
-    toggleSearch(); // Shows the dropdown
+    toggleSearch();
   }
 };
 
@@ -91,22 +90,22 @@ const onInputChange = (e) => {
 const handleClear = () => {
   console.log(`[${componentName}] handleClear called.`);
   localInputValue.value = "";
-  clearSearch(); // Clears query and results in composable
+  clearSearch();
 
   if (isShowingSearch.value) {
     console.log(
       `[${componentName}] handleClear: Search was visible. Calling toggleSearch() to close.`
     );
-    toggleSearch(); // Hides the dropdown
+    toggleSearch();
   }
-  searchInputDOM.value?.focus(); // Re-focus the input
+  searchInputDOM.value?.focus();
 };
 
 // NEW: Explicit close button handler
 const handleClose = () => {
   console.log(`[${componentName}] handleClose called.`);
   if (isShowingSearch.value) {
-    toggleSearch(); // Hide the dropdown
+    toggleSearch();
   }
 };
 
@@ -116,28 +115,21 @@ const handleFocus = () => {
     `[${componentName}] handleFocus called. Current isShowingSearch:`,
     isShowingSearch.value
   );
-
-  // Set focus flag to true
   isInputFocused.value = true;
-
-  // If search is not visible, show it
   if (!isShowingSearch.value) {
     console.log(
       `[${componentName}] handleFocus: Search not visible. Calling toggleSearch().`
     );
-    isSearchJustOpened.value = true; // Mark that we just opened the search
-    toggleSearch(); // Shows the dropdown
-
-    // Reset the flag after a delay to allow for normal interactions later
+    isSearchJustOpened.value = true;
+    toggleSearch();
     setTimeout(() => {
       isSearchJustOpened.value = false;
-    }, 300); // Time to prevent immediate dismissal
+    }, 300);
   }
 };
 
 // Handler for input blur
 const handleBlur = () => {
-  // We no longer automatically hide on blur
   setTimeout(() => {
     isInputFocused.value = false;
   }, 300);
@@ -163,17 +155,11 @@ watch(isShowingSearch, (newValue, oldValue) => {
     `[${componentName}] Watcher: isShowingSearch (composable) changed to:`,
     newValue
   );
-
-  // If search was just opened (false -> true), focus the input after a small delay
   if (newValue && !oldValue) {
     isSearchJustOpened.value = true;
-
-    // Focus the input after DOM update
     nextTick(() => {
       if (searchInputDOM.value) {
         searchInputDOM.value.focus();
-
-        // Reset the flag after a delay to allow for normal interactions later
         setTimeout(() => {
           isSearchJustOpened.value = false;
         }, 500);
@@ -184,9 +170,8 @@ watch(isShowingSearch, (newValue, oldValue) => {
 
 // MODIFIED: Click outside handler now respects preventAutoClose flag
 onClickOutside(searchWrapper, (event) => {
-  // Only close if explicitly allowed and conditions are met
   if (
-    !preventAutoClose.value && // Check our new flag
+    !preventAutoClose.value &&
     isShowingSearch.value &&
     !isInputFocused.value &&
     !isSearchJustOpened.value
@@ -194,7 +179,7 @@ onClickOutside(searchWrapper, (event) => {
     console.log(
       `[${componentName}] onClickOutside detected. Closing search panel.`
     );
-    toggleSearch(); // Hides the dropdown
+    toggleSearch();
   } else {
     console.log(
       `[${componentName}] onClickOutside detected but ignored due to conditions: preventAutoClose=${preventAutoClose.value}, isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
@@ -205,7 +190,7 @@ onClickOutside(searchWrapper, (event) => {
 // Computed property to determine if the results dropdown should be shown
 const shouldShowResultsDropdown = computed(() => {
   if (!isShowingSearch.value) return false;
-  if (isLoading.value) return true;
+  if (isLoading.value) return true; // Show dropdown for loading state
   if (localInputValue.value && hasResults.value) return true;
   if (localInputValue.value && !isLoading.value && !hasResults.value)
     return true; // For "no results" message
@@ -221,6 +206,40 @@ const showNoResultsMessage = computed(() => {
     !hasResults.value
   );
 });
+
+// ---------------------------------------------------------------------------
+// NEW: Handler for Enter key press in the search input
+// ---------------------------------------------------------------------------
+const handleEnterKeyNavigation = () => {
+  console.log(`[${componentName}] handleEnterKeyNavigation called.`);
+  // Check if searchResults is available, is an array, and has items
+  if (
+    hasResults.value &&
+    Array.isArray(searchResults.value) &&
+    searchResults.value.length > 0
+  ) {
+    const firstProduct = searchResults.value[0]; // Get the first product
+    if (firstProduct && firstProduct.slug) {
+      console.log(
+        `[${componentName}] Enter key: Navigating to first product:`,
+        firstProduct.slug
+      );
+      navigateToProduct(firstProduct.slug); // Navigate to the product
+    } else {
+      console.warn(
+        `[${componentName}] Enter key: First product found, but slug is missing. Product:`,
+        firstProduct
+      );
+    }
+  } else {
+    console.log(
+      `[${componentName}] Enter key: No search results to navigate to, or searchResults is not as expected. hasResults: ${hasResults.value}, searchResults:`,
+      searchResults.value
+    );
+    // Optionally, you could add behavior here if no results (e.g., show a message or do nothing)
+  }
+};
+// ---------------------------------------------------------------------------
 </script>
 
 <template>
@@ -240,13 +259,14 @@ const showNoResultsMessage = computed(() => {
         @input="onInputChange"
         @focus="handleFocus"
         @blur="handleBlur"
+        @keydown.enter.prevent="handleEnterKeyNavigation"
         aria-label="Search products"
         role="searchbox"
         :aria-expanded="shouldShowResultsDropdown"
         aria-controls="search-results-dropdown"
       />
       <span
-        v-if="localInputValue"
+        vif="localInputValue"
         class="absolute z-10 flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary right-2"
         @click="handleClear"
       >
@@ -255,7 +275,6 @@ const showNoResultsMessage = computed(() => {
       </span>
     </div>
 
-    <!-- DROP DOWN -->
     <Transition name="fade">
       <div
         v-if="shouldShowResultsDropdown"
@@ -264,14 +283,18 @@ const showNoResultsMessage = computed(() => {
         role="listbox"
         aria-labelledby="search-results-info"
       >
-        <!-- Added header with close button -->
-        <div class="flex justify-between items-center p-2 border-b bg-gray-50">
+        <div
+          class="flex justify-between items-center p-2 border-b bg-gray-50 sticky top-0 z-10"
+        >
           <div
             id="search-results-info"
             class="text-xs text-gray-500"
             aria-live="polite"
           >
-            <span v-if="hasResults">
+            <span v-if="isLoading">
+              {{ t("messages.shop.searching", "Searching...") }}
+            </span>
+            <span v-else-if="hasResults">
               {{
                 t(
                   "messages.shop.resultsFound",
@@ -280,12 +303,15 @@ const showNoResultsMessage = computed(() => {
                 )
               }}
             </span>
-            <span v-else-if="isLoading">
-              {{ t("messages.shop.searching", "Searching...") }}
+            <span v-else-if="localInputValue && !isLoading && !hasResults">
+              {{
+                t(
+                  "messages.shop.noResults",
+                  "No products found matching your query."
+                )
+              }}
             </span>
-            <span v-else>
-              {{ t("messages.shop.search", "Search") }}
-            </span>
+            <span v-else> {{ t("messages.shop.search", "Search") }} </span>
           </div>
           <button
             type="button"
@@ -310,10 +336,11 @@ const showNoResultsMessage = computed(() => {
         <div v-else-if="hasResults">
           <ul>
             <li
-              v-for="product in searchResults"
-              :key="product.databaseId"
+              v-for="(product, index) in searchResults"
+              :key="product.databaseId || index"
               class="border-b last:border-0"
               role="option"
+              :aria-selected="false"
             >
               <div
                 class="flex items-center p-3 hover:bg-gray-50 cursor-pointer"
@@ -321,7 +348,7 @@ const showNoResultsMessage = computed(() => {
                 @keydown.enter="navigateToProduct(product.slug)"
                 tabindex="0"
               >
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
                   <p class="font-medium line-clamp-1">{{ product.name }}</p>
                   <p class="text-sm text-gray-500">
                     {{ formatPrice(product.price) }}
@@ -336,7 +363,7 @@ const showNoResultsMessage = computed(() => {
                     </span>
                   </div>
                 </div>
-                <div class="ml-2">
+                <div class="ml-2 flex-shrink-0">
                   <Icon
                     name="ion:chevron-forward"
                     size="16"
@@ -347,20 +374,6 @@ const showNoResultsMessage = computed(() => {
               </div>
             </li>
           </ul>
-        </div>
-        <div
-          v-else-if="showNoResultsMessage"
-          class="p-4 text-center text-gray-500"
-          aria-live="polite"
-        >
-          <p>
-            {{
-              t(
-                "messages.shop.noResults",
-                "No products found matching your query."
-              )
-            }}
-          </p>
         </div>
       </div>
     </Transition>
@@ -373,34 +386,29 @@ const showNoResultsMessage = computed(() => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis; /* Added for better visual truncation */
 }
 
 /* Styles for the dropdown transition */
 .fade-enter-active {
-  /* For when the dropdown appears */
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease-out; /* Adjusted timing function */
 }
 .fade-leave-active {
-  /* For when the dropdown disappears */
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease-in; /* Adjusted timing function */
 }
 
-.fade-enter-from {
-  /* Start state for appearing (dropdown is transparent) */
-  opacity: 0;
-}
+.fade-enter-from,
 .fade-leave-to {
-  /* End state for disappearing (dropdown is transparent) */
   opacity: 0;
 }
 
 /* Ensure the search input is always fully visible */
+/* These might not be necessary if opacity is not being manipulated elsewhere */
 .search-bar-input {
   opacity: 1 !important;
   transition: none !important;
 }
 
-/* Make sure the input is always visible when focused */
 .search-bar-input:focus {
   opacity: 1 !important;
   transition: none !important;

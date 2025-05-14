@@ -13,7 +13,10 @@ const categoryMapping = [
   { display: "Backpacks, Bags & Carriers", slug: "backpacks-bags-carriers" },
   { display: "Scooters", slug: "scooters" },
   // { display: "Electric Scooters", slug: "trick-scooters" },
-  { display: "Skateboards & Longboards", slug: "skaterboards-and-longboards" },
+  {
+    display: "Skateboards and Longboards",
+    slug: "skateboards-and-longboards",
+  },
   // { display: "E-Boards", slug: "e-boards" },
   { display: "Alpine Skis", slug: "alpine-skis" },
   { display: "Alpine Poles", slug: "alpine-poles" },

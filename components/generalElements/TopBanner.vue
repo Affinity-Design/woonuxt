@@ -1,15 +1,27 @@
-<!-- components/TopBanner.vue -->
-
 <script setup>
 const { hostname } = useRequestURL();
-const showBanner = computed(() => hostname !== "proskatersplace.ca");
+
+// For displaying the test site banner (red)
+const isTestSite = computed(() => hostname !== "proskatersplace.ca");
+
+// For displaying the live beta banner (green)
+const isLiveBeta = computed(() => hostname === "proskatersplace.ca");
 </script>
 
 <template>
-  <div v-if="showBanner" class="banner">
+  <!-- Test Site Banner (red) -->
+  <div v-if="isTestSite" class="banner test-banner">
     🚧 This is a test site - Visit
-    <b><a href="https://proskaterplace.ca">proskaterplace.ca</a></b> the
+    <b><a href="https://proskatersplace.ca">proskatersplace.ca</a></b> the
     official Pro Skater Place website 🚧
+  </div>
+
+  <!-- Live Beta Banner (green) -->
+  <div v-if="isLiveBeta" class="banner beta-banner">
+    🚀 We are in live beta! If you experience any issues, please
+    <b><a href="/contact">contact us</a></b> or use our other site
+    <b><a href="https://proskatersplace.com">proskatersplace.com</a></b> to
+    checkout your purchase.
   </div>
 </template>
 
@@ -19,18 +31,22 @@ const showBanner = computed(() => hostname !== "proskatersplace.ca");
   top: 0;
   left: 0;
   right: 0;
-  background-color: #ff4757;
-  color: white;
   text-align: center;
   padding: 12px;
   font-size: 0.9rem;
   z-index: 9999;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.5s ease-out;
 }
 
-/* Optional: Add animation */
-.banner {
-  animation: slideDown 0.5s ease-out;
+.test-banner {
+  background-color: #ff4757;
+  color: white;
+}
+
+.beta-banner {
+  background-color: #2ecc71;
+  color: white;
 }
 
 @keyframes slideDown {
