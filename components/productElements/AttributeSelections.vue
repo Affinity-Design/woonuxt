@@ -1,151 +1,217 @@
-<script setup lang="ts">
-interface Props {
-  attributes: any[];
-  variations: any[];
-  defaultAttributes?: { nodes: VariationAttribute[] } | null;
+<script lang="ts" setup>
+import { ref, computed, onMounted, nextTick, watch } from "vue";
+
+// --- Recommended: Define more specific types ---
+interface Term {
+  slug: string;
+  name: string;
+  // any other properties a term might have
 }
 
-const { attributes, variations, defaultAttributes } = defineProps<Props>();
+interface AttributeSchema {
+  // Renamed from Attribute to avoid conflict with DOM Attribute
+  name: string; // e.g., "pa_color" or "Color"
+  label: string; // e.g., "Color"
+  terms?: { nodes: Term[] };
+  // any other properties an attribute might have
+}
+
+interface VariationAttributeNode {
+  // Attribute of a specific variation
+  name: string; // e.g., "pa_color"
+  value: string; // e.g., "red" (slug)
+}
+
+interface Variation {
+  id?: string;
+  attributes?: { nodes: VariationAttributeNode[] };
+  // other variation properties like price, stock_status, image etc.
+}
+
+interface Props {
+  attributes: AttributeSchema[];
+  variations: Variation[];
+  defaultAttributes?: { nodes: VariationAttributeNode[] } | null;
+}
+// --- End Recommended Types ---
+
+const props = defineProps<Props>();
 const emit = defineEmits(["attrs-changed"]);
 
-const activeVariations = ref<VariationAttribute[]>([]);
+const selectedAttributeValues = ref<Record<string, string>>({}); // Key: attribute.id, Value: term.slug
 
-// Format attribute name to ensure consistent usage
-const formatAttributeName = (name) => {
+const formatAttributeName = (name: string | undefined): string => {
   if (!name) return "";
-  // Remove spaces and special characters for DOM ID usage
-  return name.replace(/[^a-zA-Z0-9]/g, "");
+  return name.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase(); // Allow hyphens, make lowercase for consistency
 };
 
-// Filter attributes to only those used for variations
-const requiredAttributes = computed(() => {
-  if (!attributes || !variations || variations.length === 0) {
+const displayableAttributes = computed(() => {
+  const { attributes, variations } = props;
+  if (
+    !attributes ||
+    attributes.length === 0 ||
+    !variations ||
+    variations.length === 0
+  ) {
     return [];
   }
 
-  // Get all attribute names used in variations
-  const usedAttributeNames = new Set();
-  variations.forEach((variation, index) => {
-    if (variation.attributes && variation.attributes.nodes) {
-      variation.attributes.nodes.forEach((attr) => {
-        if (attr.name) {
-          usedAttributeNames.add(attr.name.toLowerCase());
+  const usedAttributeTerms = new Map<string, Set<string>>();
+
+  variations.forEach((variation) => {
+    variation.attributes?.nodes?.forEach((varAttr) => {
+      if (varAttr.name && varAttr.value) {
+        const normalizedVarAttrName = varAttr.name.toLowerCase();
+        if (!usedAttributeTerms.has(normalizedVarAttrName)) {
+          usedAttributeTerms.set(normalizedVarAttrName, new Set());
         }
-      });
-    }
+        usedAttributeTerms.get(normalizedVarAttrName)!.add(varAttr.value);
+      }
+    });
   });
 
-  // Filter attributes to only those used in variations
-  const required = attributes.filter(
-    (attr) => attr.name && usedAttributeNames.has(attr.name.toLowerCase())
-  );
+  const result = attributes
+    .map((attr) => {
+      if (!attr.name) return null;
+      const normalizedAttrName = attr.name.toLowerCase();
 
-  return required;
+      if (usedAttributeTerms.has(normalizedAttrName)) {
+        const availableTermSlugs = usedAttributeTerms.get(normalizedAttrName)!;
+        const availableTerms = (attr.terms?.nodes || []).filter(
+          (term) => term.slug && availableTermSlugs.has(term.slug)
+        );
+
+        if (availableTerms.length > 0) {
+          return {
+            originalName: attr.name, // Keep original name if needed for emitting
+            label: attr.label || attr.name,
+            id: formatAttributeName(attr.name), // Unique ID for v-model binding and DOM
+            terms: availableTerms, // Filtered list of available terms
+          };
+        }
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  return result as {
+    originalName: string;
+    label: string;
+    id: string;
+    terms: Term[];
+  }[];
 });
-const getSelectedName = (attr: any, activeVariation?: VariationAttribute) => {
-  if (!attr?.terms?.nodes || !activeVariation) return "";
 
-  const selected = attr.terms.nodes.find(
-    (node: { slug: string }) => node.slug === activeVariation.value
+const getSelectedTermName = (
+  attributeId: string,
+  attributeTerms: Term[]
+): string => {
+  const selectedSlug = selectedAttributeValues.value[attributeId];
+  if (!selectedSlug) return "";
+  const selectedTerm = attributeTerms.find(
+    (term) => term.slug === selectedSlug
   );
-
-  return selected?.name || activeVariation?.value || "";
+  return selectedTerm?.name || selectedSlug;
 };
+
 const updateAttrs = () => {
-  try {
-    if (!requiredAttributes.value || requiredAttributes.value.length === 0) {
-      return;
-    }
+  const selectionsForEmit: VariationAttributeNode[] =
+    displayableAttributes.value
+      .map((attr) => ({
+        name: attr.originalName, // Use the original attribute name for consistency with backend
+        value: selectedAttributeValues.value[attr.id] || "",
+      }))
+      .filter((selection) => selection.value !== ""); // Optionally filter out non-selected attributes
 
-    const selectedVariations = [];
+  // Or, if you always need to emit all displayable attributes:
+  // const selectionsForEmit: VariationAttributeNode[] = displayableAttributes.value.map(attr => ({
+  //   name: attr.originalName,
+  //   value: selectedAttributeValues.value[attr.id] || "",
+  // }));
 
-    // Safely gather all selected variation values
-    for (const attr of requiredAttributes.value) {
-      if (!attr || !attr.name) continue;
-
-      const formattedName = formatAttributeName(attr.name);
-      const selectElement = document.getElementById(formattedName);
-      // Normalize attribute name for consistency
-      const name = attr.name.charAt(0).toLowerCase() + attr.name.slice(1);
-      let value = "";
-
-      if (selectElement instanceof HTMLSelectElement) {
-        value = selectElement.value || "";
-      } else {
-      }
-
-      selectedVariations.push({ name, value });
-    }
-
-    activeVariations.value = selectedVariations;
-    emit("attrs-changed", selectedVariations);
-  } catch (error) {
-    console.error("Error updating attributes:", error);
-  }
+  emit("attrs-changed", selectionsForEmit);
 };
 
-const setDefaultAttributes = () => {
-  if (!defaultAttributes?.nodes) return;
+const initializeSelections = () => {
+  const newSelectedValues: Record<string, string> = {};
+  displayableAttributes.value.forEach((attr) => {
+    newSelectedValues[attr.id] = ""; // Initialize with empty selection
+  });
 
-  try {
-    // First, make sure all dropdowns exist
-    for (const attr of defaultAttributes.nodes) {
-      if (!attr?.name) continue;
-
-      const formattedName = formatAttributeName(attr.name);
-      const dropdown = document.querySelector(`#${formattedName}`);
-
-      if (dropdown instanceof HTMLSelectElement && attr.value) {
-        dropdown.value = attr.value;
+  if (props.defaultAttributes?.nodes) {
+    props.defaultAttributes.nodes.forEach((defaultAttr) => {
+      if (defaultAttr.name && defaultAttr.value) {
+        const formattedName = formatAttributeName(defaultAttr.name);
+        const displayableAttr = displayableAttributes.value.find(
+          (da) => da.id === formattedName
+        );
+        // Ensure the default attribute is displayable and its value (term slug) is among the available terms
+        if (
+          displayableAttr &&
+          displayableAttr.terms.some((term) => term.slug === defaultAttr.value)
+        ) {
+          newSelectedValues[formattedName] = defaultAttr.value;
+        }
       }
-    }
-
-    // After setting defaults, update the activeVariations
-    updateAttrs();
-  } catch (error) {
-    console.error("Error setting default attributes:", error);
+    });
   }
+  selectedAttributeValues.value = newSelectedValues;
+
+  // If there were defaults applied that constitute a full selection,
+  // or if an initial emit is always desired:
+  updateAttrs(); // Call updateAttrs to emit initial state or default selections
 };
 
 onMounted(() => {
-  // Allow more time for the DOM to fully render
-  setTimeout(() => {
-    try {
-      setDefaultAttributes();
-    } catch (error) {
-      console.error("Error in attribute initialization:", error);
-    }
-  }, 100);
+  nextTick(() => {
+    initializeSelections();
+  });
 });
+
+// Watch for prop changes to re-initialize if necessary
+watch(
+  () => [props.attributes, props.variations, props.defaultAttributes],
+  () => {
+    nextTick(() => {
+      // Ensure displayableAttributes has recomputed
+      initializeSelections();
+    });
+  },
+  { deep: true }
+);
 </script>
 
 <template>
-  <div v-if="requiredAttributes.length > 0">
+  <div v-if="displayableAttributes.length > 0">
     <div
-      v-for="(attribute, index) in requiredAttributes"
-      :key="attribute.name"
+      v-for="attribute in displayableAttributes"
+      :key="attribute.id"
       class="flex flex-col gap-1 justify-between mb-4"
     >
       <div class="text-sm">
         {{ attribute.label }}
-        <span v-if="activeVariations[index]" class="text-gray-400">
-          {{ getSelectedName(attribute, activeVariations[index]) }}
+        <span
+          v-if="selectedAttributeValues[attribute.id]"
+          class="text-gray-400"
+        >
+          {{ getSelectedTermName(attribute.id, attribute.terms) }}
         </span>
       </div>
       <select
-        :id="formatAttributeName(attribute.name)"
-        :name="attribute.name"
+        :id="attribute.id"
+        :name="attribute.originalName"
+        v-model="selectedAttributeValues[attribute.id]"
         required
         class="border-white shadow rounded p-2"
         @change="updateAttrs"
       >
-        <option value="" disabled selected>
+        <option value="" disabled>
           {{ $t("messages.general.choose") }}
           {{ attribute.label ? decodeURIComponent(attribute.label) : "" }}
         </option>
         <option
-          v-for="(term, termIndex) in attribute.terms?.nodes || []"
-          :key="termIndex"
+          v-for="term in attribute.terms"
+          :key="term.slug"
           :value="term.slug"
           v-html="term.name"
         />
@@ -155,12 +221,13 @@ onMounted(() => {
   <div v-else class="text-sm text-gray-500">
     {{
       $t("messages.shop.noVariationsRequired") ||
-      "No variations required for this product"
+      "No attributes available for this product configuration."
     }}
   </div>
 </template>
 
 <style lang="postcss">
+/* Your existing styles should largely remain compatible */
 .radio-button {
   @apply border-transparent border-white rounded-lg cursor-pointer outline bg-gray-50 border-2 text-sm text-center outline-2 outline-gray-100 py-1.5 px-3 transition-all text-gray-800 inline-block hover:outline-gray-500;
 }
@@ -171,30 +238,7 @@ onMounted(() => {
   height: 2rem;
 }
 
-.color-green {
-  @apply bg-green-500;
-}
-
-.color-blue {
-  @apply bg-blue-500;
-}
-
-.color-red {
-  @apply bg-red-500;
-}
-
-.color-yellow {
-  @apply bg-yellow-500;
-}
-
-.color-orange {
-  @apply bg-orange-500;
-}
-
-.color-purple {
-  @apply bg-purple-500;
-}
-
+/* ... other color styles ... */
 .color-black {
   @apply bg-black;
 }
