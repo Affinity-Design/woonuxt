@@ -90,11 +90,6 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
       }
     }
   }
-}fragment Image on MediaItem {
-  sourceUrl
-  altText
-  title
-  databaseId
 }`;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
