@@ -8,9 +8,18 @@ import type {
   Variation as WooVariation,
   Attribute as WooProductAttribute,
   VariationAttribute as WooVariationAttribute,
+  TermNode, // Assuming TermNode is exported or define it if not
 } from "#woo";
 
 // --- Local Type Definitions (align with your #woo types or GraphQL schema) ---
+
+// If TermNode is not exported from #woo, you might need a local definition:
+// interface TermNode {
+//   name: string;
+//   slug: string;
+//   taxonomyName?: string;
+//   databaseId?: number;
+// }
 
 // Represents an attribute on a specific variation (e.g., Color: Blue)
 interface VariationAttributeNode extends WooVariationAttribute {
@@ -29,6 +38,10 @@ interface VariationNode extends WooVariation {
 interface ProductAttributeNode extends WooProductAttribute {
   // Inherits name, label, options from WooProductAttribute
   // Ensure 'options' is an array of strings: string[]
+  terms?: {
+    // This structure comes from your log
+    nodes: TermNode[]; // Array of term objects, each having a name and a slug
+  } | null;
 }
 
 // --- Component Props ---
@@ -60,32 +73,37 @@ const emit = defineEmits<{
 // --- Internal State ---
 
 const selectedOptions = ref<Record<string, string>>({});
+// console.log('[AttrsSelect] Initialized. Props received:', { attributes: JSON.parse(JSON.stringify(props.attributes)), variations: props.variations.length, defaultAttributes: props.defaultAttributes });
 
 // --- Helper Functions ---
 
 const normalizeAttributeName = (name?: string): string => {
   if (!name) return "";
   const lowerName = name.toLowerCase().trim();
-  // Find the canonical name from props.attributes to ensure consistency (e.g. 'pa_color' vs 'Color')
-  const productLevelAttribute = props.attributes.find(
-    (attr) =>
-      attr.name?.toLowerCase().trim() === lowerName ||
-      attr.name?.toLowerCase().trim() === `pa_${lowerName}` || // Handles if lowerName is 'color' and attr.name is 'pa_color'
-      (attr.name &&
-        lowerName.startsWith("pa_") &&
-        attr.name.toLowerCase().trim() === lowerName.substring(3)) // Handles if lowerName is 'pa_color' and attr.name is 'color'
-  );
-  if (productLevelAttribute?.name) return productLevelAttribute.name;
 
-  // Fallback if no direct match on props.attributes (should be rare if data is consistent)
-  // This ensures that if we get 'Color', we try 'pa_color' for matching against variation attributes
+  const productLevelAttribute = props.attributes.find((attr) => {
+    const attrNameLower = attr.name?.toLowerCase().trim();
+    if (!attrNameLower) return false;
+    return (
+      attrNameLower === lowerName ||
+      attrNameLower === `pa_${lowerName}` ||
+      (lowerName.startsWith("pa_") && attrNameLower === lowerName.substring(3))
+    );
+  });
+
+  if (productLevelAttribute?.name) {
+    return productLevelAttribute.name;
+  }
   return lowerName.startsWith("pa_") ? lowerName : `pa_${lowerName}`;
 };
 
 const isOptionAvailable = (
   attributeNameToEvaluate: string,
-  optionValueToEvaluate: string
+  optionSlugToEvaluate: string
 ): boolean => {
+  // console.log(`[AttrsSelect] isOptionAvailable: Checking option SLUG '${optionSlugToEvaluate}' for attribute '${attributeNameToEvaluate}'`);
+  // console.log(`[AttrsSelect] isOptionAvailable: Current selectedOptions:`, JSON.parse(JSON.stringify(selectedOptions.value)));
+
   if (!props.variations || props.variations.length === 0) {
     return false;
   }
@@ -107,10 +125,10 @@ const isOptionAvailable = (
 
     let variationContainsOptionToEvaluate = false;
     variation.attributes?.nodes?.forEach((varAttr) => {
-      // Normalize varAttr.name as well for consistent comparison
+      // Variation attributes store slugs as their 'value'
       if (
         normalizeAttributeName(varAttr.name) === normalizedAttrNameToEvaluate &&
-        varAttr.value?.toLowerCase() === optionValueToEvaluate.toLowerCase()
+        varAttr.value?.toLowerCase() === optionSlugToEvaluate.toLowerCase()
       ) {
         variationContainsOptionToEvaluate = true;
       }
@@ -125,15 +143,18 @@ const isOptionAvailable = (
         continue;
       }
       const selectedValueForOtherAttr =
-        selectedOptions.value[selectedNormalizedAttrName];
-      const variationMatchesOtherSelectedAttr =
-        variation.attributes?.nodes?.some(
-          (varAttr) =>
-            normalizeAttributeName(varAttr.name) ===
-              selectedNormalizedAttrName &&
-            varAttr.value?.toLowerCase() ===
-              selectedValueForOtherAttr.toLowerCase()
-        );
+        selectedOptions.value[selectedNormalizedAttrName]; // This is a slug
+      let variationMatchesOtherSelectedAttr = false;
+      variation.attributes?.nodes?.forEach((varAttr) => {
+        if (
+          normalizeAttributeName(varAttr.name) === selectedNormalizedAttrName &&
+          varAttr.value?.toLowerCase() ===
+            selectedValueForOtherAttr.toLowerCase()
+        ) {
+          variationMatchesOtherSelectedAttr = true;
+        }
+      });
+
       if (!variationMatchesOtherSelectedAttr) {
         return false;
       }
@@ -146,48 +167,77 @@ const isOptionAvailable = (
 
 const handleOptionSelect = (
   productLevelAttributeName: string,
-  optionValue: string
+  optionSlug: string
 ) => {
-  const normalizedNameKey = normalizeAttributeName(productLevelAttributeName); // Use the name from props.attributes as the key
+  const normalizedNameKey = normalizeAttributeName(productLevelAttributeName);
+  // console.log(`[AttrsSelect] handleOptionSelect: Attribute '${productLevelAttributeName}' (normalized: '${normalizedNameKey}'), Option SLUG: '${optionSlug}'`);
 
-  // Create a new object for selectedOptions to ensure reactivity
   const newSelectedOptions = { ...toRaw(selectedOptions.value) };
-
-  if (newSelectedOptions[normalizedNameKey] === optionValue) {
-    // If the option is already selected, deselect it (optional: toggle behavior)
-    // delete newSelectedOptions[normalizedNameKey]; // Uncomment to enable toggle
+  if (newSelectedOptions[normalizedNameKey] === optionSlug) {
+    // console.log(`[AttrsSelect] handleOptionSelect: Option SLUG '${optionSlug}' was already selected. No change (toggle disabled).`);
   } else {
-    newSelectedOptions[normalizedNameKey] = optionValue;
+    newSelectedOptions[normalizedNameKey] = optionSlug;
   }
   selectedOptions.value = newSelectedOptions;
+  // console.log(`[AttrsSelect] handleOptionSelect: Updated selectedOptions (slugs):`, JSON.parse(JSON.stringify(selectedOptions.value)));
 
   const selectedAttributesForEmit = Object.entries(selectedOptions.value).map(
     ([name, value]) => ({ name, value })
-  ); // name here will be the normalized key
+  ); // value here is the slug
   emit("attrs-changed", selectedAttributesForEmit);
+  // console.log(`[AttrsSelect] handleOptionSelect: Emitted 'attrs-changed' (slugs):`, selectedAttributesForEmit);
 };
 
 // --- Computed Properties ---
 
 const displayAttributes = computed(() => {
-  if (!props.attributes) return [];
+  // console.log('[AttrsSelect] Recomputing displayAttributes. Current selectedOptions (slugs):', JSON.parse(JSON.stringify(selectedOptions.value)));
+  if (!props.attributes) {
+    // console.log('[AttrsSelect] displayAttributes: props.attributes is null/undefined. Returning [].');
+    return [];
+  }
   return props.attributes.map((productAttribute) => {
-    // Use the original name from props.attributes for display and as the primary reference
-    const originalAttributeName = productAttribute.name;
+    const originalAttributeName = productAttribute.name; // e.g., "pa_size"
     const normalizedForSelectionKey = normalizeAttributeName(
       originalAttributeName
     );
 
+    // Create a lookup map for term names by their slugs for this specific attribute
+    const termNameMap = new Map<string, string>();
+    if (productAttribute.terms?.nodes) {
+      productAttribute.terms.nodes.forEach((term) => {
+        if (term.slug && term.name) {
+          termNameMap.set(term.slug.toLowerCase(), term.name);
+        }
+      });
+    }
+    // console.log(`[AttrsSelect] Term map for ${originalAttributeName}:`, termNameMap);
+
+    const optionsForDisplay = productAttribute.options.map((optionSlug) => {
+      // optionSlug is e.g., '35-39-40eu'
+      // Get the display name from the term map, fallback to the slug itself if not found
+      const displayName =
+        termNameMap.get(optionSlug.toLowerCase()) || optionSlug;
+      const isSel =
+        selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() ===
+        optionSlug.toLowerCase();
+      // console.log(`[AttrsSelect] Attr: ${originalAttributeName}, Slug: ${optionSlug}, Display: ${displayName}, Selected: ${isSel}`);
+
+      return {
+        value: optionSlug, // The actual value (slug) used for logic and as key
+        displayName: displayName, // The human-readable name for display
+        available: isOptionAvailable(originalAttributeName, optionSlug),
+        selected: isSel,
+      };
+    });
+    console.log(
+      `[AttrsSelect] displayAttributes: Processed attribute '${originalAttributeName}', Key: '${normalizedForSelectionKey}', Options for display:`,
+      optionsForDisplay
+    );
     return {
-      ...productAttribute, // Includes original name, label, options
-      keyForSelection: normalizedForSelectionKey, // The key used in selectedOptions
-      displayOptions: productAttribute.options.map((optionValue) => ({
-        value: optionValue,
-        available: isOptionAvailable(originalAttributeName, optionValue),
-        selected:
-          selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() ===
-          optionValue.toLowerCase(),
-      })),
+      ...productAttribute,
+      keyForSelection: normalizedForSelectionKey,
+      displayOptions: optionsForDisplay,
     };
   });
 });
@@ -197,57 +247,71 @@ const displayAttributes = computed(() => {
 watch(
   () => [props.attributes, props.defaultAttributes],
   ([newAttributes, newDefaultAttributes]) => {
-    const initialSelections: Record<string, string> = {};
+    // console.log('[AttrsSelect] Watcher triggered for props.attributes/defaultAttributes.');
+    // console.log('[AttrsSelect] Watcher: newAttributes count:', newAttributes?.length);
+    // console.log('[AttrsSelect] Watcher: newDefaultAttributes count:', newDefaultAttributes?.length);
+
+    const initialSelections: Record<string, string> = {}; // Stores slug values
     if (newAttributes && newAttributes.length > 0) {
       newAttributes.forEach((attr) => {
-        const originalAttrName = attr.name; // Use the original name from product attribute definition
-        const normalizedAttrNameKey = normalizeAttributeName(originalAttrName); // Key for selectedOptions
+        const originalAttrName = attr.name;
+        const normalizedAttrNameKey = normalizeAttributeName(originalAttrName);
+        // console.log(`[AttrsSelect] Watcher: Processing attr '${originalAttrName}' (normalized key: '${normalizedAttrNameKey}') for initial selection.`);
 
         const defaultAttr = newDefaultAttributes?.find(
-          (da) => normalizeAttributeName(da.name) === normalizedAttrNameKey // Compare normalized names
+          (da) => normalizeAttributeName(da.name) === normalizedAttrNameKey
         );
 
-        if (
-          defaultAttr?.value &&
-          isOptionAvailable(originalAttrName, defaultAttr.value)
-        ) {
-          initialSelections[normalizedAttrNameKey] = defaultAttr.value;
+        if (defaultAttr?.value) {
+          // defaultAttr.value is a slug
+          // console.log(`[AttrsSelect] Watcher: Found default for '${originalAttrName}': Slug '${defaultAttr.value}'. Checking availability...`);
+          if (isOptionAvailable(originalAttrName, defaultAttr.value)) {
+            initialSelections[normalizedAttrNameKey] = defaultAttr.value;
+            // console.log(`[AttrsSelect] Watcher: Default option SLUG '${defaultAttr.value}' for '${originalAttrName}' is available and selected.`);
+          } else {
+            // console.log(`[AttrsSelect] Watcher: Default option SLUG '${defaultAttr.value}' for '${originalAttrName}' is NOT available.`);
+          }
         } else {
-          // If no valid default, try to select the first available option for this attribute
-          // considering previously made initial selections for prior attributes.
+          // console.log(`[AttrsSelect] Watcher: No default found for '${originalAttrName}'. Attempting to select first available.`);
           const currentSelectionsForAvailabilityCheck = {
             ...initialSelections,
           };
-          const firstAvailableOption = attr.options.find((opt) => {
+          const firstAvailableOptionSlug = attr.options.find((optSlug) => {
+            // optSlug from attr.options
             const originalSelectedOptionsSnapshot = {
               ...selectedOptions.value,
             };
-            selectedOptions.value = currentSelectionsForAvailabilityCheck; // Temporarily set for isOptionAvailable
-            const available = isOptionAvailable(originalAttrName, opt);
-            selectedOptions.value = originalSelectedOptionsSnapshot; // Restore
+            selectedOptions.value = currentSelectionsForAvailabilityCheck;
+            const available = isOptionAvailable(originalAttrName, optSlug);
+            selectedOptions.value = originalSelectedOptionsSnapshot;
+            // if(available) console.log(`[AttrsSelect] Watcher: Option SLUG '${optSlug}' for '${originalAttrName}' is available for initial selection.`);
             return available;
           });
 
-          if (firstAvailableOption) {
-            initialSelections[normalizedAttrNameKey] = firstAvailableOption;
+          if (firstAvailableOptionSlug) {
+            initialSelections[normalizedAttrNameKey] = firstAvailableOptionSlug;
+            // console.log(`[AttrsSelect] Watcher: Selected first available option SLUG '${firstAvailableOptionSlug}' for '${originalAttrName}'.`);
+          } else {
+            // console.log(`[AttrsSelect] Watcher: No available options found for '${originalAttrName}' to select initially.`);
           }
         }
       });
     }
     selectedOptions.value = initialSelections;
+    // console.log('[AttrsSelect] Watcher: Initial selections set (slugs):', JSON.parse(JSON.stringify(initialSelections)));
 
     if (Object.keys(initialSelections).length > 0) {
       const selectedAttributesForEmit = Object.entries(initialSelections).map(
         ([name, value]) => ({ name, value })
-      ); // 'name' here is the normalized key
+      ); // value here is the slug
       emit("attrs-changed", selectedAttributesForEmit);
+      // console.log('[AttrsSelect] Watcher: Emitted initial "attrs-changed" (slugs):', selectedAttributesForEmit);
     }
   },
   { immediate: true, deep: true }
 );
 
 // Placeholder for t function if useI18n is not set up in this specific component
-// In a real Nuxt app, this would typically come from useI18n()
 const t = (key: string, fallback: string): string => fallback;
 </script>
 
@@ -262,8 +326,13 @@ const t = (key: string, fallback: string): string => fallback;
           {{ attribute.label || attribute.name }}:
           <span class="text-gray-600 font-normal ml-1">
             {{
-              selectedOptions[attribute.keyForSelection] ||
-              t("messages.shop.selectOption", "Select")
+              selectedOptions[attribute.keyForSelection]
+                ? attribute.displayOptions.find(
+                    (opt) =>
+                      opt.value.toLowerCase() ===
+                      selectedOptions[attribute.keyForSelection]?.toLowerCase()
+                  )?.displayName || selectedOptions[attribute.keyForSelection]
+                : t("messages.shop.selectOption", "Select")
             }}
           </span>
         </h3>
@@ -283,9 +352,9 @@ const t = (key: string, fallback: string): string => fallback;
                   : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50 focus:ring-primary-focus',
               ]"
               :aria-pressed="option.selected"
-              :aria-label="`${attribute.label || attribute.name}: ${option.value}`"
+              :aria-label="`${attribute.label || attribute.name}: ${option.displayName}`"
             >
-              {{ option.value }}
+              {{ option.displayName }}
             </button>
           </template>
         </div>
@@ -293,6 +362,7 @@ const t = (key: string, fallback: string): string => fallback;
     </template>
     <div
       v-if="
+        !displayAttributes ||
         displayAttributes.length === 0 ||
         displayAttributes.every(
           (attr) => !attr.displayOptions.some((opt) => opt.available)
