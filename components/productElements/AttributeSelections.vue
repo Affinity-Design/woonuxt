@@ -1,249 +1,321 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, nextTick, watch } from "vue";
+import { ref, computed, watch, PropType, toRaw } from "vue";
 
-// --- Recommended: Define more specific types ---
-interface Term {
-  slug: string;
-  name: string;
-  // any other properties a term might have
+// Import StockStatusEnum as a value for runtime access.
+// Other types that are only used for type annotations can remain type-only imports.
+import { StockStatusEnum } from "#woo";
+import type {
+  Variation as WooVariation,
+  Attribute as WooProductAttribute,
+  VariationAttribute as WooVariationAttribute,
+} from "#woo";
+
+// --- Local Type Definitions (align with your #woo types or GraphQL schema) ---
+
+// Represents an attribute on a specific variation (e.g., Color: Blue)
+interface VariationAttributeNode extends WooVariationAttribute {
+  // Inherits name, value from WooVariationAttribute
 }
 
-interface AttributeSchema {
-  // Renamed from Attribute to avoid conflict with DOM Attribute
-  name: string; // e.g., "pa_color" or "Color"
-  label: string; // e.g., "Color"
-  terms?: { nodes: Term[] };
-  // any other properties an attribute might have
+// Represents a single product variation
+interface VariationNode extends WooVariation {
+  // Inherits databaseId, name, stockStatus, salePrice, regularPrice, image, etc.
+  attributes?: {
+    nodes: VariationAttributeNode[];
+  } | null;
 }
 
-interface VariationAttributeNode {
-  // Attribute of a specific variation
-  name: string; // e.g., "pa_color"
-  value: string; // e.g., "red" (slug)
+// Represents a product attribute definition (e.g., Color with options Red, Blue, Green)
+interface ProductAttributeNode extends WooProductAttribute {
+  // Inherits name, label, options from WooProductAttribute
+  // Ensure 'options' is an array of strings: string[]
 }
 
-interface Variation {
-  id?: string;
-  attributes?: { nodes: VariationAttributeNode[] };
-  // other variation properties like price, stock_status, image etc.
-}
+// --- Component Props ---
 
-interface Props {
-  attributes: AttributeSchema[];
-  variations: Variation[];
-  defaultAttributes?: { nodes: VariationAttributeNode[] } | null;
-}
-// --- End Recommended Types ---
-
-const props = defineProps<Props>();
-const emit = defineEmits(["attrs-changed"]);
-
-const selectedAttributeValues = ref<Record<string, string>>({}); // Key: attribute.id, Value: term.slug
-
-const formatAttributeName = (name: string | undefined): string => {
-  if (!name) return "";
-  return name.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase(); // Allow hyphens, make lowercase for consistency
-};
-
-const displayableAttributes = computed(() => {
-  const { attributes, variations } = props;
-  if (
-    !attributes ||
-    attributes.length === 0 ||
-    !variations ||
-    variations.length === 0
-  ) {
-    return [];
-  }
-
-  const usedAttributeTerms = new Map<string, Set<string>>();
-
-  variations.forEach((variation) => {
-    variation.attributes?.nodes?.forEach((varAttr) => {
-      if (varAttr.name && varAttr.value) {
-        const normalizedVarAttrName = varAttr.name.toLowerCase();
-        if (!usedAttributeTerms.has(normalizedVarAttrName)) {
-          usedAttributeTerms.set(normalizedVarAttrName, new Set());
-        }
-        usedAttributeTerms.get(normalizedVarAttrName)!.add(varAttr.value);
-      }
-    });
-  });
-
-  const result = attributes
-    .map((attr) => {
-      if (!attr.name) return null;
-      const normalizedAttrName = attr.name.toLowerCase();
-
-      if (usedAttributeTerms.has(normalizedAttrName)) {
-        const availableTermSlugs = usedAttributeTerms.get(normalizedAttrName)!;
-        const availableTerms = (attr.terms?.nodes || []).filter(
-          (term) => term.slug && availableTermSlugs.has(term.slug)
-        );
-
-        if (availableTerms.length > 0) {
-          return {
-            originalName: attr.name, // Keep original name if needed for emitting
-            label: attr.label || attr.name,
-            id: formatAttributeName(attr.name), // Unique ID for v-model binding and DOM
-            terms: availableTerms, // Filtered list of available terms
-          };
-        }
-      }
-      return null;
-    })
-    .filter(Boolean);
-
-  return result as {
-    originalName: string;
-    label: string;
-    id: string;
-    terms: Term[];
-  }[];
-});
-
-const getSelectedTermName = (
-  attributeId: string,
-  attributeTerms: Term[]
-): string => {
-  const selectedSlug = selectedAttributeValues.value[attributeId];
-  if (!selectedSlug) return "";
-  const selectedTerm = attributeTerms.find(
-    (term) => term.slug === selectedSlug
-  );
-  return selectedTerm?.name || selectedSlug;
-};
-
-const updateAttrs = () => {
-  const selectionsForEmit: VariationAttributeNode[] =
-    displayableAttributes.value
-      .map((attr) => ({
-        name: attr.originalName, // Use the original attribute name for consistency with backend
-        value: selectedAttributeValues.value[attr.id] || "",
-      }))
-      .filter((selection) => selection.value !== ""); // Optionally filter out non-selected attributes
-
-  // Or, if you always need to emit all displayable attributes:
-  // const selectionsForEmit: VariationAttributeNode[] = displayableAttributes.value.map(attr => ({
-  //   name: attr.originalName,
-  //   value: selectedAttributeValues.value[attr.id] || "",
-  // }));
-
-  emit("attrs-changed", selectionsForEmit);
-};
-
-const initializeSelections = () => {
-  const newSelectedValues: Record<string, string> = {};
-  displayableAttributes.value.forEach((attr) => {
-    newSelectedValues[attr.id] = ""; // Initialize with empty selection
-  });
-
-  if (props.defaultAttributes?.nodes) {
-    props.defaultAttributes.nodes.forEach((defaultAttr) => {
-      if (defaultAttr.name && defaultAttr.value) {
-        const formattedName = formatAttributeName(defaultAttr.name);
-        const displayableAttr = displayableAttributes.value.find(
-          (da) => da.id === formattedName
-        );
-        // Ensure the default attribute is displayable and its value (term slug) is among the available terms
-        if (
-          displayableAttr &&
-          displayableAttr.terms.some((term) => term.slug === defaultAttr.value)
-        ) {
-          newSelectedValues[formattedName] = defaultAttr.value;
-        }
-      }
-    });
-  }
-  selectedAttributeValues.value = newSelectedValues;
-
-  // If there were defaults applied that constitute a full selection,
-  // or if an initial emit is always desired:
-  updateAttrs(); // Call updateAttrs to emit initial state or default selections
-};
-
-onMounted(() => {
-  nextTick(() => {
-    initializeSelections();
-  });
-});
-
-// Watch for prop changes to re-initialize if necessary
-watch(
-  () => [props.attributes, props.variations, props.defaultAttributes],
-  () => {
-    nextTick(() => {
-      // Ensure displayableAttributes has recomputed
-      initializeSelections();
-    });
+const props = defineProps({
+  attributes: {
+    type: Array as PropType<ProductAttributeNode[]>,
+    required: true,
   },
-  { deep: true }
+  variations: {
+    type: Array as PropType<VariationNode[]>,
+    required: true,
+  },
+  defaultAttributes: {
+    type: Array as PropType<WooVariationAttribute[]>,
+    default: () => [],
+  },
+});
+
+// --- Component Emits ---
+
+const emit = defineEmits<{
+  (
+    e: "attrs-changed",
+    selectedAttributes: { name: string; value: string }[]
+  ): void;
+}>();
+
+// --- Internal State ---
+
+const selectedOptions = ref<Record<string, string>>({});
+
+// --- Helper Functions ---
+
+const normalizeAttributeName = (name?: string): string => {
+  if (!name) return "";
+  const lowerName = name.toLowerCase().trim();
+  // Find the canonical name from props.attributes to ensure consistency (e.g. 'pa_color' vs 'Color')
+  const productLevelAttribute = props.attributes.find(
+    (attr) =>
+      attr.name?.toLowerCase().trim() === lowerName ||
+      attr.name?.toLowerCase().trim() === `pa_${lowerName}` || // Handles if lowerName is 'color' and attr.name is 'pa_color'
+      (attr.name &&
+        lowerName.startsWith("pa_") &&
+        attr.name.toLowerCase().trim() === lowerName.substring(3)) // Handles if lowerName is 'pa_color' and attr.name is 'color'
+  );
+  if (productLevelAttribute?.name) return productLevelAttribute.name;
+
+  // Fallback if no direct match on props.attributes (should be rare if data is consistent)
+  // This ensures that if we get 'Color', we try 'pa_color' for matching against variation attributes
+  return lowerName.startsWith("pa_") ? lowerName : `pa_${lowerName}`;
+};
+
+const isOptionAvailable = (
+  attributeNameToEvaluate: string,
+  optionValueToEvaluate: string
+): boolean => {
+  if (!props.variations || props.variations.length === 0) {
+    return false;
+  }
+
+  const normalizedAttrNameToEvaluate = normalizeAttributeName(
+    attributeNameToEvaluate
+  );
+
+  return props.variations.some((variation) => {
+    const stockStatusUpper = variation.stockStatus?.toUpperCase();
+    const isVariationInStock =
+      StockStatusEnum &&
+      (stockStatusUpper === StockStatusEnum.IN_STOCK ||
+        stockStatusUpper === StockStatusEnum.ON_BACKORDER);
+
+    if (!isVariationInStock) {
+      return false;
+    }
+
+    let variationContainsOptionToEvaluate = false;
+    variation.attributes?.nodes?.forEach((varAttr) => {
+      // Normalize varAttr.name as well for consistent comparison
+      if (
+        normalizeAttributeName(varAttr.name) === normalizedAttrNameToEvaluate &&
+        varAttr.value?.toLowerCase() === optionValueToEvaluate.toLowerCase()
+      ) {
+        variationContainsOptionToEvaluate = true;
+      }
+    });
+
+    if (!variationContainsOptionToEvaluate) {
+      return false;
+    }
+
+    for (const selectedNormalizedAttrName in selectedOptions.value) {
+      if (selectedNormalizedAttrName === normalizedAttrNameToEvaluate) {
+        continue;
+      }
+      const selectedValueForOtherAttr =
+        selectedOptions.value[selectedNormalizedAttrName];
+      const variationMatchesOtherSelectedAttr =
+        variation.attributes?.nodes?.some(
+          (varAttr) =>
+            normalizeAttributeName(varAttr.name) ===
+              selectedNormalizedAttrName &&
+            varAttr.value?.toLowerCase() ===
+              selectedValueForOtherAttr.toLowerCase()
+        );
+      if (!variationMatchesOtherSelectedAttr) {
+        return false;
+      }
+    }
+    return true;
+  });
+};
+
+// --- Event Handlers ---
+
+const handleOptionSelect = (
+  productLevelAttributeName: string,
+  optionValue: string
+) => {
+  const normalizedNameKey = normalizeAttributeName(productLevelAttributeName); // Use the name from props.attributes as the key
+
+  // Create a new object for selectedOptions to ensure reactivity
+  const newSelectedOptions = { ...toRaw(selectedOptions.value) };
+
+  if (newSelectedOptions[normalizedNameKey] === optionValue) {
+    // If the option is already selected, deselect it (optional: toggle behavior)
+    // delete newSelectedOptions[normalizedNameKey]; // Uncomment to enable toggle
+  } else {
+    newSelectedOptions[normalizedNameKey] = optionValue;
+  }
+  selectedOptions.value = newSelectedOptions;
+
+  const selectedAttributesForEmit = Object.entries(selectedOptions.value).map(
+    ([name, value]) => ({ name, value })
+  ); // name here will be the normalized key
+  emit("attrs-changed", selectedAttributesForEmit);
+};
+
+// --- Computed Properties ---
+
+const displayAttributes = computed(() => {
+  if (!props.attributes) return [];
+  return props.attributes.map((productAttribute) => {
+    // Use the original name from props.attributes for display and as the primary reference
+    const originalAttributeName = productAttribute.name;
+    const normalizedForSelectionKey = normalizeAttributeName(
+      originalAttributeName
+    );
+
+    return {
+      ...productAttribute, // Includes original name, label, options
+      keyForSelection: normalizedForSelectionKey, // The key used in selectedOptions
+      displayOptions: productAttribute.options.map((optionValue) => ({
+        value: optionValue,
+        available: isOptionAvailable(originalAttributeName, optionValue),
+        selected:
+          selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() ===
+          optionValue.toLowerCase(),
+      })),
+    };
+  });
+});
+
+// --- Watchers ---
+
+watch(
+  () => [props.attributes, props.defaultAttributes],
+  ([newAttributes, newDefaultAttributes]) => {
+    const initialSelections: Record<string, string> = {};
+    if (newAttributes && newAttributes.length > 0) {
+      newAttributes.forEach((attr) => {
+        const originalAttrName = attr.name; // Use the original name from product attribute definition
+        const normalizedAttrNameKey = normalizeAttributeName(originalAttrName); // Key for selectedOptions
+
+        const defaultAttr = newDefaultAttributes?.find(
+          (da) => normalizeAttributeName(da.name) === normalizedAttrNameKey // Compare normalized names
+        );
+
+        if (
+          defaultAttr?.value &&
+          isOptionAvailable(originalAttrName, defaultAttr.value)
+        ) {
+          initialSelections[normalizedAttrNameKey] = defaultAttr.value;
+        } else {
+          // If no valid default, try to select the first available option for this attribute
+          // considering previously made initial selections for prior attributes.
+          const currentSelectionsForAvailabilityCheck = {
+            ...initialSelections,
+          };
+          const firstAvailableOption = attr.options.find((opt) => {
+            const originalSelectedOptionsSnapshot = {
+              ...selectedOptions.value,
+            };
+            selectedOptions.value = currentSelectionsForAvailabilityCheck; // Temporarily set for isOptionAvailable
+            const available = isOptionAvailable(originalAttrName, opt);
+            selectedOptions.value = originalSelectedOptionsSnapshot; // Restore
+            return available;
+          });
+
+          if (firstAvailableOption) {
+            initialSelections[normalizedAttrNameKey] = firstAvailableOption;
+          }
+        }
+      });
+    }
+    selectedOptions.value = initialSelections;
+
+    if (Object.keys(initialSelections).length > 0) {
+      const selectedAttributesForEmit = Object.entries(initialSelections).map(
+        ([name, value]) => ({ name, value })
+      ); // 'name' here is the normalized key
+      emit("attrs-changed", selectedAttributesForEmit);
+    }
+  },
+  { immediate: true, deep: true }
 );
+
+// Placeholder for t function if useI18n is not set up in this specific component
+// In a real Nuxt app, this would typically come from useI18n()
+const t = (key: string, fallback: string): string => fallback;
 </script>
 
 <template>
-  <div v-if="displayableAttributes.length > 0">
-    <div
-      v-for="attribute in displayableAttributes"
-      :key="attribute.id"
-      class="flex flex-col gap-1 justify-between mb-4"
-    >
-      <div class="text-sm">
-        {{ attribute.label }}
-        <span
-          v-if="selectedAttributeValues[attribute.id]"
-          class="text-gray-400"
-        >
-          {{ getSelectedTermName(attribute.id, attribute.terms) }}
-        </span>
-      </div>
-      <select
-        :id="attribute.id"
-        :name="attribute.originalName"
-        v-model="selectedAttributeValues[attribute.id]"
-        required
-        class="border-white shadow rounded p-2"
-        @change="updateAttrs"
+  <div class="space-y-5 attribute-selections">
+    <template v-for="attribute in displayAttributes" :key="attribute.name">
+      <div
+        v-if="attribute.displayOptions.some((opt) => opt.available)"
+        class="attribute-group"
       >
-        <option value="" disabled>
-          {{ $t("messages.general.choose") }}
-          {{ attribute.label ? decodeURIComponent(attribute.label) : "" }}
-        </option>
-        <option
-          v-for="term in attribute.terms"
-          :key="term.slug"
-          :value="term.slug"
-          v-html="term.name"
-        />
-      </select>
+        <h3 class="text-sm font-semibold text-gray-800 mb-2">
+          {{ attribute.label || attribute.name }}:
+          <span class="text-gray-600 font-normal ml-1">
+            {{
+              selectedOptions[attribute.keyForSelection] ||
+              t("messages.shop.selectOption", "Select")
+            }}
+          </span>
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <template
+            v-for="option in attribute.displayOptions"
+            :key="option.value"
+          >
+            <button
+              v-if="option.available"
+              type="button"
+              @click="handleOptionSelect(attribute.name, option.value)"
+              class="px-3 py-1.5 border rounded-lg text-xs sm:text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1"
+              :class="[
+                option.selected
+                  ? 'bg-primary text-white border-primary-dark ring-primary ring-1'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50 focus:ring-primary-focus',
+              ]"
+              :aria-pressed="option.selected"
+              :aria-label="`${attribute.label || attribute.name}: ${option.value}`"
+            >
+              {{ option.value }}
+            </button>
+          </template>
+        </div>
+      </div>
+    </template>
+    <div
+      v-if="
+        displayAttributes.length === 0 ||
+        displayAttributes.every(
+          (attr) => !attr.displayOptions.some((opt) => opt.available)
+        )
+      "
+      class="text-sm text-gray-500"
+    >
+      {{
+        t(
+          "messages.shop.noOptionsAvailable",
+          "No options available for this product."
+        )
+      }}
     </div>
-  </div>
-  <div v-else class="text-sm text-gray-500">
-    {{
-      $t("messages.shop.noVariationsRequired") ||
-      "No attributes available for this product configuration."
-    }}
   </div>
 </template>
 
-<style lang="postcss">
-/* Your existing styles should largely remain compatible */
-.radio-button {
-  @apply border-transparent border-white rounded-lg cursor-pointer outline bg-gray-50 border-2 text-sm text-center outline-2 outline-gray-100 py-1.5 px-3 transition-all text-gray-800 inline-block hover:outline-gray-500;
+<style scoped>
+/* Add any component-specific styles here if needed. Tailwind utility classes are used primarily. */
+.attribute-selections {
+  /* Example: could add a border or specific spacing if not handled by parent */
 }
-
-.color-button {
-  @apply border-transparent border-white cursor-pointer outline bg-gray-50 border-2 rounded-2xl text-sm text-center outline-2 outline-gray-100 transition-all text-gray-800 inline-block hover:outline-gray-500;
-  width: 2rem;
-  height: 2rem;
-}
-
-/* ... other color styles ... */
-.color-black {
-  @apply bg-black;
-}
-
-input[type="radio"]:checked ~ span {
-  @apply outline outline-2 outline-gray-500;
+.attribute-group {
+  /* Example: margin or padding for individual groups */
 }
 </style>
