@@ -203,7 +203,7 @@ useSeoMeta({
     <section class="container my-16" v-if="clearanceProducts">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">Clearance Products</h2>
-        <NuxtLink class="text-primary" to="/products">{{
+        <NuxtLink class="text-primary" to="/catagories">{{
           $t("messages.general.viewAll")
         }}</NuxtLink>
       </div>
