@@ -89,23 +89,23 @@ const onInputChange = (e) => {
 // Handler to clear search input and results
 const handleClear = () => {
   console.log(`[${componentName}] handleClear called.`);
-  localInputValue.value = "";
-  clearSearch();
+  localInputValue.value = ""; // Clear the local input value
+  clearSearch(); // Call the composable's clearSearch function
 
   if (isShowingSearch.value) {
     console.log(
       `[${componentName}] handleClear: Search was visible. Calling toggleSearch() to close.`
     );
-    toggleSearch();
+    toggleSearch(); // Hides the dropdown
   }
-  searchInputDOM.value?.focus();
+  searchInputDOM.value?.focus(); // Re-focus the input
 };
 
 // NEW: Explicit close button handler
 const handleClose = () => {
   console.log(`[${componentName}] handleClose called.`);
   if (isShowingSearch.value) {
-    toggleSearch();
+    toggleSearch(); // Hide the dropdown
   }
 };
 
@@ -121,7 +121,7 @@ const handleFocus = () => {
       `[${componentName}] handleFocus: Search not visible. Calling toggleSearch().`
     );
     isSearchJustOpened.value = true;
-    toggleSearch();
+    toggleSearch(); // Shows the dropdown
     setTimeout(() => {
       isSearchJustOpened.value = false;
     }, 300);
@@ -132,7 +132,7 @@ const handleFocus = () => {
 const handleBlur = () => {
   setTimeout(() => {
     isInputFocused.value = false;
-  }, 300);
+  }, 300); // Delay to allow click on dropdown items
 };
 
 // Watcher to sync local input value if composable's searchQuery changes externally
@@ -156,13 +156,16 @@ watch(isShowingSearch, (newValue, oldValue) => {
     newValue
   );
   if (newValue && !oldValue) {
+    // If search just opened
     isSearchJustOpened.value = true;
     nextTick(() => {
+      // Wait for DOM update
       if (searchInputDOM.value) {
         searchInputDOM.value.focus();
         setTimeout(() => {
+          // Reset flag after a delay
           isSearchJustOpened.value = false;
-        }, 500);
+        }, 500); // Allow time for focus to register
       }
     });
   }
@@ -179,7 +182,7 @@ onClickOutside(searchWrapper, (event) => {
     console.log(
       `[${componentName}] onClickOutside detected. Closing search panel.`
     );
-    toggleSearch();
+    toggleSearch(); // Hides the dropdown
   } else {
     console.log(
       `[${componentName}] onClickOutside detected but ignored due to conditions: preventAutoClose=${preventAutoClose.value}, isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
@@ -191,24 +194,25 @@ onClickOutside(searchWrapper, (event) => {
 const shouldShowResultsDropdown = computed(() => {
   if (!isShowingSearch.value) return false;
   if (isLoading.value) return true; // Show dropdown for loading state
+  // Show if there's input and results, or input and no results (for "no results" message)
   if (localInputValue.value && hasResults.value) return true;
   if (localInputValue.value && !isLoading.value && !hasResults.value)
     return true; // For "no results" message
   return false;
 });
 
-// Computed property to determine if the "no results" message should be shown
+// Computed property to determine if the "no results" message should be shown (used in dropdown content)
 const showNoResultsMessage = computed(() => {
   return (
     isShowingSearch.value &&
-    localInputValue.value &&
+    localInputValue.value && // Check if there is input
     !isLoading.value &&
     !hasResults.value
   );
 });
 
 // ---------------------------------------------------------------------------
-// NEW: Handler for Enter key press in the search input
+// Handler for Enter key press in the search input
 // ---------------------------------------------------------------------------
 const handleEnterKeyNavigation = () => {
   console.log(`[${componentName}] handleEnterKeyNavigation called.`);
@@ -266,7 +270,7 @@ const handleEnterKeyNavigation = () => {
         aria-controls="search-results-dropdown"
       />
       <span
-        vif="localInputValue"
+        v-if="localInputValue && localInputValue.trim() !== ''"
         class="absolute z-10 flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary right-2"
         @click="handleClear"
       >
@@ -391,10 +395,10 @@ const handleEnterKeyNavigation = () => {
 
 /* Styles for the dropdown transition */
 .fade-enter-active {
-  transition: opacity 0.2s ease-out; /* Adjusted timing function */
+  transition: opacity 0.2s ease-out; /* Adjusted timing function for smoother feel */
 }
 .fade-leave-active {
-  transition: opacity 0.2s ease-in; /* Adjusted timing function */
+  transition: opacity 0.2s ease-in; /* Adjusted timing function for smoother feel */
 }
 
 .fade-enter-from,
@@ -403,7 +407,7 @@ const handleEnterKeyNavigation = () => {
 }
 
 /* Ensure the search input is always fully visible */
-/* These might not be necessary if opacity is not being manipulated elsewhere */
+/* These might not be strictly necessary if opacity is not being manipulated by other styles */
 .search-bar-input {
   opacity: 1 !important;
   transition: none !important;
