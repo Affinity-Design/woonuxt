@@ -1,130 +1,201 @@
 <script lang="ts" setup>
-import { computed, onMounted } from "vue"; // Added onMounted for client-side logging
+import { computed, onMounted } from "vue";
 
-// Define ProductCategory type (adjust based on your actual structure if different)
-interface ProductCategory {
+// Define ProductCategory type
+interface ProductCategoryFromGraphQL {
   slug: string;
-  name: string;
-  // Add other properties like image, id, etc., that your CategoryCard might need
-  [key: string]: any; // Allows for other properties
+  name: string; // This is the name from GraphQL/CMS
+  id?: string;
+  databaseId?: number;
+  count?: number;
+  // Other properties from your GraphQL/CMS data source
+  [key: string]: any;
 }
 
-const { data, error } = await useAsyncGql("getProductCategories");
+interface ProductCategoryProcessed extends ProductCategoryFromGraphQL {
+  displayName: string; // The name to be displayed on the card
+  imageFilename?: string; // Explicit filename for the category image
+}
 
-// Log raw data and error from GraphQL query
-console.log(
-  '[DEBUG] Raw data from useAsyncGql("getProductCategories"):',
-  data.value
-);
-if (error.value) {
+// Attempt to fetch category data from a data source (e.g., CMS via GraphQL)
+// This data (like name, slug, count) is still used, but not for image URLs directly.
+const { data, error: gqlError } = await useAsyncGql("getProductCategories");
+
+if (gqlError.value) {
   console.error(
-    '[DEBUG] Error from useAsyncGql("getProductCategories"):',
-    error.value
+    "[DEBUG V3] Error fetching category data (e.g., from GraphQL/CMS):",
+    JSON.parse(JSON.stringify(gqlError.value))
+  );
+} else {
+  console.log(
+    "[DEBUG V3] Raw category data (e.g., from GraphQL/CMS):",
+    JSON.parse(JSON.stringify(data.value))
   );
 }
 
-// Mapping of desired categories to their exact slugs from the data
+// Defines the desired categories, their display names, slugs, and specific image filenames if needed.
 const categoryMapping = [
-  { display: "Inline Skates", slug: "inline-skates" },
-  { display: "Roller Skates", slug: "roller-skates" },
-  { display: "Skate Parts", slug: "replacement-parts" },
-  { display: "Skate Tools", slug: "skate-tools" },
-  { display: "Protection Gear", slug: "protection-gear-and-apparel" },
-  { display: "Backpacks, Bags & Carriers", slug: "backpacks-bags-carriers" },
-  { display: "Scooters", slug: "scooters" },
+  {
+    display: "Inline Skates",
+    slug: "inline-skates",
+    imageFilename: "Inline-Skates.jpeg",
+  }, // Example: ensure consistency
+  {
+    display: "Roller Skates",
+    slug: "roller-skates",
+    imageFilename: "Roller-Skates.jpeg",
+  },
+  {
+    display: "Skate Parts",
+    slug: "replacement-parts",
+    imageFilename: "Skate-Parts.jpeg",
+  },
+  {
+    display: "Skate Tools",
+    slug: "skate-tools",
+    imageFilename: "Skate-Tools.jpeg",
+  },
+  {
+    display: "Protection Gear",
+    slug: "protection-gear-and-apparel",
+    imageFilename: "Protection-Gear.jpeg",
+  }, // Adjust filename as needed
+  {
+    display: "Backpacks, Bags & Carriers",
+    slug: "backpacks-bags-carriers",
+    imageFilename: "Backpacks-Bags-Carriers.jpeg",
+  },
+  { display: "Scooters", slug: "scooters", imageFilename: "Scooters.jpeg" },
   {
     display: "Skateboards and Longboards",
-    slug: "skateboards-and-longboards", // The problematic category
+    slug: "skateboards-and-longboards",
+    imageFilename: "Skateboards-and-Longboards.jpeg", // ** The specific filename for the problematic category **
   },
-  { display: "Alpine Skis", slug: "alpine-skis" },
-  { display: "Alpine Poles", slug: "alpine-poles" },
-  { display: "Cross-Country Skis", slug: "cross-country-skis" },
-  { display: "Nordic Poles", slug: "cross-country-poles" },
+  {
+    display: "Alpine Skis",
+    slug: "alpine-skis",
+    imageFilename: "Alpine-Skis.jpeg",
+  },
+  {
+    display: "Alpine Poles",
+    slug: "alpine-poles",
+    imageFilename: "Alpine-Poles.jpeg",
+  },
+  {
+    display: "Cross-Country Skis",
+    slug: "cross-country-skis",
+    imageFilename: "Cross-Country-Skis.jpeg",
+  },
+  {
+    display: "Nordic Poles",
+    slug: "cross-country-poles",
+    imageFilename: "Nordic-Poles.jpeg",
+  },
 ];
 
-console.log("[DEBUG] categoryMapping defined:", categoryMapping);
+// Computed property to process and prepare categories for the template
+const productCategories = computed((): ProductCategoryProcessed[] => {
+  console.log("[DEBUG V3] Computing productCategories...");
 
-// Filter and sort categories based on the desired slugs and order
-const productCategories = computed(() => {
-  console.log("[DEBUG] Computing productCategories...");
+  // Use category data from GraphQL/CMS if available, otherwise expect it to be handled by mapping alone
+  const nodesFromDataSource: ProductCategoryFromGraphQL[] =
+    data.value?.productCategories?.nodes || [];
 
-  if (
-    !data.value ||
-    !data.value.productCategories ||
-    !data.value.productCategories.nodes
-  ) {
-    console.error(
-      "[DEBUG] productCategories.nodes is not available in data:",
-      data.value
+  if (!nodesFromDataSource.length && data.value) {
+    // data.value exists but nodes are empty or not found
+    console.warn(
+      "[DEBUG V3] productCategories.nodes not found or empty in data from CMS/GraphQL. Proceeding with mapping only for slugs/displayNames."
     );
-    return [];
   }
 
-  console.log(
-    "[DEBUG] data.value.productCategories.nodes:",
-    data.value.productCategories.nodes
-  );
-
   const categoriesMap = new Map(
-    data.value.productCategories.nodes.map((cat: ProductCategory) => [
+    nodesFromDataSource.map((cat: ProductCategoryFromGraphQL) => [
       cat.slug,
       cat,
     ])
   );
 
-  console.log("[DEBUG] Constructed categoriesMap:", categoriesMap);
-
-  // Specifically check the problematic slug
-  const skateboardCategoryDataFromMap = categoriesMap.get(
-    "skateboards-and-longboards"
-  );
-  console.log(
-    '[DEBUG] Data for "skateboards-and-longboards" from categoriesMap:',
-    skateboardCategoryDataFromMap
-  );
-  if (!skateboardCategoryDataFromMap) {
-    console.warn(
-      '[DEBUG] WARN: "skateboards-and-longboards" slug NOT FOUND in categoriesMap.'
-    );
-  }
-
   const result = categoryMapping
     .map((categoryToMap) => {
-      const categoryData = categoriesMap.get(categoryToMap.slug);
-      if (!categoryData) {
+      const categoryDataFromSource = categoriesMap.get(categoryToMap.slug);
+
+      if (!categoryDataFromSource && nodesFromDataSource.length > 0) {
+        // Only warn if we expected data from the source but didn't find it for a mapped slug
         console.warn(
-          `[DEBUG] WARN: No data found in categoriesMap for slug: "${categoryToMap.slug}" (Display: "${categoryToMap.display}")`
+          `[DEBUG V3] WARN: No data found in CMS/GraphQL for slug: "${categoryToMap.slug}" (Display: "${categoryToMap.display}")`
         );
-        return undefined;
       }
-      return {
-        ...categoryData,
-        displayName: categoryToMap.display, // Use the display name from your mapping
+
+      // Base object with data from mapping (slug, displayName, imageFilename)
+      let processedCategory: Partial<ProductCategoryProcessed> = {
+        slug: categoryToMap.slug,
+        displayName: categoryToMap.display,
+        imageFilename: categoryToMap.imageFilename, // Use the explicitly defined filename
+        name: categoryToMap.display, // Default name to displayName if no source data
       };
-    })
-    .filter(
-      (category): category is ProductCategory & { displayName: string } => {
-        // Type guard
-        if (category === undefined) {
-          console.log("[DEBUG] Filtering out an undefined category.");
-          return false;
-        }
-        return true;
+
+      // If data exists from the source (CMS/GraphQL), spread it,
+      // allowing mapped properties (like displayName) to take precedence if needed,
+      // and ensuring our imageFilename is preserved.
+      if (categoryDataFromSource) {
+        processedCategory = {
+          ...categoryDataFromSource, // Data from CMS (e.g., count, original name, id)
+          ...processedCategory, // Our mapped values, including imageFilename and displayName
+        };
+      } else {
+        // If no data from source, ensure essential fields like 'name' (for keying or alt text) are set.
+        // 'slug' and 'displayName' are already set from categoryToMap.
+        // No 'count' or 'id' would be available here.
       }
-    );
+
+      // For the problematic category, log what's being prepared
+      if (categoryToMap.slug === "skateboards-and-longboards") {
+        console.log(
+          '[DEBUG V3] Preparing data for "Skateboards and Longboards":',
+          JSON.parse(JSON.stringify(processedCategory))
+        );
+      }
+
+      return processedCategory as ProductCategoryProcessed;
+    })
+    .filter((category): category is ProductCategoryProcessed => {
+      // Ensure category is not undefined and has a slug (basic validity)
+      if (!category || !category.slug) {
+        console.warn(
+          "[DEBUG V3] Filtering out an invalid category object:",
+          category
+        );
+        return false;
+      }
+      return true;
+    });
 
   console.log(
-    "[DEBUG] Final processed productCategories for template:",
-    result
+    "[DEBUG V3] Final processed productCategories for template:",
+    JSON.parse(JSON.stringify(result))
   );
   return result;
 });
 
-// Log computed value when it changes or on mount (client-side)
 onMounted(() => {
   console.log(
-    "[DEBUG] productCategories value on client mount:",
-    productCategories.value
+    "[DEBUG V3] productCategories value on client mount:",
+    JSON.parse(JSON.stringify(productCategories.value))
+  );
+  const skateboardCat = productCategories.value.find(
+    (cat) => cat.slug === "skateboards-and-longboards"
+  );
+  if (skateboardCat) {
+    console.warn(`[DEBUG V3] ADVICE FOR CategoryCard.vue:
+      For the category "${skateboardCat.displayName}", this script now provides 'node.imageFilename = "${skateboardCat.imageFilename}"'.
+      Modify your CategoryCard.vue to construct the image path using this 'node.imageFilename'.
+      For example, if your images are in '/images/categories/', the src could be: \`'/images/categories/' + node.imageFilename\`.
+      This ensures the exact filename "${skateboardCat.imageFilename}" is used, respecting its capitalization.
+      The 'name' prop passed to CategoryCard for its label is '${skateboardCat.displayName}'.
+      The original name from CMS/GraphQL for this slug (if available) was '${data.value?.productCategories?.nodes.find((cat: ProductCategoryFromGraphQL) => cat.slug === "skateboards-and-longboards")?.name || "N/A"}'.`);
+  }
+  console.warn(
+    "[DEBUG V3] ADVICE: In your browser's developer tools (Elements tab), inspect the 'Skateboards and Longboards' card. Find its `<img>` tag. What is its `src` attribute? Does the URL look correct (including case)? Check the Network tab for 404 errors for that image URL if it's still not loading after updating CategoryCard.vue."
   );
 });
 
@@ -145,15 +216,17 @@ useHead({
         v-for="(category, i) in productCategories"
         :key="category.slug"
         :node="{
-          ...category, // Spread all properties from the processed category object
-          name: category.displayName, // Explicitly pass displayName as name
+          ...category, // Spreads all properties from the processed category object.
+          // This includes 'slug', 'count' (from CMS), 'displayName', and crucially 'imageFilename'.
+          name: category.displayName, // Sets the 'name' property on the 'node' object for CategoryCard
+          // to use for its text label.
         }"
         :image-loading="i <= 2 ? 'eager' : 'lazy'"
       />
     </div>
 
     <div v-else class="text-center text-gray-500 py-12">
-      No categories found. Please check your category setup and GraphQL data.
+      No categories found. Please check your category setup and data source.
       <p class="mt-4">
         Expected categories based on mapping:
         <span class="block">{{
@@ -161,29 +234,27 @@ useHead({
         }}</span>
       </p>
       <p class="mt-2">
-        Corresponding slugs in mapping:
-        <span class="block">{{
-          categoryMapping.map((c) => c.slug).join(", ")
-        }}</span>
+        Corresponding slugs and image filenames in mapping:
+        <span class="block" v-for="c in categoryMapping" :key="c.slug">
+          {{ c.slug }} -> {{ c.imageFilename || "(default behavior)" }}
+        </span>
       </p>
       <p
         v-if="data && data.productCategories && data.productCategories.nodes"
         class="mt-2"
       >
-        Slugs received from GraphQL:
+        Slugs received from CMS/GraphQL:
         <span class="block">{{
           data.productCategories.nodes
-            .map((c: ProductCategory) => c.slug)
+            .map((c: ProductCategoryFromGraphQL) => c.slug)
             .join(", ")
         }}</span>
       </p>
       <p
-        v-else-if="
-          !data || !data.productCategories || !data.productCategories.nodes
-        "
+        v-else-if="gqlError || (!data?.productCategories?.nodes && data)"
         class="mt-2 text-red-500"
       >
-        No category nodes received from GraphQL. Check data source.
+        Could not reliably load category details from the data source.
       </p>
     </div>
   </main>
