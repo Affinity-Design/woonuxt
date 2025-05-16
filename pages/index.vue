@@ -54,12 +54,15 @@ const { data: productData } = await useAsyncGql("getProducts", {
 });
 const popularProducts = productData.value.products?.nodes || [];
 
+const title = `ProskatersPlace - Inline Skates, Roller Skates, Skate Parts & Tools Canada`;
+const desc = `Experience the thrill of gliding on wheels or carving through snow with ProSkaters Place, Canada's top online retailer for all your skating and skiing needs. We offer an unparalleled selection of high-quality inline skates, rollerblades, roller skates, quad skates, scooters, skateboards, and both alpine and cross-country ski equipment.`;
+
 useSeoMeta({
-  title: `Home`,
-  ogTitle: siteName,
-  description: description,
-  ogDescription: shortDescription,
-  ogImage: siteImage,
+  title: title,
+  ogTitle: title,
+  description: desc,
+  ogDescription: desc,
+  ogImage: `/images/Inline-Skates-Toronto.jpg`,
   twitterCard: `summary_large_image`,
 });
 </script>
