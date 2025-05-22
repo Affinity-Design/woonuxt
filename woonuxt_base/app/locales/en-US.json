@@ -34,7 +34,9 @@
       "newsletter": "Newsletter",
       "customerService": "Customer Service",
       "processing": "Processing",
-      "readOnly": "Readonly"
+      "readOnly": "Readonly",
+      "error": "An error occurred",
+      "tryAgain": "Try Again"
     },
     "account": {
       "changePassword": "Change Password",
@@ -134,7 +136,15 @@
         "title": "No products found",
         "subText": "Try adjusting your search or filter to find what you're looking for.",
         "clearFiltersAndSearch": "Clear all filters and search"
-      }
+      },
+      "searching": "Searching...",
+      "searchResults": "Search results",
+      "resultsFound": "results found",
+      "noResults": "No products found matching your query.",
+      "search": "Search",
+      "noSearchProvided": "Please enter a search term to find products.",
+      "backToHome": "Back to home",
+      "loading": "Loading results..."
     },
     "billing": {
       "billing": "Billing",

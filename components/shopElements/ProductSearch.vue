@@ -46,10 +46,8 @@ const formatPrice = (priceString) => {
 
 // Navigation handler for product selection (used by click and now by Enter key)
 const navigateToProduct = (slug) => {
-  console.log(`[${componentName}] Navigating to product:`, slug);
   router.push(`/product/${slug}`);
   if (isShowingSearch.value) {
-    console.log(`[${componentName}] Closing search panel after navigation.`);
     toggleSearch(); // Hides the dropdown
   }
 };
@@ -64,38 +62,26 @@ const isInputFocused = ref(false);
 
 // Debounced function to update search query in composable
 const debouncedSetSearchQuery = useDebounceFn((value) => {
-  console.log(
-    `[${componentName}] Debounced: Calling setSearchQuery with:`,
-    value
-  );
   setSearchQuery(value);
 }, 300);
 
 // Handler for input changes
 const onInputChange = (e) => {
   const value = e.target.value;
-  console.log(`[${componentName}] onInputChange - value:`, value);
   localInputValue.value = value;
   debouncedSetSearchQuery(value);
 
   if (value && !isShowingSearch.value) {
-    console.log(
-      `[${componentName}] onInputChange: Input has value and search not active. Calling toggleSearch().`
-    );
     toggleSearch();
   }
 };
 
 // Handler to clear search input and results
 const handleClear = () => {
-  console.log(`[${componentName}] handleClear called.`);
   localInputValue.value = ""; // Clear the local input value
   clearSearch(); // Call the composable's clearSearch function
 
   if (isShowingSearch.value) {
-    console.log(
-      `[${componentName}] handleClear: Search was visible. Calling toggleSearch() to close.`
-    );
     toggleSearch(); // Hides the dropdown
   }
   searchInputDOM.value?.focus(); // Re-focus the input
@@ -103,7 +89,6 @@ const handleClear = () => {
 
 // NEW: Explicit close button handler
 const handleClose = () => {
-  console.log(`[${componentName}] handleClose called.`);
   if (isShowingSearch.value) {
     toggleSearch(); // Hide the dropdown
   }
@@ -111,15 +96,8 @@ const handleClose = () => {
 
 // Handler for input focus
 const handleFocus = () => {
-  console.log(
-    `[${componentName}] handleFocus called. Current isShowingSearch:`,
-    isShowingSearch.value
-  );
   isInputFocused.value = true;
   if (!isShowingSearch.value) {
-    console.log(
-      `[${componentName}] handleFocus: Search not visible. Calling toggleSearch().`
-    );
     isSearchJustOpened.value = true;
     toggleSearch(); // Shows the dropdown
     setTimeout(() => {
@@ -137,10 +115,6 @@ const handleBlur = () => {
 
 // Watcher to sync local input value if composable's searchQuery changes externally
 watch(searchQuery, (newComposableQuery) => {
-  console.log(
-    `[${componentName}] Watcher: searchQuery (composable) changed to:`,
-    newComposableQuery
-  );
   if (newComposableQuery !== localInputValue.value) {
     localInputValue.value = newComposableQuery;
   }
@@ -151,10 +125,6 @@ const searchWrapper = ref(null);
 
 // Prevent auto-closing when search is activated by search icon click
 watch(isShowingSearch, (newValue, oldValue) => {
-  console.log(
-    `[${componentName}] Watcher: isShowingSearch (composable) changed to:`,
-    newValue
-  );
   if (newValue && !oldValue) {
     // If search just opened
     isSearchJustOpened.value = true;
@@ -179,14 +149,9 @@ onClickOutside(searchWrapper, (event) => {
     !isInputFocused.value &&
     !isSearchJustOpened.value
   ) {
-    console.log(
-      `[${componentName}] onClickOutside detected. Closing search panel.`
-    );
     toggleSearch(); // Hides the dropdown
   } else {
-    console.log(
-      `[${componentName}] onClickOutside detected but ignored due to conditions: preventAutoClose=${preventAutoClose.value}, isShowingSearch=${isShowingSearch.value}, isInputFocused=${isInputFocused.value}, isSearchJustOpened=${isSearchJustOpened.value}`
-    );
+    // onClickOutside detected but ignored due to conditions
   }
 });
 
@@ -215,31 +180,30 @@ const showNoResultsMessage = computed(() => {
 // Handler for Enter key press in the search input
 // ---------------------------------------------------------------------------
 const handleEnterKeyNavigation = () => {
-  console.log(`[${componentName}] handleEnterKeyNavigation called.`);
-  
   // If we have a search query, navigate to the search page with the query parameter
-  if (localInputValue.value && localInputValue.value.trim() !== '') {
-    console.log(`[${componentName}] Enter key: Navigating to search page with query:`, localInputValue.value);
-    
+  if (localInputValue.value && localInputValue.value.trim() !== "") {
     // Close the search dropdown
     if (isShowingSearch.value) {
       toggleSearch();
     }
-    
+
     // Navigate to the search page with the query parameter
     router.push({
-      path: '/search',
-      query: { q: localInputValue.value }
+      path: "/search",
+      query: { q: localInputValue.value },
     });
   } else {
-    console.log(`[${componentName}] Enter key: No search query entered.`);
+    // Enter key: No search query entered.
   }
 };
 // ---------------------------------------------------------------------------
 </script>
 
 <template>
-  <div ref="searchWrapper" class="relative w-full">
+  <div
+    ref="searchWrapper"
+    class="relative w-full md:w-[150%] lg:w-[150%] xl:w-[150%] max-w-4xl"
+  >
     <div class="relative flex items-center w-full">
       <Icon
         name="ion:search-outline"
@@ -344,6 +308,24 @@ const handleEnterKeyNavigation = () => {
                 @keydown.enter="navigateToProduct(product.slug)"
                 tabindex="0"
               >
+                <!-- Image Container -->
+                <div class="w-[30%] pr-3 flex-shrink-0">
+                  <img
+                    v-if="product.image?.url"
+                    :src="product.image.url"
+                    :alt="product.image.alt || product.name"
+                    class="object-contain w-full h-auto max-h-20 rounded border"
+                    loading="lazy"
+                  />
+                  <div
+                    v-else
+                    class="w-full h-20 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500"
+                  >
+                    No Image
+                  </div>
+                </div>
+
+                <!-- Details Container -->
                 <div class="flex-1 min-w-0">
                   <p class="font-medium line-clamp-1">{{ product.name }}</p>
                   <p class="text-sm text-gray-500">
@@ -356,6 +338,9 @@ const handleEnterKeyNavigation = () => {
                           .map((cat) => cat.name)
                           .join(", ")
                       }}
+                    </span>
+                    <span v-else-if="product.categories?.length">
+                      {{ product.categories.join(", ") }}
                     </span>
                   </div>
                 </div>
