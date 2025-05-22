@@ -1,0 +1,82 @@
+[
+  {
+    "id": "product-1",
+    "name": "Classic T-Shirt",
+    "slug": "classic-t-shirt",
+    "price": "$24.99",
+    "sku": "TS001",
+    "shortDescription": "Comfortable cotton t-shirt available in multiple colors"
+  },
+  {
+    "id": "product-2",
+    "name": "Slim Fit Jeans",
+    "slug": "slim-fit-jeans",
+    "price": "$59.99",
+    "sku": "JN002",
+    "shortDescription": "Modern slim fit jeans with stretch fabric for comfort"
+  },
+  {
+    "id": "product-3",
+    "name": "Leather Wallet",
+    "slug": "leather-wallet",
+    "price": "$34.99",
+    "sku": "ACC003",
+    "shortDescription": "Genuine leather wallet with multiple card slots"
+  },
+  {
+    "id": "product-4",
+    "name": "Running Shoes",
+    "slug": "running-shoes",
+    "price": "$89.99",
+    "sku": "SH004",
+    "shortDescription": "Lightweight running shoes with cushioned sole"
+  },
+  {
+    "id": "product-5",
+    "name": "Wireless Headphones",
+    "slug": "wireless-headphones",
+    "price": "$129.99",
+    "sku": "TECH005",
+    "shortDescription": "Bluetooth headphones with active noise cancellation"
+  },
+  {
+    "id": "product-6",
+    "name": "Cotton Hoodie",
+    "slug": "cotton-hoodie",
+    "price": "$49.99",
+    "sku": "HD006",
+    "shortDescription": "Warm and comfortable hoodie for casual wear"
+  },
+  {
+    "id": "product-7",
+    "name": "Smartwatch",
+    "slug": "smartwatch",
+    "price": "$199.99",
+    "sku": "TECH007",
+    "shortDescription": "Fitness tracking smartwatch with heart rate monitor"
+  },
+  {
+    "id": "product-8",
+    "name": "Backpack",
+    "slug": "backpack",
+    "price": "$45.99",
+    "sku": "BAG008",
+    "shortDescription": "Durable backpack with laptop compartment"
+  },
+  {
+    "id": "product-9",
+    "name": "Sunglasses",
+    "slug": "sunglasses",
+    "price": "$79.99",
+    "sku": "ACC009",
+    "shortDescription": "Polarized sunglasses with UV protection"
+  },
+  {
+    "id": "product-10",
+    "name": "Desk Lamp",
+    "slug": "desk-lamp",
+    "price": "$39.99",
+    "sku": "HOME010",
+    "shortDescription": "Adjustable LED desk lamp with multiple brightness levels"
+  }
+]

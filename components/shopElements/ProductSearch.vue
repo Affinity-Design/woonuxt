@@ -216,31 +216,23 @@ const showNoResultsMessage = computed(() => {
 // ---------------------------------------------------------------------------
 const handleEnterKeyNavigation = () => {
   console.log(`[${componentName}] handleEnterKeyNavigation called.`);
-  // Check if searchResults is available, is an array, and has items
-  if (
-    hasResults.value &&
-    Array.isArray(searchResults.value) &&
-    searchResults.value.length > 0
-  ) {
-    const firstProduct = searchResults.value[0]; // Get the first product
-    if (firstProduct && firstProduct.slug) {
-      console.log(
-        `[${componentName}] Enter key: Navigating to first product:`,
-        firstProduct.slug
-      );
-      navigateToProduct(firstProduct.slug); // Navigate to the product
-    } else {
-      console.warn(
-        `[${componentName}] Enter key: First product found, but slug is missing. Product:`,
-        firstProduct
-      );
+  
+  // If we have a search query, navigate to the search page with the query parameter
+  if (localInputValue.value && localInputValue.value.trim() !== '') {
+    console.log(`[${componentName}] Enter key: Navigating to search page with query:`, localInputValue.value);
+    
+    // Close the search dropdown
+    if (isShowingSearch.value) {
+      toggleSearch();
     }
+    
+    // Navigate to the search page with the query parameter
+    router.push({
+      path: '/search',
+      query: { q: localInputValue.value }
+    });
   } else {
-    console.log(
-      `[${componentName}] Enter key: No search results to navigate to, or searchResults is not as expected. hasResults: ${hasResults.value}, searchResults:`,
-      searchResults.value
-    );
-    // Optionally, you could add behavior here if no results (e.g., show a message or do nothing)
+    console.log(`[${componentName}] Enter key: No search query entered.`);
   }
 };
 // ---------------------------------------------------------------------------

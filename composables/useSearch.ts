@@ -1,6 +1,7 @@
 // composables/useSearch.ts
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import Fuse from "fuse.js";
+import productsData from "~/data/products-list.json";
 
 export function useSearch() {
   const router = useRouter();
@@ -12,37 +13,93 @@ export function useSearch() {
 
   let fuseInstance: Fuse<any> | null = null;
 
+  // Helper function to detect if we're in a local environment
+  const isLocalEnvironment = (): boolean => {
+    // Check if we're running in the browser
+    if (process.client) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      // Local environment check - localhost or 127.0.0.1, typically on port 3000
+      return (
+        (hostname === "localhost" || hostname === "127.0.0.1") &&
+        port === "3000"
+      );
+    }
+    return false;
+  };
+
   const initializeSearchEngine = async () => {
     console.log("[useSearch] Attempting to initialize search engine...");
     isLoading.value = true;
-    try {
-      console.log("[useSearch] Fetching products from /api/search-products");
-      const response = await fetch("/api/search-products");
-      console.log("[useSearch] Raw response status:", response.status);
 
-      if (!response.ok) {
-        let errorText = "No error text available.";
-        try {
-          errorText = await response.text();
-        } catch (e) {
-          console.error("[useSearch] Could not read error response text:", e);
-        }
-        console.error(
-          `[useSearch] Failed to load products. Status: ${response.status} ${response.statusText}. Response text:`,
-          errorText
+    try {
+      // Determine if we should use local text file or production KV store
+      const isLocal = isLocalEnvironment();
+      console.log(
+        `[useSearch] Detected environment: ${isLocal ? "local" : "production"}`
+      );
+
+      let products: any[] = [];
+
+      if (isLocal) {
+        // LOCAL ENVIRONMENT: Use local text file
+        console.log(
+          "[useSearch] Local environment detected. Importing local products-list.json"
         );
-        searchResults.value = [];
-        fuseInstance = null;
-        isLoading.value = false;
-        return;
+        try {
+          // Directly use the imported JSON data
+          if (Array.isArray(productsData)) {
+            products = productsData;
+            console.log(
+              `[useSearch] Successfully imported ${products.length} products from JSON file.`
+            );
+          } else {
+            console.error(
+              "[useSearch] Imported products-list.json is not an array. Data:",
+              productsData
+            );
+            throw new Error("Imported JSON data is not an array");
+          }
+        } catch (localError) {
+          console.error(
+            "[useSearch] Error processing imported products-list.json:",
+            localError
+          );
+          // Use mock data as fallback
+          products = generateMockProducts();
+        }
+      } else {
+        // PRODUCTION ENVIRONMENT: Use KV store via API endpoint
+        console.log(
+          "[useSearch] Production environment detected. Using API endpoint."
+        );
+        const response = await fetch("/api/search-products");
+        console.log("[useSearch] Raw response status:", response.status);
+
+        if (!response.ok) {
+          let errorText = "No error text available.";
+          try {
+            errorText = await response.text();
+          } catch (e) {
+            console.error("[useSearch] Could not read error response text:", e);
+          }
+          console.error(
+            `[useSearch] Failed to load products. Status: ${response.status} ${response.statusText}. Response text:`,
+            errorText
+          );
+          searchResults.value = [];
+          fuseInstance = null;
+          isLoading.value = false;
+          return;
+        }
+
+        products = await response.json();
       }
 
-      const products = await response.json();
-      console.log("[useSearch] Parsed products from API:", products);
-
+      // Validate products data structure
       if (!Array.isArray(products)) {
         console.error(
-          "[useSearch] Products data from API is not an array. Received:",
+          "[useSearch] Products data is not an array. Received:",
           typeof products,
           products
         );
@@ -54,7 +111,7 @@ export function useSearch() {
 
       if (products.length === 0) {
         console.warn(
-          "[useSearch] No products loaded from API. Search will operate on an empty list."
+          "[useSearch] No products loaded. Search will operate on an empty list."
         );
       } else {
         console.log(
@@ -96,16 +153,37 @@ export function useSearch() {
     }
   };
 
+  // Add a function to perform a full search and return results for search page
+  const performFullPageSearch = async (query: string): Promise<any[]> => {
+    console.log("[useSearch] Performing full page search for:", query);
+    if (!query) return [];
+
+    // Initialize search engine if not already done
+    if (!fuseInstance) {
+      console.log(
+        "[useSearch] Fuse instance not available, initializing for full page search"
+      );
+      await initializeSearchEngine();
+    }
+
+    if (!fuseInstance) {
+      console.error(
+        "[useSearch] Failed to initialize search engine for full page search"
+      );
+      return [];
+    }
+
+    // Perform search using Fuse.js
+    const fuseResults = fuseInstance.search(query);
+    return fuseResults.map((result) => result.item);
+  };
+
   const performSearch = () => {
     console.log("[useSearch] Performing search for query:", searchQuery.value);
     if (!fuseInstance) {
       console.warn(
         "[useSearch] Fuse instance not available for search. Attempting to initialize."
       );
-      // Potentially re-initialize if it's null and search is attempted.
-      // However, this might lead to multiple initializations if not handled carefully.
-      // For now, we rely on toggleSearch or onMounted to initialize.
-      // If search is critical and might be called before toggle/mount, consider initializing earlier.
       if (isShowingSearch.value) initializeSearchEngine();
       searchResults.value = [];
       return;
@@ -133,7 +211,6 @@ export function useSearch() {
       delete queryParams.search;
       router.push({ query: queryParams });
     }
-    // performSearch() is now primarily driven by the watcher on searchQuery
   };
 
   const clearSearch = () => {
@@ -157,7 +234,6 @@ export function useSearch() {
       searchQuery.value &&
       searchResults.value.length === 0
     ) {
-      // If opening search and there's a query but no results yet, perform search
       console.log(
         "[useSearch] Search shown with existing query and no results. Performing search."
       );
@@ -215,6 +291,32 @@ export function useSearch() {
     }
   });
 
+  // Helper function to generate mock products
+  const generateMockProducts = () => {
+    const mockProducts = [
+      {
+        id: "mock-1",
+        name: "Mock Product 1",
+        slug: "mock-product-1",
+        price: "$19.99",
+        sku: "MOCK001",
+        shortDescription: "This is a sample product for testing",
+      },
+      {
+        id: "mock-2",
+        name: "Mock Product 2",
+        slug: "mock-product-2",
+        price: "$29.99",
+        sku: "MOCK002",
+        shortDescription: "Another sample product for testing",
+      },
+    ];
+    console.log(
+      `[useSearch] Using ${mockProducts.length} mock products for search`
+    );
+    return mockProducts;
+  };
+
   return {
     searchQuery,
     searchResults,
@@ -225,5 +327,6 @@ export function useSearch() {
     toggleSearch,
     hasResults: computed(() => searchResults.value.length > 0),
     initializeSearchEngine,
+    performFullPageSearch,
   };
 }
