@@ -28,7 +28,7 @@
         class="flex transition-transform duration-500 ease-in-out"
         :style="{
           transform: `translateX(-${currentIndex * (100 / reviews.length)}%)`,
-          width: (reviews.length * 100) / 3 + '%',
+          width: slidingContainerWidth,
         }"
       >
         <div
@@ -66,18 +66,20 @@
 
       <!-- Controls -->
       <button
-        class="absolute left-2 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-lg p-3 z-10 hover:bg-gray-50 focus:outline-none"
+        v-if="reviews.length > itemsPerView"
+        class="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-lg p-2 sm:p-3 z-10 hover:bg-gray-50 focus:outline-none"
         @click="prevSlide"
         aria-label="Previous"
       >
-        <span class="text-xl">‹</span>
+        <span class="text-lg sm:text-xl">‹</span>
       </button>
       <button
-        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-lg p-3 z-10 hover:bg-gray-50 focus:outline-none"
+        v-if="reviews.length > itemsPerView"
+        class="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-lg p-2 sm:p-3 z-10 hover:bg-gray-50 focus:outline-none"
         @click="nextSlide"
         aria-label="Next"
       >
-        <span class="text-xl">›</span>
+        <span class="text-lg sm:text-xl">›</span>
       </button>
     </div>
 
@@ -136,23 +138,46 @@ const reviews = [
 ];
 
 const currentIndex = ref(0);
-// Ensure maxIndex allows the last 3 items to be shown.
-// If currentIndex is at maxIndex, items maxIndex, maxIndex+1, maxIndex+2 are shown.
-const maxIndex = computed(() => (reviews.length > 2 ? reviews.length - 3 : 0));
+const itemsPerView = ref(3); // Default to 3 items for desktop
+
+const updateItemsPerView = () => {
+  if (window.innerWidth < 768) {
+    // Tailwind's 'md' breakpoint
+    itemsPerView.value = 1;
+  } else {
+    itemsPerView.value = 3;
+  }
+  // Reset currentIndex if it's out of bounds due to itemsPerView change
+  if (currentIndex.value > maxIndex.value) {
+    currentIndex.value = maxIndex.value;
+  }
+};
+
+const slidingContainerWidth = computed(() => {
+  if (reviews.length === 0) return "0%";
+  return (reviews.length * 100) / itemsPerView.value + "%";
+});
+
+const maxIndex = computed(() => {
+  if (reviews.length === 0) return 0;
+  return reviews.length > itemsPerView.value
+    ? reviews.length - itemsPerView.value
+    : 0;
+});
 
 function nextSlide() {
-  if (reviews.length <= 3) return; // No sliding if 3 or fewer reviews
+  if (reviews.length <= itemsPerView.value) return;
   if (currentIndex.value >= maxIndex.value) {
-    currentIndex.value = 0; // Loop back to start
+    currentIndex.value = 0;
   } else {
     currentIndex.value++;
   }
 }
 
 function prevSlide() {
-  if (reviews.length <= 3) return; // No sliding if 3 or fewer reviews
+  if (reviews.length <= itemsPerView.value) return;
   if (currentIndex.value <= 0) {
-    currentIndex.value = maxIndex.value; // Loop to end
+    currentIndex.value = maxIndex.value;
   } else {
     currentIndex.value--;
   }
@@ -161,17 +186,20 @@ function prevSlide() {
 let interval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
-  if (reviews.length > 3) {
+  updateItemsPerView(); // Initial check
+  window.addEventListener("resize", updateItemsPerView);
+
+  if (reviews.length > itemsPerView.value) {
     interval = setInterval(nextSlide, 4000);
   }
 });
 
 onUnmounted(() => {
+  window.removeEventListener("resize", updateItemsPerView);
   if (interval) clearInterval(interval);
 });
 </script>
 
 <style scoped>
-/* Removed the static width for .flex from here */
 /* Add any additional component-specific styles if needed */
 </style>

@@ -16,10 +16,10 @@
 
     <!-- Text Content -->
     <div
-      class="container relative z-10 h-full flex flex-col items-start justify-center text-white"
+      class="container relative z-10 h-full flex flex-col items-start justify-center text-white px-6"
     >
       <h1
-        class="text-3xl font-bold md:mb-4 md:text-4xl lg:text-6xl text-shadow"
+        class="text-2xl font-bold md:mb-4 md:text-4xl lg:text-6xl text-shadow"
       >
         ProSkaters Place Canada 🍁
       </h1>
