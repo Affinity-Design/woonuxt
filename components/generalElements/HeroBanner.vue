@@ -1,28 +1,34 @@
 <template>
-  <div class="relative mx-auto">
-    <NuxtImg
-      width="1920"
-      height="900"
-      class="object-cover w-full h-[420px] lg:h-[560px] xl:h-[640px]"
-      src="/images/inline-skates-canada.jpg"
-      alt="ProSkaters Place Inline Skates Canada Retailer"
-      loading="eager"
-      sizes="sm:100vw md:2000px"
-      fetchpriority="high"
-      preload
-      placeholder
-      placeholder-class="blur-xl"
-    />
+  <div class="relative mx-auto h-[420px] lg:h-[560px] xl:h-[640px]">
+    <!-- Video Background -->
+    <video
+      class="absolute inset-0 w-full h-full object-cover"
+      src="/videos/Inline-Skates-Canada.mp4"
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="auto"
+    ></video>
+
+    <!-- Black Overlay -->
+    <div class="absolute inset-0 bg-black opacity-60"></div>
+
+    <!-- Text Content -->
     <div
-      class="container absolute inset-0 flex flex-col items-start justify-center bg-gradient-to-l from-gray-200 md:bg-none"
+      class="container relative z-10 h-full flex flex-col items-start justify-center text-white"
     >
-      <h1 class="text-3xl font-bold md:mb-4 md:text-4xl lg:text-6xl">
-        ProSkatersPlace.ca
+      <h1
+        class="text-3xl font-bold md:mb-4 md:text-4xl lg:text-6xl text-shadow"
+      >
+        ProSkaters Place Canada 🍁
       </h1>
-      <h2 class="text-lg font-bold max-w-md mb-6 lg:text-3xl">
+      <h2 class="text-lg font-bold max-w-md mb-6 lg:text-3xl text-shadow">
         Canada's Premier Destination for Inline Skates, Roller Skates, and More!
       </h2>
-      <div class="max-w-lg mb-8 text-md font-light lg:max-w-lg text-balance">
+      <div
+        class="max-w-lg mb-8 text-md font-light lg:max-w-lg text-balance text-shadow"
+      >
         <p>
           Experience the thrill of gliding on wheels or carving through snow
           with ProSkaters Place, Canada's top online retailer for all your
@@ -33,10 +39,16 @@
         </p>
       </div>
       <NuxtLink
-        class="px-6 py-3 font-bold text-white bg-gray-800 rounded-xl hover:bg-gray-800"
+        class="px-8 py-3 font-bold text-gray-900 bg-white rounded-xl shadow-md hover:bg-gray-100 focus:bg-gray-100 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-black/50"
         to="/categories"
         >Shop now</NuxtLink
       >
     </div>
   </div>
 </template>
+
+<style scoped>
+.text-shadow {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+</style>

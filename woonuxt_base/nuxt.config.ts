@@ -43,7 +43,7 @@ export default defineNuxtConfig({
     global: true,
   },
 
-  modules: ['woonuxt-settings', 'nuxt-graphql-client', '@nuxtjs/tailwindcss', '@nuxt/icon', '@nuxt/image', '@nuxtjs/i18n'],
+  modules: ['woonuxt-settings', 'nuxt-graphql-client', '@nuxtjs/tailwindcss', '@nuxt/icon', '@nuxt/image', '@nuxtjs/i18n', 'nuxt-gtag'],
 
   'graphql-client': {
     clients: {
@@ -53,6 +53,10 @@ export default defineNuxtConfig({
         headers: { Origin: process.env.APP_HOST || 'http://localhost:3000' },
       },
     },
+  },
+
+  gtag: {
+    id: 'G-730JM86J4T', // Replace with your actual GA4 Measurement ID
   },
 
   alias: {

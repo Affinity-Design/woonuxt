@@ -10,6 +10,7 @@ console.log(
 export default defineNuxtConfig({
   extends: ["./woonuxt_base"],
   components: [{ path: "./components", pathPrefix: false, priority: 1000 }],
+
   runtimeConfig: {
     // Server-only secrets
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
@@ -32,8 +33,10 @@ export default defineNuxtConfig({
         process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || 1.37,
     },
   },
+
   devtools: { enabled: true },
   ssr: true,
+
   devServer: {
     /* ... */
   },
@@ -86,8 +89,11 @@ export default defineNuxtConfig({
   hooks: {
     /* ... */
   },
+
+  // ... (rest of your config) ...
   app: {
     /* ... */
   },
-  // ... (rest of your config) ...
+
+  modules: ["nuxt-gtag"]
 });

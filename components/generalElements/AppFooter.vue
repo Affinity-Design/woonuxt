@@ -10,8 +10,8 @@ const { wishlistLink } = useAuth();
       <div class="mr-auto">
         <Logo />
         <p class="mt-4 text-sm text-gray-700 xl:max-w-md">
-          Glide with confidence at ProSkaters Place - Your ultimate North
-          American destination for premium inline skates, rollerblades, roller
+          Glide with confidence at ProSkaters Place Canada - Your ultimate
+          canadian destination for premium inline skates, rollerblades, roller
           skates, and ski gear. Top brands, expert advice, and unbeatable
           selection await you!
         </p>
