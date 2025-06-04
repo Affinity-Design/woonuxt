@@ -309,14 +309,9 @@ useSeoMeta({
         </div>
       </div>
     </section>
-    <!-- REviews -->
-    <ClientOnly>
-      <GoogleReviewRotator />
-      <template #fallback>
-        <!-- Optional: loading state or placeholder -->
-        <div class="container my-16 text-center">Loading reviews...</div>
-      </template>
-    </ClientOnly>
+    <!-- RReviews -->
+    <GoogleReviewRotator />
+
   </main>
 </template>
 

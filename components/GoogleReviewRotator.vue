@@ -22,8 +22,8 @@
       <div class="text-md text-gray-600">Inline Skates Toronto, Ontario</div>
     </div>
 
-    <!-- Carousel -->
-    <div class="relative max-w-6xl mx-auto overflow-hidden">
+    <!-- Carousel - Only render after hydration -->
+    <div v-if="isMounted" class="relative max-w-6xl mx-auto overflow-hidden">
       <div
         class="flex transition-transform duration-500 ease-in-out"
         :style="{
@@ -83,6 +83,33 @@
       </button>
     </div>
 
+    <!-- Fallback content for SSR -->
+    <div v-else class="relative max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div
+          v-for="(review, idx) in reviews.slice(0, 3)"
+          :key="idx"
+          class="bg-white rounded-lg p-6 shadow min-h-[280px]"
+        >
+          <div class="flex items-center justify-center gap-2 mb-3">
+            <img src="/icons/google.svg" alt="Google" width="24" height="24" />
+          </div>
+          <div class="text-center mb-3">
+            <span class="font-semibold text-lg">{{ review.name }}</span>
+          </div>
+          <div class="flex items-center justify-center gap-1 mb-3">
+            <span v-for="i in 5" :key="i" class="text-yellow-400 text-lg">
+              {{ i <= review.rating ? "★" : "☆" }}
+            </span>
+            <span class="ml-2 text-gray-500 text-sm">{{ review.date }}</span>
+          </div>
+          <p class="text-center text-gray-700 text-sm">
+            "{{ review.text }}"
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="text-center mt-6">
       <a
         href="https://g.co/kgs/cTNie7W"
@@ -139,10 +166,12 @@ const reviews = [
 
 const currentIndex = ref(0);
 const itemsPerView = ref(3); // Default to 3 items for desktop
+const isMounted = ref(false);
 
 const updateItemsPerView = () => {
+  if (!process.client) return; // Safety check
+
   if (window.innerWidth < 768) {
-    // Tailwind's 'md' breakpoint
     itemsPerView.value = 1;
   } else {
     itemsPerView.value = 3;
@@ -186,16 +215,22 @@ function prevSlide() {
 let interval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
+  isMounted.value = true; // Mark as mounted
   updateItemsPerView(); // Initial check
-  window.addEventListener("resize", updateItemsPerView);
 
-  if (reviews.length > itemsPerView.value) {
-    interval = setInterval(nextSlide, 4000);
+  if (process.client) {
+    window.addEventListener("resize", updateItemsPerView);
+
+    if (reviews.length > itemsPerView.value) {
+      interval = setInterval(nextSlide, 4000);
+    }
   }
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", updateItemsPerView);
+  if (process.client) {
+    window.removeEventListener("resize", updateItemsPerView);
+  }
   if (interval) clearInterval(interval);
 });
 </script>
