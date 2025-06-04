@@ -118,6 +118,7 @@ const { wishlistLink } = useAuth();
       <SocialIcons class="ml-auto" />
     </div>
   </footer>
+
 </template>
 
 <style scoped lang="postcss">

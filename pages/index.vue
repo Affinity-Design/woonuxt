@@ -61,9 +61,25 @@ useSeoMeta({
   ogTitle: title,
   description: desc,
   ogDescription: desc,
-  ogImage: `/images/Inline-Skates-Toronto.jpg`,
+  ogImage: `/images/Inline-Skates-Toronto.webp`,
   twitterCard: `summary_large_image`,
-});
+  canonical: 'https://proskatersplace.ca',
+  ogUrl: 'https://proskatersplace.ca',
+  ogSiteName: 'ProSkaters Place Canada',
+  ogType: 'website',
+  robots: 'index, follow, max-image-preview:large, max-snippet:-1',
+  // Add additional meta tags
+  keywords: 'inline skates, roller skates, skate parts, Toronto, Canada, roller derby, fitness skating',
+  author: 'ProSkaters Place Canada',
+  viewport: 'width=device-width, initial-scale=1',
+  'theme-color': '#ffffff',
+  // Open Graph additional
+  ogLocale: 'en_CA',
+  // Twitter additional
+  twitterTitle: title,
+  twitterDescription: desc,
+  twitterImage: `/images/Inline-Skates-Toronto.webp`,
+})
 </script>
 
 <template>
@@ -104,7 +120,7 @@ useSeoMeta({
               src="/icons/box.svg"
               width="48"
               height="48"
-              alt="Free Expedited Shipping"
+              alt="Free shipping icon - ProSkaters Place offers free expedited shipping on orders over $99"
               loading="lazy"
               class="mb-4 h-12 w-12"
             />
@@ -171,18 +187,24 @@ useSeoMeta({
     </section>
 
     <!-- Featured Product Section - Inline Skates -->
-    <section
-      class="relative bg-cover bg-bottom text-white my-16 sm:my-24"
-      :style="{ backgroundImage: `url('/images/inline-skates.jpg')` }"
-    >
+    <section class="relative text-white my-16 sm:my-24">
+      <!-- Optimized Background Image -->
+      <NuxtImg
+        src="/images/inline-skates.webp"
+        alt=""
+        width="1920"
+        height="1080"
+        sizes="100vw"
+        format="webp"
+        quality="75"
+        loading="lazy"
+        class="absolute inset-0 w-full h-full object-cover object-bottom"
+      />
+      
       <!-- Overlay for better text readability -->
-      <div
-        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"
-      ></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
 
-      <div
-        class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8"
-      >
+      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
         <div class="max-w-xl">
           <h2
             class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5"
@@ -247,18 +269,24 @@ useSeoMeta({
     </section>
 
     <!-- Featured Product Section - Roller Skates -->
-    <section
-      class="relative bg-cover bg-bottom text-white my-16 sm:my-24"
-      :style="{ backgroundImage: `url('/images/roller-skates.jpg')` }"
-    >
+    <section class="relative text-white my-16 sm:my-24">
+      <!-- Optimized Background Image -->
+      <NuxtImg
+        src="/images/roller-skates.webp"
+        alt=""
+        width="1920"
+        height="1080"
+        sizes="100vw"
+        format="webp"
+        quality="75"
+        loading="lazy"
+        class="absolute inset-0 w-full h-full object-cover object-bottom"
+      />
+      
       <!-- Overlay for better text readability -->
-      <div
-        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"
-      ></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
 
-      <div
-        class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8"
-      >
+      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
         <div class="max-w-xl">
           <h2
             class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5"
@@ -281,9 +309,14 @@ useSeoMeta({
         </div>
       </div>
     </section>
-
     <!-- REviews -->
-    <GoogleReviewRotator />
+    <ClientOnly>
+      <GoogleReviewRotator />
+      <template #fallback>
+        <!-- Optional: loading state or placeholder -->
+        <div class="container my-16 text-center">Loading reviews...</div>
+      </template>
+    </ClientOnly>
   </main>
 </template>
 

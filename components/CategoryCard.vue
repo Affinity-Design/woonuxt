@@ -86,7 +86,9 @@ const handleImageError = (event) => {
       :alt="node.name"
       :title="node.name"
       :loading="imageLoading"
-      :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
+      sizes="(max-width: 639px) 110px, (max-width: 767px) 160px, (max-width: 1023px) 200px, 220px"
+      format="webp"
+      quality="80"
       placeholder
       placeholder-class="blur-xl"
       @error="handleImageError"

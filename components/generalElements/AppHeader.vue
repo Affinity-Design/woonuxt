@@ -7,7 +7,16 @@ const { isShowingSearch } = useSearching();
     <div class="container flex items-center justify-between py-4">
       <div class="flex items-center">
         <MenuTrigger class="lg:hidden" />
-        <Logo class="md:w-[160px]" />
+        <NuxtLink to="/" class="flex items-center">
+          <NuxtImg
+            src="https://proskatersplace.com/wp-content/uploads/2025/01/Pro-Skaters-Place-Logo-Canada.svg"
+            alt="Pro Skaters Place Canada"
+            width="160"
+            height="40"
+            class="object-contain h-10"
+            :placeholder="false"
+          />
+        </NuxtLink>
       </div>
       <MainMenu
         class="items-center hidden gap-6 text-sm text-gray-500 lg:flex lg:px-4"

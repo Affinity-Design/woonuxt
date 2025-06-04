@@ -95,5 +95,28 @@ export default defineNuxtConfig({
     /* ... */
   },
 
-  modules: ["nuxt-gtag"]
+  modules: ["nuxt-gtag"],
+
+  image: {
+    format: ['webp', 'avif', 'jpg', 'png'],
+    quality: 80,
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+      '2xl': 1536
+    },
+    domains: ['proskatersplace.com'],
+    alias: {
+      proskatersplace: 'https://proskatersplace.com'
+    }
+  },
+
+  // Add SEO module configuration
+  seo: {
+    redirectToCanonicalSiteUrl: true
+  },
 });

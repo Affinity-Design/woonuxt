@@ -76,16 +76,18 @@ const isVariableProduct = computed(() => {
         <!-- The pt-[100%] creates a perfect square aspect ratio container -->
         <NuxtImg
           v-if="imagetoDisplay"
-          :width="imgWidth"
-          :height="imgWidth"
           :src="imagetoDisplay"
           :alt="node.image?.altText || node.name || 'Product image'"
           :title="node.image?.title || node.name"
           :loading="index <= 3 ? 'eager' : 'lazy'"
-          :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
-          class="absolute top-0 left-0 w-full h-full object-cover object-center"
+          width="300"
+          height="300"
+          sizes="(max-width: 639px) 150px, (max-width: 767px) 200px, (max-width: 1023px) 220px, 300px"
+          format="webp" 
+          quality="80"
           placeholder
           placeholder-class="blur-xl"
+          class="absolute top-0 left-0 w-full h-full object-cover object-center"
         />
       </div>
     </NuxtLink>

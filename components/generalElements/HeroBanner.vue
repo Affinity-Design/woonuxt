@@ -1,5 +1,5 @@
 <template>
-  <div class="relative mx-auto h-[420px] lg:h-[560px] xl:h-[640px]">
+  <div class="relative mx-auto h-screen sm:h-[420px] lg:h-[560px] xl:h-[640px]">
     <!-- Video Background -->
     <video
       class="absolute inset-0 w-full h-full object-cover"
@@ -8,7 +8,8 @@
       loop
       muted
       playsinline
-      preload="auto"
+      preload="none"
+      poster="/images/inline-skates.webp"
     ></video>
 
     <!-- Black Overlay -->
