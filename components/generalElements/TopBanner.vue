@@ -1,4 +1,4 @@
-<script setup>
+<script  lang="ts" setup>
 import { computed, ref, onMounted } from 'vue'
 
 // Safely get hostname with fallback
@@ -6,7 +6,7 @@ const hostname = ref('')
 
 onMounted(() => {
   // Only access hostname on client-side
-  if (process.client) {
+  if (typeof window !== 'undefined') {
     hostname.value = window.location.hostname
   }
 })
