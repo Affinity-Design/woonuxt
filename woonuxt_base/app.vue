@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRequestURL, useRoute, useHead, useAppConfig } from '#app';
-import { computed } from 'vue'; // Import computed directly from 'vue'
+import { computed, watch } from 'vue';
 const route = useRoute();
 const { isShowingCart, toggleCart } = useCart();
 const { isShowingMobileMenu, toggleMobileMenu, addBodyClass, removeBodyClass } = useHelpers();

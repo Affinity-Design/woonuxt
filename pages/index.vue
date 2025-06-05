@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ProductsOrderByEnum } from "#woo";
 
-// Get Gatagories all
+// Get Categories all
 const { data } = await useAsyncGql("getProductCategories");
 const categoryMapping = [
   { display: "Inline Skates", slug: "inline-skates" },
@@ -84,27 +84,22 @@ useSeoMeta({
 
 <template>
   <main>
-    <HeroBanner />
-    <!-- Catagories -->
+      <HeroBanner />
+    <!-- Categories -->
     <section class="container my-16">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">
           {{ $t("messages.shop.shopByCategory") }}
         </h2>
-        <NuxtLink class="text-primary" to="/categories">{{
-          $t("messages.general.viewAll")
-        }}</NuxtLink>
+        <NuxtLink class="text-primary" to="/categories">
+          {{ $t("messages.general.viewAll") }}
+        </NuxtLink>
       </div>
-      <div
-        class="grid justify-center grid-cols-2 gap-4 mt-8 md:grid-cols-3 lg:grid-cols-6"
-      >
+      <div class="grid justify-center grid-cols-2 gap-4 mt-8 md:grid-cols-3 lg:grid-cols-6">
         <CategoryCard
           v-for="(category, i) in productCategories"
           :key="category.slug"
-          :node="{
-            ...category,
-            name: category.displayName,
-          }"
+          :node="{ ...category, name: category.displayName }"
           :image-loading="i <= 2 ? 'eager' : 'lazy'"
         />
       </div>
@@ -112,9 +107,7 @@ useSeoMeta({
     <!-- Benefits -->
     <section class="py-16 sm:py-10 my-16 sm:my-18">
       <div class="container mx-auto">
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8 text-center"
-        >
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8 text-center">
           <div class="flex flex-col items-center">
             <img
               src="/icons/box.svg"
@@ -124,14 +117,11 @@ useSeoMeta({
               loading="lazy"
               class="mb-4 h-12 w-12"
             />
-            <h3
-              class="text-lg font-semibold uppercase tracking-wider text-gray-700"
-            >
+            <h3 class="text-lg font-semibold uppercase tracking-wider text-gray-700">
               Free Shipping
             </h3>
             <h6>*On Orders Over $99*</h6>
           </div>
-
           <div class="flex flex-col items-center">
             <img
               src="/icons/moneyback.svg"
@@ -141,14 +131,11 @@ useSeoMeta({
               loading="lazy"
               class="mb-4 h-12 w-12"
             />
-            <h3
-              class="text-lg font-semibold uppercase tracking-wider text-gray-700"
-            >
+            <h3 class="text-lg font-semibold uppercase tracking-wider text-gray-700">
               Hassle-Free Exchanges
             </h3>
             <h6>*On Regular Priced Items*</h6>
           </div>
-
           <div class="flex flex-col items-center">
             <img
               src="/icons/secure.svg"
@@ -158,14 +145,11 @@ useSeoMeta({
               loading="lazy"
               class="mb-4 h-12 w-12"
             />
-            <h3
-              class="text-lg font-semibold uppercase tracking-wider text-gray-700"
-            >
+            <h3 class="text-lg font-semibold uppercase tracking-wider text-gray-700">
               Same Day Shipping
             </h3>
             <h6>*In the GTA Region*</h6>
           </div>
-
           <div class="flex flex-col items-center">
             <img
               src="/icons/support.svg"
@@ -175,9 +159,7 @@ useSeoMeta({
               loading="lazy"
               class="mb-4 h-12 w-12"
             />
-            <h3
-              class="text-lg font-semibold uppercase tracking-wider text-gray-700"
-            >
+            <h3 class="text-lg font-semibold uppercase tracking-wider text-gray-700">
               100% Canadian
             </h3>
             <h6>*Toronto Based Owned & Operated*</h6>
@@ -200,20 +182,14 @@ useSeoMeta({
         loading="lazy"
         class="absolute inset-0 w-full h-full object-cover object-bottom"
       />
-      
       <!-- Overlay for better text readability -->
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
-
       <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
         <div class="max-w-xl">
-          <h2
-            class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5"
-          >
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5">
             Best Inline Skates Toronto
           </h2>
-          <p
-            class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed"
-          >
+          <p class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed">
             Discover Toronto's top selection of inline skates. Perfect for
             fitness, commuting, or fun, find your ideal pair with expert advice
             and fast local shipping.
@@ -232,9 +208,9 @@ useSeoMeta({
     <section class="container my-16" v-if="newProducts">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">New Products</h2>
-        <NuxtLink class="text-primary" to="/products">{{
-          $t("messages.general.viewAll")
-        }}</NuxtLink>
+        <NuxtLink class="text-primary" to="/products">
+          {{ $t("messages.general.viewAll") }}
+        </NuxtLink>
       </div>
       <ProductRow
         :products="newProducts"
@@ -245,9 +221,9 @@ useSeoMeta({
     <section class="container my-16" v-if="clearanceProducts">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">Clearance Products</h2>
-        <NuxtLink class="text-primary" to="/categories">{{
-          $t("messages.general.viewAll")
-        }}</NuxtLink>
+        <NuxtLink class="text-primary" to="/categories">
+          {{ $t("messages.general.viewAll") }}
+        </NuxtLink>
       </div>
       <ProductRow
         :products="clearanceProducts"
@@ -258,9 +234,9 @@ useSeoMeta({
     <section class="container my-16" v-if="popularProducts">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">Popular Items</h2>
-        <NuxtLink class="text-primary" to="/products">{{
-          $t("messages.general.viewAll")
-        }}</NuxtLink>
+        <NuxtLink class="text-primary" to="/products">
+          {{ $t("messages.general.viewAll") }}
+        </NuxtLink>
       </div>
       <ProductRow
         :products="popularProducts"
@@ -282,20 +258,14 @@ useSeoMeta({
         loading="lazy"
         class="absolute inset-0 w-full h-full object-cover object-bottom"
       />
-      
       <!-- Overlay for better text readability -->
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
-
       <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
         <div class="max-w-xl">
-          <h2
-            class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5"
-          >
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5">
             Best Roller Skates Toronto
           </h2>
-          <p
-            class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed"
-          >
+          <p class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed">
             Explore Toronto's finest collection of roller skates and quad
             skates. Whether for dancing, cruising, or derby, find your perfect
             fit with us.
