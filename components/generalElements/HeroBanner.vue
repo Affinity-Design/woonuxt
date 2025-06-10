@@ -1,5 +1,7 @@
 <template>
-  <div class="relative mx-auto h-[420px] lg:h-[560px] xl:h-[640px]">
+  <div
+    class="relative mx-auto h-[500px] md:h-[600px] lg:h-[560px] xl:h-[640px]"
+  >
     <!-- Video Background -->
     <video
       class="absolute inset-0 w-full h-full object-cover"
