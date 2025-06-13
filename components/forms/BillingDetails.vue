@@ -69,7 +69,7 @@ const billing = toRef(props, "modelValue");
       <input
         id="city"
         v-model="billing.city"
-        placeholder="New York"
+        placeholder="Toronto"
         autocomplete="locality"
         type="text"
         required
@@ -81,8 +81,8 @@ const billing = toRef(props, "modelValue");
       <StateSelect
         id="state"
         v-model="billing.state"
-        :default-value="billing.state"
-        :country-code="billing.country"
+        default-value="Ontario"
+        country-code="CA"
         @change="updateShippingLocation"
         autocomplete="address-level1"
       />
@@ -93,7 +93,7 @@ const billing = toRef(props, "modelValue");
       <CountrySelect
         id="country"
         v-model="billing.country"
-        :default-value="billing.country"
+        default-value="Canada"
         @change="updateShippingLocation"
         autocomplete="country"
       />
