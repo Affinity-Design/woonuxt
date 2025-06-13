@@ -216,10 +216,8 @@ useHead({
         v-for="(category, i) in productCategories"
         :key="category.slug"
         :node="{
-          ...category, // Spreads all properties from the processed category object.
-          // This includes 'slug', 'count' (from CMS), 'displayName', and crucially 'imageFilename'.
-          name: category.displayName, // Sets the 'name' property on the 'node' object for CategoryCard
-          // to use for its text label.
+          ...category,
+          name: category.displayName,
         }"
         :image-loading="i <= 2 ? 'eager' : 'lazy'"
       />

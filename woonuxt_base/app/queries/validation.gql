@@ -1,0 +1,8 @@
+query ValidateCheckout($email: String!, $username: String = "") {
+  validateCheckoutData(input: { email: $email, username: $username }) {
+    success
+    message
+    userExists
+    emailAvailable
+  }
+}

@@ -3,15 +3,9 @@ import { ref, computed, onBeforeMount } from "vue";
 
 const { t } = useI18n();
 const { query } = useRoute();
-const { cart, isUpdatingCart, paymentGateways, refreshCart } = useCart(); // Add refreshCart here
+const { cart, isUpdatingCart, paymentGateways } = useCart();
 const { customer, viewer } = useAuth();
-const {
-  orderInput,
-  isProcessingOrder,
-  validateOrderPrePayment,
-  processCheckout,
-  updateShippingLocation,
-} = useCheckout();
+const { orderInput, isProcessingOrder, proccessCheckout } = useCheckout();
 const runtimeConfig = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -36,52 +30,25 @@ onBeforeMount(() => {
 
 // Handle Stripe payment
 const processStripePayment = async () => {
-  console.log("[processStripePayment] Starting Stripe payment process");
   try {
     // Get Stripe instance from the card component
     const stripeInstance = stripeCardRef.value?.getStripe();
     const cardElement = stripeCardRef.value?.getCardElement();
 
-    console.log(
-      "[processStripePayment] Stripe instance:",
-      stripeInstance ? "Available" : "Not available"
-    );
-    console.log(
-      "[processStripePayment] Card element:",
-      cardElement ? "Available" : "Not available"
-    );
-
     if (!stripeInstance || !cardElement) {
-      console.error("[processStripePayment] Stripe elements not initialized");
       throw new Error("Stripe payment elements not initialized");
     }
 
     // Check if card is complete
-    const isCardComplete = stripeCardRef.value?.isCardComplete();
-    console.log("[processStripePayment] Is card complete:", isCardComplete);
-    if (!isCardComplete) {
-      console.error("[processStripePayment] Card details incomplete");
+    if (!stripeCardRef.value?.isCardComplete()) {
       throw new Error("Please complete your card details");
     }
 
     // Calculate amount in cents
-    console.log("[processStripePayment] Raw cart total:", cart.value.rawTotal);
-    const rawTotal = parseFloat(cart.value.rawTotal);
-    if (isNaN(rawTotal)) {
-      console.error(
-        "[processStripePayment] Invalid cart total:",
-        cart.value.rawTotal
-      );
-      throw new Error("Invalid cart total for payment");
-    }
-
-    const amount = Math.round(rawTotal * 100);
-    console.log("[processStripePayment] Amount to charge (cents):", amount);
+    const amount = Math.round(parseFloat(cart.value.rawTotal) * 100);
+    console.log("Amount to charge:", amount);
 
     // Create a payment method
-    console.log(
-      "[processStripePayment] Creating payment method with billing details..."
-    );
     const { paymentMethod, error: pmError } =
       await stripeInstance.createPaymentMethod({
         type: "card",
@@ -102,59 +69,28 @@ const processStripePayment = async () => {
       });
 
     if (pmError) {
-      console.error(
-        "[processStripePayment] Stripe payment method error:",
-        pmError
-      );
       throw new Error(pmError.message);
     }
 
-    console.log(
-      "[processStripePayment] Payment method created successfully:",
-      paymentMethod.id
-    );
-
     // Create payment intent on server
-    console.log("[processStripePayment] Creating payment intent on server...");
-    const requestBody = {
-      action: "create_payment_intent",
-      amount,
-      paymentMethodId: paymentMethod.id,
-      metadata: {
-        customer_email: customer.value.billing.email,
-        cart_id: cart.value.id,
+    const response = await $fetch("/api/stripe", {
+      method: "POST",
+      body: {
+        action: "create_payment_intent",
+        amount,
+        paymentMethodId: paymentMethod.id,
+        metadata: {
+          customer_email: customer.value.billing.email,
+          cart_id: cart.value.id,
+        },
       },
-    };
-    console.log("[processStripePayment] Request body:", requestBody);
-
-    let response;
-    try {
-      response = await $fetch("/api/stripe", {
-        method: "POST",
-        body: requestBody,
-      });
-      console.log("[processStripePayment] Server response:", response);
-    } catch (fetchError) {
-      console.error("[processStripePayment] Fetch error:", fetchError);
-      console.error(
-        "[processStripePayment] Fetch error data:",
-        fetchError.data
-      );
-      throw new Error(
-        `Server request failed: ${fetchError.message || "Unknown server error"}`
-      );
-    }
+    });
 
     if (!response.success) {
-      console.error(
-        "[processStripePayment] Server returned error:",
-        response.error
-      );
-      throw new Error(response.error?.message || "Payment failed on server");
+      throw new Error(response.error.message || "Payment failed");
     }
 
     // Add payment info to order
-    console.log("[processStripePayment] Adding payment metadata to order...");
     orderInput.value.metaData.push({
       key: "_stripe_payment_intent_id",
       value: response.paymentIntentId,
@@ -162,66 +98,19 @@ const processStripePayment = async () => {
     orderInput.value.transactionId = response.paymentIntentId;
 
     isPaid.value = true;
-    console.log(
-      "[processStripePayment] Payment successful:",
-      response.paymentIntentId
-    );
+    console.log("Payment successful:", response.paymentIntentId);
     return true;
   } catch (error) {
-    console.error("[processStripePayment] CATCH BLOCK - Error object:", error);
-    console.error(
-      "[processStripePayment] CATCH BLOCK - Error message:",
-      error.message
-    );
-    console.error(
-      "[processStripePayment] CATCH BLOCK - Error stack:",
-      error.stack
-    );
-
+    console.error("Stripe payment error:", error);
     paymentError.value = error.message || "Payment processing failed";
-    console.error(
-      "[processStripePayment] Set paymentError.value to:",
-      paymentError.value
-    );
     return false;
   }
 };
 
-// Debug function to inspect Stripe state
-const debugStripeState = () => {
-  console.log("[DEBUG] Stripe card ref:", stripeCardRef.value);
-  console.log(
-    "[DEBUG] Stripe instance available:",
-    stripeCardRef.value?.getStripe() ? "Yes" : "No"
-  );
-  console.log(
-    "[DEBUG] Card element available:",
-    stripeCardRef.value?.getCardElement() ? "Yes" : "No"
-  );
-  console.log("[DEBUG] Card complete:", stripeCardRef.value?.isCardComplete());
-};
-
-// New function to handle form submission with phone validation
-const handleFormSubmit = async () => {
-  paymentError.value = null; // Clear previous errors
-
-  // Check if billing phone number is present
-  if (!customer.value?.billing?.phone) {
-    paymentError.value = t("messages.billing.phoneRequired"); // Assuming you have this translation
-    // Or a generic message: "Billing phone number is required."
-    console.error("[handleFormSubmit] Billing phone number is missing.");
-    isSubmitting.value = false; // Ensure button is re-enabled if it was set to submitting
-    buttonText.value = t("messages.shop.placeOrder"); // Reset button text
-    return; // Stop execution
-  }
-
-  // If phone number is present, proceed with payNow
-  await payNow();
-};
-
 // Handle form submission
 const payNow = async () => {
-  // paymentError.value = null; // Moved to handleFormSubmit
+  // Currently only works for stripe
+  paymentError.value = null;
   isSubmitting.value = true;
   buttonText.value = t("messages.general.processing");
 
@@ -230,47 +119,13 @@ const payNow = async () => {
     if (!cart.value || cart.value.isEmpty) {
       throw new Error(t("messages.shop.cartEmpty"));
     }
-
-    console.log(
-      "[payNow] Starting checkout process. Cart items:",
-      cart.value.contents?.nodes?.length
-    );
-
-    // Debug Stripe state before validation
-    // debugStripeState();
-
-    // STEP 1: Validate order details BEFORE payment
-    const validationResult = await validateOrderPrePayment();
-
-    if (!validationResult.success) {
-      console.log("[payNow] Validation failed:", validationResult.errorMessage);
-      paymentError.value = validationResult.errorMessage;
-      throw new Error(paymentError.value);
-    }
-    console.log("[payNow] Validation passed, proceeding to payment");
-
-    // STEP 2: Process payment only if validation succeeded
+    // Process payment based on selected method
     const success = await processStripePayment();
     if (!success) {
-      console.log("[payNow] Payment failed:", paymentError.value);
       throw new Error(paymentError.value || "Payment failed");
     }
-
-    console.log("[payNow] Payment successful, completing order...");
-
-    // STEP 3: Complete checkout only if payment succeeded
-    const checkoutResult = await processCheckout(success); // <- Change this from 'proccessCheckout' to 'processCheckout'
-    if (!checkoutResult?.success) {
-      console.log(
-        "[payNow] Order completion failed:",
-        checkoutResult?.errorMessage
-      );
-      paymentError.value =
-        checkoutResult?.errorMessage || "Order completion failed after payment";
-      throw new Error(paymentError.value);
-    }
-
-    console.log("[payNow] Checkout completed successfully");
+    // Send data to wordpress
+    await proccessCheckout(success);
   } catch (error) {
     console.error("Checkout error:", error);
     paymentError.value =
@@ -279,14 +134,6 @@ const payNow = async () => {
     buttonText.value = t("messages.shop.placeOrder");
   } finally {
     isSubmitting.value = false;
-    // Reset buttonText only if there was no error that keeps it as "Processing"
-    // or if the process completed successfully.
-    // If an error occurred within payNow, paymentError will be set, and buttonText might be reset there.
-    // If no error, it means success, so reset to default.
-    // This part might need adjustment based on how you want the button text to behave on errors within payNow.
-    if (!paymentError.value) {
-      buttonText.value = t("messages.shop.placeOrder");
-    }
   }
 };
 
@@ -345,7 +192,7 @@ useSeoMeta({
       <form
         v-else
         class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20"
-        @submit.prevent="handleFormSubmit"
+        @submit.prevent="payNow"
       >
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
           <!-- Customer details section - unchanged -->
@@ -393,9 +240,7 @@ useSeoMeta({
                 />
               </div>
               <div class="w-full my-2" v-if="orderInput.createAccount">
-                <label for="password">{{
-                  $t("messages.account.password")
-                }}</label>
+                <label for="email">{{ $t("messages.account.password") }}</label>
                 <PasswordInput
                   id="password"
                   class="my-2"
@@ -454,11 +299,9 @@ useSeoMeta({
             <h3 class="mb-4 text-xl font-semibold">
               {{ $t("messages.general.shippingSelect") }}
             </h3>
-            <!-- Fix the ShippingOptions component -->
             <ShippingOptions
-              :options="cart?.availableShippingMethods?.[0]?.rates || []"
-              :active-option="cart?.chosenShippingMethods?.[0] || ''"
-              @shipping-changed="refreshCart"
+              :options="cart.availableShippingMethods[0].rates"
+              :active-option="cart.chosenShippingMethods[0]"
             />
           </div>
 
@@ -512,7 +355,6 @@ useSeoMeta({
           </div>
 
           <button
-            type="submit"
             class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
             :disabled="isCheckoutDisabled || isSubmitting"
           >

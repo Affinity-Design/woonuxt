@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const router = useRouter();
-const { formatDate, scrollToTop } = useHelpers();
+// Import formatPrice from useHelpers
+const { formatDate, scrollToTop, formatPrice } = useHelpers();
 const { getOrders, orders } = useAuth();
 
 if (orders.value === null) getOrders();
@@ -41,7 +42,10 @@ const goToOrder = (orderNumber: string): void => {
             <td class="rounded-l-lg">{{ order.orderNumber }}</td>
             <td>{{ formatDate(order.date) }}</td>
             <td><OrderStatusLabel v-if="order.status" :order="order" /></td>
-            <td class="text-right rounded-r-lg">{{ order.total }}</td>
+            <!-- Use formatPrice for the order total -->
+            <td class="text-right rounded-r-lg">
+              {{ formatPrice(order.total) }}
+            </td>
           </tr>
         </tbody>
       </table>

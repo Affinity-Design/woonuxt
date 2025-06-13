@@ -173,11 +173,31 @@ export function useHelpers() {
    * @param {string} price - The price string to format.
    * @returns {string} The formatted price string.
    */
-  const formatPrice = (price: string): string =>
-    parseFloat(price).toLocaleString("en-US", {
+  const formatPrice = (price: string | number | null | undefined): string => {
+    // Ensure price is a string and clean it
+    let numericString = String(price || "0");
+
+    // Remove common currency symbols, non-breaking spaces, and other non-numeric characters
+    // except for the decimal point. This regex can be expanded if other characters are common.
+    numericString = numericString.replace(/[^\d.-]/g, "");
+
+    // Attempt to parse the cleaned string
+    const number = parseFloat(numericString);
+
+    // Check if parsing was successful and it's a valid number
+    if (isNaN(number)) {
+      // Fallback for safety, though ideally numericString should be parseable
+      return (0).toLocaleString("en-US", {
+        style: "currency",
+        currency: "CAD",
+      });
+    }
+
+    return number.toLocaleString("en-US", {
       style: "currency",
       currency: "CAD",
     });
+  };
 
   /**
    * Scrolls to the top of the page.

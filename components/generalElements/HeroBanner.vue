@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative mx-auto h-[500px] md:h-[600px] lg:h-[560px] xl:h-[640px]"
+    class="relative mx-auto h-[550px] md:h-[600px] lg:h-[560px] xl:h-[640px]"
   >
     <!-- Video Background -->
     <video

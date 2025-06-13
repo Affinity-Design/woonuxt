@@ -77,11 +77,7 @@ const billing = toRef(props, "modelValue");
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
-      <label for="state"
-        >{{ $t("messages.billing.state") }} ({{
-          $t("messages.general.optional")
-        }})</label
-      >
+      <label for="state">{{ "Provence" }} }})</label>
       <StateSelect
         id="state"
         v-model="billing.state"
@@ -93,7 +89,7 @@ const billing = toRef(props, "modelValue");
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
-      <label for="country">{{ $t("messages.billing.country") }}</label>
+      <label for="country">{{ "Country" }}</label>
       <CountrySelect
         id="country"
         v-model="billing.country"
@@ -104,7 +100,7 @@ const billing = toRef(props, "modelValue");
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
-      <label for="zip">{{ $t("messages.billing.zip") }}</label>
+      <label for="zip">{{ "Postal Code" }}</label>
       <input
         id="zip"
         v-model="billing.postcode"
@@ -117,11 +113,7 @@ const billing = toRef(props, "modelValue");
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full col-span-full">
-      <label for="phone"
-        >{{ $t("messages.billing.phone") }} ({{
-          $t("messages.general.optional")
-        }})</label
-      >
+      <label for="phone">{{ $t("messages.billing.phone") }} </label>
       <input
         id="phone"
         v-model="billing.phone"

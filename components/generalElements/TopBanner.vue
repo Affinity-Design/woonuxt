@@ -34,7 +34,7 @@ const isLiveBeta = computed(() => hostname === "proskatersplace.ca");
   text-align: center;
   padding: 12px;
   font-size: 0.9rem;
-  z-index: 9999;
+  z-index: 10;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: slideDown 0.5s ease-out;
 }
