@@ -77,7 +77,7 @@ const billing = toRef(props, "modelValue");
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
-      <label for="state">{{ "Provence" }} }})</label>
+      <label for="state">{{ "Provence" }}</label>
       <StateSelect
         id="state"
         v-model="billing.state"

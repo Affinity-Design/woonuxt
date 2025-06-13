@@ -3,8 +3,10 @@ import type {
   UpdateCustomerInput,
   CreateAccountInput,
 } from "#gql";
+import { useI18n } from "#imports"; // Or your specific i18n import
 
 export function useCheckout() {
+  const { t } = useI18n();
   const orderInput = useState<any>("orderInput", () => {
     return {
       customerNote: "",
@@ -108,7 +110,7 @@ export function useCheckout() {
     errorMessage?: string;
     needsLogin?: boolean;
   }> => {
-    const { customer } = useAuth();
+    const { customer, viewer } = useAuth();
     const { cart } = useCart();
 
     try {
@@ -117,7 +119,10 @@ export function useCheckout() {
         return {
           success: false,
           error: true,
-          errorMessage: "Email address is required",
+          errorMessage: t(
+            "messages.billing.emailRequired",
+            "Email address is required"
+          ),
         };
       }
 
@@ -125,7 +130,7 @@ export function useCheckout() {
         return {
           success: false,
           error: true,
-          errorMessage: "Cart is empty",
+          errorMessage: t("messages.shop.cartEmpty", "Cart is empty"),
         };
       }
 
@@ -141,9 +146,14 @@ export function useCheckout() {
         const validateData = response.validateCheckoutData;
 
         if (!validateData.success) {
+          // This could be a generic failure from GqlValidateCheckout (e.g., invalid email format)
+          // Applicable to both logged-in users and guests.
           alert(
             validateData.message ||
-              "There was an error validating your account."
+              t(
+                "messages.error.validationFailed",
+                "There was an error validating your account."
+              )
           );
           return {
             success: false,
@@ -152,54 +162,60 @@ export function useCheckout() {
           };
         }
 
-        // If creating account and email is already registered, fail
-        if (
-          orderInput.value.createAccount &&
-          (validateData.userExists || !validateData.emailAvailable)
-        ) {
-          alert(
-            "An account is already registered with your email address. Please log in to continue."
-          );
-          return {
-            success: false,
-            error: true,
-            errorMessage:
-              "An account is already registered with your email address. Please log in to continue.",
-            needsLogin: true,
-          };
-        }
+        // Account related validations should ONLY apply to GUESTS
+        if (!viewer.value) {
+          // If guest is trying to create an account and email is already registered
+          if (
+            orderInput.value.createAccount &&
+            (validateData.userExists || !validateData.emailAvailable)
+          ) {
+            const msg = t(
+              "messages.account.emailExists",
+              "An account is already registered with your email address. Please log in to continue."
+            );
+            alert(msg);
+            return {
+              success: false,
+              error: true,
+              errorMessage: msg,
+              needsLogin: true,
+            };
+          }
 
-        // If NOT creating account but email exists, still might cause issues
-        // Let's warn and prevent
-        if (!orderInput.value.createAccount && validateData.userExists) {
-          alert(
-            "An account is already registered with your email address. Please log in to continue, or use a different email address."
-          );
-          return {
-            success: false,
-            error: true,
-            errorMessage:
-              "An account is already registered with your email address. Please log in to continue.",
-            needsLogin: true,
-          };
+          // If guest is NOT creating an account but email belongs to a registered user
+          if (!orderInput.value.createAccount && validateData.userExists) {
+            const msg = t(
+              "messages.account.emailExistsLogin",
+              "An account is already registered with your email address. Please log in to continue, or use a different email address."
+            );
+            alert(msg);
+            return {
+              success: false,
+              error: true,
+              errorMessage: msg,
+              needsLogin: true,
+            };
+          }
         }
+        // If viewer.value is true (user is logged in), the above guest-specific checks are skipped.
+        // validateData.success being true is sufficient at this point for a logged-in user regarding account status.
       } catch (validationError) {
         console.error(
           "GqlValidateCheckout failed during pre-payment validation:",
           validationError
         );
 
-        // If our custom validation endpoint fails, fall back to the alternative approach
+        // Fallback validation logic (attempt GqlCheckout with minimal payload)
+        // This fallback is more relevant for guests if GqlValidateCheckout endpoint fails.
         try {
-          // Create a minimal checkout payload that only tests account creation
           let validationPayload: any = {
             billing: { email }, // Only include email for validation
             paymentMethod: "cod", // Use COD to avoid payment processing
             isPaid: false,
           };
 
-          // Only include account if createAccount is true
-          if (orderInput.value.createAccount) {
+          // Only include account if createAccount is true (should only be for guests)
+          if (!viewer.value && orderInput.value.createAccount) {
             validationPayload.account = {
               username: orderInput.value.username || email,
               password: orderInput.value.password,
@@ -208,33 +224,45 @@ export function useCheckout() {
           }
 
           await GqlCheckout(validationPayload);
+          // If GqlCheckout succeeds here, it implies the fallback validation passed.
+          // This path is less common.
         } catch (fallbackError: any) {
           console.error(
             "Fallback validation GqlCheckout failed:",
             fallbackError
           );
-
-          // Check for account already registered error
           const errorMessage = fallbackError?.gqlErrors?.[0]?.message;
 
-          if (errorMessage?.includes("An account is already registered with")) {
-            alert(
+          // Check for account already registered error, specifically for guests in fallback
+          if (
+            !viewer.value &&
+            errorMessage?.includes("An account is already registered with")
+          ) {
+            const msg = t(
+              "messages.account.emailExistsLogin",
               "An account is already registered with your email address. Please log in to continue."
             );
+            alert(msg);
             return {
               success: false,
               error: true,
-              errorMessage:
-                "An account is already registered with your email address. Please log in to continue.",
+              errorMessage: msg,
               needsLogin: true,
             };
           }
 
-          // Other errors
+          // Other errors from fallback
           if (errorMessage) {
             alert(errorMessage);
             return { success: false, error: true, errorMessage };
           }
+          // Generic fallback error
+          const genericErrorMsg = t(
+            "messages.error.validationUnexpected",
+            "An unexpected error occurred during order validation."
+          );
+          alert(genericErrorMsg);
+          return { success: false, error: true, errorMessage: genericErrorMsg };
         }
       }
 
@@ -242,16 +270,17 @@ export function useCheckout() {
       return { success: true };
     } catch (error: any) {
       console.error("Unexpected error during pre-payment validation:", error);
-
-      // Handle any other errors
-      const errorMessage = error?.gqlErrors?.[0]?.message;
-      alert(
-        errorMessage || "An unexpected error occurred during order validation."
-      );
+      const errorMessage =
+        error?.gqlErrors?.[0]?.message ||
+        t(
+          "messages.error.validationUnexpected",
+          "An unexpected error occurred during order validation."
+        );
+      alert(errorMessage);
       return {
         success: false,
         error: true,
-        errorMessage: errorMessage || "An unexpected error occurred.",
+        errorMessage: errorMessage,
       };
     }
   };
