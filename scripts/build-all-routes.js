@@ -22,11 +22,18 @@ async function generateBlogRoutes() {
       .filter(dirent => dirent.isDirectory())
       .map(dirent => `/blog/${dirent.name}`);
     
+    // Also generate the slug-only versions for redirects
+    const blogSlugs = blogFolders
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+    
     console.log(`Found ${blogRoutes.length} blog post routes:`, blogRoutes);
-    return blogRoutes;
+    console.log(`Blog slugs for redirects:`, blogSlugs);
+    
+    return { blogRoutes, blogSlugs };
   } catch (error) {
     console.error("Error generating blog routes:", error);
-    return [];
+    return { blogRoutes: [], blogSlugs: [] };
   }
 }
 
@@ -72,10 +79,19 @@ async function generateAllRoutes() {
   
   try {
     // Generate blog routes
-    const blogRoutes = await generateBlogRoutes();
+    const { blogRoutes, blogSlugs } = await generateBlogRoutes();
     const blogRoutesPath = resolve(__dirname, "..", "data", "blog-routes.json");
     writeFileSync(blogRoutesPath, JSON.stringify(blogRoutes, null, 2));
     console.log(`Blog routes written to: ${blogRoutesPath}`);
+    
+    // Write blog slugs for redirect generation
+    const blogSlugsPath = resolve(__dirname, "..", "data", "blog-slugs.json");
+    writeFileSync(blogSlugsPath, JSON.stringify(blogSlugs, null, 2));
+    console.log(`Blog slugs written to: ${blogSlugsPath}`);
+    
+    // Generate route rules for redirects
+    const { generateRouteRules } = require('./generate-route-rules.js');
+    generateRouteRules();
     
     // Get category routes
     const categoryRoutes = await generateCategoryRoutes();
@@ -112,10 +128,12 @@ async function generateAllRoutes() {
     - Static: ${staticRoutes.length}
     - Blog: ${blogRoutes.length}
     - Categories: ${categoryRoutes.length}
-    - Total: ${allRoutes.length}`);
+    - Total: ${allRoutes.length}
+    - Blog slugs for redirects: ${blogSlugs.length}`);
     
     return {
       blogRoutes,
+      blogSlugs,
       categoryRoutes,
       staticRoutes,
       allRoutes,

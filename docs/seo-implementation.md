@@ -289,6 +289,22 @@ console.log(`✅ Generated routes for build:
 3. Check environment variables
 4. Review Cloudflare Pages build logs
 
+#### Production Content Issues (404/500 errors)
+1. **Content API Errors**: If getting 500 errors from `/_content/query/` endpoints:
+   - Verify content directory is included in build
+   - Check Nuxt Content module is properly configured
+   - Test with debug endpoint: `/api/debug/content`
+
+2. **Blog Post Redirects**: For URLs like `/best-inline-skates-2025`:
+   - Verify route redirects are configured in `nuxt.config.ts`
+   - Check `data/blog-redirects.json` exists
+   - Ensure build script runs before deployment
+
+3. **Static Generation**: If blog posts aren't pre-rendered:
+   - Verify blog routes in `data/blog-routes.json`
+   - Check prerender configuration includes blog routes
+   - Review build logs for prerender completion
+
 ### Debug Commands
 ```bash
 # Test route generation
@@ -297,13 +313,33 @@ npm run build-all-routes
 # Check generated files
 cat data/blog-routes.json
 cat data/sitemap-data.json
+cat data/blog-redirects.json
 
 # Test full build
 npm run build
 
 # Test sitemap locally
 curl http://localhost:3000/api/sitemap.xml
+
+# Debug content issues (production)
+curl https://proskatersplace.ca/api/debug/content
 ```
+
+### Cloudflare Pages Specific Issues
+
+#### Content Directory Not Deployed
+- Ensure `content/` directory is included in build output
+- Check build command includes route generation
+- Verify no `.gitignore` exclusions
+
+#### Environment Variables
+- `NODE_ENV=production` should be set
+- Check if any content-related env vars are missing
+
+#### Route Rules Not Applied
+- Verify dynamic redirects are properly spread in `routeRules`
+- Check build logs for route generation completion
+- Test redirect endpoints manually
 
 ## 9. Future Enhancements
 
