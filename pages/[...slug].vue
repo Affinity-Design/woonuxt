@@ -6,16 +6,16 @@ const slug = Array.isArray(route.params.slug)
 
 // Check if this might be a blog post without the /blog/ prefix
 const possibleBlogSlugs = [
-  'best-inline-skates-2025',
-  'roller-skating-toronto-guide', 
-  'skate-maintenance-winter'
+  "best-inline-skates-2025",
+  "roller-skating-toronto-guide",
+  "skate-maintenance-winter",
 ];
 
 // If it's a known blog post slug without /blog/ prefix, redirect
 if (possibleBlogSlugs.includes(slug)) {
-  await navigateTo(`/blog/${slug}`, { 
+  await navigateTo(`/blog/${slug}`, {
     redirectCode: 301,
-    external: false
+    external: false,
   });
 }
 
@@ -30,10 +30,10 @@ const { data: post } = await useAsyncData(`blog-check-${slug}`, () =>
 const isBlogPost = !!post.value;
 
 // If it's a blog post, redirect to proper blog URL
-if (isBlogPost && !slug.startsWith('blog/')) {
-  await navigateTo(`/blog/${slug}`, { 
+if (isBlogPost && !slug.startsWith("blog/")) {
+  await navigateTo(`/blog/${slug}`, {
     redirectCode: 301,
-    external: false
+    external: false,
   });
 }
 

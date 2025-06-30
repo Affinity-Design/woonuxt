@@ -17,11 +17,13 @@ This document outlines the complete SEO implementation for the WooNuxt e-commerc
 ## 1. Automated Route Generation System
 
 ### Purpose
+
 Automatically discovers and generates routes for all content types (blog posts, categories, static pages) during the build process.
 
 ### Implementation
 
 #### Core Script: `scripts/build-all-routes.js`
+
 ```javascript
 // Main functions:
 // - generateBlogRoutes() - Scans content/blog/ directory
@@ -30,12 +32,14 @@ Automatically discovers and generates routes for all content types (blog posts, 
 ```
 
 #### Generated Files
+
 - `data/blog-routes.json` - All blog post routes
 - `data/sitemap-data.json` - Complete sitemap data with metadata
 
 ### Integration Points
 
 #### Package.json Scripts
+
 ```json
 {
   "build": "node scripts/build-all-routes.js && nuxt build",
@@ -45,9 +49,11 @@ Automatically discovers and generates routes for all content types (blog posts, 
 ```
 
 #### Setup Script Integration
+
 Routes are generated as part of the main build process in `scripts/setup-script.js`:
+
 1. Generate all routes
-2. Populate category data  
+2. Populate category data
 3. Populate product data
 
 ## 2. Static Blog Post Generation
@@ -55,12 +61,13 @@ Routes are generated as part of the main build process in `scripts/setup-script.
 ### Configuration
 
 #### Nuxt Config (`nuxt.config.ts`)
+
 ```typescript
 // Prerender configuration
 prerender: {
   routes: [
     "/",
-    "/contact", 
+    "/contact",
     "/terms",
     "/privacy",
     "/blog",
@@ -81,6 +88,7 @@ routeRules: {
 ### Blog Post Structure
 
 #### File Organization
+
 ```
 content/
   blog/
@@ -93,6 +101,7 @@ content/
 ```
 
 #### Frontmatter Schema
+
 ```yaml
 ---
 title: "Post Title"
@@ -110,12 +119,14 @@ tags: ["tag1", "tag2", "tag3"]
 ### Page Components
 
 #### Blog Index (`pages/blog/index.vue`)
+
 - Lists all blog posts
 - Category filtering
 - SEO meta tags
 - Static generation
 
 #### Individual Posts (`pages/blog/[slug].vue`)
+
 - Dynamic blog post rendering
 - Related posts
 - Author bio
@@ -123,6 +134,7 @@ tags: ["tag1", "tag2", "tag3"]
 - Complete SEO meta implementation
 
 #### Catch-all Route (`pages/[...slug].vue`)
+
 - Handles blog post routing
 - 404 for non-existent posts
 - Blog post detection logic
@@ -132,6 +144,7 @@ tags: ["tag1", "tag2", "tag3"]
 ### API Endpoint: `server/api/sitemap.xml.ts`
 
 #### Features
+
 - Reads from generated `sitemap-data.json`
 - Fallback routes if data unavailable
 - Proper XML formatting
@@ -139,18 +152,21 @@ tags: ["tag1", "tag2", "tag3"]
 - Cache control (1 hour)
 
 #### Route Prioritization
+
 - Homepage: `priority="1.0"`, `changefreq="daily"`
 - Blog posts: `priority="0.8"`, `changefreq="monthly"`
 - Other pages: `priority="0.7"`, `changefreq="weekly"`
 
 #### Headers Set
+
 ```typescript
-setHeader(event, 'content-type', 'application/xml');
-setHeader(event, 'cache-control', 'max-age=3600');
-setHeader(event, 'x-sitemap-generated', sitemapData.lastGenerated);
+setHeader(event, "content-type", "application/xml");
+setHeader(event, "cache-control", "max-age=3600");
+setHeader(event, "x-sitemap-generated", sitemapData.lastGenerated);
 ```
 
 ### Robots.txt (`public/robots.txt`)
+
 ```
 User-agent: *
 Allow: /
@@ -167,6 +183,7 @@ Crawl-delay: 1
 ## 4. SEO Meta Tag Implementation
 
 ### Blog Post SEO (`pages/blog/[slug].vue`)
+
 ```typescript
 // Complete SEO implementation
 useSeoMeta({
@@ -181,13 +198,12 @@ useSeoMeta({
 });
 
 useHead({
-  link: [
-    { rel: "canonical", href: canonicalUrl }
-  ]
+  link: [{ rel: "canonical", href: canonicalUrl }],
 });
 ```
 
 ### Blog Index SEO (`pages/blog/index.vue`)
+
 ```typescript
 useSeoMeta({
   title: "Skating Tips & Guides | ProSkaters Place Blog",
@@ -202,24 +218,29 @@ useSeoMeta({
 ## 5. Build Process Flow
 
 ### Development Workflow
+
 1. Create new blog post folder in `content/blog/`
 2. Add `index.md` with proper frontmatter
 3. Run `npm run dev` - works immediately
 4. Run `npm run build` - auto-generates routes
 
 ### Production Build Process
+
 1. **Pre-Build**: `build-all-routes.js` executes
+
    - Scans `content/blog/` directory
    - Generates `blog-routes.json`
    - Creates `sitemap-data.json`
    - Logs route counts and paths
 
 2. **Setup Script**: `setup-script.js` executes
+
    - Generates routes (if not already done)
    - Populates category cache
    - Populates product cache
 
 3. **Nuxt Build**: Static generation
+
    - Prerender all discovered routes
    - Generate static HTML files
    - Optimize for Cloudflare Pages
@@ -232,16 +253,19 @@ useSeoMeta({
 ## 6. Cloudflare Pages Optimization
 
 ### Static Assets
+
 - All blog posts pre-rendered as static HTML
 - Images optimized with NuxtImg
 - Proper caching headers set
 
 ### Dynamic Features
+
 - Sitemap endpoint remains dynamic
 - Handles route discovery failures gracefully
 - Fallback content for offline scenarios
 
 ### Performance
+
 - Static HTML = instant loading
 - CDN distribution via Cloudflare
 - Optimal Core Web Vitals scores
@@ -249,11 +273,13 @@ useSeoMeta({
 ## 7. Monitoring & Maintenance
 
 ### Automated Checks
+
 - Build fails if route generation fails
 - Console warnings for missing data
 - Fallback systems prevent complete failures
 
 ### Log Monitoring
+
 ```javascript
 console.log(`✅ Generated routes for build:
   - Static: ${staticRoutes.length}
@@ -263,6 +289,7 @@ console.log(`✅ Generated routes for build:
 ```
 
 ### Sitemap Verification
+
 - Check `/api/sitemap.xml` after deployment
 - Verify `x-sitemap-generated` header
 - Confirm all routes present
@@ -272,30 +299,36 @@ console.log(`✅ Generated routes for build:
 ### Common Issues
 
 #### Blog Posts Not Appearing
+
 1. Check `content/blog/` directory structure
 2. Verify frontmatter format
 3. Run `npm run build-all-routes` manually
 4. Check console for errors
 
 #### Sitemap Missing Routes
+
 1. Verify `data/sitemap-data.json` exists
 2. Check file permissions
 3. Review console warnings
 4. Test sitemap endpoint directly
 
 #### Build Failures
+
 1. Check route generation script output
 2. Verify all required files exist
 3. Check environment variables
 4. Review Cloudflare Pages build logs
 
 #### Production Content Issues (404/500 errors)
+
 1. **Content API Errors**: If getting 500 errors from `/_content/query/` endpoints:
+
    - Verify content directory is included in build
    - Check Nuxt Content module is properly configured
    - Test with debug endpoint: `/api/debug/content`
 
 2. **Blog Post Redirects**: For URLs like `/best-inline-skates-2025`:
+
    - Verify route redirects are configured in `nuxt.config.ts`
    - Check `data/blog-redirects.json` exists
    - Ensure build script runs before deployment
@@ -306,6 +339,7 @@ console.log(`✅ Generated routes for build:
    - Review build logs for prerender completion
 
 ### Debug Commands
+
 ```bash
 # Test route generation
 npm run build-all-routes
@@ -328,15 +362,18 @@ curl https://proskatersplace.ca/api/debug/content
 ### Cloudflare Pages Specific Issues
 
 #### Content Directory Not Deployed
+
 - Ensure `content/` directory is included in build output
 - Check build command includes route generation
 - Verify no `.gitignore` exclusions
 
 #### Environment Variables
+
 - `NODE_ENV=production` should be set
 - Check if any content-related env vars are missing
 
 #### Route Rules Not Applied
+
 - Verify dynamic redirects are properly spread in `routeRules`
 - Check build logs for route generation completion
 - Test redirect endpoints manually
@@ -344,12 +381,14 @@ curl https://proskatersplace.ca/api/debug/content
 ## 9. Future Enhancements
 
 ### Planned Improvements
+
 1. **Product Sitemap**: Add individual product URLs
 2. **Image Sitemap**: Include blog post images
 3. **Schema.org**: Add structured data markup
 4. **Analytics**: Track sitemap usage and SEO performance
 
 ### Extension Points
+
 - Additional content types (documentation, guides)
 - Multi-language support
 - Advanced SEO meta tag automation
@@ -358,6 +397,7 @@ curl https://proskatersplace.ca/api/debug/content
 ## 10. Performance Metrics
 
 ### Current Achievement
+
 - **Static Generation**: 100% of blog content
 - **Build Time**: Routes generated in <2 seconds
 - **SEO Coverage**: All pages have complete meta tags
@@ -365,6 +405,7 @@ curl https://proskatersplace.ca/api/debug/content
 - **Cache Strategy**: Optimized for Cloudflare Pages
 
 ### SEO Benefits
+
 - **Crawlability**: All content statically available
 - **Performance**: Instant page loads
 - **Freshness**: Sitemap updates with every build
@@ -376,17 +417,20 @@ curl https://proskatersplace.ca/api/debug/content
 ## Quick Reference
 
 ### Adding New Blog Post
+
 1. Create `/content/blog/your-post-slug/index.md`
 2. Add proper frontmatter
 3. Build automatically includes it
 
 ### Checking SEO Status
+
 1. Visit `/api/sitemap.xml`
 2. Check `x-sitemap-generated` header
 3. Verify route count in build logs
 4. Test social media previews
 
 ### Emergency Fallbacks
+
 - Sitemap has hardcoded fallback routes
 - Build process continues if route generation fails
 - Static routes always included

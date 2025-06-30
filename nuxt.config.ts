@@ -9,9 +9,15 @@ try {
 } catch (error) {
   console.warn("Blog redirects not found, using fallback redirects");
   blogRedirects = {
-    "/best-inline-skates-2025": { redirect: { to: "/blog/best-inline-skates-2025", statusCode: 301 } },
-    "/roller-skating-toronto-guide": { redirect: { to: "/blog/roller-skating-toronto-guide", statusCode: 301 } },
-    "/skate-maintenance-winter": { redirect: { to: "/blog/skate-maintenance-winter", statusCode: 301 } },
+    "/best-inline-skates-2025": {
+      redirect: { to: "/blog/best-inline-skates-2025", statusCode: 301 },
+    },
+    "/roller-skating-toronto-guide": {
+      redirect: { to: "/blog/roller-skating-toronto-guide", statusCode: 301 },
+    },
+    "/skate-maintenance-winter": {
+      redirect: { to: "/blog/skate-maintenance-winter", statusCode: 301 },
+    },
   };
 }
 
