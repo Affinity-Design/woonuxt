@@ -9,6 +9,7 @@ const { wishlistLink } = useAuth();
     <NuxtLink to="/product-category/clearance-items">{{
       "Clearance Items"
     }}</NuxtLink>
+    <NuxtLink to="/blog">Blog</NuxtLink>
     <NuxtLink to="/contact">{{ $t("messages.general.contact") }}</NuxtLink>
     <NuxtLink class="lg:hidden" :to="wishlistLink" :prefetch="false"
       >Wishlist</NuxtLink

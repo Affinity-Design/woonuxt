@@ -77,9 +77,29 @@ function populateProductData() {
   });
 }
 
+/**
+ * Generate all routes for prerendering and sitemap
+ */
+function generateAllRoutes() {
+  return new Promise((resolve, reject) => {
+    console.log("📦 Generating routes for prerendering and sitemap...");
+    try {
+      execSync("node scripts/build-all-routes.js", { stdio: "inherit" });
+      console.log("✅ Route generation completed.");
+      resolve(true);
+    } catch (error) {
+      console.error("⚠️ Error generating routes:", error.message);
+      reject(error);
+    }
+  });
+}
+
 // Main function to sequence operations
 async function main() {
   try {
+    console.log("Starting route generation...");
+    await generateAllRoutes();
+
     console.log("Starting data population for categories...");
     await populateCategoryData();
 

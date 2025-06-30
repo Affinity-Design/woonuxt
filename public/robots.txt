@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://proskatersplace.ca/api/sitemap.xml
+
+# Disallow cart and checkout pages (user-specific content)
+Disallow: /cart
+Disallow: /checkout/
+Disallow: /my-account/
+
+# Allow important SEO pages
+Allow: /
+Allow: /blog/
+Allow: /categories
+Allow: /product-category/
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+
+# Crawl delay
+Crawl-delay: 1

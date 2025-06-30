@@ -112,7 +112,8 @@ const { wishlistLink } = useAuth();
             title="Affinity Design"
             target="_blank"
             >Affinity Design</a
-          >
+          ><span> - </span
+          ><a href="/api/sitemap.xml" target="_blank">Sitemap</a>
         </p>
       </div>
       <SocialIcons class="ml-auto" />

@@ -1,10 +1,14 @@
 import { createResolver } from "@nuxt/kit";
 import categoryRoutesToPrerender from "./data/category-routes.json"; // Assuming static list
+import blogRoutesToPrerender from "./data/blog-routes.json"; // Blog routes for prerendering
 
 const { resolve } = createResolver(import.meta.url);
 
 console.log(
   `[Nuxt Config] Found ${categoryRoutesToPrerender.length} category routes to prerender from static file.`
+);
+console.log(
+  `[Nuxt Config] Found ${blogRoutesToPrerender.length} blog routes to prerender from static file.`
 );
 
 export default defineNuxtConfig({
@@ -61,7 +65,9 @@ export default defineNuxtConfig({
         "/contact",
         "/terms",
         "/privacy",
+        "/blog",
         ...(categoryRoutesToPrerender || []),
+        ...(blogRoutesToPrerender || []),
       ],
       ignore: ["/product/**", "/checkout/**", "/cart", "/account/**"],
       concurrency: 10,
@@ -73,6 +79,14 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/": { prerender: true, cache: { maxAge: 60 * 60 * 24, base: "cache" } },
+    "/blog": {
+      prerender: true,
+      cache: { maxAge: 60 * 60 * 24, base: "cache" },
+    },
+    "/blog/**": {
+      prerender: true,
+      cache: { maxAge: 60 * 60 * 24 * 7, base: "cache" },
+    }, // Prerender all blog posts
     "/product-category/**": {
       prerender: true,
       cache: { maxAge: 60 * 60 * 24 * 7, base: "cache" },
@@ -95,5 +109,7 @@ export default defineNuxtConfig({
     /* ... */
   },
 
-  modules: ["nuxt-gtag"]
+  modules: ["nuxt-gtag", "@nuxt/content"],
+
+  // Note: Content module configuration is handled automatically
 });

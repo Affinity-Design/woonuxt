@@ -60,6 +60,12 @@ const imageSrc = computed(() => {
   if (hasErrored.value) {
     return props.node.image?.sourceUrl || FALLBACK_IMG;
   }
+
+  // If we have an explicit imageFilename, use it directly
+  if (props.node.imageFilename) {
+    return `/images/${props.node.imageFilename}`;
+  }
+
   return getLocalImagePath(props.node.name);
 });
 

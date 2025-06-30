@@ -1,0 +1,143 @@
+{
+  "lastGenerated": "2025-06-30T20:08:22.022Z",
+  "routes": [
+    {
+      "url": "/",
+      "lastmod": "2025-06-30",
+      "changefreq": "daily",
+      "priority": "1.0"
+    },
+    {
+      "url": "/blog",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/categories",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/contact",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/terms",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/privacy",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/blog/best-inline-skates-2025",
+      "lastmod": "2025-06-30",
+      "changefreq": "monthly",
+      "priority": "0.8"
+    },
+    {
+      "url": "/blog/roller-skating-toronto-guide",
+      "lastmod": "2025-06-30",
+      "changefreq": "monthly",
+      "priority": "0.8"
+    },
+    {
+      "url": "/blog/skate-maintenance-winter",
+      "lastmod": "2025-06-30",
+      "changefreq": "monthly",
+      "priority": "0.8"
+    },
+    {
+      "url": "/product-category/alpine-poles",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/alpine-skis",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/backpacks-bags-carriers",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/cross-country-skis",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/inline-skates",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/cross-country-poles",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/protection-gear-and-apparel",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/roller-skates",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/scooters",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/replacement-parts",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/skate-tools",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/skateboards-and-longboards",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/product-category/clearance-items",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    },
+    {
+      "url": "/products/discount-products",
+      "lastmod": "2025-06-30",
+      "changefreq": "weekly",
+      "priority": "0.7"
+    }
+  ]
+}

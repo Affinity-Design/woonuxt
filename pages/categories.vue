@@ -63,13 +63,13 @@ const categoryMapping = [
   {
     display: "Backpacks, Bags & Carriers",
     slug: "backpacks-bags-carriers",
-    imageFilename: "Backpacks-Bags-Carriers.jpeg",
+    imageFilename: "Backpacks-Bags-and-Carriers.jpeg", // Fixed to match actual file
   },
   { display: "Scooters", slug: "scooters", imageFilename: "Scooters.jpeg" },
   {
     display: "Skateboards and Longboards",
     slug: "skateboards-and-longboards",
-    imageFilename: "Skateboards-and-Longboards.jpeg", // ** The specific filename for the problematic category **
+    imageFilename: "Skateboards-and-longboards.jpeg", // Fixed case to match actual file
   },
   {
     display: "Alpine Skis",
@@ -188,8 +188,8 @@ onMounted(() => {
   if (skateboardCat) {
     console.warn(`[DEBUG V3] ADVICE FOR CategoryCard.vue:
       For the category "${skateboardCat.displayName}", this script now provides 'node.imageFilename = "${skateboardCat.imageFilename}"'.
-      Modify your CategoryCard.vue to construct the image path using this 'node.imageFilename'.
-      For example, if your images are in '/images/categories/', the src could be: \`'/images/categories/' + node.imageFilename\`.
+      CategoryCard.vue has been updated to use this 'node.imageFilename' when available.
+      The image path will be: '/images/${skateboardCat.imageFilename}'.
       This ensures the exact filename "${skateboardCat.imageFilename}" is used, respecting its capitalization.
       The 'name' prop passed to CategoryCard for its label is '${skateboardCat.displayName}'.
       The original name from CMS/GraphQL for this slug (if available) was '${data.value?.productCategories?.nodes.find((cat: ProductCategoryFromGraphQL) => cat.slug === "skateboards-and-longboards")?.name || "N/A"}'.`);
