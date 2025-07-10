@@ -1,0 +1,98 @@
+{
+  "_order_number": ["500041742"],
+  "_order_key": ["wc_order_TX0LKD0blIO4s"],
+  "_customer_user": ["0"],
+  "_payment_method": ["fkwcs_stripe"],
+  "_payment_method_title": ["Credit Card (Stripe)"],
+  "_customer_ip_address": ["204.111.137.29"],
+  "_customer_user_agent": [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+  ],
+  "_created_via": ["checkout"],
+  "_cart_hash": ["7af3b68d66148d76bf9925f8764053cd"],
+  "_download_permissions_granted": ["yes"],
+  "_recorded_sales": ["yes"],
+  "_recorded_coupon_usage_counts": ["yes"],
+  "_new_order_email_sent": ["true"],
+  "_order_stock_reduced": ["yes"],
+  "_billing_first_name": ["charlie"],
+  "_billing_last_name": ["Nesmith"],
+  "_billing_address_1": ["705 Bull Run"],
+  "_billing_city": ["Staunton"],
+  "_billing_state": ["VA"],
+  "_billing_postcode": ["24401"],
+  "_billing_country": ["US"],
+  "_billing_email": ["charlienesmith@me.com"],
+  "_billing_phone": ["5403833753"],
+  "_shipping_first_name": ["charlie"],
+  "_shipping_last_name": ["Nesmith"],
+  "_shipping_address_1": ["705 Bull Run"],
+  "_shipping_city": ["Staunton"],
+  "_shipping_state": ["VA"],
+  "_shipping_postcode": ["24401"],
+  "_shipping_country": ["US"],
+  "_order_currency": ["USD"],
+  "_cart_discount": ["0"],
+  "_cart_discount_tax": ["0"],
+  "_order_shipping": ["0"],
+  "_order_shipping_tax": ["0"],
+  "_order_tax": ["0"],
+  "_order_total": ["299.97"],
+  "_order_version": ["9.7.1"],
+  "_prices_include_tax": ["no"],
+  "_billing_address_index": [
+    "charlie Nesmith  705 Bull Run  Staunton VA 24401 US charlienesmith@me.com 5403833753"
+  ],
+  "_shipping_address_index": [
+    "charlie Nesmith  705 Bull Run  Staunton VA 24401 US "
+  ],
+  "is_vat_exempt": ["no"],
+  "_guest_access_token": ["fc64cbfe8e58d3e19915253fcf758666"],
+  "pys_enrich_data": [
+    "a:9:{s:11:\"pys_landing\";s:52:\"https://proskatersplace.com/brand/undercover-wheels/\";s:10:\"pys_source\";s:14:\"duckduckgo.com\";s:7:\"pys_utm\";s:105:\"utm_source:undefined|utm_medium:undefined|utm_campaign:undefined|utm_term:undefined|utm_content:undefined\";s:10:\"pys_utm_id\";s:65:\"fbadid:undefined|gadid:undefined|padid:undefined|bingid:undefined\";s:16:\"last_pys_landing\";s:52:\"https://proskatersplace.com/brand/undercover-wheels/\";s:15:\"last_pys_source\";s:14:\"duckduckgo.com\";s:12:\"last_pys_utm\";s:105:\"utm_source:undefined|utm_medium:undefined|utm_campaign:undefined|utm_term:undefined|utm_content:undefined\";s:15:\"last_pys_utm_id\";s:65:\"fbadid:undefined|gadid:undefined|padid:undefined|bingid:undefined\";s:16:\"pys_browser_time\";s:21:\"22-23|Wednesday|March\";}"
+  ],
+  "pys_fb_cookie": [
+    "a:2:{s:3:\"fbc\";N;s:3:\"fbp\";s:29:\"fb.1.1743041694021.6585594288\";}"
+  ],
+  "_thwcfe_ship_to_billing": ["1"],
+  "_thwcfe_disabled_fields": ["shipping_phone"],
+  "_wc_order_attribution_source_type": ["referral"],
+  "_wc_order_attribution_referrer": ["https://duckduckgo.com/"],
+  "_wc_order_attribution_utm_source": ["duckduckgo.com"],
+  "_wc_order_attribution_utm_medium": ["referral"],
+  "_wc_order_attribution_utm_content": ["/"],
+  "_wc_order_attribution_session_entry": [
+    "https://proskatersplace.com/brand/undercover-wheels/"
+  ],
+  "_wc_order_attribution_session_start_time": ["2025-03-27 02:14:53"],
+  "_wc_order_attribution_session_pages": ["15"],
+  "_wc_order_attribution_session_count": ["4"],
+  "_wc_order_attribution_user_agent": [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+  ],
+  "_wc_order_attribution_device_type": ["Desktop"],
+  "_woofunnel_cid": ["2328"],
+  "_wc_points_logged_redemption": [
+    "a:3:{s:6:\"points\";d:0;s:6:\"amount\";i:0;s:13:\"discount_code\";N;}"
+  ],
+  "_fkwcs_customer_id": ["cus_S18S0VRK0e2FM1"],
+  "_fkwcs_source_id": ["pm_1R76BTJfvAxB5yxDtSH3q9hz"],
+  "_fkwcs_retry_count": ["1"],
+  "_fkwcs_intent_id": [
+    "a:2:{s:2:\"id\";s:27:\"pi_3R76BYJfvAxB5yxD0GQA1veX\";s:13:\"client_secret\";s:60:\"pi_3R76BYJfvAxB5yxD0GQA1veX_secret_2Algp36kyyH26Xid4GSrPT7pA\";}"
+  ],
+  "_fkwcs_stripe_fee": ["9.90"],
+  "_fkwcs_stripe_net": ["290.07"],
+  "_fkwcs_stripe_currency": ["USD"],
+  "_transaction_id": ["py_3R76BYJfvAxB5yxD0SfwEeDh"],
+  "_date_paid": ["1743042533"],
+  "_paid_date": ["2025-03-26 21:28:53"],
+  "_woofunnel_custid": ["2328"],
+  "ywaf_check_status": ["success"],
+  "ywaf_risk_factor": ["a:2:{s:5:\"score\";d:0;s:12:\"failed_rules\";a:0:{}}"],
+  "_pys_purchase_event_fired": ["1"],
+  "_ga_tracked": ["1"],
+  "_bump_purchase_item_total": ["0"],
+  "_shipstation_exported": ["yes"],
+  "_edit_lock": ["1752096397:35040"]
+}

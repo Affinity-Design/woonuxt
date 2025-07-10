@@ -11,6 +11,7 @@ const {
   validateOrderPrePayment,
   processCheckout,
   updateShippingLocation,
+  setOrderAttribution,
 } = useCheckout();
 const runtimeConfig = useRuntimeConfig();
 
@@ -32,6 +33,12 @@ const stripeCardRef = ref(null);
 
 onBeforeMount(() => {
   if (query.cancel_order) window.close();
+
+  // Set additional order attribution data when checkout page loads
+  setOrderAttribution({
+    _wc_order_attribution_session_entry: window.location.href,
+    _wc_order_attribution_session_start_time: new Date().toISOString(),
+  });
 });
 
 // Handle Stripe payment

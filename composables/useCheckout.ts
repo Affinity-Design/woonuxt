@@ -12,7 +12,25 @@ export function useCheckout() {
       customerNote: "",
       paymentMethod: "",
       shipToDifferentAddress: false,
-      metaData: [{ key: "order_via", value: "WooNuxt" }],
+      metaData: [
+        { key: "order_via", value: "WooNuxt" },
+        // Order attribution metadata to track source
+        { key: "_wc_order_attribution_source_type", value: "direct" },
+        { key: "_wc_order_attribution_referrer", value: "proskatersplace.ca" },
+        {
+          key: "_wc_order_attribution_utm_source",
+          value: "proskatersplace.ca",
+        },
+        { key: "_wc_order_attribution_utm_medium", value: "headless" },
+        { key: "_wc_order_attribution_utm_content", value: "nuxt-frontend" },
+        {
+          key: "_wc_order_attribution_session_entry",
+          value: "proskatersplace.ca",
+        },
+        { key: "_wc_order_attribution_device_type", value: "Web" },
+        { key: "order_source", value: "proskatersplace.ca" },
+        { key: "frontend_origin", value: "proskatersplace.ca" },
+      ],
       username: "",
       password: "",
       transactionId: "",
@@ -21,6 +39,33 @@ export function useCheckout() {
   });
 
   const isProcessingOrder = useState<boolean>("isProcessingOrder", () => false);
+
+  // Function to add or update order attribution metadata
+  const setOrderAttribution = (
+    attributionData: Record<string, string>
+  ): void => {
+    // Add session timing information
+    const currentTime = new Date().toISOString();
+    const defaultAttribution = {
+      _wc_order_attribution_session_start_time: currentTime,
+      _wc_order_attribution_session_pages: "1",
+      _wc_order_attribution_session_count: "1",
+      _wc_order_attribution_user_agent: navigator.userAgent || "Unknown",
+      ...attributionData,
+    };
+
+    // Add or update attribution metadata
+    Object.entries(defaultAttribution).forEach(([key, value]) => {
+      const existingIndex = orderInput.value.metaData.findIndex(
+        (meta: any) => meta.key === key
+      );
+      if (existingIndex >= 0) {
+        orderInput.value.metaData[existingIndex].value = value;
+      } else {
+        orderInput.value.metaData.push({ key, value });
+      }
+    });
+  };
 
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
@@ -436,5 +481,6 @@ export function useCheckout() {
     validateOrderPrePayment,
     processCheckout,
     updateShippingLocation,
+    setOrderAttribution,
   };
 }
