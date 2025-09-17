@@ -325,7 +325,7 @@ useSeoMeta({
         >
           <div class="aspect-video bg-gray-100 overflow-hidden">
             <img
-              src="/images/inline-vs-roller-skates.jpg"
+              src="/images/inline-skates.jpg"
               alt="Inline Skates vs Roller Skates Comparison"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
@@ -338,7 +338,8 @@ useSeoMeta({
               Inline Skates vs Roller Skates: 2025 Guide
             </h3>
             <p class="text-gray-600 text-sm mt-2">
-              Complete comparison guide to help Canadian skaters choose between inline and roller skates.
+              Complete comparison guide to help Canadian skaters choose between
+              inline and roller skates.
             </p>
           </div>
         </NuxtLink>

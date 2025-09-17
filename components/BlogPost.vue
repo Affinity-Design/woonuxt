@@ -37,7 +37,7 @@ setCanadianSEO({
   title,
   description: desc,
   image,
-  type: 'article'
+  type: "article",
 });
 
 // Structured data for article
@@ -51,7 +51,7 @@ const articleStructuredData = {
   dateModified: post.value.dateModified || post.value.date,
   url: route.path,
   category: post.value.category,
-  tags: post.value.tags
+  tags: post.value.tags,
 };
 
 // Format date
@@ -140,11 +140,8 @@ const productCategories = [
 
 <template>
   <!-- SEO Structured Data -->
-  <SEOStructuredData 
-    type="Article"
-    :data="articleStructuredData"
-  />
-  
+  <SEOStructuredData type="Article" :data="articleStructuredData" />
+
   <div class="min-h-screen" style="background-color: #f3f4f6">
     <!-- Navigation Breadcrumb -->
     <div class="bg-white">

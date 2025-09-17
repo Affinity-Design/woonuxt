@@ -12,7 +12,7 @@ setCanadianSEO({
   title,
   description: desc,
   image: "/images/Inline-Skates-Toronto.jpg",
-  type: 'website'
+  type: "website",
 });
 
 // Content queries

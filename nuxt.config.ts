@@ -135,63 +135,76 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: {
-        lang: 'en-CA' // Canadian English
+        lang: "en-CA", // Canadian English
       },
       meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'format-detection', content: 'telephone=no' },
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "format-detection", content: "telephone=no" },
         // Geo-targeting for Canada
-        { name: 'geo.region', content: 'CA' },
-        { name: 'geo.placename', content: 'Canada' },
-        { name: 'ICBM', content: '43.651070, -79.347015' }, // Toronto coordinates
+        { name: "geo.region", content: "CA" },
+        { name: "geo.placename", content: "Canada" },
+        { name: "ICBM", content: "43.651070, -79.347015" }, // Toronto coordinates
         // Currency and pricing
-        { property: 'product:price:currency', content: 'CAD' },
-        { name: 'price_currency', content: 'CAD' },
+        { property: "product:price:currency", content: "CAD" },
+        { name: "price_currency", content: "CAD" },
         // Canadian-specific business info
-        { name: 'business:location:country_name', content: 'Canada' },
-        { name: 'business:location:region', content: 'Ontario' },
-        { name: 'business:location:locality', content: 'Toronto' }
+        { name: "business:location:country_name", content: "Canada" },
+        { name: "business:location:region", content: "Ontario" },
+        { name: "business:location:locality", content: "Toronto" },
       ],
       link: [
-        { rel: 'canonical', href: 'https://proskatersplace.ca' },
+        { rel: "canonical", href: "https://proskatersplace.ca" },
         // Hreflang for international targeting
-        { rel: 'alternate', hreflang: 'en-ca', href: 'https://proskatersplace.ca' },
-        { rel: 'alternate', hreflang: 'en-us', href: 'https://proskatersplace.com' },
-        { rel: 'alternate', hreflang: 'x-default', href: 'https://proskatersplace.com' }
+        {
+          rel: "alternate",
+          hreflang: "en-ca",
+          href: "https://proskatersplace.ca",
+        },
+        {
+          rel: "alternate",
+          hreflang: "en-us",
+          href: "https://proskatersplace.com",
+        },
+        {
+          rel: "alternate",
+          hreflang: "x-default",
+          href: "https://proskatersplace.com",
+        },
       ],
       script: [
         // Structured data for Organization
         {
-          type: 'application/ld+json',
+          type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "ProSkaters Place Canada",
-            "url": "https://proskatersplace.ca",
-            "logo": "https://proskatersplace.ca/logo.svg",
-            "description": "Canada's premier destination for inline skates, roller skates, and skating accessories. Expert advice and fast shipping across Canada.",
-            "address": {
+            name: "ProSkaters Place Canada",
+            url: "https://proskatersplace.ca",
+            logo: "https://proskatersplace.ca/logo.svg",
+            description:
+              "Canada's premier destination for inline skates, roller skates, and skating accessories. Expert advice and fast shipping across Canada.",
+            address: {
               "@type": "PostalAddress",
-              "addressCountry": "CA",
-              "addressRegion": "ON",
-              "addressLocality": "Toronto"
+              addressCountry: "CA",
+              addressRegion: "ON",
+              addressLocality: "Toronto",
             },
-            "contactPoint": {
+            contactPoint: {
               "@type": "ContactPoint",
-              "contactType": "customer service",
-              "availableLanguage": ["English", "French"]
+              contactType: "customer service",
+              availableLanguage: ["English", "French"],
             },
-            "currenciesAccepted": "CAD",
-            "paymentAccepted": ["Credit Card", "PayPal", "Interac"],
-            "areaServed": {
+            currenciesAccepted: "CAD",
+            paymentAccepted: ["Credit Card", "PayPal", "Interac"],
+            areaServed: {
               "@type": "Country",
-              "name": "Canada"
-            }
-          })
-        }
-      ]
-    }
+              name: "Canada",
+            },
+          }),
+        },
+      ],
+    },
   },
 
   modules: ["nuxt-gtag", "@nuxt/content"],
@@ -200,11 +213,11 @@ export default defineNuxtConfig({
   content: {
     documentDriven: true,
     highlight: {
-      theme: "github-light"
+      theme: "github-light",
     },
     markdown: {
-      anchorLinks: false
-    }
+      anchorLinks: false,
+    },
   },
 
   // SEO and localization improvements for .ca site
