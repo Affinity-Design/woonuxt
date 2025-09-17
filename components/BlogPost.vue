@@ -22,25 +22,41 @@ if (!post.value) {
   });
 }
 
-// SEO Meta
+// Canadian SEO setup
+const { setCanadianSEO } = useCanadianSEO();
+
+// SEO Meta with Canadian optimization
 const title = post.value.title ?? "ProSkaters Place Blog";
 const desc =
   post.value.description ??
   "Expert skating advice and tips from Toronto's most trusted skate shop.";
 const image = post.value.ogImage ?? "/images/Inline-Skates-Toronto.jpg";
 
-useSeoMeta({
+// Set Canadian-specific SEO
+setCanadianSEO({
   title,
-  ogTitle: title,
   description: desc,
-  ogDescription: desc,
-  ogImage: image,
-  twitterCard: "summary_large_image",
+  image,
+  type: 'article'
 });
+
+// Structured data for article
+const articleStructuredData = {
+  title: post.value.title,
+  description: post.value.description,
+  image: post.value.ogImage,
+  author: post.value.author,
+  authorBio: post.value.authorBio,
+  datePublished: post.value.date,
+  dateModified: post.value.dateModified || post.value.date,
+  url: route.path,
+  category: post.value.category,
+  tags: post.value.tags
+};
 
 // Format date
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString("en-CA", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -123,6 +139,12 @@ const productCategories = [
 </script>
 
 <template>
+  <!-- SEO Structured Data -->
+  <SEOStructuredData 
+    type="Article"
+    :data="articleStructuredData"
+  />
+  
   <div class="min-h-screen" style="background-color: #f3f4f6">
     <!-- Navigation Breadcrumb -->
     <div class="bg-white">

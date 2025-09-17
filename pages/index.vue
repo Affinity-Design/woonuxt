@@ -320,6 +320,30 @@ useSeoMeta({
         </NuxtLink>
 
         <NuxtLink
+          to="/inline-skates-vs-roller-skates"
+          class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+        >
+          <div class="aspect-video bg-gray-100 overflow-hidden">
+            <img
+              src="/images/inline-vs-roller-skates.jpg"
+              alt="Inline Skates vs Roller Skates Comparison"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+          <div class="p-4">
+            <h3
+              class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors"
+            >
+              Inline Skates vs Roller Skates: 2025 Guide
+            </h3>
+            <p class="text-gray-600 text-sm mt-2">
+              Complete comparison guide to help Canadian skaters choose between inline and roller skates.
+            </p>
+          </div>
+        </NuxtLink>
+
+        <NuxtLink
           to="/roller-skating-toronto-guide"
           class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
         >

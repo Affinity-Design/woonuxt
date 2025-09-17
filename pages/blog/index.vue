@@ -1,16 +1,18 @@
 <script setup lang="ts">
-// SEO & Meta
-const title = "Skating Tips & Guides | ProSkaters Place Blog";
-const desc =
-  "Expert skating advice, product reviews, and tips from Toronto's most trusted skate shop. Learn from the pros and improve your skating game.";
+// Canadian SEO setup
+const { setCanadianSEO } = useCanadianSEO();
 
-useSeoMeta({
+// SEO & Meta
+const title = "Skating Tips & Guides | ProSkaters Place Canada Blog";
+const desc =
+  "Expert skating advice, product reviews, and tips from Canada's most trusted skate shop. Learn from the pros and improve your skating game across Ontario and beyond.";
+
+// Set Canadian-specific SEO
+setCanadianSEO({
   title,
-  ogTitle: title,
   description: desc,
-  ogDescription: desc,
-  ogImage: "/images/Inline-Skates-Toronto.jpg",
-  twitterCard: "summary_large_image",
+  image: "/images/Inline-Skates-Toronto.jpg",
+  type: 'website'
 });
 
 // Content queries
