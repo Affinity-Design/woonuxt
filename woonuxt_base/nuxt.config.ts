@@ -43,7 +43,7 @@ export default defineNuxtConfig({
     global: true,
   },
 
-  modules: ['woonuxt-settings', 'nuxt-graphql-client', '@nuxtjs/tailwindcss', '@nuxt/icon', '@nuxt/image', '@nuxtjs/i18n', 'nuxt-gtag'],
+  modules: [/* 'woonuxt-settings', */ 'nuxt-graphql-client', '@nuxtjs/tailwindcss', '@nuxt/icon', '@nuxt/image', '@nuxtjs/i18n', 'nuxt-gtag'],
 
   'graphql-client': {
     clients: {

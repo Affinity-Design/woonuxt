@@ -11,7 +11,12 @@ const activePaymentMethod = computed<PaymentGateway>(
 const emits = defineEmits(["update:modelValue"]);
 
 // List of payment gateways to exclude
-const excludedGateways = ["helcimjs", "ppcp"];
+const excludedGateways = [
+  "ppcp-gateway",
+  "ppcp-credit-card-gateway",
+  "stripe",
+  "fkwcs_stripe",
+]; // Removed "helcimjs" to enable Helcim
 
 // Filter function to exclude unwanted payment gateways
 const filterPaymentGateways = (gateways) => {

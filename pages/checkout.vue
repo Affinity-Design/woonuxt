@@ -12,6 +12,7 @@ const {
   processCheckout,
   updateShippingLocation,
   setOrderAttribution,
+  processHelcimPayment,
 } = useCheckout();
 const runtimeConfig = useRuntimeConfig();
 
@@ -29,7 +30,37 @@ const isInvalidEmail = ref<boolean>(false);
 const isPaid = ref<boolean>(false);
 const paymentError = ref<string | null>(null);
 const isSubmitting = ref<boolean>(false);
-const stripeCardRef = ref(null);
+const stripeCardRef = ref<any>(null);
+const helcimCardRef = ref<any>(null);
+
+// Helcim payment state
+const helcimPaymentComplete = ref<boolean>(false);
+const helcimTransactionData = ref<any>(null);
+
+// Computed property for Helcim amount that includes tax and is reactive
+const helcimAmount = computed(() => {
+  if (!cart.value?.total) return 0;
+
+  console.log(`[DEBUG Checkout] Raw cart values:`, {
+    cartTotal: cart.value.total,
+    cartRawTotal: cart.value.rawTotal,
+    cartSubtotal: cart.value.subtotal,
+    cartTotalTax: cart.value.totalTax,
+  });
+
+  // Parse the total amount string (e.g., "$2.24 CAD" -> 2.24)
+  const totalStr = cart.value.total.replace(/[^\d.-]/g, "");
+  const totalInDollars = parseFloat(totalStr) || 0;
+
+  console.log(`[DEBUG Checkout] Helcim amount calculation:`, {
+    originalString: cart.value.total,
+    cleanedString: totalStr,
+    parsedDollars: totalInDollars,
+    sendingToHelcimComponent: totalInDollars,
+  });
+
+  return totalInDollars;
+});
 
 onBeforeMount(() => {
   if (query.cancel_order) window.close();
@@ -46,8 +77,8 @@ const processStripePayment = async () => {
   console.log("[processStripePayment] Starting Stripe payment process");
   try {
     // Get Stripe instance from the card component
-    const stripeInstance = stripeCardRef.value?.getStripe();
-    const cardElement = stripeCardRef.value?.getCardElement();
+    const stripeInstance = stripeCardRef.value?.getStripe?.();
+    const cardElement = stripeCardRef.value?.getCardElement?.();
 
     console.log(
       "[processStripePayment] Stripe instance:",
@@ -64,7 +95,7 @@ const processStripePayment = async () => {
     }
 
     // Check if card is complete
-    const isCardComplete = stripeCardRef.value?.isCardComplete();
+    const isCardComplete = stripeCardRef.value?.isCardComplete?.();
     console.log("[processStripePayment] Is card complete:", isCardComplete);
     if (!isCardComplete) {
       console.error("[processStripePayment] Card details incomplete");
@@ -141,7 +172,7 @@ const processStripePayment = async () => {
         body: requestBody,
       });
       console.log("[processStripePayment] Server response:", response);
-    } catch (fetchError) {
+    } catch (fetchError: any) {
       console.error("[processStripePayment] Fetch error:", fetchError);
       console.error(
         "[processStripePayment] Fetch error data:",
@@ -155,26 +186,28 @@ const processStripePayment = async () => {
     if (!response.success) {
       console.error(
         "[processStripePayment] Server returned error:",
-        response.error
+        (response as any).error
       );
-      throw new Error(response.error?.message || "Payment failed on server");
+      throw new Error(
+        (response as any).error?.message || "Payment failed on server"
+      );
     }
 
     // Add payment info to order
     console.log("[processStripePayment] Adding payment metadata to order...");
     orderInput.value.metaData.push({
       key: "_stripe_payment_intent_id",
-      value: response.paymentIntentId,
+      value: (response as any).paymentIntentId,
     });
-    orderInput.value.transactionId = response.paymentIntentId;
+    orderInput.value.transactionId = (response as any).paymentIntentId;
 
     isPaid.value = true;
     console.log(
       "[processStripePayment] Payment successful:",
-      response.paymentIntentId
+      (response as any).paymentIntentId
     );
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("[processStripePayment] CATCH BLOCK - Error object:", error);
     console.error(
       "[processStripePayment] CATCH BLOCK - Error message:",
@@ -199,13 +232,26 @@ const debugStripeState = () => {
   console.log("[DEBUG] Stripe card ref:", stripeCardRef.value);
   console.log(
     "[DEBUG] Stripe instance available:",
-    stripeCardRef.value?.getStripe() ? "Yes" : "No"
+    stripeCardRef.value?.getStripe
+      ? stripeCardRef.value.getStripe()
+        ? "Yes"
+        : "No"
+      : "Method not available"
   );
   console.log(
     "[DEBUG] Card element available:",
-    stripeCardRef.value?.getCardElement() ? "Yes" : "No"
+    stripeCardRef.value?.getCardElement
+      ? stripeCardRef.value.getCardElement()
+        ? "Yes"
+        : "No"
+      : "Method not available"
   );
-  console.log("[DEBUG] Card complete:", stripeCardRef.value?.isCardComplete());
+  console.log(
+    "[DEBUG] Card complete:",
+    stripeCardRef.value?.isCardComplete
+      ? stripeCardRef.value.isCardComplete()
+      : "Method not available"
+  );
 };
 
 // New function to handle form submission with phone validation
@@ -214,8 +260,7 @@ const handleFormSubmit = async () => {
 
   // Check if billing phone number is present
   if (!customer.value?.billing?.phone) {
-    paymentError.value = t("messages.billing.phoneRequired"); // Assuming you have this translation
-    // Or a generic message: "Billing phone number is required."
+    paymentError.value = "Billing phone number is required."; // Use direct string instead of translation
     console.error("[handleFormSubmit] Billing phone number is missing.");
     isSubmitting.value = false; // Ensure button is re-enabled if it was set to submitting
     buttonText.value = t("messages.shop.placeOrder"); // Reset button text
@@ -251,13 +296,78 @@ const payNow = async () => {
 
     if (!validationResult.success) {
       console.log("[payNow] Validation failed:", validationResult.errorMessage);
-      paymentError.value = validationResult.errorMessage;
-      throw new Error(paymentError.value);
+      paymentError.value = validationResult.errorMessage || "Validation failed";
+      throw new Error(paymentError.value || "Validation failed");
     }
     console.log("[payNow] Validation passed, proceeding to payment");
 
     // STEP 2: Process payment only if validation succeeded
-    const success = await processStripePayment();
+    let success = false;
+    const paymentMethodId = orderInput.value.paymentMethod?.id || "";
+
+    console.log("[payNow] Processing payment with method:", paymentMethodId);
+
+    if (paymentMethodId === "helcimjs" || paymentMethodId === "helcim") {
+      // For Helcim, payment is processed through the HelcimCard component
+      // The success is determined by helcimPaymentComplete state
+      if (helcimPaymentComplete.value) {
+        success = true;
+        console.log("[payNow] Helcim payment already completed");
+
+        // WORKAROUND: Change payment method to COD for WordPress order creation
+        // since WordPress doesn't recognize 'helcimjs' but payment is already processed
+        console.log(
+          "[payNow] Switching payment method from helcimjs to cod for WordPress compatibility"
+        );
+        orderInput.value.paymentMethod = {
+          id: "cod",
+          title: "Cash on Delivery (Paid via Helcim)",
+          description: `Payment processed via Helcim. Transaction ID: ${helcimTransactionData.value?.data?.data?.transactionId || "N/A"}`,
+        };
+      } else {
+        // Trigger Helcim payment process
+        if (helcimCardRef.value?.processPayment) {
+          console.log("[payNow] Triggering Helcim payment...");
+          helcimCardRef.value.processPayment();
+
+          // Wait for payment completion (with timeout)
+          success = await new Promise((resolve) => {
+            const checkPayment = () => {
+              if (helcimPaymentComplete.value) {
+                // Change payment method to COD after successful payment
+                console.log(
+                  "[payNow] Helcim payment completed, switching to COD for WordPress"
+                );
+                orderInput.value.paymentMethod = {
+                  id: "cod",
+                  title: "Cash on Delivery (Paid via Helcim)",
+                  description: `Payment processed via Helcim. Transaction ID: ${helcimTransactionData.value?.data?.data?.transactionId || "N/A"}`,
+                };
+                resolve(true);
+              } else if (paymentError.value) {
+                resolve(false);
+              } else {
+                setTimeout(checkPayment, 500);
+              }
+            };
+            checkPayment();
+
+            // Timeout after 5 minutes
+            setTimeout(() => resolve(false), 300000);
+          });
+        } else {
+          throw new Error("Helcim payment component not ready");
+        }
+      }
+    } else if (paymentMethodId === "fkwcs_stripe") {
+      // Process Stripe payment
+      success = await processStripePayment();
+    } else {
+      // For other payment methods (like COD), assume success
+      success = true;
+      console.log("[payNow] Using non-card payment method:", paymentMethodId);
+    }
+
     if (!success) {
       console.log("[payNow] Payment failed:", paymentError.value);
       throw new Error(paymentError.value || "Payment failed");
@@ -274,11 +384,13 @@ const payNow = async () => {
       );
       paymentError.value =
         checkoutResult?.errorMessage || "Order completion failed after payment";
-      throw new Error(paymentError.value);
+      throw new Error(
+        paymentError.value || "Order completion failed after payment"
+      );
     }
 
     console.log("[payNow] Checkout completed successfully");
-  } catch (error) {
+  } catch (error: any) {
     console.error("Checkout error:", error);
     paymentError.value =
       error.message || t("messages.shop.genericError", "An error occurred");
@@ -308,13 +420,83 @@ const checkEmailOnInput = (email?: string | null): void => {
 };
 
 // Handle Stripe card ready state
-const handleStripeReady = (event) => {
+const handleStripeReady = (event: any) => {
   // console.log("Stripe card ready:", event);
 };
 
 // Handle Stripe card errors
-const handleStripeError = (error) => {
+const handleStripeError = (error: any) => {
   paymentError.value = error;
+};
+
+// Helcim payment event handlers
+const handleHelcimReady = () => {
+  console.log("[Checkout] Helcim payment ready");
+};
+
+const handleHelcimError = (error: any) => {
+  console.error("[Checkout] Helcim payment error:", error);
+  paymentError.value = error;
+};
+
+const handleHelcimSuccess = (transactionData: any) => {
+  console.log("[Checkout] Helcim payment successful:", transactionData);
+  helcimPaymentComplete.value = true;
+  helcimTransactionData.value = transactionData;
+
+  // Add transaction metadata to order
+  const actualTransactionId =
+    transactionData?.data?.data?.transactionId ||
+    transactionData?.data?.transactionId;
+  if (actualTransactionId) {
+    orderInput.value.metaData.push({
+      key: "_helcim_transaction_id",
+      value: actualTransactionId,
+    });
+    orderInput.value.transactionId = actualTransactionId;
+    console.log("[Checkout] Set transaction ID:", actualTransactionId);
+  }
+
+  // Set payment as completed
+  isPaid.value = true;
+  paymentError.value = null;
+};
+
+const handleHelcimFailed = (error: any) => {
+  console.error("[Checkout] Helcim payment failed:", error);
+  helcimPaymentComplete.value = false;
+  isPaid.value = false;
+  paymentError.value = typeof error === "string" ? error : "Payment failed";
+};
+
+const handleHelcimComplete = (result: any) => {
+  console.log("[Checkout] Helcim payment completed:", result);
+
+  if (result.success) {
+    handleHelcimSuccess(result.transactionData);
+  } else {
+    handleHelcimFailed(result.error);
+  }
+};
+
+const handleHelcimCheckoutRequest = async () => {
+  console.log(
+    "[Checkout] Helcim checkout requested - triggering form submission"
+  );
+
+  // Reset any previous Helcim payment state
+  helcimPaymentComplete.value = false;
+  helcimTransactionData.value = null;
+
+  // Trigger the form submission which will run validation and then call Helcim payment
+  const form = document.querySelector("form");
+  if (form) {
+    const submitEvent = new Event("submit", {
+      bubbles: true,
+      cancelable: true,
+    });
+    form.dispatchEvent(submitEvent);
+  }
 };
 
 const hasPaymentError = computed(
@@ -469,7 +651,7 @@ useSeoMeta({
             />
           </div>
 
-          <!-- Payment methods section - updated with new Stripe component -->
+          <!-- Payment methods section -->
           <div v-if="paymentGateways?.nodes.length" class="mt-2 col-span-full">
             <h2 class="mb-4 text-xl font-semibold">
               {{ $t("messages.billing.paymentOptions") }}
@@ -480,14 +662,62 @@ useSeoMeta({
               :paymentGateways
             />
 
-            <!-- New Stripe card component -->
-            <div class="mt-4">
+            <!-- Helcim Card Component - Moved to OrderSummary -->
+            <!-- <div v-if="orderInput.paymentMethod?.id === 'helcimjs' || orderInput.paymentMethod?.id === 'helcim'" class="mt-4">
+              <h3 class="mb-2 text-md font-medium">Secure Payment</h3>
+              <HelcimCard
+                ref="helcimCardRef"
+                :amount="Math.round(parseFloat(cart.rawTotal || '0') * 100)"
+                currency="CAD"
+                @ready="handleHelcimReady"
+                @error="handleHelcimError"
+                @payment-success="handleHelcimSuccess"
+                @payment-failed="handleHelcimFailed"
+                @payment-complete="handleHelcimComplete"
+              />
+            </div> -->
+
+            <!-- Stripe Card Component -->
+            <div
+              v-if="orderInput.paymentMethod?.id === 'fkwcs_stripe'"
+              class="mt-4"
+            >
               <h3 class="mb-2 text-md font-medium">Card Details</h3>
               <StripeCard
                 ref="stripeCardRef"
                 @ready="handleStripeReady"
                 @error="handleStripeError"
               />
+            </div>
+
+            <!-- Other payment methods info -->
+            <div
+              v-else-if="
+                orderInput.paymentMethod?.id &&
+                orderInput.paymentMethod?.id !== 'helcimjs' &&
+                orderInput.paymentMethod?.id !== 'helcim'
+              "
+              class="mt-4"
+            >
+              <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-center gap-3">
+                  <Icon
+                    name="ion:information-circle"
+                    size="20"
+                    class="text-blue-600"
+                  />
+                  <div>
+                    <div class="font-medium text-gray-800">
+                      {{ orderInput.paymentMethod.title }}
+                    </div>
+                    <div
+                      v-if="orderInput.paymentMethod.description"
+                      class="text-sm text-gray-600 mt-1"
+                      v-html="orderInput.paymentMethod.description"
+                    ></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -509,7 +739,7 @@ useSeoMeta({
           </div>
         </div>
 
-        <!-- Order summary section - unchanged -->
+        <!-- Order summary section -->
         <OrderSummary>
           <div
             v-if="hasPaymentError"
@@ -518,7 +748,30 @@ useSeoMeta({
             {{ paymentError }}
           </div>
 
+          <!-- Helcim Card Component in Order Summary -->
+          <div
+            v-if="
+              orderInput.paymentMethod?.id === 'helcimjs' ||
+              orderInput.paymentMethod?.id === 'helcim'
+            "
+            class="mt-4"
+          >
+            <HelcimCard
+              ref="helcimCardRef"
+              :amount="helcimAmount"
+              currency="CAD"
+              @ready="handleHelcimReady"
+              @error="handleHelcimError"
+              @payment-success="handleHelcimSuccess"
+              @payment-failed="handleHelcimFailed"
+              @payment-complete="handleHelcimComplete"
+              @checkout-requested="handleHelcimCheckoutRequest"
+            />
+          </div>
+
+          <!-- Standard checkout button - hidden when Helcim is selected -->
           <button
+            v-else
             type="submit"
             class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
             :disabled="isCheckoutDisabled || isSubmitting"

@@ -40,6 +40,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Server-only secrets
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
+    helcimApiToken: process.env.NUXT_HELCIM_API_TOKEN,
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     SENDING_EMAIL: process.env.SENDING_EMAIL,
     RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
