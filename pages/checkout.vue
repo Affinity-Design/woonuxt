@@ -701,14 +701,30 @@ const handleHelcimComplete = (result: any) => {
 
 const handleHelcimCheckoutRequest = async () => {
   console.log(
-    "[Checkout] Helcim checkout requested - but payment completion will automatically trigger order creation"
+    "[Checkout] Helcim checkout requested - triggering payment modal"
   );
 
-  // NOTE: This function is now mainly for logging purposes
-  // The actual order creation is triggered by handleHelcimSuccess() after payment completes
-  // We don't need to call payNow() here anymore since it will be called automatically
+  // Validate billing phone number first
+  if (!customer.value?.billing?.phone) {
+    paymentError.value = "Billing phone number is required.";
+    console.error(
+      "[handleHelcimCheckoutRequest] Billing phone number is missing."
+    );
+    return;
+  }
 
-  console.log("[Checkout] Waiting for Helcim payment to complete...");
+  // Clear any previous errors
+  paymentError.value = null;
+
+  // Trigger the Helcim payment modal through the HelcimCard component
+  if (helcimCardRef.value?.processPayment) {
+    console.log("[Checkout] Triggering Helcim payment modal...");
+    helcimCardRef.value.processPayment();
+  } else {
+    console.error("[Checkout] Helcim card component not ready");
+    paymentError.value =
+      "Helcim payment component not ready. Please try again.";
+  }
 };
 
 const hasPaymentError = computed(
