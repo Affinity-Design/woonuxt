@@ -88,7 +88,10 @@ const initializePayment = async () => {
 
       // Load Helcim script after successful initialization
       await loadHelcimScript();
-      emit("ready");
+      emit("ready", {
+        checkoutToken: checkoutToken.value,
+        secretToken: secretToken.value,
+      });
     } else {
       throw new Error(
         response.error?.message || "Failed to initialize Helcim payment"

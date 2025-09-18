@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount, onUnmounted } from "vue";
 
 const { t } = useI18n();
 const { query } = useRoute();
@@ -36,6 +36,128 @@ const helcimCardRef = ref<any>(null);
 // Helcim payment state
 const helcimPaymentComplete = ref<boolean>(false);
 const helcimTransactionData = ref<any>(null);
+const helcimCheckoutToken = ref<string>("");
+const helcimSecretToken = ref<string>("");
+
+// Setup official Helcim event listeners based on documentation
+const setupHelcimEventListeners = () => {
+  const messageHandler = (event: MessageEvent) => {
+    if (!helcimCheckoutToken.value) return;
+
+    const helcimPayJsIdentifierKey =
+      "helcim-pay-js-" + helcimCheckoutToken.value;
+
+    console.log("[Checkout] Received window message:", event.data);
+
+    if (event.data.eventName === helcimPayJsIdentifierKey) {
+      console.log(
+        "[Checkout] Official Helcim event received:",
+        event.data.eventStatus
+      );
+
+      switch (event.data.eventStatus) {
+        case "SUCCESS":
+          console.log(
+            "[Checkout] Helcim SUCCESS event - processing transaction"
+          );
+          handleHelcimOfficialSuccess(event.data.eventMessage);
+          break;
+
+        case "ABORTED":
+          console.error(
+            "[Checkout] Helcim ABORTED event:",
+            event.data.eventMessage
+          );
+          handleHelcimOfficialFailed(event.data.eventMessage);
+          break;
+
+        case "HIDE":
+          console.log("[Checkout] Helcim HIDE event - modal closed");
+          // Modal was closed, but this doesn't necessarily mean failure
+          break;
+
+        default:
+          console.log(
+            "[Checkout] Unknown Helcim event status:",
+            event.data.eventStatus
+          );
+      }
+    }
+  };
+
+  window.addEventListener("message", messageHandler);
+
+  // Store handler for cleanup
+  (window as any)._checkoutHelcimMessageHandler = messageHandler;
+};
+
+// Handle official Helcim success event according to documentation
+const handleHelcimOfficialSuccess = async (eventMessage: any) => {
+  console.log(
+    "[Checkout] Processing official Helcim success event:",
+    eventMessage
+  );
+
+  // Prevent double processing
+  if (helcimPaymentComplete.value) {
+    console.log(
+      "[Checkout] Helcim payment already processed, ignoring duplicate"
+    );
+    return;
+  }
+
+  try {
+    // Validate the response structure according to Helcim docs
+    if (!eventMessage?.data) {
+      throw new Error("Invalid Helcim response: missing data");
+    }
+
+    const transactionData = eventMessage.data;
+    const hash = eventMessage.hash;
+
+    // Log transaction details
+    console.log("[Checkout] Helcim transaction details:", {
+      transactionId: transactionData.transactionId,
+      status: transactionData.status,
+      amount: transactionData.amount,
+      currency: transactionData.currency,
+      hash: hash,
+    });
+
+    // Validate required fields
+    if (
+      !transactionData.transactionId ||
+      transactionData.status !== "APPROVED"
+    ) {
+      throw new Error(
+        `Helcim transaction not approved: ${transactionData.status}`
+      );
+    }
+
+    // Call the existing success handler with the official format
+    await handleHelcimSuccess({
+      data: {
+        data: transactionData,
+        hash: hash,
+      },
+    });
+  } catch (error: any) {
+    console.error(
+      "[Checkout] Error processing official Helcim success:",
+      error
+    );
+    handleHelcimOfficialFailed(error.message);
+  }
+};
+
+// Handle official Helcim failed event
+const handleHelcimOfficialFailed = (eventMessage: any) => {
+  console.error("[Checkout] Official Helcim payment failed:", eventMessage);
+  helcimPaymentComplete.value = false;
+  isPaid.value = false;
+  paymentError.value =
+    typeof eventMessage === "string" ? eventMessage : "Payment failed";
+};
 
 // Computed property for Helcim amount that includes tax and is reactive
 const helcimAmount = computed(() => {
@@ -70,6 +192,19 @@ onBeforeMount(() => {
     _wc_order_attribution_session_entry: window.location.href,
     _wc_order_attribution_session_start_time: new Date().toISOString(),
   });
+
+  // Setup official Helcim event listeners
+  setupHelcimEventListeners();
+});
+
+// Cleanup event listeners when component unmounts
+onUnmounted(() => {
+  if ((window as any)._checkoutHelcimMessageHandler) {
+    window.removeEventListener(
+      "message",
+      (window as any)._checkoutHelcimMessageHandler
+    );
+  }
 });
 
 // Handle Stripe payment
@@ -277,27 +412,29 @@ const handleFormSubmit = async () => {
 
   paymentError.value = null; // Clear previous errors
 
-  // Check if billing phone number is present
+  // Check if billing phone number is present - REQUIRED FOR ALL PAYMENT METHODS
   if (!customer.value?.billing?.phone) {
-    paymentError.value = "Billing phone number is required."; // Use direct string instead of translation
+    paymentError.value = "Billing phone number is required.";
     console.error("[handleFormSubmit] Billing phone number is missing.");
-    isSubmitting.value = false; // Ensure button is re-enabled if it was set to submitting
-    buttonText.value = t("messages.shop.placeOrder"); // Reset button text
-    return; // Stop execution
+    isSubmitting.value = false;
+    buttonText.value = t("messages.shop.placeOrder");
+    return;
   }
 
   // Special handling for Helcim payments
   const paymentMethodId = orderInput.value.paymentMethod?.id || "";
   if (paymentMethodId === "helcimjs" || paymentMethodId === "helcim") {
     console.log(
-      "[handleFormSubmit] Helcim payment method detected - bypassing standard form submission"
+      "[handleFormSubmit] Helcim payment method detected - payment completion will automatically trigger order creation"
     );
-    // For Helcim, we don't want to trigger payNow() here because the payment
-    // will be handled by the Helcim component's checkout-requested event
+    // For Helcim, we don't trigger payNow() here because:
+    // 1. The HelcimCard component will process the payment
+    // 2. handleHelcimSuccess() will be called when payment completes
+    // 3. handleHelcimSuccess() will automatically call payNow() to create the order
     return;
   }
 
-  // If not Helcim and phone number is present, proceed with payNow
+  // For non-Helcim payments, proceed with standard payNow flow
   await payNow();
 };
 
@@ -472,8 +609,21 @@ const handleStripeError = (error: any) => {
 };
 
 // Helcim payment event handlers
-const handleHelcimReady = () => {
-  console.log("[Checkout] Helcim payment ready");
+const handleHelcimReady = (tokens?: any) => {
+  console.log("[Checkout] Helcim payment ready", tokens);
+
+  // Capture tokens if provided by the component
+  if (tokens?.checkoutToken) {
+    helcimCheckoutToken.value = tokens.checkoutToken;
+    console.log(
+      "[Checkout] Captured Helcim checkout token:",
+      tokens.checkoutToken
+    );
+  }
+  if (tokens?.secretToken) {
+    helcimSecretToken.value = tokens.secretToken;
+    console.log("[Checkout] Captured Helcim secret token");
+  }
 };
 
 const handleHelcimError = (error: any) => {
@@ -481,7 +631,7 @@ const handleHelcimError = (error: any) => {
   paymentError.value = error;
 };
 
-const handleHelcimSuccess = (transactionData: any) => {
+const handleHelcimSuccess = async (transactionData: any) => {
   console.log("[Checkout] Helcim payment successful:", transactionData);
 
   // Prevent double processing
@@ -513,6 +663,23 @@ const handleHelcimSuccess = (transactionData: any) => {
   paymentError.value = null;
 
   console.log("[Checkout] Helcim payment state updated successfully");
+
+  // CRITICAL: Now trigger payNow() to complete the order creation in WordPress
+  console.log(
+    "[Checkout] Triggering payNow() after successful Helcim payment to create order in WordPress"
+  );
+
+  try {
+    // Call payNow() which will detect Helcim is complete and process the checkout
+    await payNow();
+  } catch (error: any) {
+    console.error(
+      "[Checkout] Error during order creation after Helcim payment:",
+      error
+    );
+    paymentError.value =
+      error.message || "Order creation failed after successful payment";
+  }
 };
 
 const handleHelcimFailed = (error: any) => {
@@ -534,33 +701,14 @@ const handleHelcimComplete = (result: any) => {
 
 const handleHelcimCheckoutRequest = async () => {
   console.log(
-    "[Checkout] Helcim checkout requested - processing Helcim payment directly"
+    "[Checkout] Helcim checkout requested - but payment completion will automatically trigger order creation"
   );
 
-  // Prevent multiple simultaneous submissions
-  if (isSubmitting.value) {
-    console.log(
-      "[handleHelcimCheckoutRequest] Already processing, ignoring duplicate request"
-    );
-    return;
-  }
+  // NOTE: This function is now mainly for logging purposes
+  // The actual order creation is triggered by handleHelcimSuccess() after payment completes
+  // We don't need to call payNow() here anymore since it will be called automatically
 
-  // Reset any previous Helcim payment state
-  helcimPaymentComplete.value = false;
-  helcimTransactionData.value = null;
-  paymentError.value = null;
-
-  // Validate billing phone number first
-  if (!customer.value?.billing?.phone) {
-    paymentError.value = "Billing phone number is required.";
-    console.error(
-      "[handleHelcimCheckoutRequest] Billing phone number is missing."
-    );
-    return;
-  }
-
-  // Call payNow directly which will handle Helcim payment validation and processing
-  await payNow();
+  console.log("[Checkout] Waiting for Helcim payment to complete...");
 };
 
 const hasPaymentError = computed(
