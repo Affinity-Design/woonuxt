@@ -5,8 +5,8 @@ category: "Buying Guides"
 date: 2025-09-17
 author: "ProSkaters Place Canada Team"
 authorBio: "Professional skating experts with 20+ years serving Canadian skaters from Toronto to Vancouver"
-image: "/images/inline-vs-roller-skates.jpg"
-ogImage: "/images/inline-vs-roller-skates.jpg"
+image: "/images/inline-vs-rollerskates.png"
+ogImage: "/images/inline-vs-rollerskates.png"
 tags:
   [
     "inline skates",

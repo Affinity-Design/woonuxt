@@ -75,6 +75,17 @@ onBeforeMount(() => {
 // Handle Stripe payment
 const processStripePayment = async () => {
   console.log("[processStripePayment] Starting Stripe payment process");
+
+  // Double check that this is actually a Stripe payment to prevent conflicts
+  const currentPaymentMethod = orderInput.value.paymentMethod?.id || "";
+  if (currentPaymentMethod !== "fkwcs_stripe") {
+    console.error(
+      "[processStripePayment] CRITICAL ERROR: Stripe payment called but payment method is:",
+      currentPaymentMethod
+    );
+    throw new Error("Stripe payment method mismatch - this should not happen!");
+  }
+
   try {
     // Get Stripe instance from the card component
     const stripeInstance = stripeCardRef.value?.getStripe?.();
@@ -256,6 +267,14 @@ const debugStripeState = () => {
 
 // New function to handle form submission with phone validation
 const handleFormSubmit = async () => {
+  // Prevent multiple simultaneous submissions
+  if (isSubmitting.value) {
+    console.log(
+      "[handleFormSubmit] Already processing, ignoring duplicate submission"
+    );
+    return;
+  }
+
   paymentError.value = null; // Clear previous errors
 
   // Check if billing phone number is present
@@ -267,12 +286,29 @@ const handleFormSubmit = async () => {
     return; // Stop execution
   }
 
-  // If phone number is present, proceed with payNow
+  // Special handling for Helcim payments
+  const paymentMethodId = orderInput.value.paymentMethod?.id || "";
+  if (paymentMethodId === "helcimjs" || paymentMethodId === "helcim") {
+    console.log(
+      "[handleFormSubmit] Helcim payment method detected - bypassing standard form submission"
+    );
+    // For Helcim, we don't want to trigger payNow() here because the payment
+    // will be handled by the Helcim component's checkout-requested event
+    return;
+  }
+
+  // If not Helcim and phone number is present, proceed with payNow
   await payNow();
 };
 
 // Handle form submission
 const payNow = async () => {
+  // Prevent multiple simultaneous submissions
+  if (isSubmitting.value) {
+    console.log("[payNow] Already processing, ignoring duplicate call");
+    return;
+  }
+
   // paymentError.value = null; // Moved to handleFormSubmit
   isSubmitting.value = true;
   buttonText.value = t("messages.general.processing");
@@ -308,6 +344,9 @@ const payNow = async () => {
     console.log("[payNow] Processing payment with method:", paymentMethodId);
 
     if (paymentMethodId === "helcimjs" || paymentMethodId === "helcim") {
+      console.log(
+        "[payNow] Processing Helcim payment - ensuring Stripe is not called"
+      );
       // For Helcim, payment is processed through the HelcimCard component
       // The success is determined by helcimPaymentComplete state
       if (helcimPaymentComplete.value) {
@@ -360,6 +399,9 @@ const payNow = async () => {
         }
       }
     } else if (paymentMethodId === "fkwcs_stripe") {
+      console.log(
+        "[payNow] Processing Stripe payment - ensuring Helcim is not called"
+      );
       // Process Stripe payment
       success = await processStripePayment();
     } else {
@@ -441,6 +483,15 @@ const handleHelcimError = (error: any) => {
 
 const handleHelcimSuccess = (transactionData: any) => {
   console.log("[Checkout] Helcim payment successful:", transactionData);
+
+  // Prevent double processing
+  if (helcimPaymentComplete.value) {
+    console.log(
+      "[Checkout] Helcim payment already processed, ignoring duplicate success event"
+    );
+    return;
+  }
+
   helcimPaymentComplete.value = true;
   helcimTransactionData.value = transactionData;
 
@@ -460,6 +511,8 @@ const handleHelcimSuccess = (transactionData: any) => {
   // Set payment as completed
   isPaid.value = true;
   paymentError.value = null;
+
+  console.log("[Checkout] Helcim payment state updated successfully");
 };
 
 const handleHelcimFailed = (error: any) => {
@@ -481,22 +534,33 @@ const handleHelcimComplete = (result: any) => {
 
 const handleHelcimCheckoutRequest = async () => {
   console.log(
-    "[Checkout] Helcim checkout requested - triggering form submission"
+    "[Checkout] Helcim checkout requested - processing Helcim payment directly"
   );
+
+  // Prevent multiple simultaneous submissions
+  if (isSubmitting.value) {
+    console.log(
+      "[handleHelcimCheckoutRequest] Already processing, ignoring duplicate request"
+    );
+    return;
+  }
 
   // Reset any previous Helcim payment state
   helcimPaymentComplete.value = false;
   helcimTransactionData.value = null;
+  paymentError.value = null;
 
-  // Trigger the form submission which will run validation and then call Helcim payment
-  const form = document.querySelector("form");
-  if (form) {
-    const submitEvent = new Event("submit", {
-      bubbles: true,
-      cancelable: true,
-    });
-    form.dispatchEvent(submitEvent);
+  // Validate billing phone number first
+  if (!customer.value?.billing?.phone) {
+    paymentError.value = "Billing phone number is required.";
+    console.error(
+      "[handleHelcimCheckoutRequest] Billing phone number is missing."
+    );
+    return;
   }
+
+  // Call payNow directly which will handle Helcim payment validation and processing
+  await payNow();
 };
 
 const hasPaymentError = computed(
@@ -594,7 +658,8 @@ useSeoMeta({
                 />
               </div>
             </div>
-            <div v-if="!viewer" class="flex items-center gap-2 my-2">
+            <!-- Disabled create account due to turnstyle issues on checkout -->
+            <!-- <div v-if="!viewer" class="flex items-center gap-2 my-2">
               <label for="creat-account">Create an account?</label>
               <input
                 id="creat-account"
@@ -602,7 +667,7 @@ useSeoMeta({
                 type="checkbox"
                 name="creat-account"
               />
-            </div>
+            </div> -->
           </div>
 
           <!-- Billing details section - unchanged -->

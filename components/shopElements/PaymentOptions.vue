@@ -16,6 +16,9 @@ const excludedGateways = [
   "ppcp-credit-card-gateway",
   "stripe",
   "fkwcs_stripe",
+  "ppcp-googlepay",
+  "ppcp-applepay",
+  "ppcp",
 ]; // Removed "helcimjs" to enable Helcim
 
 // Filter function to exclude unwanted payment gateways
@@ -37,7 +40,7 @@ onMounted(() => {
       updatePaymentMethod(filteredGateways[0]);
     } else {
       // Fallback to stripe if no gateways remain after filtering
-      updatePaymentMethod("fkwcs_stripe");
+      updatePaymentMethod("helcimjs");
     }
   }
 });

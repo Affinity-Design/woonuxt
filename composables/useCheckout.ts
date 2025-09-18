@@ -135,12 +135,18 @@ export function useCheckout() {
 
   const getPaymentId = (): string => {
     // Make this more robust - often the issue is the payment method ID format
-    if (!orderInput.value.paymentMethod) return "fkwcs_stripe";
-    return (
-      orderInput.value.paymentMethod.id ||
-      orderInput.value.paymentMethod ||
-      "fkwcs_stripe"
-    );
+    if (!orderInput.value.paymentMethod) {
+      console.warn(
+        "[getPaymentId] No payment method set, returning empty string"
+      );
+      return ""; // Don't default to any payment method
+    }
+
+    const paymentId =
+      orderInput.value.paymentMethod.id || orderInput.value.paymentMethod || "";
+
+    console.log("[getPaymentId] Returning payment ID:", paymentId);
+    return paymentId;
   };
 
   // VALIDATION FUNCTION: Checks for errors before payment
@@ -348,6 +354,14 @@ export function useCheckout() {
         paymentMethodId
       );
 
+      // Validate payment method
+      if (!paymentMethodId) {
+        console.error("[processCheckout] No payment method selected");
+        const errorMsg = "Please select a payment method before proceeding.";
+        alert(errorMsg);
+        return { success: false, error: true, errorMessage: errorMsg };
+      }
+
       let checkoutPayload: any = {
         billing,
         shipping,
@@ -376,6 +390,8 @@ export function useCheckout() {
         isPaid,
         paymentMethod: paymentMethodId,
         transactionId: orderInput.value.transactionId,
+        paymentMethodTitle: orderInput.value.paymentMethod?.title || "Unknown",
+        metaDataCount: orderInput.value.metaData?.length || 0,
       });
 
       const { checkout } = await GqlCheckout(checkoutPayload);
@@ -459,41 +475,76 @@ export function useCheckout() {
         error
       );
 
+      // Enhanced debugging for checkout errors
+      console.error("[processCheckout] Full error object:", {
+        gqlErrors: error?.gqlErrors,
+        networkError: error?.networkError,
+        extraInfo: error?.extraInfo,
+        originalPaymentMethod: orderInput.value.paymentMethod,
+        finalPaymentMethodId: getPaymentId(),
+        transactionId: orderInput.value.transactionId,
+        isPaidFlag: isPaid,
+      });
+
       if (errorMessage?.includes("An account is already registered with")) {
-        alert(
-          "An account is already registered with your email address. Please log in to continue."
-        );
-        return { success: false, error: true, errorMessage, needsLogin: true };
+        const accountErrorMsg =
+          "An account is already registered with your email address. Please log in to continue.";
+        alert(accountErrorMsg);
+        return {
+          success: false,
+          error: true,
+          errorMessage: accountErrorMsg,
+          needsLogin: true,
+        };
       }
 
-      alert(errorMessage || "An unexpected error occurred during checkout.");
+      // Better error message handling
+      let finalErrorMessage =
+        errorMessage || "An unexpected error occurred during checkout.";
+
+      // Check for specific GraphQL error patterns
+      if (error?.gqlErrors?.length > 0) {
+        const gqlError = error.gqlErrors[0];
+        if (gqlError.extensions?.category === "user") {
+          finalErrorMessage = gqlError.message || "Invalid user data provided.";
+        } else if (gqlError.extensions?.category === "internal") {
+          finalErrorMessage = "Server error occurred. Please try again.";
+        }
+      }
+
+      console.error(
+        "[processCheckout] Final error message:",
+        finalErrorMessage
+      );
+      alert(finalErrorMessage);
       return {
         success: false,
         error: true,
-        errorMessage: errorMessage || "An unexpected error occurred.",
+        errorMessage: finalErrorMessage,
       };
     } finally {
       isProcessingOrder.value = false;
     }
   };
 
-  // Add Helcim payment processing function
+  // NOTE: This function is deprecated and not used in the current Helcim implementation
+  // Helcim payment processing is handled directly by the HelcimCard component
+  // and the checkout.vue page manages the flow through handleHelcimSuccess events
   const processHelcimPayment = async (): Promise<boolean> => {
-    try {
-      console.log("[processHelcimPayment] Starting Helcim payment process");
+    console.warn(
+      "[processHelcimPayment] DEPRECATED: This function is not used in the current Helcim implementation"
+    );
+    console.warn(
+      "[processHelcimPayment] Helcim payments are handled by HelcimCard component events"
+    );
 
-      // This function will be called after the HelcimCard component
-      // has already processed the payment and emitted success
-      // The actual payment processing is handled by the HelcimCard component
+    // This function exists only for backward compatibility
+    // The actual Helcim payment flow is:
+    // 1. HelcimCard component processes payment
+    // 2. Emits success/failure events to checkout.vue
+    // 3. checkout.vue handles the events and calls processCheckout()
 
-      console.log(
-        "[processHelcimPayment] Helcim payment completed successfully"
-      );
-      return true;
-    } catch (error: any) {
-      console.error("[processHelcimPayment] Error:", error);
-      return false;
-    }
+    return true; // Return true to avoid breaking existing code
   };
 
   return {

@@ -5,8 +5,8 @@ category: "Beginner Guides"
 date: 2025-06-28
 author: "Proskaters Place Team"
 authorBio: "Certified roller skating instructor and Toronto skating community organizer"
-image: "/images/roller-skates.jpg"
-ogImage: "/images/roller-skates.jpg"
+image: "/images/Complete Beginner's Guide to Inline and Quad Skating.png"
+ogImage: "/images/Complete Beginner's Guide to Inline and Quad Skating.png"
 tags: ["roller skating", "toronto", "beginners", "quad skates", "safety"]
 ---
 

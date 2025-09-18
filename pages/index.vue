@@ -325,7 +325,7 @@ useSeoMeta({
         >
           <div class="aspect-video bg-gray-100 overflow-hidden">
             <img
-              src="/images/inline-skates.jpg"
+              src="/images/inline-vs-rollerskates.png"
               alt="Inline Skates vs Roller Skates Comparison"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
