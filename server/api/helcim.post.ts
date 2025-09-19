@@ -97,19 +97,35 @@ export default defineEventHandler(async (event) => {
           });
         }
 
-        // Validate the transaction hash
+        // Validate the transaction hash according to Helcim documentation
         const crypto = await import("crypto");
-        const cleanedJsonData = JSON.stringify(transactionData);
+
+        // The hash should be calculated from the data object + secret token
+        const dataToHash = transactionData.data || transactionData;
+        const cleanedJsonData = JSON.stringify(dataToHash);
         const expectedHash = crypto
           .createHash("sha256")
           .update(cleanedJsonData + secretToken)
           .digest("hex");
 
+        const receivedHash = transactionData.hash;
+        const isValid = expectedHash === receivedHash;
+
+        console.log("[Helcim Validation]", {
+          dataStructure: Object.keys(transactionData),
+          hasDataProperty: !!transactionData.data,
+          hasHashProperty: !!transactionData.hash,
+          expectedHash,
+          receivedHash,
+          isValid,
+        });
+
         return {
           success: true,
-          isValid: expectedHash === transactionData.hash,
+          isValid,
           expectedHash,
-          receivedHash: transactionData.hash,
+          receivedHash,
+          transactionId: dataToHash.transactionId,
         };
 
       default:

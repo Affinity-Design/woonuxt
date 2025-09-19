@@ -171,25 +171,49 @@ const setupEventListeners = () => {
   (window as any)._helcimMessageHandler = messageHandler;
 };
 
-const handlePaymentSuccess = (eventMessage: any) => {
+const handlePaymentSuccess = async (eventMessage: any) => {
   try {
     console.log("[HelcimCard] Payment successful:", eventMessage);
 
-    // Parse the transaction data
-    const parsedData =
-      typeof eventMessage === "string"
-        ? JSON.parse(eventMessage)
-        : eventMessage;
-    transactionData.value = parsedData;
+    // Parse the transaction response according to official Helcim format
+    let responseData;
+    if (typeof eventMessage === "string") {
+      responseData = JSON.parse(eventMessage);
+    } else {
+      responseData = eventMessage;
+    }
+
+    // Extract transaction data from the response
+    const transactionData = responseData.data || responseData;
+
+    // Validate the transaction on the server
+    const validation = (await $fetch("/api/helcim", {
+      method: "POST",
+      body: {
+        action: "validate",
+        transactionData: responseData,
+        secretToken: secretToken.value,
+      },
+    })) as any;
+
+    if (!validation.success || !validation.isValid) {
+      console.error("[HelcimCard] Transaction validation failed:", validation);
+      handlePaymentFailed("Transaction validation failed");
+      return;
+    }
+
+    console.log("[HelcimCard] Transaction validated successfully");
+    transactionData.value = transactionData;
 
     paymentComplete.value = true;
     paymentError.value = null;
 
-    emit("payment-success", parsedData);
+    emit("payment-success", transactionData);
     emit("payment-complete", {
       success: true,
-      transactionData: parsedData,
+      transactionData: transactionData,
       secretToken: secretToken.value,
+      isValidated: true,
     });
 
     // Remove the iframe after successful payment
