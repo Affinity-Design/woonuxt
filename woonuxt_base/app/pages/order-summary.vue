@@ -159,7 +159,7 @@ useSeoMeta({
           <div class="my-4 text-center">
             <Icon name="ion:happy-outline" size="64" class="mx-auto mb-4 text-primary-600" />
             <h2 class="text-2xl font-semibold text-green-600 mb-4 text-center">Thank You. Order Received!</h2>
-            <p class="text-gray-700">Order #{{ order.databaseId }}</p>
+            <!-- <p class="text-gray-700">Order #{{ order.databaseId }}</p> -->
             <p v-if="query.key" class="font-bold text-gray-800">Reference: {{ query.key }}</p>
             <div class="mt-2 text-sm text-gray-600">
               We sent you an email confirmation. <br />We will email you again when your order is shipped or the status has changed. <br />If you have any
@@ -284,7 +284,7 @@ useSeoMeta({
             <div class="mb-2 text-xs text-gray-400 uppercase">
               {{ $t('messages.general.paymentMethod') }}
             </div>
-            <div class="leading-none">{{ 'Stripe' }}</div>
+            <div class="leading-none">{{ 'Helcim' }}</div>
           </div>
         </div>
 

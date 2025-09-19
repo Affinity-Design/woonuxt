@@ -101,14 +101,16 @@ export default defineEventHandler(async (event) => {
         const crypto = await import("crypto");
 
         // The hash should be calculated from the data object + secret token
-        const dataToHash = transactionData.data || transactionData;
+        // Helcim response structure: {"data":{"hash":"...","data":{"transactionId":"..."}}}
+        const dataToHash =
+          transactionData.data?.data || transactionData.data || transactionData;
         const cleanedJsonData = JSON.stringify(dataToHash);
         const expectedHash = crypto
           .createHash("sha256")
           .update(cleanedJsonData + secretToken)
           .digest("hex");
 
-        const receivedHash = transactionData.hash;
+        const receivedHash = transactionData.data?.hash || transactionData.hash;
         const isValid = expectedHash === receivedHash;
 
         console.log("[Helcim Validation]", {

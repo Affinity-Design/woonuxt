@@ -173,47 +173,87 @@ const setupEventListeners = () => {
 
 const handlePaymentSuccess = async (eventMessage: any) => {
   try {
-    console.log("[HelcimCard] Payment successful:", eventMessage);
+    console.log("[HelcimCard] Payment successful - raw event data:", {
+      type: typeof eventMessage,
+      isString: typeof eventMessage === "string",
+      data: eventMessage,
+    });
 
     // Parse the transaction response according to official Helcim format
     let responseData;
     if (typeof eventMessage === "string") {
-      responseData = JSON.parse(eventMessage);
+      try {
+        responseData = JSON.parse(eventMessage);
+      } catch (parseError) {
+        console.error(
+          "[HelcimCard] Failed to parse event message:",
+          parseError
+        );
+        responseData = eventMessage;
+      }
     } else {
       responseData = eventMessage;
     }
 
+    console.log("[HelcimCard] Parsed response structure:", {
+      keys: Object.keys(responseData || {}),
+      hasData: !!responseData?.data,
+      hasHash: !!responseData?.hash,
+      dataKeys: responseData?.data ? Object.keys(responseData.data) : null,
+      hashValue: responseData?.hash,
+      sampleFields: {
+        transactionId:
+          responseData?.data?.transactionId || responseData?.transactionId,
+        amount: responseData?.data?.amount || responseData?.amount,
+        status: responseData?.data?.status || responseData?.status,
+      },
+    });
+
     // Extract transaction data from the response
-    const transactionData = responseData.data || responseData;
+    const extractedTransactionData = responseData?.data || responseData;
+
+    console.log("[HelcimCard] Sending to validation:", {
+      hasSecretToken: !!secretToken.value,
+      responseStructure: {
+        keys: Object.keys(responseData || {}),
+        hasHash: !!responseData?.hash,
+        hasData: !!responseData?.data,
+      },
+    });
 
     // Validate the transaction on the server
     const validation = (await $fetch("/api/helcim", {
       method: "POST",
       body: {
         action: "validate",
-        transactionData: responseData,
+        transactionData: responseData, // Send full response for server to analyze
         secretToken: secretToken.value,
       },
     })) as any;
 
+    console.log("[HelcimCard] Validation response:", validation);
+
     if (!validation.success || !validation.isValid) {
       console.error("[HelcimCard] Transaction validation failed:", validation);
-      handlePaymentFailed("Transaction validation failed");
+      handlePaymentFailed(
+        `Transaction validation failed: ${validation.note || "Unknown error"}`
+      );
       return;
     }
 
-    console.log("[HelcimCard] Transaction validated successfully");
-    transactionData.value = transactionData;
+    console.log("[HelcimCard] Transaction validated successfully:", validation);
+    transactionData.value = extractedTransactionData;
 
     paymentComplete.value = true;
     paymentError.value = null;
 
-    emit("payment-success", transactionData);
+    emit("payment-success", extractedTransactionData);
     emit("payment-complete", {
       success: true,
-      transactionData: transactionData,
+      transactionData: extractedTransactionData,
       secretToken: secretToken.value,
       isValidated: true,
+      validationResult: validation,
     });
 
     // Remove the iframe after successful payment

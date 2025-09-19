@@ -41,6 +41,11 @@ export default defineNuxtConfig({
     // Server-only secrets
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,
     helcimApiToken: process.env.NUXT_HELCIM_API_TOKEN,
+    wcConsumerKey: process.env.WC_CONSUMER_KEY,
+    wcConsumerSecret: process.env.WC_CONSUMER_SECRET,
+    // WordPress Application Password for admin GraphQL operations
+    wpAdminUsername: process.env.WP_ADMIN_USERNAME,
+    wpAdminAppPassword: process.env.WP_ADMIN_APP_PASSWORD,
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     SENDING_EMAIL: process.env.SENDING_EMAIL,
     RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
@@ -48,6 +53,7 @@ export default defineNuxtConfig({
     // Public config (available client+server/build)
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
+      wpBaseUrl: process.env.NUXT_PUBLIC_WP_BASE_URL,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key",
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
@@ -57,7 +63,7 @@ export default defineNuxtConfig({
       // --- NEW: Build-time fallback exchange rate ---
       // Provide a default value (e.g., 1.0) if the env var isn't set during build
       buildTimeExchangeRate:
-        process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || 1.37,
+        process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || "1.37",
     },
   },
 
