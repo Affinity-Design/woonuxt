@@ -1,18 +1,11 @@
 <!-- components/shopElements/HelcimCard.vue -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import {ref, onMounted, onUnmounted, computed, watch} from 'vue';
 
-const emit = defineEmits([
-  "ready",
-  "error",
-  "payment-success",
-  "payment-failed",
-  "payment-complete",
-  "checkout-requested",
-]);
+const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested']);
 
-const checkoutToken = ref("");
-const secretToken = ref("");
+const checkoutToken = ref('');
+const secretToken = ref('');
 const paymentComplete = ref(false);
 const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
@@ -26,7 +19,7 @@ const props = defineProps({
   },
   currency: {
     type: String,
-    default: "CAD",
+    default: 'CAD',
   },
 });
 
@@ -59,17 +52,15 @@ const initializePayment = async () => {
     paymentComplete.value = false;
     transactionData.value = null;
 
-    console.log(
-      `[HelcimCard] Initializing payment for ${props.currency} $${displayAmount.value}`
-    );
+    console.log(`[HelcimCard] Initializing payment for ${props.currency} $${displayAmount.value}`);
     console.log(`[HelcimCard] Props amount:`, props.amount);
     console.log(`[HelcimCard] Display amount:`, displayAmount.value);
     console.log(`[HelcimCard] API amount (cents):`, apiAmount.value);
 
-    const response = (await $fetch("/api/helcim", {
-      method: "POST",
+    const response = (await $fetch('/api/helcim', {
+      method: 'POST',
       body: {
-        action: "initialize",
+        action: 'initialize',
         amount: apiAmount.value, // Use computed property that ensures cents
         currency: props.currency,
       },
@@ -77,30 +68,28 @@ const initializePayment = async () => {
       success: boolean;
       checkoutToken?: string;
       secretToken?: string;
-      error?: { message: string };
+      error?: {message: string};
     };
 
     if (response.success) {
-      checkoutToken.value = response.checkoutToken || "";
-      secretToken.value = response.secretToken || "";
+      checkoutToken.value = response.checkoutToken || '';
+      secretToken.value = response.secretToken || '';
 
-      console.log("[HelcimCard] Payment initialized successfully");
+      console.log('[HelcimCard] Payment initialized successfully');
 
       // Load Helcim script after successful initialization
       await loadHelcimScript();
-      emit("ready", {
+      emit('ready', {
         checkoutToken: checkoutToken.value,
         secretToken: secretToken.value,
       });
     } else {
-      throw new Error(
-        response.error?.message || "Failed to initialize Helcim payment"
-      );
+      throw new Error(response.error?.message || 'Failed to initialize Helcim payment');
     }
   } catch (error: any) {
-    console.error("[HelcimCard] Initialization error:", error);
+    console.error('[HelcimCard] Initialization error:', error);
     paymentError.value = error.message;
-    emit("error", error.message);
+    emit('error', error.message);
   } finally {
     isInitializing.value = false;
   }
@@ -109,26 +98,26 @@ const initializePayment = async () => {
 const loadHelcimScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     // Check if script already exists
-    if (document.getElementById("helcim-pay-script")) {
+    if (document.getElementById('helcim-pay-script')) {
       setupEventListeners();
       resolve();
       return;
     }
 
-    const script = document.createElement("script");
-    script.id = "helcim-pay-script";
-    script.type = "text/javascript";
-    script.src = "https://secure.helcim.app/helcim-pay/services/start.js";
+    const script = document.createElement('script');
+    script.id = 'helcim-pay-script';
+    script.type = 'text/javascript';
+    script.src = 'https://secure.helcim.app/helcim-pay/services/start.js';
 
     script.onload = () => {
-      console.log("[HelcimCard] Helcim script loaded successfully");
+      console.log('[HelcimCard] Helcim script loaded successfully');
       setupEventListeners();
       resolve();
     };
 
     script.onerror = () => {
-      console.error("[HelcimCard] Failed to load Helcim script");
-      reject(new Error("Failed to load Helcim payment script"));
+      console.error('[HelcimCard] Failed to load Helcim script');
+      reject(new Error('Failed to load Helcim payment script'));
     };
 
     document.head.appendChild(script);
@@ -138,34 +127,31 @@ const loadHelcimScript = (): Promise<void> => {
 const setupEventListeners = () => {
   if (!checkoutToken.value) return;
 
-  const helcimPayJsIdentifierKey = "helcim-pay-js-" + checkoutToken.value;
+  const helcimPayJsIdentifierKey = 'helcim-pay-js-' + checkoutToken.value;
 
   const messageHandler = (event: MessageEvent) => {
     if (event.data.eventName === helcimPayJsIdentifierKey) {
-      console.log("[HelcimCard] Received event:", event.data.eventStatus);
+      console.log('[HelcimCard] Received event:', event.data.eventStatus);
 
       switch (event.data.eventStatus) {
-        case "SUCCESS":
+        case 'SUCCESS':
           handlePaymentSuccess(event.data.eventMessage);
           break;
-        case "ABORTED":
+        case 'ABORTED':
           handlePaymentFailed(event.data.eventMessage);
           break;
-        case "HIDE":
-          console.log("[HelcimCard] Payment modal closed by user");
+        case 'HIDE':
+          console.log('[HelcimCard] Payment modal closed by user');
           // Ensure proper cleanup when modal is closed
           removeHelcimIframe();
           break;
         default:
-          console.log(
-            "[HelcimCard] Unknown event status:",
-            event.data.eventStatus
-          );
+          console.log('[HelcimCard] Unknown event status:', event.data.eventStatus);
       }
     }
   };
 
-  window.addEventListener("message", messageHandler);
+  window.addEventListener('message', messageHandler);
 
   // Store the handler for cleanup
   (window as any)._helcimMessageHandler = messageHandler;
@@ -173,37 +159,33 @@ const setupEventListeners = () => {
 
 const handlePaymentSuccess = async (eventMessage: any) => {
   try {
-    console.log("[HelcimCard] Payment successful - raw event data:", {
+    console.log('[HelcimCard] Payment successful - raw event data:', {
       type: typeof eventMessage,
-      isString: typeof eventMessage === "string",
+      isString: typeof eventMessage === 'string',
       data: eventMessage,
     });
 
     // Parse the transaction response according to official Helcim format
     let responseData;
-    if (typeof eventMessage === "string") {
+    if (typeof eventMessage === 'string') {
       try {
         responseData = JSON.parse(eventMessage);
       } catch (parseError) {
-        console.error(
-          "[HelcimCard] Failed to parse event message:",
-          parseError
-        );
+        console.error('[HelcimCard] Failed to parse event message:', parseError);
         responseData = eventMessage;
       }
     } else {
       responseData = eventMessage;
     }
 
-    console.log("[HelcimCard] Parsed response structure:", {
+    console.log('[HelcimCard] Parsed response structure:', {
       keys: Object.keys(responseData || {}),
       hasData: !!responseData?.data,
       hasHash: !!responseData?.hash,
       dataKeys: responseData?.data ? Object.keys(responseData.data) : null,
       hashValue: responseData?.hash,
       sampleFields: {
-        transactionId:
-          responseData?.data?.transactionId || responseData?.transactionId,
+        transactionId: responseData?.data?.transactionId || responseData?.transactionId,
         amount: responseData?.data?.amount || responseData?.amount,
         status: responseData?.data?.status || responseData?.status,
       },
@@ -212,7 +194,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     // Extract transaction data from the response
     const extractedTransactionData = responseData?.data || responseData;
 
-    console.log("[HelcimCard] Sending to validation:", {
+    console.log('[HelcimCard] Sending to validation:', {
       hasSecretToken: !!secretToken.value,
       responseStructure: {
         keys: Object.keys(responseData || {}),
@@ -221,34 +203,37 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       },
     });
 
-    // Validate the transaction on the server
-    const validation = (await $fetch("/api/helcim", {
-      method: "POST",
+    // Validate the transaction on the server using dedicated endpoint
+    const validation = (await $fetch('/api/helcim-validate', {
+      method: 'POST',
       body: {
-        action: "validate",
         transactionData: responseData, // Send full response for server to analyze
         secretToken: secretToken.value,
       },
     })) as any;
 
-    console.log("[HelcimCard] Validation response:", validation);
+    console.log('[HelcimCard] Validation response:', validation);
 
     if (!validation.success || !validation.isValid) {
-      console.error("[HelcimCard] Transaction validation failed:", validation);
-      handlePaymentFailed(
-        `Transaction validation failed: ${validation.note || "Unknown error"}`
-      );
+      console.error('[HelcimCard] Transaction validation failed:', validation);
+      const errorMsg = validation.error?.message || validation.note || 'Unknown validation error';
+      handlePaymentFailed(`Transaction validation failed: ${errorMsg}`);
       return;
     }
 
-    console.log("[HelcimCard] Transaction validated successfully:", validation);
+    // Log warning if validation was bypassed
+    if (validation.warning) {
+      console.warn('[HelcimCard] Validation warning:', validation.warning);
+    }
+
+    console.log('[HelcimCard] Transaction validated successfully:', validation);
     transactionData.value = extractedTransactionData;
 
     paymentComplete.value = true;
     paymentError.value = null;
 
-    emit("payment-success", extractedTransactionData);
-    emit("payment-complete", {
+    emit('payment-success', extractedTransactionData);
+    emit('payment-complete', {
       success: true,
       transactionData: extractedTransactionData,
       secretToken: secretToken.value,
@@ -259,20 +244,19 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     // Remove the iframe after successful payment
     removeHelcimIframe();
   } catch (error) {
-    console.error("[HelcimCard] Error processing successful payment:", error);
-    handlePaymentFailed("Error processing payment data");
+    console.error('[HelcimCard] Error processing successful payment:', error);
+    handlePaymentFailed('Error processing payment data');
   }
 };
 
 const handlePaymentFailed = (eventMessage: any) => {
-  console.error("[HelcimCard] Payment failed:", eventMessage);
+  console.error('[HelcimCard] Payment failed:', eventMessage);
 
-  paymentError.value =
-    typeof eventMessage === "string" ? eventMessage : "Payment failed";
+  paymentError.value = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
   paymentComplete.value = false;
 
-  emit("payment-failed", eventMessage);
-  emit("payment-complete", {
+  emit('payment-failed', eventMessage);
+  emit('payment-complete', {
     success: false,
     error: paymentError.value,
   });
@@ -283,37 +267,37 @@ const handlePaymentFailed = (eventMessage: any) => {
 
 const processPayment = () => {
   if (!checkoutToken.value) {
-    paymentError.value = "Payment not initialized";
-    emit("error", paymentError.value);
+    paymentError.value = 'Payment not initialized';
+    emit('error', paymentError.value);
     return;
   }
 
   if (!(window as any).appendHelcimPayIframe) {
-    paymentError.value = "Helcim payment script not loaded";
-    emit("error", paymentError.value);
+    paymentError.value = 'Helcim payment script not loaded';
+    emit('error', paymentError.value);
     return;
   }
 
-  console.log("[HelcimCard] Opening payment modal");
+  console.log('[HelcimCard] Opening payment modal');
   paymentError.value = null;
 
   try {
     (window as any).appendHelcimPayIframe(checkoutToken.value, true); // allowExit = true
   } catch (error) {
-    console.error("[HelcimCard] Error opening payment modal:", error);
-    paymentError.value = "Failed to open payment form";
-    emit("error", paymentError.value);
+    console.error('[HelcimCard] Error opening payment modal:', error);
+    paymentError.value = 'Failed to open payment form';
+    emit('error', paymentError.value);
   }
 };
 
 const handleCompleteCheckout = () => {
-  console.log("[HelcimCard] Complete checkout button clicked");
-  emit("checkout-requested");
+  console.log('[HelcimCard] Complete checkout button clicked');
+  emit('checkout-requested');
 };
 
 const removeHelcimIframe = () => {
   try {
-    console.log("[HelcimCard] Removing Helcim iframe and overlays...");
+    console.log('[HelcimCard] Removing Helcim iframe and overlays...');
 
     // Use Helcim's built-in removal function if available
     if ((window as any).removeHelcimPayIframe) {
@@ -321,14 +305,7 @@ const removeHelcimIframe = () => {
     }
 
     // Fallback: manually remove all Helcim-related elements
-    const elementsToRemove = [
-      "helcimPayIframe",
-      "helcim-pay-iframe",
-      "helcim-iframe",
-      "helcim-overlay",
-      "helcim-modal",
-      "helcim-backdrop",
-    ];
+    const elementsToRemove = ['helcimPayIframe', 'helcim-pay-iframe', 'helcim-iframe', 'helcim-overlay', 'helcim-modal', 'helcim-backdrop'];
 
     elementsToRemove.forEach((id) => {
       const element = document.getElementById(id);
@@ -339,33 +316,25 @@ const removeHelcimIframe = () => {
     });
 
     // Remove any elements with Helcim-related classes
-    const helcimElements = document.querySelectorAll(
-      '[class*="helcim"], [id*="helcim"]'
-    );
+    const helcimElements = document.querySelectorAll('[class*="helcim"], [id*="helcim"]');
     helcimElements.forEach((element) => {
-      if (element.tagName === "IFRAME" || element.tagName === "DIV") {
+      if (element.tagName === 'IFRAME' || element.tagName === 'DIV') {
         console.log(`[HelcimCard] Removing Helcim element:`, element);
         element.remove();
       }
     });
 
     // Remove any high z-index overlays that might be blocking the page
-    const allElements = document.querySelectorAll("*");
+    const allElements = document.querySelectorAll('*');
     allElements.forEach((element) => {
       const styles = window.getComputedStyle(element);
       const zIndex = parseInt(styles.zIndex);
 
       // Remove elements with very high z-index that might be modal overlays
-      if (
-        zIndex > 9999 &&
-        (element.tagName === "DIV" || element.tagName === "IFRAME")
-      ) {
+      if (zIndex > 9999 && (element.tagName === 'DIV' || element.tagName === 'IFRAME')) {
         // Check if it's likely a Helcim overlay by checking size and position
         const rect = element.getBoundingClientRect();
-        if (
-          rect.width > window.innerWidth * 0.8 &&
-          rect.height > window.innerHeight * 0.8
-        ) {
+        if (rect.width > window.innerWidth * 0.8 && rect.height > window.innerHeight * 0.8) {
           console.log(`[HelcimCard] Removing high z-index overlay:`, element);
           element.remove();
         }
@@ -373,12 +342,12 @@ const removeHelcimIframe = () => {
     });
 
     // Restore body scroll if it was disabled
-    document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
 
-    console.log("[HelcimCard] Cleanup completed");
+    console.log('[HelcimCard] Cleanup completed');
   } catch (error) {
-    console.error("[HelcimCard] Error removing iframe:", error);
+    console.error('[HelcimCard] Error removing iframe:', error);
   }
 };
 
@@ -402,23 +371,18 @@ watch(
   () => props.amount,
   (newAmount, oldAmount) => {
     if (newAmount !== oldAmount && newAmount > 0) {
-      console.log(
-        `[HelcimCard] Amount changed from ${oldAmount} to ${newAmount} cents, re-initializing...`
-      );
+      console.log(`[HelcimCard] Amount changed from ${oldAmount} to ${newAmount} cents, re-initializing...`);
       initializePayment();
     }
-  }
+  },
 );
 
 onUnmounted(() => {
-  console.log("[HelcimCard] Component unmounting - cleaning up...");
+  console.log('[HelcimCard] Component unmounting - cleaning up...');
 
   // Clean up event listeners
   if ((window as any)._helcimMessageHandler) {
-    window.removeEventListener(
-      "message",
-      (window as any)._helcimMessageHandler
-    );
+    window.removeEventListener('message', (window as any)._helcimMessageHandler);
     delete (window as any)._helcimMessageHandler;
   }
 
@@ -449,48 +413,34 @@ onUnmounted(() => {
 
     <!-- Payment Complete State -->
     <div v-else-if="paymentComplete" class="payment-complete">
-      <div
-        class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200"
-      >
+      <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
         <Icon name="ion:checkmark-circle" size="24" class="text-green-600" />
         <div>
           <div class="font-medium text-green-800">Payment Successful</div>
-          <div class="text-sm text-green-600">
-            Transaction ID: {{ transactionData?.data?.transactionId }}
-          </div>
+          <div class="text-sm text-green-600">Transaction ID: {{ transactionData?.data?.transactionId }}</div>
         </div>
       </div>
     </div>
 
     <!-- Ready to Pay State -->
     <div v-else class="payment-ready">
-      <div
-        class="payment-info mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
-      >
+      <div class="payment-info mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div class="flex items-center justify-between">
           <div>
             <div class="font-medium text-blue-800">Secure Payment</div>
-            <div class="text-sm text-blue-600">
-              Amount: {{ currency }} ${{ displayAmount }}
-            </div>
+            <div class="text-sm text-blue-600">Amount: {{ currency }} ${{ displayAmount }}</div>
           </div>
           <Icon name="ion:shield-checkmark" size="24" class="text-blue-600" />
         </div>
       </div>
 
-      <button
-        @click="handleCompleteCheckout"
-        class="helcim-pay-button w-full"
-        :disabled="isInitializing || !checkoutToken"
-      >
+      <button @click="handleCompleteCheckout" class="helcim-pay-button w-full" :disabled="isInitializing || !checkoutToken">
         <Icon name="ion:card" size="20" class="mr-2" />
         Complete Purchase
       </button>
 
       <div class="payment-security mt-3 text-center">
-        <div
-          class="text-xs text-gray-500 flex items-center justify-center gap-1"
-        >
+        <div class="text-xs text-gray-500 flex items-center justify-center gap-1">
           <Icon name="ion:lock-closed" size="12" />
           Secured by Helcim • PCI Compliant
         </div>
