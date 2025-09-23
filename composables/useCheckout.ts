@@ -1,70 +1,66 @@
-import type { CreateAccountInput } from "#gql";
+import type {CreateAccountInput} from '#gql';
 
 export function useCheckout() {
-  const orderInput = useState<any>("orderInput", () => {
+  const orderInput = useState<any>('orderInput', () => {
     return {
-      customerNote: "",
-      paymentMethod: "",
+      customerNote: '',
+      paymentMethod: '',
       shipToDifferentAddress: false,
       metaData: [
-        { key: "order_via", value: "WooNuxt" },
+        {key: 'order_via', value: 'WooNuxt'},
         // Order attribution metadata to track source
-        { key: "_wc_order_attribution_source_type", value: "direct" },
-        { key: "_wc_order_attribution_referrer", value: "proskatersplace.ca" },
+        {key: '_wc_order_attribution_source_type', value: 'direct'},
+        {key: '_wc_order_attribution_referrer', value: 'proskatersplace.ca'},
         {
-          key: "_wc_order_attribution_utm_source",
-          value: "proskatersplace.ca",
+          key: '_wc_order_attribution_utm_source',
+          value: 'proskatersplace.ca',
         },
-        { key: "_wc_order_attribution_utm_medium", value: "headless" },
-        { key: "_wc_order_attribution_utm_content", value: "nuxt-frontend" },
+        {key: '_wc_order_attribution_utm_medium', value: 'headless'},
+        {key: '_wc_order_attribution_utm_content', value: 'nuxt-frontend'},
         {
-          key: "_wc_order_attribution_session_entry",
-          value: "proskatersplace.ca",
+          key: '_wc_order_attribution_session_entry',
+          value: 'proskatersplace.ca',
         },
-        { key: "_wc_order_attribution_device_type", value: "Web" },
-        { key: "order_source", value: "proskatersplace.ca" },
-        { key: "frontend_origin", value: "proskatersplace.ca" },
+        {key: '_wc_order_attribution_device_type', value: 'Web'},
+        {key: 'order_source', value: 'proskatersplace.ca'},
+        {key: 'frontend_origin', value: 'proskatersplace.ca'},
       ],
-      username: "",
-      password: "",
-      transactionId: "",
+      username: '',
+      password: '',
+      transactionId: '',
       createAccount: false,
     };
   });
 
-  const isProcessingOrder = useState<boolean>("isProcessingOrder", () => false);
+  const isProcessingOrder = useState<boolean>('isProcessingOrder', () => false);
 
   // Function to add or update order attribution metadata
-  const setOrderAttribution = (
-    attributionData: Record<string, string>
-  ): void => {
+  const setOrderAttribution = (attributionData: Record<string, string>): void => {
     // Add session timing information
     const currentTime = new Date().toISOString();
     const defaultAttribution = {
       _wc_order_attribution_session_start_time: currentTime,
-      _wc_order_attribution_session_pages: "1",
-      _wc_order_attribution_session_count: "1",
-      _wc_order_attribution_user_agent: navigator.userAgent || "Unknown",
+      _wc_order_attribution_session_pages: '1',
+      _wc_order_attribution_session_count: '1',
+      _wc_order_attribution_user_agent: navigator.userAgent || 'Unknown',
       ...attributionData,
     };
 
     // Add or update attribution metadata
     Object.entries(defaultAttribution).forEach(([key, value]) => {
-      const existingIndex = orderInput.value.metaData.findIndex(
-        (meta: any) => meta.key === key
-      );
+      const existingIndex = orderInput.value.metaData.findIndex((meta: any) => meta.key === key);
       if (existingIndex >= 0) {
         orderInput.value.metaData[existingIndex].value = value;
       } else {
-        orderInput.value.metaData.push({ key, value });
+        orderInput.value.metaData.push({key, value});
       }
     });
   };
 
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
-    const { customer, viewer } = useAuth();
-    const { isUpdatingCart, refreshCart } = useCart();
+    const {customer, viewer} = useAuth();
+    const {isUpdatingCart, refreshCart} = useCart();
 
     isUpdatingCart.value = true;
 
@@ -73,20 +69,18 @@ export function useCheckout() {
       await GqlUpdateCustomer({
         input: {
           id: viewer?.value?.id,
-          shipping: orderInput.value.shipToDifferentAddress
-            ? customer.value.shipping
-            : customer.value.billing,
+          shipping: orderInput.value.shipToDifferentAddress ? customer.value.shipping : customer.value.billing,
           billing: customer.value.billing,
         } as any,
       });
 
       await refreshCart();
     } catch (error) {
-      console.error("Error updating shipping location:", error);
+      console.error('Error updating shipping location:', error);
       try {
         await refreshCart();
       } catch (refreshError) {
-        console.error("Error refreshing cart:", refreshError);
+        console.error('Error refreshing cart:', refreshError);
       }
     } finally {
       isUpdatingCart.value = false;
@@ -94,31 +88,26 @@ export function useCheckout() {
   }
 
   const processCheckout = async (isPaid = false): Promise<any> => {
-    const { customer, loginUser } = useAuth();
+    const {customer, loginUser} = useAuth();
     const router = useRouter();
-    const { cart, emptyCart, refreshCart } = useCart();
+    const {cart, emptyCart, refreshCart} = useCart();
 
     isProcessingOrder.value = true;
 
-    const { username, password, shipToDifferentAddress } = orderInput.value;
+    const {username, password, shipToDifferentAddress} = orderInput.value;
     const billing = customer.value?.billing;
-    const shipping = shipToDifferentAddress
-      ? customer.value?.shipping
-      : billing;
+    const shipping = shipToDifferentAddress ? customer.value?.shipping : billing;
     const shippingMethod = cart.value?.chosenShippingMethods;
 
     try {
       // Handle Helcim payments that use COD backend but are actually paid
-      const isHelcimPayment =
-        orderInput.value.paymentMethod?.title?.includes("Helcim") && isPaid;
+      const isHelcimPayment = orderInput.value.paymentMethod?.title?.includes('Helcim') && isPaid;
 
       // Keep using COD as payment method but add clear metadata that this is Helcim
-      const effectivePaymentMethod =
-        orderInput.value.paymentMethod.id || orderInput.value.paymentMethod;
+      const effectivePaymentMethod = orderInput.value.paymentMethod.id || orderInput.value.paymentMethod;
 
-      console.log("[processCheckout] Payment method handling:", {
-        originalMethod:
-          orderInput.value.paymentMethod.id || orderInput.value.paymentMethod,
+      console.log('[processCheckout] Payment method handling:', {
+        originalMethod: orderInput.value.paymentMethod.id || orderInput.value.paymentMethod,
         isHelcimPayment,
         effectivePaymentMethod,
         isPaid,
@@ -129,35 +118,27 @@ export function useCheckout() {
       const enhancedMetaData = [...orderInput.value.metaData];
       if (isHelcimPayment) {
         enhancedMetaData.push(
-          { key: "_actual_payment_method", value: "helcim" },
-          { key: "_payment_method_title", value: "Helcim Credit Card Payment" },
-          { key: "_helcim_payment_processed", value: "yes" },
-          { key: "_paid_date", value: new Date().toISOString() },
-          { key: "_transaction_paid", value: "1" },
-          { key: "_order_status_after_payment", value: "processing" }
+          {key: '_actual_payment_method', value: 'helcim'},
+          {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
+          {key: '_helcim_payment_processed', value: 'yes'},
+          {key: '_paid_date', value: new Date().toISOString()},
+          {key: '_transaction_paid', value: '1'},
+          {key: '_order_status_after_payment', value: 'processing'},
         );
 
         console.log(
-          "[processCheckout] Added Helcim metadata for COD backend:",
-          enhancedMetaData.filter(
-            (m) =>
-              m.key.includes("helcim") ||
-              m.key.includes("payment") ||
-              m.key.includes("paid")
-          )
+          '[processCheckout] Added Helcim metadata for COD backend:',
+          enhancedMetaData.filter((m) => m.key.includes('helcim') || m.key.includes('payment') || m.key.includes('paid')),
         );
       }
 
       // Try admin order creation for Helcim payments to bypass session issues
       if (isHelcimPayment && orderInput.value.transactionId) {
-        console.log(
-          "[processCheckout] Using admin order creation for Helcim payment:",
-          {
-            transactionId: orderInput.value.transactionId,
-            amount: cart.value?.total,
-            paymentMethod: orderInput.value.paymentMethod,
-          }
-        );
+        console.log('[processCheckout] Using admin order creation for Helcim payment:', {
+          transactionId: orderInput.value.transactionId,
+          amount: cart.value?.total,
+          paymentMethod: orderInput.value.paymentMethod,
+        });
 
         try {
           // Prepare admin order data
@@ -189,35 +170,29 @@ export function useCheckout() {
               discountTotal: cart.value?.discountTotal,
               discountTax: cart.value?.discountTax,
             },
-            shippingMethod: shippingMethod?.[0] || "flat_rate",
+            shippingMethod: shippingMethod?.[0] || 'flat_rate',
             customerNote: orderInput.value.customerNote,
             metaData: enhancedMetaData,
             createAccount: orderInput.value.createAccount,
           };
 
-          console.log("[processCheckout] Calling admin order creation API...");
+          console.log('[processCheckout] Calling admin order creation API...');
 
           // Call our admin order creation API
-          const adminOrderResult: any = await $fetch(
-            "/api/create-admin-order",
-            {
-              method: "POST",
-              body: adminOrderData,
-            }
-          );
+          const adminOrderResult: any = await $fetch('/api/create-admin-order', {
+            method: 'POST',
+            body: adminOrderData,
+          });
 
           if (adminOrderResult.success && adminOrderResult.order) {
-            console.log(
-              "[processCheckout] Admin order created successfully:",
-              adminOrderResult.order
-            );
+            console.log('[processCheckout] Admin order created successfully:', adminOrderResult.order);
 
             // Login user if account was created during checkout
             if (orderInput.value.createAccount) {
               await loginUser({
                 username,
                 password,
-                turnstileToken: "", // Required field
+                turnstileToken: '', // Required field
               } as CreateAccountInput);
             }
 
@@ -228,11 +203,9 @@ export function useCheckout() {
             try {
               await emptyCart();
               await refreshCart();
-              console.log(
-                "Cart emptied and refreshed successfully after admin order creation"
-              );
+              console.log('Cart emptied and refreshed successfully after admin order creation');
             } catch (cartError) {
-              console.error("Error emptying cart:", cartError);
+              console.error('Error emptying cart:', cartError);
             }
 
             // Redirect to order received page
@@ -246,24 +219,14 @@ export function useCheckout() {
               transactionId: orderInput.value.transactionId,
             };
           } else {
-            console.error(
-              "[processCheckout] Admin order creation failed:",
-              adminOrderResult.error || "Unknown error"
-            );
+            console.error('[processCheckout] Admin order creation failed:', adminOrderResult.error || 'Unknown error');
 
             // Fall back to regular GraphQL checkout if admin creation fails
-            console.log(
-              "[processCheckout] Falling back to regular GraphQL checkout..."
-            );
+            console.log('[processCheckout] Falling back to regular GraphQL checkout...');
           }
         } catch (adminError) {
-          console.error(
-            "[processCheckout] Admin order creation error:",
-            adminError
-          );
-          console.log(
-            "[processCheckout] Falling back to regular GraphQL checkout..."
-          );
+          console.error('[processCheckout] Admin order creation error:', adminError);
+          console.log('[processCheckout] Falling back to regular GraphQL checkout...');
         }
       }
 
@@ -284,86 +247,70 @@ export function useCheckout() {
         checkoutPayload.account = {
           username,
           password,
-          turnstileToken: "", // Required field
+          turnstileToken: '', // Required field
         } as CreateAccountInput;
       } else {
         // Remove account from checkoutPayload if not creating account
         checkoutPayload.account = null;
       }
 
-      console.log("[processCheckout] Finalizing order with payload:", {
+      console.log('[processCheckout] Finalizing order with payload:', {
         isPaid,
         paymentMethod: checkoutPayload.paymentMethod,
         transactionId: orderInput.value.transactionId,
       });
 
       // Enhanced session management: Always refresh to get latest session token
-      console.log(
-        "[processCheckout] Ensuring fresh session before checkout..."
-      );
-      const { refreshCart } = useCart();
+      console.log('[processCheckout] Ensuring fresh session before checkout...');
 
       try {
         // Always refresh cart to ensure we have the latest session token
         await refreshCart();
 
         // Get the session token from cookie after refresh
-        const { getDomain } = useHelpers();
-        const sessionToken = useCookie("woocommerce-session", {
-          domain: getDomain(window?.location?.href || ""),
+        const {getDomain} = useHelpers();
+        const sessionToken = useCookie('woocommerce-session', {
+          domain: getDomain(window?.location?.href || ''),
         });
 
-        console.log("[processCheckout] Session validation:", {
+        console.log('[processCheckout] Session validation:', {
           hasToken: !!sessionToken.value,
           tokenLength: sessionToken.value?.length,
           customerHasSession: !!customer.value?.sessionToken,
         });
 
         // Prefer the customer.sessionToken from the refresh if available
-        const activeSessionToken =
-          customer.value?.sessionToken || sessionToken.value;
+        const activeSessionToken = customer.value?.sessionToken || sessionToken.value;
 
         if (activeSessionToken) {
           useGqlHeaders({
-            "woocommerce-session": `Session ${activeSessionToken}`,
+            'woocommerce-session': `Session ${activeSessionToken}`,
           });
 
           // Update cookie to match customer session token
-          if (
-            customer.value?.sessionToken &&
-            customer.value.sessionToken !== sessionToken.value
-          ) {
+          if (customer.value?.sessionToken && customer.value.sessionToken !== sessionToken.value) {
             sessionToken.value = customer.value.sessionToken;
-            console.log(
-              "[processCheckout] Updated session cookie to match customer token"
-            );
+            console.log('[processCheckout] Updated session cookie to match customer token');
           }
 
-          console.log("[processCheckout] Session header set for checkout");
+          console.log('[processCheckout] Session header set for checkout');
         } else {
-          throw new Error(
-            "Unable to establish valid session token for checkout"
-          );
+          throw new Error('Unable to establish valid session token for checkout');
         }
       } catch (refreshError) {
-        console.error(
-          "[processCheckout] Failed to refresh session:",
-          refreshError
-        );
-        alert(
-          "Unable to establish session for checkout. Please refresh the page and try again."
-        );
+        console.error('[processCheckout] Failed to refresh session:', refreshError);
+        alert('Unable to establish session for checkout. Please refresh the page and try again.');
         return {
           success: false,
           error: true,
-          errorMessage: "Session establishment failed",
+          errorMessage: 'Session establishment failed',
         };
       }
 
       let checkout: any = null;
 
       try {
-        console.log("[processCheckout] Sending checkout payload:", {
+        console.log('[processCheckout] Sending checkout payload:', {
           paymentMethod: checkoutPayload.paymentMethod,
           transactionId: checkoutPayload.transactionId,
           isPaid: checkoutPayload.isPaid,
@@ -396,28 +343,27 @@ export function useCheckout() {
         const result = await GqlCheckout(checkoutPayload);
         checkout = result.checkout;
 
-        if (checkout?.result !== "success") {
-          let errorMessage =
-            "There was an error processing your order. Please try again.";
+        if (checkout?.result !== 'success') {
+          let errorMessage = 'There was an error processing your order. Please try again.';
 
           try {
-            const messages = JSON.parse(checkout?.messages || "{}");
+            const messages = JSON.parse(checkout?.messages || '{}');
             if (messages.error) errorMessage = messages.error;
           } catch (e) {
             if (checkout?.messages) errorMessage = checkout.messages;
           }
 
-          console.error("[processCheckout] Checkout failed:", {
+          console.error('[processCheckout] Checkout failed:', {
             result: checkout?.result,
             messages: checkout?.messages,
             errorMessage,
           });
 
           alert(errorMessage);
-          return { success: false, error: true, errorMessage };
+          return {success: false, error: true, errorMessage};
         }
       } catch (gqlError: any) {
-        console.error("[processCheckout] GraphQL Error Details:", {
+        console.error('[processCheckout] GraphQL Error Details:', {
           fullError: gqlError,
           statusCode: gqlError?.statusCode,
           gqlErrors: gqlError?.gqlErrors,
@@ -439,34 +385,26 @@ export function useCheckout() {
         }
 
         // Check for session-related errors
-        const isSessionError = gqlError?.gqlErrors?.some(
-          (err: any) =>
-            err.message?.includes("no session found") ||
-            err.message?.includes("session")
-        );
+        const isSessionError = gqlError?.gqlErrors?.some((err: any) => err.message?.includes('no session found') || err.message?.includes('session'));
 
         if (isSessionError) {
-          console.log(
-            "[processCheckout] Session error detected, attempting recovery..."
-          );
+          console.log('[processCheckout] Session error detected, attempting recovery...');
 
           // Try to refresh cart and get new session token
-          const { refreshCart } = useCart();
           await refreshCart();
 
           // Get fresh session token after refresh
-          const { getDomain } = useHelpers();
-          const freshSessionToken = useCookie("woocommerce-session", {
-            domain: getDomain(window?.location?.href || ""),
+          const {getDomain} = useHelpers();
+          const freshSessionToken = useCookie('woocommerce-session', {
+            domain: getDomain(window?.location?.href || ''),
           });
 
           // Use customer.sessionToken if available, otherwise use cookie
-          const recoveredSessionToken =
-            customer.value?.sessionToken || freshSessionToken.value;
+          const recoveredSessionToken = customer.value?.sessionToken || freshSessionToken.value;
 
           if (recoveredSessionToken) {
             useGqlHeaders({
-              "woocommerce-session": `Session ${recoveredSessionToken}`,
+              'woocommerce-session': `Session ${recoveredSessionToken}`,
             });
 
             // Update cookie if needed
@@ -476,37 +414,29 @@ export function useCheckout() {
           }
 
           try {
-            console.log(
-              "[processCheckout] Retrying checkout after session refresh..."
-            );
+            console.log('[processCheckout] Retrying checkout after session refresh...');
             const retryResult = await GqlCheckout(checkoutPayload);
             checkout = retryResult.checkout;
 
-            if (checkout?.result !== "success") {
-              throw new Error("Checkout failed after session recovery");
+            if (checkout?.result !== 'success') {
+              throw new Error('Checkout failed after session recovery');
             }
-            console.log("[processCheckout] Retry successful!");
+            console.log('[processCheckout] Retry successful!');
           } catch (retryError) {
-            console.error("[processCheckout] Retry failed:", retryError);
-            alert("Session expired. Please refresh the page and try again.");
+            console.error('[processCheckout] Retry failed:', retryError);
+            alert('Session expired. Please refresh the page and try again.');
             return {
               success: false,
               error: true,
-              errorMessage: "Session expired",
+              errorMessage: 'Session expired',
             };
           }
         } else {
           // Other GraphQL errors
-          const errorMessage =
-            gqlError?.gqlErrors?.[0]?.message ||
-            gqlError.message ||
-            "Checkout failed";
-          console.error(
-            "[processCheckout] Non-session GraphQL error:",
-            errorMessage
-          );
+          const errorMessage = gqlError?.gqlErrors?.[0]?.message || gqlError.message || 'Checkout failed';
+          console.error('[processCheckout] Non-session GraphQL error:', errorMessage);
           alert(errorMessage);
-          return { success: false, error: true, errorMessage };
+          return {success: false, error: true, errorMessage};
         }
       }
 
@@ -515,7 +445,7 @@ export function useCheckout() {
         await loginUser({
           username,
           password,
-          turnstileToken: "", // Required field
+          turnstileToken: '', // Required field
         } as CreateAccountInput);
       }
 
@@ -526,21 +456,19 @@ export function useCheckout() {
       try {
         await emptyCart();
         await refreshCart();
-        console.log(
-          "Cart emptied and refreshed successfully after order completion"
-        );
+        console.log('Cart emptied and refreshed successfully after order completion');
       } catch (cartError) {
-        console.error("Error emptying cart:", cartError);
+        console.error('Error emptying cart:', cartError);
       }
 
       // Simple redirect - no PayPal/Stripe complexity needed for Helcim
       router.push(`/checkout/order-received/${orderId}/?key=${orderKey}`);
 
-      return { success: true, orderId, orderKey };
+      return {success: true, orderId, orderKey};
     } catch (error: any) {
       const errorMessage = error?.gqlErrors?.[0]?.message;
 
-      console.error("[processCheckout] Error:", {
+      console.error('[processCheckout] Error:', {
         gqlErrors: error?.gqlErrors,
         networkError: error?.networkError,
         paymentMethod: orderInput.value.paymentMethod,
@@ -548,9 +476,8 @@ export function useCheckout() {
         isPaidFlag: isPaid,
       });
 
-      if (errorMessage?.includes("An account is already registered with")) {
-        const accountErrorMsg =
-          "An account is already registered with your email address. Please log in to continue.";
+      if (errorMessage?.includes('An account is already registered with')) {
+        const accountErrorMsg = 'An account is already registered with your email address. Please log in to continue.';
         alert(accountErrorMsg);
         return {
           success: false,
@@ -560,8 +487,7 @@ export function useCheckout() {
         };
       }
 
-      const finalErrorMessage =
-        errorMessage || "An unexpected error occurred during checkout.";
+      const finalErrorMessage = errorMessage || 'An unexpected error occurred during checkout.';
       alert(finalErrorMessage);
       return {
         success: false,
