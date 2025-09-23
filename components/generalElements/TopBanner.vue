@@ -1,27 +1,30 @@
 <script setup>
-const { hostname } = useRequestURL();
+const {hostname} = useRequestURL();
+import {ref, computed, onBeforeMount, watch, nextTick} from 'vue';
+
+const bannerToggle = ref(false);
 
 // For displaying the test site banner (red)
-const isTestSite = computed(() => hostname !== "proskatersplace.ca");
+const isTestSite = computed(() => hostname !== 'proskatersplace.ca');
 
 // For displaying the live beta banner (green)
-const isLiveBeta = computed(() => hostname === "proskatersplace.ca");
+const isLiveBeta = computed(() => hostname === 'proskatersplace.ca');
 </script>
 
 <template>
-  <!-- Test Site Banner (red) -->
-  <div v-if="isTestSite" class="banner test-banner">
-    🚧 This is a test site - Visit
-    <b><a href="https://proskatersplace.ca">proskatersplace.ca</a></b> the
-    official Pro Skater Place website 🚧
-  </div>
+  <div v-if="bannerToggle">
+    <!-- Test Site Banner (red) -->
+    <div v-if="isTestSite" class="banner test-banner">
+      🚧 This is a test site - Visit
+      <b><a href="https://proskatersplace.ca">proskatersplace.ca</a></b> the official ProSkaters Place website 🚧
+    </div>
 
-  <!-- Live Beta Banner (green) -->
-  <div v-if="isLiveBeta" class="banner beta-banner">
-    🚀 We are in live beta! If you experience any issues, please
-    <b><a href="/contact">contact us</a></b> or use our other site
-    <b><a href="https://proskatersplace.com">proskatersplace.com</a></b> to
-    checkout your purchase.
+    <!-- Live Beta Banner (green) -->
+    <div v-if="isLiveBeta" class="banner beta-banner">
+      🚀 We are in live beta! If you experience any issues, please
+      <b><a href="/contact">contact us</a></b> or use our other site <b><a href="https://proskatersplace.com">proskatersplace.com</a></b> to checkout your
+      purchase.
+    </div>
   </div>
 </template>
 
