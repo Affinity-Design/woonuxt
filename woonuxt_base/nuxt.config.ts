@@ -48,12 +48,12 @@ export default defineNuxtConfig({
   'graphql-client': {
     clients: {
       default: {
-        host: process.env.GQL_HOST || 'https://test.proskatersplace.com/graphql',
+        host: process.env.GQL_HOST || '',
         corsOptions: { mode: 'cors', credentials: 'include' },
         headers: {
-          Origin: process.env.APP_HOST || 'http://localhost:3000',
-          'x-frontend-type': 'woonuxt',
-          'user-agent': 'WooNuxt/1.0 Custom Frontend',
+          Origin: process.env.APP_HOST || '',
+          'X-Frontend-Type': 'woonuxt',
+          'User-Agent': 'WooNuxt/1.0 Custom Frontend',
           'woocommerce-session': 'Guest',
           'X-Requested-With': 'XMLHttpRequest',
         },

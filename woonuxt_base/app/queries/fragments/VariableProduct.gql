@@ -4,29 +4,26 @@ fragment VariableProduct on VariableProduct {
   price
   rawPrice: price(format: RAW)
   date
-  regularPrice
-  rawRegularPrice: regularPrice(format: RAW)
-  salePrice
-  rawSalePrice: salePrice(format: RAW)
-  stockStatus
-  stockQuantity
-  lowStockAmount
-  onSale
   weight
   length
   width
   height
   image {
-    sourceUrl
-    altText
-    title
-    databaseId
+    ...Image
     cartSourceUrl: sourceUrl(size: THUMBNAIL)
     producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
   }
   averageRating
   reviewCount
+  onSale
+  regularPrice
+  rawRegularPrice: regularPrice(format: RAW)
+  salePrice
+  rawSalePrice: salePrice(format: RAW)
+  stockStatus
   totalSales
+  stockQuantity
+  lowStockAmount
   defaultAttributes {
     nodes {
       ...VariationAttribute
@@ -34,7 +31,26 @@ fragment VariableProduct on VariableProduct {
   }
   variations(first: 100) {
     nodes {
-      ...ProductVariation
+      name
+      databaseId
+      price
+      regularPrice
+      salePrice
+      rawSalePrice: salePrice(format: RAW)
+      slug
+      stockQuantity
+      stockStatus
+      hasAttributes
+      image {
+        ...Image
+        cartSourceUrl: sourceUrl(size: THUMBNAIL)
+        producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
+      }
+      attributes {
+        nodes {
+          ...VariationAttribute
+        }
+      }
     }
   }
   galleryImages(first: 20) {
@@ -43,4 +59,11 @@ fragment VariableProduct on VariableProduct {
       databaseId
     }
   }
+}
+
+fragment VariationAttribute on VariationAttribute {
+  name
+  attributeId
+  value
+  label
 }

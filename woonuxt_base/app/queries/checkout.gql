@@ -44,7 +44,24 @@ mutation Checkout(
       }
       lineItems {
         nodes {
-          ...LineItem
+          quantity
+          total
+          product {
+            node {
+              name
+              image {
+                ...Image
+              }
+            }
+          }
+          variation {
+            node {
+              name
+              image {
+                ...Image
+              }
+            }
+          }
         }
       }
     }

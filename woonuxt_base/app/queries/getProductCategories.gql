@@ -5,3 +5,16 @@ query getProductCategories($first: Int = 99) {
     }
   }
 }
+
+fragment ProductCategory on ProductCategory {
+  count
+  databaseId
+  id
+  name
+  slug
+  image {
+    sourceUrl(size: MEDIUM_LARGE)
+    altText
+    title
+  }
+}

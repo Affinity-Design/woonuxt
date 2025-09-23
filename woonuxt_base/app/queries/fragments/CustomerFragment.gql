@@ -13,6 +13,7 @@ fragment Customer on Customer {
     ...Address
   }
 }
+
 fragment Address on CustomerAddress {
   address1
   address2

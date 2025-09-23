@@ -51,6 +51,7 @@ fragment Cart on Cart {
           rawSalePrice: salePrice(format: RAW)
           image {
             sourceUrl(size: THUMBNAIL)
+            cartSourceUrl: sourceUrl(size: THUMBNAIL)
             altText
             title
           }
