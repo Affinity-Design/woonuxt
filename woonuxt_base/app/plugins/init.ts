@@ -3,7 +3,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const { storeSettings } = useAppConfig();
     const { clearAllCookies, clearAllLocalStorage, getDomain } = useHelpers();
     const sessionToken = useCookie('woocommerce-session', { domain: getDomain(window.location.href) });
-    if (sessionToken.value) useGqlHeaders({ 'woocommerce-session': `Session ${sessionToken.value}` });
+
+    // Set dynamic headers including Origin and session token
+    const headers: Record<string, string> = {
+      // Use current page origin for proper CORS handling
+      Origin: window.location.origin,
+    };
+
+    if (sessionToken.value) {
+      headers['woocommerce-session'] = `Session ${sessionToken.value}`;
+    }
+
+    useGqlHeaders(headers);
 
     // Wait for the user to interact with the page before refreshing the cart, this is helpful to prevent excessive requests to the server
     let initialised = false;

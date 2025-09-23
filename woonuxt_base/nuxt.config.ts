@@ -51,11 +51,11 @@ export default defineNuxtConfig({
         host: process.env.GQL_HOST || '',
         corsOptions: { mode: 'cors', credentials: 'include' },
         headers: {
-          Origin: process.env.APP_HOST || '',
+          'Content-Type': 'application/json',
           'X-Frontend-Type': 'woonuxt',
-          'User-Agent': 'WooNuxt/1.0 Custom Frontend',
-          'woocommerce-session': 'Guest',
           'X-Requested-With': 'XMLHttpRequest',
+          // Note: woocommerce-session and other dynamic headers are set via useGqlHeaders() in plugins/init.ts
+          // Note: User-Agent is automatically handled by the browser and should not be overridden
         },
       },
     },
