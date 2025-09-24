@@ -53,7 +53,7 @@ export default defineNuxtConfig({
     // Public config (available client+server/build)
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
-      wpBaseUrl: process.env.NUXT_PUBLIC_WP_BASE_URL,
+      wpBaseUrl: process.env.BASE_URL,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || "default_key",
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
