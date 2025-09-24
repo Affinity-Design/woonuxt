@@ -116,6 +116,7 @@ export function useCheckout() {
 
       // Add Helcim-specific metadata if this is a Helcim payment
       const enhancedMetaData = [...orderInput.value.metaData];
+
       if (isHelcimPayment) {
         enhancedMetaData.push(
           {key: '_actual_payment_method', value: 'helcim'},
@@ -234,7 +235,7 @@ export function useCheckout() {
         billing,
         shipping,
         shippingMethod,
-        metaData: enhancedMetaData,
+        metaData: enhancedMetaData, // Turnstile token is now included in metadata
         paymentMethod: effectivePaymentMethod,
         customerNote: orderInput.value.customerNote,
         shipToDifferentAddress,
@@ -247,7 +248,7 @@ export function useCheckout() {
         checkoutPayload.account = {
           username,
           password,
-          turnstileToken: '', // Required field
+          turnstileToken: '', // Session-based verification used instead
         } as CreateAccountInput;
       } else {
         // Remove account from checkoutPayload if not creating account
@@ -445,7 +446,7 @@ export function useCheckout() {
         await loginUser({
           username,
           password,
-          turnstileToken: '', // Required field
+          turnstileToken: '', // Session-based verification used instead
         } as CreateAccountInput);
       }
 

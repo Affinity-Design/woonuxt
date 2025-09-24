@@ -1,26 +1,49 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch, nextTick } from "vue";
+import {ref, computed, onBeforeMount, watch, nextTick} from 'vue';
+import VueTurnstile from 'vue-turnstile';
 
-const { t } = useI18n();
-const { query } = useRoute();
-const { cart, isUpdatingCart, paymentGateways, refreshCart } = useCart();
-const { customer, viewer } = useAuth();
-const {
-  orderInput,
-  isProcessingOrder,
-  processCheckout,
-  updateShippingLocation,
-} = useCheckout();
+const {t} = useI18n();
+const {query} = useRoute();
+const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
+const {customer, viewer} = useAuth();
+const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
+
+// Checkout verification system
+const {isVerified, needsReauth, isVerifying, verificationError, formattedRemainingTime, isExpiringSoon, preVerifyCheckout, validateSession} =
+  useCheckoutVerification();
+
+const runtimeConfig = useRuntimeConfig();
+const turnstileEnabled = runtimeConfig.public.turnstileEnabled as boolean;
+
+const turnstileToken = ref<string>('');
+const showTurnstile = ref<boolean>(turnstileEnabled);
+
+// Handle Turnstile verification
+const handleTurnstileVerification = async (token: string) => {
+  turnstileToken.value = token;
+  const success = await preVerifyCheckout(token);
+  if (success) {
+    showTurnstile.value = false;
+  }
+};
+
+// Check verification status on mount
+onMounted(async () => {
+  // If Turnstile is disabled via config, skip verification entirely
+  if (!turnstileEnabled) {
+    showTurnstile.value = false;
+    return;
+  }
+
+  const hasValidSession = await validateSession();
+  if (hasValidSession) {
+    showTurnstile.value = false;
+  }
+});
 
 // Refs for managing checkout state
-const buttonText = ref<string>(
-  isProcessingOrder.value
-    ? t("messages.general.processing")
-    : t("messages.shop.checkoutButton")
-);
-const isCheckoutDisabled = computed<boolean>(
-  () => isProcessingOrder.value || isUpdatingCart.value
-);
+const buttonText = ref<string>(isProcessingOrder.value ? t('messages.general.processing') : t('messages.shop.checkoutButton'));
+const isCheckoutDisabled = computed<boolean>(() => isProcessingOrder.value || isUpdatingCart.value);
 
 const isInvalidEmail = ref<boolean>(false);
 const isPaid = ref<boolean>(false);
@@ -37,18 +60,16 @@ watch(
   () => cart.value,
   (newCart, oldCart) => {
     if (newCart && oldCart && helcimPaymentComplete.value) {
-      console.log("[Checkout] Cart updated, preserving Helcim payment state");
+      console.log('[Checkout] Cart updated, preserving Helcim payment state');
       // Ensure payment method stays selected after cart updates
       nextTick(() => {
-        if (orderInput.value.paymentMethod?.title?.includes("Helcim")) {
-          console.log(
-            "[Checkout] Helcim payment method preserved after cart update"
-          );
+        if (orderInput.value.paymentMethod?.title?.includes('Helcim')) {
+          console.log('[Checkout] Helcim payment method preserved after cart update');
         }
       });
     }
   },
-  { deep: true }
+  {deep: true},
 );
 
 onBeforeMount(() => {
@@ -67,7 +88,7 @@ const helcimAmount = computed(() => {
   });
 
   // Parse the total amount string (e.g., "$2.24 CAD" -> 2.24)
-  const totalStr = cart.value.total.replace(/[^\d.-]/g, "");
+  const totalStr = cart.value.total.replace(/[^\d.-]/g, '');
   const totalInDollars = parseFloat(totalStr) || 0;
 
   console.log(`[DEBUG Checkout] Helcim amount calculation:`, {
@@ -84,51 +105,57 @@ const helcimAmount = computed(() => {
 const payNow = async () => {
   // Prevent multiple simultaneous submissions
   if (isSubmitting.value) {
-    console.log("[payNow] Already processing, ignoring duplicate call");
+    console.log('[payNow] Already processing, ignoring duplicate call');
     return;
   }
 
   paymentError.value = null;
   isSubmitting.value = true;
-  buttonText.value = t("messages.general.processing");
+  buttonText.value = t('messages.general.processing');
 
   try {
+    // Check if user has valid verification session (only if Turnstile is enabled)
+    if (turnstileEnabled) {
+      console.log('[payNow] Checking verification status...');
+      const hasValidSession = await validateSession();
+      if (!hasValidSession) {
+        throw new Error('Please complete the security verification first');
+      }
+      console.log('[payNow] Verification session valid');
+    } else {
+      console.log('[payNow] Turnstile disabled, skipping verification');
+    }
+
     // Validate cart
     if (!cart.value || cart.value.isEmpty) {
-      throw new Error(t("messages.shop.cartEmpty"));
+      throw new Error(t('messages.shop.cartEmpty'));
     }
 
     // Check if billing phone number is present - REQUIRED FOR ALL PAYMENT METHODS
     if (!customer.value?.billing?.phone) {
-      paymentError.value = "Billing phone number is required.";
-      console.error("[payNow] Billing phone number is missing.");
+      paymentError.value = 'Billing phone number is required.';
+      console.error('[payNow] Billing phone number is missing.');
       throw new Error(paymentError.value);
     }
 
-    console.log(
-      "[payNow] Starting checkout process. Cart items:",
-      cart.value.contents?.nodes?.length
-    );
+    console.log('[payNow] Starting checkout process. Cart items:', cart.value.contents?.nodes?.length);
 
     // Process payment based on method
     let success = false;
-    const paymentMethodId = orderInput.value.paymentMethod?.id || "";
+    const paymentMethodId = orderInput.value.paymentMethod?.id || '';
 
-    console.log("[payNow] Processing payment with method:", paymentMethodId);
+    console.log('[payNow] Processing payment with method:', paymentMethodId);
 
-    if (
-      paymentMethodId === "cod" &&
-      orderInput.value.paymentMethod?.title?.includes("Helcim")
-    ) {
-      console.log("[payNow] Processing Custom Helcim payment via COD backend");
+    if (paymentMethodId === 'cod' && orderInput.value.paymentMethod?.title?.includes('Helcim')) {
+      console.log('[payNow] Processing Custom Helcim payment via COD backend');
 
       if (helcimPaymentComplete.value) {
         success = true;
-        console.log("[payNow] Helcim payment already completed");
+        console.log('[payNow] Helcim payment already completed');
       } else {
         // Trigger Helcim payment process
         if (helcimCardRef.value?.processPayment) {
-          console.log("[payNow] Triggering Helcim payment...");
+          console.log('[payNow] Triggering Helcim payment...');
           helcimCardRef.value.processPayment();
 
           // Wait for payment completion (with timeout)
@@ -148,47 +175,40 @@ const payNow = async () => {
             setTimeout(() => resolve(false), 300000);
           });
         } else {
-          throw new Error("Helcim payment component not ready");
+          throw new Error('Helcim payment component not ready');
         }
       }
     } else {
       // For other payment methods (like COD), assume success
       success = true;
-      console.log("[payNow] Using non-card payment method:", paymentMethodId);
+      console.log('[payNow] Using non-card payment method:', paymentMethodId);
     }
 
     if (!success) {
-      console.log("[payNow] Payment failed:", paymentError.value);
-      throw new Error(paymentError.value || "Payment failed");
+      console.log('[payNow] Payment failed:', paymentError.value);
+      throw new Error(paymentError.value || 'Payment failed');
     }
 
-    console.log("[payNow] Payment successful, completing order...");
+    console.log('[payNow] Payment successful, completing order...');
 
     // Complete checkout only if payment succeeded
     const checkoutResult = await processCheckout(success);
     if (!checkoutResult?.success) {
-      console.log(
-        "[payNow] Order completion failed:",
-        checkoutResult?.errorMessage
-      );
-      paymentError.value =
-        checkoutResult?.errorMessage || "Order completion failed after payment";
-      throw new Error(
-        paymentError.value || "Order completion failed after payment"
-      );
+      console.log('[payNow] Order completion failed:', checkoutResult?.errorMessage);
+      paymentError.value = checkoutResult?.errorMessage || 'Order completion failed after payment';
+      throw new Error(paymentError.value || 'Order completion failed after payment');
     }
 
-    console.log("[payNow] Checkout completed successfully");
+    console.log('[payNow] Checkout completed successfully');
   } catch (error: any) {
-    console.error("Checkout error:", error);
-    paymentError.value =
-      error.message || t("messages.shop.genericError", "An error occurred");
+    console.error('Checkout error:', error);
+    paymentError.value = error.message || t('messages.shop.genericError', 'An error occurred');
     isPaid.value = false;
-    buttonText.value = t("messages.shop.placeOrder");
+    buttonText.value = t('messages.shop.placeOrder');
   } finally {
     isSubmitting.value = false;
     if (!paymentError.value) {
-      buttonText.value = t("messages.shop.placeOrder");
+      buttonText.value = t('messages.shop.placeOrder');
     }
   }
 };
@@ -199,28 +219,25 @@ const checkEmailOnBlur = (email?: string | null): void => {
   if (email) isInvalidEmail.value = !emailRegex.test(email);
 };
 const checkEmailOnInput = (email?: string | null): void => {
-  if (email && isInvalidEmail.value)
-    isInvalidEmail.value = !emailRegex.test(email);
+  if (email && isInvalidEmail.value) isInvalidEmail.value = !emailRegex.test(email);
 };
 
 // Helcim payment event handlers
 const handleHelcimReady = (tokens?: any) => {
-  console.log("[Checkout] Helcim payment ready", tokens);
+  console.log('[Checkout] Helcim payment ready', tokens);
 };
 
 const handleHelcimError = (error: any) => {
-  console.error("[Checkout] Helcim payment error:", error);
+  console.error('[Checkout] Helcim payment error:', error);
   paymentError.value = error;
 };
 
 const handleHelcimSuccess = async (transactionData: any) => {
-  console.log("[Checkout] Helcim payment successful:", transactionData);
+  console.log('[Checkout] Helcim payment successful:', transactionData);
 
   // Prevent double processing
   if (helcimPaymentComplete.value) {
-    console.log(
-      "[Checkout] Helcim payment already processed, ignoring duplicate success event"
-    );
+    console.log('[Checkout] Helcim payment already processed, ignoring duplicate success event');
     return;
   }
 
@@ -228,50 +245,42 @@ const handleHelcimSuccess = async (transactionData: any) => {
   helcimTransactionData.value = transactionData;
 
   // Add transaction metadata to order
-  const actualTransactionId =
-    transactionData?.data?.data?.transactionId ||
-    transactionData?.data?.transactionId;
+  const actualTransactionId = transactionData?.data?.data?.transactionId || transactionData?.data?.transactionId;
   if (actualTransactionId) {
     orderInput.value.metaData.push({
-      key: "_helcim_transaction_id",
+      key: '_helcim_transaction_id',
       value: actualTransactionId,
     });
     orderInput.value.transactionId = actualTransactionId;
-    console.log("[Checkout] Set transaction ID:", actualTransactionId);
+    console.log('[Checkout] Set transaction ID:', actualTransactionId);
   }
 
   // Set payment as completed
   isPaid.value = true;
   paymentError.value = null;
 
-  console.log("[Checkout] Helcim payment state updated successfully");
+  console.log('[Checkout] Helcim payment state updated successfully');
 
   // Trigger order creation
-  console.log(
-    "[Checkout] Triggering payNow() after successful Helcim payment to create order"
-  );
+  console.log('[Checkout] Triggering payNow() after successful Helcim payment to create order');
 
   try {
     await payNow();
   } catch (error: any) {
-    console.error(
-      "[Checkout] Error during order creation after Helcim payment:",
-      error
-    );
-    paymentError.value =
-      error.message || "Order creation failed after successful payment";
+    console.error('[Checkout] Error during order creation after Helcim payment:', error);
+    paymentError.value = error.message || 'Order creation failed after successful payment';
   }
 };
 
 const handleHelcimFailed = (error: any) => {
-  console.error("[Checkout] Helcim payment failed:", error);
+  console.error('[Checkout] Helcim payment failed:', error);
   helcimPaymentComplete.value = false;
   isPaid.value = false;
-  paymentError.value = typeof error === "string" ? error : "Payment failed";
+  paymentError.value = typeof error === 'string' ? error : 'Payment failed';
 };
 
 const handleHelcimComplete = (result: any) => {
-  console.log("[Checkout] Helcim payment completed:", result);
+  console.log('[Checkout] Helcim payment completed:', result);
 
   if (result.success) {
     handleHelcimSuccess(result.transactionData);
@@ -280,113 +289,75 @@ const handleHelcimComplete = (result: any) => {
   }
 };
 
-const hasPaymentError = computed(
-  () => paymentError.value && !isSubmitting.value
-);
+const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
 
 // Computed to show Helcim card even during cart updates when payment method might be temporarily cleared
 const shouldShowHelcimCard = computed(() => {
   // Show if currently selected method is Helcim
-  const isCurrentlyHelcim =
-    orderInput.value.paymentMethod?.id === "cod" &&
-    orderInput.value.paymentMethod?.title?.includes("Helcim");
+  const isCurrentlyHelcim = orderInput.value.paymentMethod?.id === 'cod' && orderInput.value.paymentMethod?.title?.includes('Helcim');
 
   // Also show if we have a completed Helcim payment (prevents disappearing during cart updates)
-  const hasHelcimPayment =
-    helcimPaymentComplete.value || helcimTransactionData.value;
+  const hasHelcimPayment = helcimPaymentComplete.value || helcimTransactionData.value;
 
   return isCurrentlyHelcim || hasHelcimPayment;
 });
 
 useSeoMeta({
-  title: t("messages.shop.checkout"),
+  title: t('messages.shop.checkout'),
 });
 </script>
 
 <template>
   <div class="flex flex-col min-h-[600px]">
     <template v-if="cart && customer">
-      <div
-        v-if="cart.isEmpty"
-        class="flex flex-col items-center justify-center flex-1 mb-12"
-      >
+      <div v-if="cart.isEmpty" class="flex flex-col items-center justify-center flex-1 mb-12">
         <!-- Empty cart content - unchanged -->
         <Icon name="ion:cart-outline" size="156" class="opacity-25 mb-5" />
         <h2 class="text-2xl font-bold mb-2">
-          {{ $t("messages.shop.cartEmpty") }}
+          {{ $t('messages.shop.cartEmpty') }}
         </h2>
-        <span class="text-gray-400 mb-4">{{
-          $t("messages.shop.addProductsInYourCart")
-        }}</span>
+        <span class="text-gray-400 mb-4">{{ $t('messages.shop.addProductsInYourCart') }}</span>
         <NuxtLink
           to="/products"
-          class="flex items-center justify-center gap-3 p-2 px-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark"
-        >
-          {{ $t("messages.shop.browseOurProducts") }}
+          class="flex items-center justify-center gap-3 p-2 px-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark">
+          {{ $t('messages.shop.browseOurProducts') }}
         </NuxtLink>
       </div>
 
-      <form
-        v-else
-        class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20"
-        @submit.prevent="payNow"
-      >
+      <form v-else class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20" @submit.prevent="payNow">
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
           <!-- Customer details section -->
           <div v-if="!viewer && customer.billing">
-            <h2 class="w-full mb-2 text-2xl font-semibold leading-none">
-              Contact Information
-            </h2>
+            <h2 class="w-full mb-2 text-2xl font-semibold leading-none">Contact Information</h2>
             <p class="mt-1 text-sm text-gray-500">
               Already have an account?
-              <a href="/my-account" class="text-primary text-semibold">Log in</a
-              >.
+              <a href="/my-account" class="text-primary text-semibold">Log in</a>.
             </p>
             <div class="w-full mt-4">
-              <label for="email">{{ $t("messages.billing.email") }}</label>
+              <label for="email">{{ $t('messages.billing.email') }}</label>
               <input
                 v-model="customer.billing.email"
                 placeholder="johndoe@email.com"
                 autocomplete="email"
                 type="email"
                 name="email"
-                :class="{ 'has-error': isInvalidEmail }"
+                :class="{'has-error': isInvalidEmail}"
                 @blur="checkEmailOnBlur(customer.billing.email)"
                 @input="checkEmailOnInput(customer.billing.email)"
-                required
-              />
+                required />
               <Transition name="scale-y" mode="out-in">
-                <div v-if="isInvalidEmail" class="mt-1 text-sm text-red-500">
-                  Invalid email address
-                </div>
+                <div v-if="isInvalidEmail" class="mt-1 text-sm text-red-500">Invalid email address</div>
               </Transition>
             </div>
             <!-- Account creation section -->
             <div v-if="orderInput.createAccount">
               <div class="w-full mt-4">
-                <label for="username">{{
-                  $t("messages.account.username")
-                }}</label>
-                <input
-                  v-model="orderInput.username"
-                  placeholder="johndoe"
-                  autocomplete="username"
-                  type="text"
-                  name="username"
-                  required
-                />
+                <label for="username">{{ $t('messages.account.username') }}</label>
+                <input v-model="orderInput.username" placeholder="johndoe" autocomplete="username" type="text" name="username" required />
               </div>
               <div class="w-full my-2" v-if="orderInput.createAccount">
-                <label for="password">{{
-                  $t("messages.account.password")
-                }}</label>
-                <PasswordInput
-                  id="password"
-                  class="my-2"
-                  v-model="orderInput.password"
-                  placeholder="••••••••••"
-                  :required="true"
-                />
+                <label for="password">{{ $t('messages.account.password') }}</label>
+                <PasswordInput id="password" class="my-2" v-model="orderInput.password" placeholder="••••••••••" :required="true" />
               </div>
             </div>
             <!-- Disabled create account due to turnstyle issues on checkout -->
@@ -404,31 +375,22 @@ useSeoMeta({
           <!-- Billing details section -->
           <div>
             <h2 class="w-full mb-3 text-2xl font-semibold">
-              {{ $t("messages.billing.billingDetails") }}
+              {{ $t('messages.billing.billingDetails') }}
             </h2>
             <BillingDetails v-model="customer.billing" />
           </div>
 
           <!-- Ship to different address section -->
-          <label
-            v-if="cart.availableShippingMethods.length > 0"
-            for="shipToDifferentAddress"
-            class="flex items-center gap-2"
-          >
-            <span>{{ $t("messages.billing.differentAddress") }}</span>
-            <input
-              id="shipToDifferentAddress"
-              v-model="orderInput.shipToDifferentAddress"
-              type="checkbox"
-              name="shipToDifferentAddress"
-            />
+          <label v-if="cart.availableShippingMethods.length > 0" for="shipToDifferentAddress" class="flex items-center gap-2">
+            <span>{{ $t('messages.billing.differentAddress') }}</span>
+            <input id="shipToDifferentAddress" v-model="orderInput.shipToDifferentAddress" type="checkbox" name="shipToDifferentAddress" />
           </label>
 
           <!-- Shipping details section -->
           <Transition name="scale-y" mode="out-in">
             <div v-if="orderInput.shipToDifferentAddress">
               <h2 class="mb-4 text-xl font-semibold">
-                {{ $t("messages.general.shippingDetails") }}
+                {{ $t('messages.general.shippingDetails') }}
               </h2>
               <ShippingDetails v-model="customer.shipping" />
             </div>
@@ -437,53 +399,33 @@ useSeoMeta({
           <!-- Shipping methods section -->
           <div v-if="cart.availableShippingMethods.length">
             <h3 class="mb-4 text-xl font-semibold">
-              {{ $t("messages.general.shippingSelect") }}
+              {{ $t('messages.general.shippingSelect') }}
             </h3>
             <ShippingOptions
               :options="cart?.availableShippingMethods?.[0]?.rates || []"
               :active-option="cart?.chosenShippingMethods?.[0] || ''"
-              @shipping-changed="refreshCart"
-            />
+              @shipping-changed="refreshCart" />
           </div>
 
           <!-- Payment methods section -->
           <div v-if="paymentGateways?.nodes.length" class="mt-2 col-span-full">
             <h2 class="mb-4 text-xl font-semibold">
-              {{ $t("messages.billing.paymentOptions") }}
+              {{ $t('messages.billing.paymentOptions') }}
             </h2>
-            <PaymentOptions
-              v-model="orderInput.paymentMethod"
-              class="mb-4"
-              :paymentGateways
-            />
+            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways />
 
             <!-- Other payment methods info -->
             <div
-              v-if="
-                orderInput.paymentMethod?.id &&
-                !(
-                  orderInput.paymentMethod?.id === 'cod' &&
-                  orderInput.paymentMethod?.title?.includes('Helcim')
-                )
-              "
-              class="mt-4"
-            >
+              v-if="orderInput.paymentMethod?.id && !(orderInput.paymentMethod?.id === 'cod' && orderInput.paymentMethod?.title?.includes('Helcim'))"
+              class="mt-4">
               <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div class="flex items-center gap-3">
-                  <Icon
-                    name="ion:information-circle"
-                    size="20"
-                    class="text-blue-600"
-                  />
+                  <Icon name="ion:information-circle" size="20" class="text-blue-600" />
                   <div>
                     <div class="font-medium text-gray-800">
                       {{ orderInput.paymentMethod.title }}
                     </div>
-                    <div
-                      v-if="orderInput.paymentMethod.description"
-                      class="text-sm text-gray-600 mt-1"
-                      v-html="orderInput.paymentMethod.description"
-                    ></div>
+                    <div v-if="orderInput.paymentMethod.description" class="text-sm text-gray-600 mt-1" v-html="orderInput.paymentMethod.description"></div>
                   </div>
                 </div>
               </div>
@@ -492,28 +434,46 @@ useSeoMeta({
 
           <!-- Order note section -->
           <div>
-            <h2 class="mb-4 text-xl font-semibold">
-              {{ $t("messages.shop.orderNote") }} ({{
-                $t("messages.general.optional")
-              }})
-            </h2>
+            <h2 class="mb-4 text-xl font-semibold">{{ $t('messages.shop.orderNote') }} ({{ $t('messages.general.optional') }})</h2>
             <textarea
               id="order-note"
               v-model="orderInput.customerNote"
               name="order-note"
               class="w-full min-h-[100px]"
               rows="4"
-              :placeholder="$t('messages.shop.orderNotePlaceholder')"
-            ></textarea>
+              :placeholder="$t('messages.shop.orderNotePlaceholder')"></textarea>
+          </div>
+
+          <!-- Security verification section -->
+          <div>
+            <h2 class="mb-4 text-xl font-semibold">Security Verification</h2>
+            <p class="text-sm text-gray-600 mb-4">Please complete the security check below to prevent spam orders.</p>
+            <div v-if="showTurnstile && needsReauth">
+              <ClientOnly>
+                <VueTurnstile
+                  :site-key="$config.public.turnstyleSiteKey"
+                  v-model="turnstileToken"
+                  @verify="handleTurnstileVerification"
+                  @error="paymentError = 'Security check failed - please try again'"
+                  :reset-interval="30000" />
+              </ClientOnly>
+              <div v-if="isVerifying" class="text-blue-500 text-sm mt-2">Verifying security check...</div>
+              <div v-if="verificationError" class="text-red-500 text-sm mt-2">
+                {{ verificationError }}
+              </div>
+            </div>
+
+            <div v-else-if="isVerified" class="text-green-600 text-sm">
+              ✅ Security verified
+              <span v-if="formattedRemainingTime" class="text-gray-600"> (expires in {{ formattedRemainingTime }}) </span>
+              <div v-if="isExpiringSoon" class="text-orange-500 text-xs mt-1">⚠️ Verification expires soon - complete checkout quickly!</div>
+            </div>
           </div>
         </div>
 
         <!-- Order summary section -->
         <OrderSummary>
-          <div
-            v-if="hasPaymentError"
-            class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md"
-          >
+          <div v-if="hasPaymentError" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">
             {{ paymentError }}
           </div>
 
@@ -527,8 +487,7 @@ useSeoMeta({
               @error="handleHelcimError"
               @payment-success="handleHelcimSuccess"
               @payment-failed="handleHelcimFailed"
-              @payment-complete="handleHelcimComplete"
-            />
+              @payment-complete="handleHelcimComplete" />
           </div>
 
           <!-- Standard checkout button - shown for all non-Helcim payments -->
@@ -536,14 +495,9 @@ useSeoMeta({
             v-else
             type="submit"
             class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
-            :disabled="isCheckoutDisabled || isSubmitting"
-          >
+            :disabled="isCheckoutDisabled || isSubmitting">
             {{ buttonText }}
-            <LoadingIcon
-              v-if="isProcessingOrder || isSubmitting"
-              color="#fff"
-              size="18"
-            />
+            <LoadingIcon v-if="isProcessingOrder || isSubmitting" color="#fff" size="18" />
           </button>
         </OrderSummary>
       </form>
@@ -553,10 +507,10 @@ useSeoMeta({
 </template>
 
 <style lang="postcss">
-.checkout-form input[type="text"],
-.checkout-form input[type="email"],
-.checkout-form input[type="tel"],
-.checkout-form input[type="password"],
+.checkout-form input[type='text'],
+.checkout-form input[type='email'],
+.checkout-form input[type='tel'],
+.checkout-form input[type='password'],
 .checkout-form textarea,
 .checkout-form select {
   @apply bg-white border rounded-md outline-none border-gray-300 shadow-sm w-full py-2 px-4;

@@ -4,21 +4,17 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
 
   try {
-    console.log("🧪 Testing simple admin mutation...");
+    console.log('🧪 Testing simple admin mutation...');
 
-    if (
-      !config.wpAdminUsername ||
-      !config.wpAdminAppPassword ||
-      !config.public.wpBaseUrl
-    ) {
+    if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
       return {
         success: false,
-        error: "Missing WordPress Application Password credentials",
+        error: 'Missing WordPress Application Password credentials',
       };
     }
 
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
-    const auth = Buffer.from(appPassword).toString("base64");
+    const auth = Buffer.from(appPassword).toString('base64');
 
     // Try a simpler mutation first - updating user profile (should require less permissions)
     const mutation = `
@@ -39,18 +35,18 @@ export default defineEventHandler(async (event) => {
       }
     `;
 
-    console.log("🌐 Testing with updateUser mutation...");
+    console.log('🌐 Testing with updateUser mutation...');
 
     const response = await fetch(`${config.public.wpBaseUrl}/graphql`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        "User-Agent": "WooNuxt-Simple-Admin-Test/1.0",
+        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
         Origin: config.public.wpBaseUrl,
         Referer: config.public.wpBaseUrl,
       },
-      body: JSON.stringify({ query: mutation }),
+      body: JSON.stringify({query: mutation}),
     });
 
     if (!response.ok) {
@@ -65,7 +61,7 @@ export default defineEventHandler(async (event) => {
     const result = await response.json();
 
     if (result.errors) {
-      console.log("❌ updateUser mutation failed, trying a query instead...");
+      console.log('❌ updateUser mutation failed, trying a query instead...');
 
       // If mutation fails, try a simple query that requires admin
       const queryTest = `
@@ -86,15 +82,15 @@ export default defineEventHandler(async (event) => {
       `;
 
       const queryResponse = await fetch(`${config.public.wpBaseUrl}/graphql`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Basic ${auth}`,
-          "User-Agent": "WooNuxt-Query-Test/1.0",
+          'User-Agent': 'WooNuxt-Query-Test/1.0',
           Origin: config.public.wpBaseUrl,
           Referer: config.public.wpBaseUrl,
         },
-        body: JSON.stringify({ query: queryTest }),
+        body: JSON.stringify({query: queryTest}),
       });
 
       const queryResult = await queryResponse.json();
@@ -107,22 +103,21 @@ export default defineEventHandler(async (event) => {
           errors: queryResult.errors || null,
           data: queryResult.data || null,
         },
-        message:
-          "updateUser mutation failed, but tested admin query capability",
-        authMethod: "WordPress Application Password",
+        message: 'updateUser mutation failed, but tested admin query capability',
+        authMethod: 'WordPress Application Password',
       };
     }
 
     return {
       success: true,
-      message: "✅ Admin mutation successful!",
+      message: '✅ Admin mutation successful!',
       result: result.data,
-      authMethod: "WordPress Application Password",
+      authMethod: 'WordPress Application Password',
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Simple admin test failed",
+      error: error.message || 'Simple admin test failed',
       details: error.stack || error.toString(),
     };
   }

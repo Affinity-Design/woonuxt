@@ -54,10 +54,16 @@ export default defineNuxtConfig({
           'Content-Type': 'application/json',
           'X-Frontend-Type': 'woonuxt',
           'X-Requested-With': 'XMLHttpRequest',
-          // Note: woocommerce-session and other dynamic headers are set via useGqlHeaders() in plugins/init.ts
-          // Note: User-Agent is automatically handled by the browser and should not be overridden
+          'User-Agent': 'ProSkatersPlaceFrontend/1.0;', // Note: woocommerce-session and other dynamic headers are set via useGqlHeaders() in plugins/init.ts
         },
       },
+    },
+  },
+
+  runtimeConfig: {
+    public: {
+      // Turnstile configuration - set to false to disable Turnstile (when using User-Agent whitelist)
+      turnstileEnabled: process.env.TURNSTILE_ENABLED !== 'false', // Default: true, set TURNSTILE_ENABLED=false to disable
     },
   },
 

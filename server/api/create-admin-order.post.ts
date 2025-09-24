@@ -8,7 +8,62 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('🛠️ Creating order via WPGraphQL with Application Password authentication...');
 
-    const {billing, shipping, transactionId, lineItems, coupons = [], cartTotals, shippingMethod, customerNote, metaData = [], createAccount = false} = body;
+    const {
+      billing,
+      shipping,
+      transactionId,
+      lineItems,
+      coupons = [],
+      cartTotals,
+      shippingMethod,
+      customerNote,
+      metaData = [],
+      createAccount = false,
+      checkoutSessionToken,
+    } = body;
+
+    // Verify checkout session first
+    if (checkoutSessionToken) {
+      console.log('🔐 Verifying checkout session before order creation...');
+
+      try {
+        // Validate session using the session validation API
+        const storage = useStorage('redis'); // or 'memory' for development
+        const rawSessionData = await storage.getItem(checkoutSessionToken);
+
+        if (!rawSessionData) {
+          console.error('❌ Checkout session not found or expired');
+          return {
+            success: false,
+            error: 'Security verification expired. Please complete security check again.',
+          };
+        }
+
+        // Parse session data
+        const sessionData = typeof rawSessionData === 'object' ? rawSessionData : JSON.parse(rawSessionData as string);
+
+        // Check if session is still valid
+        const now = Date.now();
+        if (now > sessionData.expiresAt) {
+          console.error('❌ Checkout session expired');
+          await storage.removeItem(checkoutSessionToken); // Clean up expired session
+          return {
+            success: false,
+            error: 'Security verification expired. Please complete security check again.',
+          };
+        }
+
+        console.log('✅ Checkout session verification successful');
+      } catch (sessionError) {
+        console.error('❌ Session verification error:', sessionError);
+        return {
+          success: false,
+          error: 'Security verification failed. Please try again.',
+        };
+      }
+    } else {
+      console.warn('⚠️ No checkout session provided - order may be spam');
+    }
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
@@ -148,7 +203,7 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
         Origin: config.public.wpBaseUrl, // Match the WordPress origin
         Referer: config.public.wpBaseUrl, // Set referrer to WordPress site
         'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request

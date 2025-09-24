@@ -1,7 +1,7 @@
 // Debug endpoint to check environment variables in production
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  
+
   return {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       wpAdminUsername: !!config.wpAdminUsername,
       wpAdminAppPassword: !!config.wpAdminAppPassword,
       wpBaseUrl: !!config.public.wpBaseUrl,
-      allRequiredPresent: !!(config.wpAdminUsername && config.wpAdminAppPassword && config.public.wpBaseUrl)
-    }
+      allRequiredPresent: !!(config.wpAdminUsername && config.wpAdminAppPassword && config.public.wpBaseUrl),
+    },
   };
 });
