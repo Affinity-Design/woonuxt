@@ -1,12 +1,10 @@
-// GraphQL Turnstile Proxy - Validates Turnstile tokens before forwarding to WordPress Graph        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',L
+// GraphQL Turnstile Proxy - Validates Turnstile tokens before forwarding to WordPress GraphQL
 // This creates a secure proxy that validates tokens before passing requests to the backend
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  const config = useRuntimeConfig();
-
-  try {
-    console.log('🔐 GraphQL Turnstile Proxy - Processing request...');
+  // Middleware temporarily disabled - User-Agent whitelist is handling security
+  console.log('🔐 GraphQL Turnstile Proxy - Disabled (using User-Agent whitelist)');
+  return;
 
     // Check if this is a checkout mutation
     if (body.query && body.query.includes('checkout(')) {
