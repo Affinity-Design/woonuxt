@@ -68,7 +68,7 @@ export function useTurnstile() {
         widgetId = window.turnstile.render(container, {
           sitekey: config.public.turnstile.siteKey,
           theme: 'light',
-          size: 'invisible',
+          size: 'compact',
           callback: (token: string) => {
             console.log('✅ Turnstile token generated successfully');
             turnstileToken.value = token;
