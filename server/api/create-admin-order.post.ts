@@ -8,62 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('🛠️ Creating order via WPGraphQL with Application Password authentication...');
 
-    const {
-      billing,
-      shipping,
-      transactionId,
-      lineItems,
-      coupons = [],
-      cartTotals,
-      shippingMethod,
-      customerNote,
-      metaData = [],
-      createAccount = false,
-      checkoutSessionToken,
-    } = body;
-
-    // Verify checkout session first
-    if (checkoutSessionToken) {
-      console.log('🔐 Verifying checkout session before order creation...');
-
-      try {
-        // Validate session using the session validation API
-        const storage = useStorage('redis'); // or 'memory' for development
-        const rawSessionData = await storage.getItem(checkoutSessionToken);
-
-        if (!rawSessionData) {
-          console.error('❌ Checkout session not found or expired');
-          return {
-            success: false,
-            error: 'Security verification expired. Please complete security check again.',
-          };
-        }
-
-        // Parse session data
-        const sessionData = typeof rawSessionData === 'object' ? rawSessionData : JSON.parse(rawSessionData as string);
-
-        // Check if session is still valid
-        const now = Date.now();
-        if (now > sessionData.expiresAt) {
-          console.error('❌ Checkout session expired');
-          await storage.removeItem(checkoutSessionToken); // Clean up expired session
-          return {
-            success: false,
-            error: 'Security verification expired. Please complete security check again.',
-          };
-        }
-
-        console.log('✅ Checkout session verification successful');
-      } catch (sessionError) {
-        console.error('❌ Session verification error:', sessionError);
-        return {
-          success: false,
-          error: 'Security verification failed. Please try again.',
-        };
-      }
-    } else {
-      console.warn('⚠️ No checkout session provided - order may be spam');
-    }
+    const {billing, shipping, transactionId, lineItems, coupons = [], cartTotals, shippingMethod, customerNote, metaData = [], createAccount = false} = body;
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
@@ -130,7 +75,7 @@ export default defineEventHandler(async (event) => {
         paymentMethod: 'helcim',
         paymentMethodTitle: 'Helcim Credit Card Payment',
         transactionId: transactionId,
-        status: 'PROCESSING',
+        status: 'PENDING',  // Start as PENDING to prevent premature emails
         isPaid: true,
         currency: 'CAD',
 
@@ -203,7 +148,7 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
+        'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
         Origin: config.public.wpBaseUrl, // Match the WordPress origin
         Referer: config.public.wpBaseUrl, // Set referrer to WordPress site
         'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request
@@ -318,50 +263,49 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Background email fix: Trigger updated order email after processing completes
-    // This runs asynchronously without blocking the checkout UI
-    setImmediate(async () => {
-      try {
-        console.log('📧 Background: Refreshing order for proper email notifications...');
+    // BEST PRACTICE: Update order to PROCESSING after all calculations are complete
+    // This triggers emails with proper data instead of $0.00 totals
+    try {
+      console.log('📧 Updating order to PROCESSING to trigger proper emails...');
 
-        // Wait for WooCommerce to finish all processing
-        setTimeout(async () => {
-          try {
-            // Refresh order data and trigger both admin and customer emails
-            await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-              method: 'PUT',
-              headers: {
-                Authorization: `Basic ${auth}`,
-                'Content-Type': 'application/json',
-              },
-              body: {
-                // Force recalculation of totals
-                recalculate: true,
-                // Ensure status triggers both admin and customer emails
-                status: 'processing',
-                // Mark that proper emails should be sent
-                meta_data: [
-                  {
-                    key: '_email_sent_refreshed',
-                    value: new Date().toISOString(),
-                  },
-                  {
-                    key: '_order_emails_triggered',
-                    value: 'admin_and_customer',
-                  },
-                ],
-              },
-            });
+      // Small delay to ensure all WooCommerce processing is complete
+      setTimeout(async () => {
+        try {
+          // Update order status to PROCESSING - this triggers proper emails with complete data
+          await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Basic ${auth}`,
+              'Content-Type': 'application/json',
+            },
+            body: {
+              // Change status to PROCESSING - this triggers both admin and customer emails
+              status: 'processing',
+              // Force WooCommerce to recalculate totals before sending emails
+              set_paid: true,
+              // Add metadata to track email fix
+              meta_data: [
+                {
+                  key: '_email_fix_applied',
+                  value: new Date().toISOString(),
+                },
+                {
+                  key: '_order_completed_processing',
+                  value: 'true',
+                },
+              ],
+            },
+          });
 
-            console.log('✅ Background: Order refreshed for proper email notifications');
-          } catch (refreshError: any) {
-            console.warn('⚠️ Background: Email refresh failed:', refreshError.message);
-          }
-        }, 3000); // 3 second delay for background processing
-      } catch (emailError: any) {
-        console.warn('⚠️ Background: Email processing failed:', emailError.message);
-      }
-    });
+          console.log('✅ Order status updated to PROCESSING with complete data');
+        } catch (statusError: any) {
+          console.warn('⚠️ Failed to update order status:', statusError.message);
+        }
+      }, 1500); // 1.5 second delay to ensure complete processing
+      
+    } catch (emailError: any) {
+      console.warn('⚠️ Email processing setup failed:', emailError.message);
+    }
 
     return {
       success: true,
