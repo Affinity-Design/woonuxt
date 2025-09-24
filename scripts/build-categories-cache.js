@@ -58,10 +58,7 @@ async function fetchCategories() {
   try {
     const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         query: CATEGORIES_QUERY,
         variables: {first: 500},

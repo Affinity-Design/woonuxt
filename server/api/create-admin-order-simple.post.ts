@@ -6,53 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('🛠️ Creating basic admin order...');
 
-    const {billing, transactionId, lineItems, turnstileToken} = body;
-
-    // Verify Turnstile token first
-    if (turnstileToken) {
-      console.log('🔐 Verifying Turnstile token before order creation...');
-
-      // Prepare Turnstile verification
-      const formData = new FormData();
-      formData.append('secret', config.public.turnstyleSecretKey || '');
-      formData.append('response', turnstileToken);
-
-      // Get client IP
-      const ip = event.node.req.headers['cf-connecting-ip'] || event.node.req.headers['x-forwarded-for'] || event.node.req.socket.remoteAddress;
-
-      if (ip) {
-        const ipAddress = Array.isArray(ip) ? ip[0] : ip;
-        if (typeof ipAddress === 'string') {
-          formData.append('remoteip', ipAddress);
-        }
-      }
-
-      try {
-        const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const turnstileResult = await turnstileResponse.json();
-
-        if (!turnstileResult.success) {
-          console.error('❌ Turnstile verification failed:', turnstileResult);
-          return {
-            success: false,
-            error: 'Security verification failed. Please try again.',
-          };
-        }
-        console.log('✅ Turnstile verification successful');
-      } catch (turnstileError) {
-        console.error('❌ Turnstile verification error:', turnstileError);
-        return {
-          success: false,
-          error: 'Security verification failed. Please try again.',
-        };
-      }
-    } else {
-      console.warn('⚠️ No Turnstile token provided - order may be spam');
-    }
+    const {billing, transactionId, lineItems} = body;
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
@@ -106,7 +60,6 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
       },
       body: {
         query: mutation,

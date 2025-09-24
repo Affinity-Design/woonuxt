@@ -1,65 +1,80 @@
-// Turnstile verification API endpoint for checkout and other forms
+// Turnstile Server-Side Verification Endpoint
+// Validates tokens with Cloudflare's Siteverify API
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  const config = useRuntimeConfig();
-
   try {
-    const {turnstileToken} = body;
+    const {token} = await readBody(event);
+    const config = useRuntimeConfig();
 
-    // Validate required configuration
-    if (!config.public.turnstyleSecretKey || !turnstileToken) {
-      console.error('Missing Turnstile configuration or token');
-      return {
-        success: false,
-        error: 'Missing required Turnstile parameters',
-      };
+    if (!token) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Missing Turnstile token',
+      });
     }
 
-    console.log('🔐 Verifying Turnstile token...');
+    if (!config.public.turnstyleSecretKey) {
+      console.error('❌ Missing Turnstile secret key configuration');
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Security verification service unavailable',
+      });
+    }
 
-    // Prepare Turnstile verification
+    // Prepare verification request
     const formData = new FormData();
     formData.append('secret', config.public.turnstyleSecretKey);
-    formData.append('response', turnstileToken);
+    formData.append('response', token);
 
-    // Get client IP for verification
-    const ip = event.node.req.headers['cf-connecting-ip'] || event.node.req.headers['x-forwarded-for'] || event.node.req.socket.remoteAddress;
-
-    if (ip) {
-      const ipAddress = Array.isArray(ip) ? ip[0] : ip;
+    // Get client IP for additional security
+    const clientIP = event.node.req.headers['cf-connecting-ip'] || event.node.req.headers['x-forwarded-for'] || event.node.req.socket.remoteAddress;
+    if (clientIP) {
+      const ipAddress = Array.isArray(clientIP) ? clientIP[0] : clientIP;
       if (typeof ipAddress === 'string') {
         formData.append('remoteip', ipAddress);
       }
     }
 
+    console.log('🔐 Verifying Turnstile token with Cloudflare...');
+
     // Verify with Cloudflare
-    const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    const verificationResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       body: formData,
     });
 
-    const turnstileResult = await turnstileResponse.json();
-    console.log('Turnstile verification result:', turnstileResult);
+    const result = await verificationResponse.json();
 
-    if (!turnstileResult.success) {
-      console.error('Turnstile verification failed:', turnstileResult);
-      return {
-        success: false,
-        error: 'Security verification failed',
-        details: turnstileResult['error-codes'] || [],
-      };
+    console.log('✅ Turnstile verification result:', {
+      success: result.success,
+      errorCodes: result['error-codes'],
+      challengeTs: result.challenge_ts,
+      hostname: result.hostname,
+    });
+
+    if (!result.success) {
+      console.error('❌ Turnstile verification failed:', result['error-codes']);
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Security verification failed',
+      });
     }
 
-    console.log('✅ Turnstile verification successful');
     return {
       success: true,
-      verified: true,
+      data: {
+        success: result.success,
+        challengeTs: result.challenge_ts,
+        hostname: result.hostname,
+        verified: true,
+      },
     };
-  } catch (error) {
-    console.error('Turnstile verification error:', error);
-    return {
-      success: false,
-      error: 'Security verification failed due to server error',
-    };
+  } catch (error: any) {
+    console.error('❌ Turnstile verification error:', error);
+
+    throw createError({
+      statusCode: error.statusCode || 500,
+      statusMessage: error.statusMessage || 'Security verification failed',
+    });
   }
 });

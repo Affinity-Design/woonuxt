@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
+        'User-Agent': 'WooNuxt-Simple-Admin-Test/1.0',
         Origin: config.public.wpBaseUrl,
         Referer: config.public.wpBaseUrl,
       },

@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
         paymentMethod: 'helcim',
         paymentMethodTitle: 'Helcim Credit Card Payment',
         transactionId: transactionId,
-        status: 'PENDING',  // Start as PENDING to prevent premature emails
+        status: 'PENDING', // Start as PENDING to prevent premature emails
         isPaid: true,
         currency: 'CAD',
 
@@ -302,7 +302,6 @@ export default defineEventHandler(async (event) => {
           console.warn('⚠️ Failed to update order status:', statusError.message);
         }
       }, 1500); // 1.5 second delay to ensure complete processing
-      
     } catch (emailError: any) {
       console.warn('⚠️ Email processing setup failed:', emailError.message);
     }

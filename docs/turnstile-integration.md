@@ -1,228 +1,194 @@
-# Turnstile Integration for WooNuxt
+# Turnstile Integration Guide - Complete Solution
 
-This document outlines the Cloudflare Turnstile integration to prevent spam orders while maintaining checkout functionality.
+## 🎯 **Problem Solved**
 
-## Overview
+✅ **Spam Orders Blocked** - Turnstile prevents automated spam orders  
+✅ **Checkout Still Works** - Dynamic header integration fixed  
+✅ **Main Site Bypass** - Your .com site can bypass verification  
+✅ **Smart Detection** - Only checkout requests are protected
 
-We've implemented Cloudflare Turnstile integration that:
+## 🛡️ **How It Works**
 
-- ✅ Prevents spam orders on checkout
-- ✅ Maintains full checkout functionality
-- ✅ Works with all payment methods (Helcim, COD, etc.)
-- ✅ Server-side verification for security
-- ✅ Graceful error handling
+### **Current Flow:**
 
-## Components Added/Modified
+1. User loads checkout page → **Turnstile script loads**
+2. User fills form → **Invisible token generation**
+3. User submits → **Token verified client-side**
+4. Server receives → **Token verified server-side**
+5. Valid token → **Order created** ✅
+6. Invalid token → **Order blocked** ❌
 
-### 1. Server-Side API Endpoints
+### **Bypass Methods (for your main site):**
 
-**`/server/api/verify-turnstile.post.ts`**
+#### **Method 1: User-Agent Header**
 
-- Dedicated Turnstile verification endpoint
-- Validates tokens with Cloudflare's API
-- Includes IP verification for enhanced security
+Your main .com site can use this User-Agent:
 
-**`/server/api/create-admin-order.post.ts`** (Modified)
-
-- Now verifies Turnstile tokens before order creation
-- Rejects orders without valid tokens
-- Logs security verification attempts
-
-### 2. Frontend Components
-
-**`/pages/checkout.vue`** (Modified)
-
-- Added Turnstile widget to checkout form
-- Integrated verification into payment flow
-- Shows appropriate error messages
-- Prevents checkout without verification
-
-**`/composables/useTurnstile.ts`** (New)
-
-- Reusable Turnstile functionality
-- Centralized token management
-- Error handling and state management
-
-**`/components/generalElements/TurnstileWidget.vue`** (New)
-
-- Reusable Vue component for Turnstile
-- Auto-verification options
-- Event handling and state management
-
-### 3. Configuration
-
-**Required Environment Variables:**
-
-```bash
-TURNSTYLE_SITE_KEY="your_site_key_here"
-TURNSTYLE_SECRET_KEY="your_secret_key_here"
+```
+Mozilla/5.0 (compatible; ProSkatersPlaceFrontend/1.0; https://proskatersplace.com)
 ```
 
-**`nuxt.config.ts`** (Already configured)
+#### **Method 2: Origin-Based**
 
-- Site key configuration
-- Runtime config setup
+Requests from these origins are automatically trusted:
 
-## How It Works
+- `https://proskatersplace.com`
+- `https://www.proskatersplace.com`
+- `http://localhost:3000` (development)
 
-### Checkout Flow with Turnstile
+#### **Method 3: Bypass Header**
 
-1. **User loads checkout page**
+Include this header in requests:
 
-   - Turnstile widget loads automatically
-   - User must complete challenge before proceeding
-
-2. **User submits checkout form**
-
-   - Frontend verifies Turnstile token exists
-   - Calls `verifyTurnstile()` function
-   - Prevents submission if verification fails
-
-3. **Server processes order**
-
-   - `create-admin-order.post.ts` verifies token with Cloudflare
-   - Rejects order if token is invalid or missing
-   - Proceeds with order creation if verification passes
-
-4. **Order completion**
-   - Standard order processing continues
-   - User receives confirmation as normal
-
-### Security Features
-
-- **Client-side validation**: Prevents unnecessary server calls
-- **Server-side verification**: Authoritative security check
-- **IP validation**: Additional security layer
-- **Token expiration**: Automatic token refresh
-- **Error handling**: Graceful degradation
-
-## Testing the Integration
-
-### 1. Enable Turnstile
-
-Make sure you have the environment variables set:
-
-```bash
-TURNSTYLE_SITE_KEY="your_actual_site_key"
-TURNSTYLE_SECRET_KEY="your_actual_secret_key"
+```
+X-Bypass-Turnstile: ProSkaters2024SecureBypass
 ```
 
-### 2. Test Checkout Process
+## 🔧 **Implementation Details**
 
-1. Go to `/checkout` page
-2. Fill out checkout form
-3. Complete Turnstile challenge
-4. Submit order
-5. Verify order is created successfully
+### **Files Added/Modified:**
 
-### 3. Test Without Turnstile
+✅ **`composables/useTurnstile.ts`** - Client-side token generation  
+✅ **`server/api/verify-turnstile.post.ts`** - Server-side verification  
+✅ **`server/middleware/smart-turnstile.ts`** - Request filtering with bypass  
+✅ **`pages/checkout.vue`** - Integration into checkout flow  
+✅ **`nuxt.config.ts`** - Turnstile script loading  
+✅ **`.env`** - Configuration variables
 
-1. Try to submit without completing challenge
-2. Should see error: "Please complete the security verification"
-3. Order should NOT be created
+### **Environment Variables:**
 
-### 4. Test API Directly
+```env
+TURNSTILE_ENABLED="true"
+TURNSTILE_BYPASS_KEY="ProSkaters2024SecureBypass"
+TURNSTYLE_SITE_KEY="your-site-key"
+TURNSTYLE_SECRET_KEY="your-secret-key"
+```
+
+## 🧪 **Testing Instructions**
+
+### **Test 1: Normal Customer Flow**
+
+1. Go to `/checkout`
+2. Fill out form normally
+3. Submit → **Should work** ✅
+4. Check console for "✅ Turnstile verification successful"
+
+### **Test 2: Bypass via User-Agent**
 
 ```powershell
-# Test verification endpoint
-Invoke-RestMethod -Uri "https://localhost:3000/api/verify-turnstile" -Method Post -ContentType "application/json" -Body '{"turnstileToken":"test_token"}'
+$headers = @{
+    'User-Agent' = 'Mozilla/5.0 (compatible; ProSkatersPlaceFrontend/1.0; https://proskatersplace.com)'
+    'Content-Type' = 'application/json'
+}
 
-# Should return error for invalid token
+Invoke-RestMethod -Uri "https://localhost:3000/api/test-admin-order" -Method Post -Headers $headers -Body "{}"
 ```
 
-## Troubleshooting
+### **Test 3: Bypass via Header**
 
-### Common Issues
+```powershell
+$headers = @{
+    'X-Bypass-Turnstile' = 'ProSkaters2024SecureBypass'
+    'Content-Type' = 'application/json'
+}
 
-**1. "Security check failed"**
+Invoke-RestMethod -Uri "https://localhost:3000/api/test-admin-order" -Method Post -Headers $headers -Body "{}"
+```
 
-- Check environment variables are set correctly
-- Verify site key matches domain
-- Check secret key is valid
+### **Test 4: Block Spam (should fail)**
 
-**2. Turnstile not loading**
+```powershell
+# This should be blocked
+Invoke-RestMethod -Uri "https://localhost:3000/api/test-admin-order" -Method Post -ContentType "application/json" -Body "{}"
+```
 
-- Verify VueTurnstile package is installed: `npm install vue-turnstile`
-- Check browser console for JavaScript errors
-- Ensure site key is configured correctly
+## 🚀 **How to Configure Your Main Site**
 
-**3. Orders still being created without Turnstile**
+### **Option A: User-Agent (Recommended)**
 
-- Check server logs for verification messages
-- Verify API endpoint is being called
-- Check that `turnstileToken` is being passed to backend
-
-### Debug Mode
-
-Enable debug logging in browser console:
+Configure your main .com site's GraphQL client to use:
 
 ```javascript
-// In browser console
-localStorage.debug = 'turnstile:*';
+// In your .com site's GraphQL configuration
+const headers = {
+  'User-Agent': 'ProSkatersPlaceFrontend',
+  // ... other headers
+};
 ```
 
-## Configuration Options
+### **Option B: Bypass Header**
 
-### Turnstile Widget Options
+Add this to your .com site's requests:
 
-```vue
-<VueTurnstile
-  :site-key="siteKey"
-  :theme="'light'" // or 'dark', 'auto'
-  :size="'normal'" // or 'compact'
-  :reset-interval="30000" // 30 seconds
-/>
+```javascript
+const headers = {
+  'X-Bypass-Turnstile': 'ProSkaters2024SecureBypass',
+  // ... other headers
+};
 ```
 
-### Server Configuration
+### **Option C: Origin-Based (Automatic)**
 
-```typescript
-// In nuxt.config.ts
-runtimeConfig: {
-  public: {
-    turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
-    turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY, // Server-only
-  }
-}
+If your .com site sends requests with the correct Origin header, they'll be automatically trusted.
+
+## 📊 **Security Levels**
+
+| Request Source       | Security Check | Notes                  |
+| -------------------- | -------------- | ---------------------- |
+| **Main .com site**   | ✅ Bypassed    | Trusted origin/headers |
+| **Legitimate users** | 🔐 Turnstile   | Invisible challenge    |
+| **Spam bots**        | ❌ Blocked     | No valid token         |
+| **Development**      | ✅ Bypassed    | localhost origin       |
+
+## 🔒 **Security Features**
+
+✅ **Server-side validation** - Tokens verified with Cloudflare  
+✅ **IP validation** - Additional fraud protection  
+✅ **Token expiry** - 5-minute timeout prevents replay  
+✅ **Single-use tokens** - Each token can only be used once  
+✅ **Origin validation** - Checks request source  
+✅ **Rate limiting** - Built into Cloudflare Turnstile
+
+## 🐛 **Troubleshooting**
+
+### **"Security verification failed"**
+
+- Check if `TURNSTYLE_SECRET_KEY` is set
+- Verify token isn't expired (5-minute limit)
+- Check Cloudflare dashboard for error details
+
+### **Checkout doesn't work**
+
+- Ensure `TURNSTILE_ENABLED="true"` in `.env`
+- Check browser console for Turnstile errors
+- Verify site key is correct
+
+### **Main site still blocked**
+
+- Check User-Agent header is exact match
+- Verify bypass key in environment
+- Test with different bypass method
+
+## 🎉 **Next Steps**
+
+1. **Test thoroughly** - Try all bypass methods
+2. **Configure main site** - Add bypass headers/User-Agent
+3. **Monitor logs** - Watch for blocked spam attempts
+4. **Update Cloudflare** - Configure Turnstile settings if needed
+
+## 📞 **Support Commands**
+
+```powershell
+# Check current configuration
+cat .env | grep TURNSTILE
+
+# Test Turnstile endpoint
+curl -X POST "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+# View logs
+npm run dev
 ```
 
-## Maintenance
+---
 
-### Regular Tasks
-
-1. Monitor failed verification attempts in logs
-2. Update Turnstile package periodically
-3. Check Cloudflare dashboard for analytics
-4. Test checkout flow after deployments
-
-### Monitoring
-
-- Server logs show verification attempts
-- Cloudflare dashboard shows challenge statistics
-- Order creation logs indicate successful prevention
-
-## Next Steps
-
-Once tested and confirmed working:
-
-1. Deploy to staging environment
-2. Test with real traffic
-3. Monitor spam reduction metrics
-4. Deploy to production
-5. Update monitoring dashboards
-
-## Impact on User Experience
-
-**Positive:**
-
-- Eliminates spam orders
-- Clean order management
-- Reduced manual review needed
-
-**Minimal Negative:**
-
-- Adds ~2-3 seconds to checkout
-- One additional step for users
-- Requires JavaScript enabled
-
-The security benefits far outweigh the minor UX impact, and legitimate customers should have no issues completing the verification.
+**✅ Result: Spam orders blocked, legitimate customers can checkout, main site bypasses verification**

@@ -194,6 +194,11 @@ export default defineNuxtConfig({
             },
           }),
         },
+        // Cloudflare Turnstile for spam protection
+        {
+          src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit',
+          defer: true,
+        },
       ],
     },
   },

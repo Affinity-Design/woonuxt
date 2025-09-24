@@ -1,45 +1,11 @@
 <script setup lang="ts">
 import {ref, computed, onBeforeMount, watch, nextTick} from 'vue';
-import VueTurnstile from 'vue-turnstile';
 
 const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
-
-// Checkout verification system
-const {isVerified, needsReauth, isVerifying, verificationError, formattedRemainingTime, isExpiringSoon, preVerifyCheckout, validateSession} =
-  useCheckoutVerification();
-
-const runtimeConfig = useRuntimeConfig();
-const turnstileEnabled = runtimeConfig.public.turnstileEnabled as boolean;
-
-const turnstileToken = ref<string>('');
-const showTurnstile = ref<boolean>(turnstileEnabled);
-
-// Handle Turnstile verification
-const handleTurnstileVerification = async (token: string) => {
-  turnstileToken.value = token;
-  const success = await preVerifyCheckout(token);
-  if (success) {
-    showTurnstile.value = false;
-  }
-};
-
-// Check verification status on mount
-onMounted(async () => {
-  // If Turnstile is disabled via config, skip verification entirely
-  if (!turnstileEnabled) {
-    showTurnstile.value = false;
-    return;
-  }
-
-  const hasValidSession = await validateSession();
-  if (hasValidSession) {
-    showTurnstile.value = false;
-  }
-});
 
 // Refs for managing checkout state
 const buttonText = ref<string>(isProcessingOrder.value ? t('messages.general.processing') : t('messages.shop.checkoutButton'));
@@ -101,6 +67,9 @@ const helcimAmount = computed(() => {
   return totalInDollars;
 });
 
+// Turnstile integration for spam protection
+const {generateToken, verifyToken, isEnabled: isTurnstileEnabled, error: turnstileError} = useTurnstile();
+
 // Handle form submission
 const payNow = async () => {
   // Prevent multiple simultaneous submissions
@@ -114,18 +83,29 @@ const payNow = async () => {
   buttonText.value = t('messages.general.processing');
 
   try {
-    // Check if user has valid verification session (only if Turnstile is enabled)
-    if (turnstileEnabled) {
-      console.log('[payNow] Checking verification status...');
-      const hasValidSession = await validateSession();
-      if (!hasValidSession) {
-        throw new Error('Please complete the security verification first');
-      }
-      console.log('[payNow] Verification session valid');
-    } else {
-      console.log('[payNow] Turnstile disabled, skipping verification');
-    }
+    // Step 1: Generate and verify Turnstile token if enabled
+    if (isTurnstileEnabled.value) {
+      console.log('🔐 Generating Turnstile token for spam protection...');
+      console.log('🛡️ Turnstile is enabled - starting security verification');
+      buttonText.value = 'Verifying security...';
 
+      const turnstileToken = await generateToken();
+      console.log('📝 Generated token preview:', turnstileToken.substring(0, 20) + '...');
+
+      const isValidToken = await verifyToken(turnstileToken);
+
+      if (!isValidToken) {
+        console.error('❌ Turnstile token verification failed on server');
+        throw new Error('Security verification failed. Please try again.');
+      }
+
+      console.log('✅ Turnstile verification successful');
+      console.log('🔐 Turnstile token verified, proceeding with order submission');
+      console.log('🚀 Order is now protected from spam - processing payment...');
+      buttonText.value = t('messages.general.processing');
+    } else {
+      console.log('⚠️ Turnstile is disabled - skipping security verification');
+    }
     // Validate cart
     if (!cart.value || cart.value.isEmpty) {
       throw new Error(t('messages.shop.cartEmpty'));
@@ -443,32 +423,6 @@ useSeoMeta({
               rows="4"
               :placeholder="$t('messages.shop.orderNotePlaceholder')"></textarea>
           </div>
-
-          <!-- Security verification section -->
-          <div>
-            <h2 class="mb-4 text-xl font-semibold">Security Verification</h2>
-            <p class="text-sm text-gray-600 mb-4">Please complete the security check below to prevent spam orders.</p>
-            <div v-if="showTurnstile && needsReauth">
-              <ClientOnly>
-                <VueTurnstile
-                  :site-key="$config.public.turnstyleSiteKey"
-                  v-model="turnstileToken"
-                  @verify="handleTurnstileVerification"
-                  @error="paymentError = 'Security check failed - please try again'"
-                  :reset-interval="30000" />
-              </ClientOnly>
-              <div v-if="isVerifying" class="text-blue-500 text-sm mt-2">Verifying security check...</div>
-              <div v-if="verificationError" class="text-red-500 text-sm mt-2">
-                {{ verificationError }}
-              </div>
-            </div>
-
-            <div v-else-if="isVerified" class="text-green-600 text-sm">
-              ✅ Security verified
-              <span v-if="formattedRemainingTime" class="text-gray-600"> (expires in {{ formattedRemainingTime }}) </span>
-              <div v-if="isExpiringSoon" class="text-orange-500 text-xs mt-1">⚠️ Verification expires soon - complete checkout quickly!</div>
-            </div>
-          </div>
         </div>
 
         <!-- Order summary section -->
@@ -500,6 +454,9 @@ useSeoMeta({
             <LoadingIcon v-if="isProcessingOrder || isSubmitting" color="#fff" size="18" />
           </button>
         </OrderSummary>
+
+        <!-- Invisible Turnstile container for spam protection -->
+        <div id="turnstile-container"></div>
       </form>
     </template>
     <LoadingIcon v-else class="m-auto" />

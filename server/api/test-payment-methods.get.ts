@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'x-frontend-type': 'woonuxt',
-        'user-agent': 'ProSkatersPlaceFrontend/1.0;',
+        'user-agent': 'WooNuxt/1.0 Custom Frontend',
         'woocommerce-session': 'Guest',
         Origin: 'http://localhost:3000',
         'X-Requested-With': 'XMLHttpRequest',

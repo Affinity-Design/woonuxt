@@ -131,10 +131,7 @@ async function fetchAndProcessProducts() {
     try {
       const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'ProSkatersPlaceFrontend/1.0;',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           query: PRODUCTS_QUERY,
           variables: {

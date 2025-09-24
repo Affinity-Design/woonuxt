@@ -16,8 +16,15 @@ This project is a modern e-commerce web application that leverages a headless ar
 - Nuxt handles routing, SEO, caching, and rendering.
 
 ## Key Technologies
+
 - **WordPress**: Content and product management
 - **WPGraphQL**: Exposes WordPress data via GraphQL
 - **Nuxt 3**: Modern Vue.js framework for SSR/SSG
 - **@nuxtjs/i18n, @nuxt/image, @nuxtjs/tailwindcss**: Enhancements for internationalization, images, and styling
 - **Caching & Prerendering**: Nuxt route rules and cache strategies optimize performance
+
+## Resourses
+
+https://woographql.com/docs/using-checkout-mutation-and-order-mutations
+https://www.wpgraphql.com/docs/wpgraphql-vs-wp-rest-api
+https://nuxt-graphql-client.web.app/getting-started/composables
