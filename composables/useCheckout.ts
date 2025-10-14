@@ -152,9 +152,16 @@ export function useCheckout() {
                 variationId: item.variation?.node?.databaseId || null,
                 quantity: item.quantity,
                 name: item.product?.node?.name,
+                sku: item.product?.node?.sku || item.variation?.node?.sku,
                 // Pass the item's actual total from cart (after discounts)
                 total: item.total,
                 subtotal: item.subtotal,
+                // Pass variation attributes (size, color, etc.)
+                variation: item.variation?.node ? {
+                  attributes: item.variation.node.attributes?.nodes || [],
+                  name: item.variation.node.name,
+                  sku: item.variation.node.sku,
+                } : null,
               })) || [],
             coupons:
               cart.value?.appliedCoupons?.map((coupon: any) => ({
@@ -162,11 +169,13 @@ export function useCheckout() {
                 discountAmount: coupon.discountAmount,
                 discountTax: coupon.discountTax,
               })) || [],
-            // Pass cart totals to ensure correct pricing
+            // Pass complete cart totals including shipping and tax
             cartTotals: {
               subtotal: cart.value?.subtotal,
               total: cart.value?.total,
               totalTax: cart.value?.totalTax,
+              shippingTotal: cart.value?.shippingTotal,
+              shippingTax: cart.value?.shippingTax,
               discountTotal: cart.value?.discountTotal,
               discountTax: cart.value?.discountTax,
             },

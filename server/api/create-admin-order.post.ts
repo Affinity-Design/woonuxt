@@ -31,6 +31,10 @@ export default defineEventHandler(async (event) => {
             orderKey
             status
             total
+            subtotal
+            totalTax
+            shippingTotal
+            shippingTax
             date
             paymentMethod
             paymentMethodTitle
@@ -46,17 +50,43 @@ export default defineEventHandler(async (event) => {
               postcode
               country
             }
+            shipping {
+              firstName
+              lastName
+              address1
+              city
+              state
+              postcode
+              country
+            }
             lineItems {
               nodes {
                 productId
+                variationId
                 quantity
                 total
+                subtotal
+                totalTax
                 product {
                   node {
                     id
                     name
+                    sku
                   }
                 }
+                variation {
+                  node {
+                    id
+                    name
+                    sku
+                  }
+                }
+              }
+            }
+            shippingLines {
+              nodes {
+                methodTitle
+                total
               }
             }
             metaData {
@@ -105,12 +135,30 @@ export default defineEventHandler(async (event) => {
           country: shipping?.country || billing?.country || 'CA',
         },
 
-        // Line items from cart - let WooCommerce calculate pricing with applied coupons
+        // Line items with complete product data including SKU and variations
         lineItems: (lineItems || []).map((item: any) => ({
           productId: item.productId || item.product_id,
           variationId: item.variationId || item.variation_id || null,
           quantity: item.quantity || 1,
+          name: item.name || '',
+          sku: item.sku || '',
+          total: item.total || null,
+          subtotal: item.subtotal || null,
+          // Include variation metadata if present
+          metaData: item.variation ? [
+            ...Object.entries(item.variation.attributes || {}).map(([key, value]: [string, any]) => ({
+              key: `attribute_${key}`,
+              value: value?.name || value
+            }))
+          ] : [],
         })),
+
+        // Add shipping line with costs from cart totals
+        shippingLines: cartTotals?.shippingTotal ? [{
+          methodId: shippingMethod || 'flat_rate',
+          methodTitle: shippingMethod?.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Flat Rate',
+          total: cartTotals.shippingTotal,
+        }] : [],
 
         customerNote: customerNote || '',
 
@@ -126,6 +174,12 @@ export default defineEventHandler(async (event) => {
           {key: '_order_via', value: 'WooNuxt'},
           // Mark order as created via API for email template handling
           {key: '_created_via_api', value: 'woonuxt'},
+          // Add cart totals as metadata for reference
+          {key: '_cart_subtotal', value: cartTotals?.subtotal || '0'},
+          {key: '_cart_total', value: cartTotals?.total || '0'},
+          {key: '_cart_total_tax', value: cartTotals?.totalTax || '0'},
+          {key: '_cart_shipping_total', value: cartTotals?.shippingTotal || '0'},
+          {key: '_cart_shipping_tax', value: cartTotals?.shippingTax || '0'},
           ...metaData,
         ],
       },
@@ -210,6 +264,57 @@ export default defineEventHandler(async (event) => {
       total: orderData.total,
       globalId: orderData.id,
     });
+
+    // Update order via REST API to ensure all metadata is properly set
+    try {
+      console.log('🔧 Updating order with complete line item metadata via REST API...');
+      
+      const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
+      
+      // Prepare line items with all metadata
+      const enhancedLineItems = (lineItems || []).map((item: any, index: number) => {
+        const lineItem: any = {
+          product_id: item.productId || item.product_id,
+          quantity: item.quantity || 1,
+          name: item.name || '',
+          sku: item.sku || '',
+        };
+        
+        // Add variation ID if present
+        if (item.variationId || item.variation_id) {
+          lineItem.variation_id = item.variationId || item.variation_id;
+        }
+        
+        // Add variation attributes as metadata
+        if (item.variation && item.variation.attributes) {
+          lineItem.meta_data = item.variation.attributes.map((attr: any) => ({
+            key: attr.name || attr.key,
+            value: attr.value || attr.option,
+            display_key: attr.label || attr.name,
+            display_value: attr.value || attr.option,
+          }));
+        }
+        
+        return lineItem;
+      });
+      
+      // Update order with enhanced line items
+      await $fetch(restApiUrl, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+        },
+        body: {
+          line_items: enhancedLineItems,
+        },
+      });
+      
+      console.log('✅ Order line items updated with complete metadata');
+    } catch (metaError: any) {
+      console.warn('⚠️ Failed to update line item metadata:', metaError.message);
+      // Don't fail the order, just log the warning
+    }
 
     // Apply coupons if any were provided
     if (coupons && coupons.length > 0) {
