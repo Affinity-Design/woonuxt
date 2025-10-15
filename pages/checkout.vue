@@ -20,6 +20,8 @@ const helcimCardRef = ref<any>(null);
 // Helcim payment state
 const helcimPaymentComplete = ref<boolean>(false);
 const helcimTransactionData = ref<any>(null);
+const isCreatingOrder = ref<boolean>(false);
+const orderCreationMessage = ref<string>('');
 
 // Watch for cart updates and preserve Helcim payment state
 watch(
@@ -241,14 +243,21 @@ const handleHelcimSuccess = async (transactionData: any) => {
 
   console.log('[Checkout] Helcim payment state updated successfully');
 
+  // Show loading state for order creation
+  isCreatingOrder.value = true;
+  orderCreationMessage.value = '✅ Payment successful! Creating your order...';
+
   // Trigger order creation
   console.log('[Checkout] Triggering payNow() after successful Helcim payment to create order');
 
   try {
     await payNow();
+    // Loading state will be cleared on redirect to success page
   } catch (error: any) {
     console.error('[Checkout] Error during order creation after Helcim payment:', error);
     paymentError.value = error.message || 'Order creation failed after successful payment';
+    isCreatingOrder.value = false;
+    orderCreationMessage.value = '';
   }
 };
 
@@ -288,7 +297,29 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="flex flex-col min-h-[600px]">
+  <div class="flex flex-col min-h-[600px] relative">
+    <!-- Order Creation Loading Overlay -->
+    <Transition name="fade">
+      <div v-if="isCreatingOrder" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="backdrop-filter: blur(4px)">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md mx-4">
+          <div class="flex flex-col items-center text-center">
+            <LoadingIcon color="#059669" size="64" class="mb-4" />
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Processing Your Order</h3>
+            <p class="text-gray-600 mb-4">{{ orderCreationMessage }}</p>
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+              <Icon name="ion:checkmark-circle" size="20" class="text-green-600" />
+              <span>Payment successful</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-gray-500 mt-2">
+              <LoadingIcon color="#6B7280" size="16" />
+              <span>Creating order...</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-4">Please wait, do not close this page</p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <template v-if="cart && customer">
       <div v-if="cart.isEmpty" class="flex flex-col items-center justify-center flex-1 mb-12">
         <!-- Empty cart content - unchanged -->
@@ -480,5 +511,16 @@ useSeoMeta({
 
 .checkout-form label {
   @apply my-1.5 text-xs text-gray-600 uppercase;
+}
+
+/* Fade transition for loading overlay */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

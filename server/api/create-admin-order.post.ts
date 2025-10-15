@@ -8,7 +8,19 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('🛠️ Creating order via WPGraphQL with Application Password authentication...');
 
-    const {billing, shipping, transactionId, lineItems, coupons = [], cartTotals, shippingMethod, customerNote, metaData = [], createAccount = false, currency = 'CAD'} = body;
+    const {
+      billing,
+      shipping,
+      transactionId,
+      lineItems,
+      coupons = [],
+      cartTotals,
+      shippingMethod,
+      customerNote,
+      metaData = [],
+      createAccount = false,
+      currency = 'CAD',
+    } = body;
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
