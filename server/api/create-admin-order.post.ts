@@ -159,8 +159,8 @@ export default defineEventHandler(async (event) => {
         shippingLines: cartTotals?.shippingTotal
           ? [
               {
-                methodId: shippingMethod || 'flat_rate',
-                methodTitle: shippingMethod?.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Flat Rate',
+                methodId: shippingMethod?.id || shippingMethod || 'flat_rate',
+                methodTitle: shippingMethod?.title || shippingMethod?.label || 'Shipping',
                 total: cartTotals.shippingTotal,
               },
             ]
@@ -271,57 +271,9 @@ export default defineEventHandler(async (event) => {
       globalId: orderData.id,
     });
 
-    // Update order via REST API to ensure all metadata is properly set
-    try {
-      console.log('🔧 Updating order with complete line item metadata via REST API...');
-
-      const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
-
-      // Prepare line items with all metadata
-      const enhancedLineItems = (lineItems || []).map((item: any, index: number) => {
-        const lineItem: any = {
-          product_id: item.productId || item.product_id,
-          quantity: item.quantity || 1,
-          name: item.name || '',
-          sku: item.sku || '',
-        };
-
-        // Add variation ID if present
-        if (item.variationId || item.variation_id) {
-          lineItem.variation_id = item.variationId || item.variation_id;
-        }
-
-        // Add variation attributes as metadata
-        if (item.variation && item.variation.attributes) {
-          lineItem.meta_data = item.variation.attributes.map((attr: any) => ({
-            key: attr.name || attr.key,
-            value: attr.value || attr.option,
-            display_key: attr.label || attr.name,
-            display_value: attr.value || attr.option,
-          }));
-        }
-
-        return lineItem;
-      });
-
-      // Update order with enhanced line items
-      await $fetch(restApiUrl, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/json',
-        },
-        body: {
-          line_items: enhancedLineItems,
-          currency: currency, // Explicitly set currency to prevent USD conversion
-        },
-      });
-
-      console.log('✅ Order line items updated with complete metadata');
-    } catch (metaError: any) {
-      console.warn('⚠️ Failed to update line item metadata:', metaError.message);
-      // Don't fail the order, just log the warning
-    }
+    // Line items are already created by GraphQL mutation with all necessary data
+    // No need to update them separately to avoid duplicates
+    console.log('✅ Order created with complete line items via GraphQL');
 
     // Apply coupons if any were provided
     if (coupons && coupons.length > 0) {

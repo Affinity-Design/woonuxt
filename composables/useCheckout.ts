@@ -182,7 +182,10 @@ export function useCheckout() {
               discountTotal: cart.value?.discountTotal,
               discountTax: cart.value?.discountTax,
             },
-            shippingMethod: shippingMethod?.[0] || 'flat_rate',
+            shippingMethod: {
+              id: shippingMethod?.[0] || 'flat_rate',
+              title: cart.value?.availableShippingMethods?.[0]?.rates?.find((rate: any) => rate.id === shippingMethod?.[0])?.label || 'Shipping',
+            },
             customerNote: orderInput.value.customerNote,
             metaData: enhancedMetaData,
             createAccount: orderInput.value.createAccount,
