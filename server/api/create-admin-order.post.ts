@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('🛠️ Creating order via WPGraphQL with Application Password authentication...');
 
-    const {billing, shipping, transactionId, lineItems, coupons = [], cartTotals, shippingMethod, customerNote, metaData = [], createAccount = false} = body;
+    const {billing, shipping, transactionId, lineItems, coupons = [], cartTotals, shippingMethod, customerNote, metaData = [], createAccount = false, currency = 'CAD'} = body;
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
         transactionId: transactionId,
         status: 'PENDING', // Start as PENDING to prevent premature emails
         isPaid: true,
-        currency: 'CAD',
+        currency: currency, // Use provided currency or default to CAD
 
         billing: {
           firstName: billing?.firstName || '',
@@ -313,6 +313,7 @@ export default defineEventHandler(async (event) => {
         },
         body: {
           line_items: enhancedLineItems,
+          currency: currency, // Explicitly set currency to prevent USD conversion
         },
       });
 
@@ -348,6 +349,7 @@ export default defineEventHandler(async (event) => {
                   discount_tax: coupon.discountTax || '0',
                 },
               ],
+              currency: currency, // Explicitly set currency to prevent USD conversion
             },
           });
 
@@ -364,6 +366,7 @@ export default defineEventHandler(async (event) => {
           body: {
             // Trigger recalculation
             recalculate: true,
+            currency: currency, // Explicitly set currency to prevent USD conversion
           },
         });
 
@@ -394,6 +397,7 @@ export default defineEventHandler(async (event) => {
               status: 'processing',
               // Force WooCommerce to recalculate totals before sending emails
               set_paid: true,
+              currency: currency, // Explicitly set currency to prevent USD conversion
               // Add metadata to track email fix
               meta_data: [
                 {

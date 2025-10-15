@@ -11,9 +11,7 @@ const emits = defineEmits(['update:modelValue']);
 // HELCIM ONLY: Filter to show ONLY Helcim payment method
 const filterPaymentGateways = (gateways: any[]) => {
   // Only show COD gateway that has "Helcim" in the title
-  return gateways.filter((gateway: any) => 
-    gateway.id === 'cod' && gateway.title?.includes('Helcim')
-  );
+  return gateways.filter((gateway: any) => gateway.id === 'cod' && gateway.title?.includes('Helcim'));
 };
 
 const updatePaymentMethod = (value: any) => {

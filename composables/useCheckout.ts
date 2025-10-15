@@ -146,6 +146,7 @@ export function useCheckout() {
             billing,
             shipping: shipToDifferentAddress ? shipping : billing,
             transactionId: orderInput.value.transactionId,
+            currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => ({
                 productId: item.product?.node?.databaseId,
