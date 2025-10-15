@@ -145,20 +145,26 @@ export default defineEventHandler(async (event) => {
           total: item.total || null,
           subtotal: item.subtotal || null,
           // Include variation metadata if present
-          metaData: item.variation ? [
-            ...Object.entries(item.variation.attributes || {}).map(([key, value]: [string, any]) => ({
-              key: `attribute_${key}`,
-              value: value?.name || value
-            }))
-          ] : [],
+          metaData: item.variation
+            ? [
+                ...Object.entries(item.variation.attributes || {}).map(([key, value]: [string, any]) => ({
+                  key: `attribute_${key}`,
+                  value: value?.name || value,
+                })),
+              ]
+            : [],
         })),
 
         // Add shipping line with costs from cart totals
-        shippingLines: cartTotals?.shippingTotal ? [{
-          methodId: shippingMethod || 'flat_rate',
-          methodTitle: shippingMethod?.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Flat Rate',
-          total: cartTotals.shippingTotal,
-        }] : [],
+        shippingLines: cartTotals?.shippingTotal
+          ? [
+              {
+                methodId: shippingMethod || 'flat_rate',
+                methodTitle: shippingMethod?.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Flat Rate',
+                total: cartTotals.shippingTotal,
+              },
+            ]
+          : [],
 
         customerNote: customerNote || '',
 
@@ -268,9 +274,9 @@ export default defineEventHandler(async (event) => {
     // Update order via REST API to ensure all metadata is properly set
     try {
       console.log('🔧 Updating order with complete line item metadata via REST API...');
-      
+
       const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
-      
+
       // Prepare line items with all metadata
       const enhancedLineItems = (lineItems || []).map((item: any, index: number) => {
         const lineItem: any = {
@@ -279,12 +285,12 @@ export default defineEventHandler(async (event) => {
           name: item.name || '',
           sku: item.sku || '',
         };
-        
+
         // Add variation ID if present
         if (item.variationId || item.variation_id) {
           lineItem.variation_id = item.variationId || item.variation_id;
         }
-        
+
         // Add variation attributes as metadata
         if (item.variation && item.variation.attributes) {
           lineItem.meta_data = item.variation.attributes.map((attr: any) => ({
@@ -294,10 +300,10 @@ export default defineEventHandler(async (event) => {
             display_value: attr.value || attr.option,
           }));
         }
-        
+
         return lineItem;
       });
-      
+
       // Update order with enhanced line items
       await $fetch(restApiUrl, {
         method: 'PUT',
@@ -309,7 +315,7 @@ export default defineEventHandler(async (event) => {
           line_items: enhancedLineItems,
         },
       });
-      
+
       console.log('✅ Order line items updated with complete metadata');
     } catch (metaError: any) {
       console.warn('⚠️ Failed to update line item metadata:', metaError.message);

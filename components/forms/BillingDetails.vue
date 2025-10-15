@@ -43,7 +43,8 @@ const billing = toRef(props, "modelValue");
         v-model="billing.address1"
         placeholder="O'Connell Street 47"
         autocomplete="street-address"
-        @change="updateShippingLocation"
+        @input="debounce(updateShippingLocation, 1000)"
+        @blur="updateShippingLocation"
         type="text"
         required
       />
@@ -71,6 +72,8 @@ const billing = toRef(props, "modelValue");
         v-model="billing.city"
         placeholder="Toronto"
         autocomplete="locality"
+        @input="debounce(updateShippingLocation, 1000)"
+        @blur="updateShippingLocation"
         type="text"
         required
       />
@@ -105,7 +108,8 @@ const billing = toRef(props, "modelValue");
         id="zip"
         v-model="billing.postcode"
         placeholder="M9W4Y6"
-        @change="updateShippingLocation"
+        @input="debounce(updateShippingLocation, 800)"
+        @blur="updateShippingLocation"
         autocomplete="postal-code"
         type="text"
         required

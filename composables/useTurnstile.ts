@@ -62,7 +62,12 @@ export function useTurnstile() {
         url: window.location.href,
       });
 
-      // Render invisible widget for checkout
+      // Clear any existing widgets first to prevent conflicts
+      if (container.innerHTML) {
+        container.innerHTML = '';
+      }
+
+      // Render widget for checkout
       let widgetId: string;
       try {
         widgetId = window.turnstile.render(container, {
@@ -89,7 +94,7 @@ export function useTurnstile() {
             isLoading.value = false;
             reject(new Error(`Turnstile error: ${errorCode}`));
           },
-          execution: 'execute',
+          // Remove execution: 'execute' to prevent auto-execution conflicts
         });
 
         if (widgetId) {

@@ -4,39 +4,29 @@ const props = defineProps<{
   paymentGateways: PaymentGateways;
 }>();
 
-const paymentMethod = toRef(props, "modelValue");
-const activePaymentMethod = computed<PaymentGateway>(
-  () => paymentMethod.value as PaymentGateway
-);
-const emits = defineEmits(["update:modelValue"]);
+const paymentMethod = toRef(props, 'modelValue');
+const activePaymentMethod = computed<PaymentGateway>(() => paymentMethod.value as PaymentGateway);
+const emits = defineEmits(['update:modelValue']);
 
-// List of payment gateways to exclude
-const excludedGateways = [
-  "ppcp-gateway",
-  "ppcp-credit-card-gateway",
-  "stripe",
-  "fkwcs_stripe",
-  "ppcp-googlepay",
-  "ppcp-applepay",
-  "ppcp",
-]; // Removed "helcimjs" to enable Helcim
-
-// Filter function to exclude unwanted payment gateways
-const filterPaymentGateways = (gateways) => {
-  return gateways.filter((gateway) => !excludedGateways.includes(gateway.id));
+// HELCIM ONLY: Filter to show ONLY Helcim payment method
+const filterPaymentGateways = (gateways: any[]) => {
+  // Only show COD gateway that has "Helcim" in the title
+  return gateways.filter((gateway: any) => 
+    gateway.id === 'cod' && gateway.title?.includes('Helcim')
+  );
 };
 
 const updatePaymentMethod = (value: any) => {
-  emits("update:modelValue", value);
+  emits('update:modelValue', value);
   // Store selected payment method in sessionStorage to persist across cart updates
   if (process.client && value) {
     sessionStorage.setItem(
-      "selectedPaymentMethod",
+      'selectedPaymentMethod',
       JSON.stringify({
         id: value.id || value,
-        title: value.title || "",
+        title: value.title || '',
         timestamp: Date.now(),
-      })
+      }),
     );
   }
 };
@@ -46,7 +36,7 @@ const restorePaymentMethod = () => {
   if (!process.client) return null;
 
   try {
-    const stored = sessionStorage.getItem("selectedPaymentMethod");
+    const stored = sessionStorage.getItem('selectedPaymentMethod');
     if (stored) {
       const parsed = JSON.parse(stored);
       // Only restore if stored within last 30 minutes (avoid stale data)
@@ -55,7 +45,7 @@ const restorePaymentMethod = () => {
       }
     }
   } catch (e) {
-    console.warn("Failed to restore payment method from storage:", e);
+    console.warn('Failed to restore payment method from storage:', e);
   }
   return null;
 };
@@ -69,17 +59,11 @@ onMounted(() => {
     const allGateways = props.paymentGateways.nodes;
     const matchingGateway = allGateways.find(
       (gateway) =>
-        gateway.id === storedPaymentMethod.id ||
-        (gateway.id === "cod" &&
-          gateway.title?.includes("Helcim") &&
-          storedPaymentMethod.title?.includes("Helcim"))
+        gateway.id === storedPaymentMethod.id || (gateway.id === 'cod' && gateway.title?.includes('Helcim') && storedPaymentMethod.title?.includes('Helcim')),
     );
 
     if (matchingGateway) {
-      console.log(
-        "[PaymentOptions] Restoring previous payment method:",
-        matchingGateway.title
-      );
+      console.log('[PaymentOptions] Restoring previous payment method:', matchingGateway.title);
       updatePaymentMethod(matchingGateway);
       return; // Exit early, don't auto-select
     }
@@ -91,13 +75,11 @@ onMounted(() => {
 
     if (filteredGateways.length) {
       // Use the first available gateway after filtering
-      console.log(
-        "[PaymentOptions] Auto-selecting first available payment method"
-      );
+      console.log('[PaymentOptions] Auto-selecting first available payment method');
       updatePaymentMethod(filteredGateways[0]);
     } else {
       // Fallback to helcimjs if no gateways remain after filtering
-      updatePaymentMethod("helcimjs");
+      updatePaymentMethod('helcimjs');
     }
   }
 });
@@ -112,22 +94,17 @@ watch(
         const matchingGateway = newGateways.nodes.find(
           (gateway) =>
             gateway.id === storedPaymentMethod.id ||
-            (gateway.id === "cod" &&
-              gateway.title?.includes("Helcim") &&
-              storedPaymentMethod.title?.includes("Helcim"))
+            (gateway.id === 'cod' && gateway.title?.includes('Helcim') && storedPaymentMethod.title?.includes('Helcim')),
         );
 
         if (matchingGateway) {
-          console.log(
-            "[PaymentOptions] Cart updated - restoring payment method:",
-            matchingGateway.title
-          );
+          console.log('[PaymentOptions] Cart updated - restoring payment method:', matchingGateway.title);
           updatePaymentMethod(matchingGateway);
         }
       }
     }
   },
-  { deep: true }
+  {deep: true},
 );
 </script>
 
@@ -137,33 +114,17 @@ watch(
       v-for="gateway in filterPaymentGateways(paymentGateways?.nodes || [])"
       :key="gateway.id"
       class="option"
-      :class="{ 'active-option': gateway.id === activePaymentMethod.id }"
+      :class="{'active-option': gateway.id === activePaymentMethod.id}"
       @click="updatePaymentMethod(gateway)"
-      :title="gateway?.description || gateway?.title || 'Payment Method'"
-    >
-      <icon
-        v-if="gateway.id === 'fkwcs_stripe'"
-        name="ion:card-outline"
-        size="20"
-      />
-      <icon
-        v-else-if="gateway.id === 'paypal'"
-        name="ion:logo-paypal"
-        size="20"
-      />
+      :title="gateway?.description || gateway?.title || 'Payment Method'">
+      <icon v-if="gateway.id === 'fkwcs_stripe'" name="ion:card-outline" size="20" />
+      <icon v-else-if="gateway.id === 'paypal'" name="ion:logo-paypal" size="20" />
       <icon v-else name="ion:cash-outline" size="20" />
       <span class="whitespace-nowrap" v-html="gateway.title" />
-      <icon
-        name="ion:checkmark-circle"
-        size="20"
-        class="ml-auto text-primary checkmark opacity-0"
-      />
+      <icon name="ion:checkmark-circle" size="20" class="ml-auto text-primary checkmark opacity-0" />
     </div>
     <div v-if="activePaymentMethod.description" class="prose block w-full">
-      <p
-        class="text-sm text-gray-500"
-        v-html="activePaymentMethod.description"
-      />
+      <p class="text-sm text-gray-500" v-html="activePaymentMethod.description" />
     </div>
     <!-- overdie -->
     <!-- <div

@@ -157,11 +157,13 @@ export function useCheckout() {
                 total: item.total,
                 subtotal: item.subtotal,
                 // Pass variation attributes (size, color, etc.)
-                variation: item.variation?.node ? {
-                  attributes: item.variation.node.attributes?.nodes || [],
-                  name: item.variation.node.name,
-                  sku: item.variation.node.sku,
-                } : null,
+                variation: item.variation?.node
+                  ? {
+                      attributes: item.variation.node.attributes?.nodes || [],
+                      name: item.variation.node.name,
+                      sku: item.variation.node.sku,
+                    }
+                  : null,
               })) || [],
             coupons:
               cart.value?.appliedCoupons?.map((coupon: any) => ({
