@@ -51,6 +51,10 @@ onMounted(async () => {
     return;
   }
 
+  // Wait a bit for payment method auto-selection to complete
+  // PaymentOptions component auto-selects first method on mount
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   // Initialize Turnstile widget on page load if enabled AND not using Helcim
   // Turnstile is only shown for non-Helcim payments
   if (isTurnstileEnabled.value && !shouldShowHelcimCard.value) {
