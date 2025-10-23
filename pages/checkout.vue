@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, computed, onBeforeMount, onUnmounted, watch, nextTick} from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch, nextTick} from 'vue';
 
 const {t} = useI18n();
 const {query} = useRoute();
@@ -45,7 +45,7 @@ watch(
 const {generateToken, verifyToken, isEnabled: isTurnstileEnabled, error: turnstileError, turnstileToken, isVerified} = useTurnstile();
 
 // Auto-generate Turnstile token when component mounts (if enabled)
-onBeforeMount(async () => {
+onMounted(async () => {
   if (query.cancel_order) {
     window.close();
     return;
@@ -54,8 +54,64 @@ onBeforeMount(async () => {
   // Initialize Turnstile widget on page load if enabled
   if (isTurnstileEnabled.value) {
     try {
-      await nextTick(); // Wait for DOM to be ready
-      console.log('🔐 Initializing Turnstile widget on checkout page...');
+      // Wait for DOM to be fully ready
+      await nextTick();
+      
+      // Wait for Turnstile script to load before rendering widget
+      const waitForTurnstile = () => {
+        return new Promise<void>((resolve) => {
+          if (typeof window !== 'undefined' && window.turnstile) {
+            resolve();
+            return;
+          }
+          
+          // Poll for script to load (max 10 seconds)
+          let attempts = 0;
+          const maxAttempts = 50; // 50 * 200ms = 10 seconds
+          const checkInterval = setInterval(() => {
+            attempts++;
+            if (window.turnstile) {
+              clearInterval(checkInterval);
+              resolve();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(checkInterval);
+              console.error('❌ Turnstile script failed to load after 10 seconds');
+              resolve(); // Resolve anyway to prevent hanging
+            }
+          }, 200);
+        });
+      };
+      
+      // Also wait for DOM container to exist
+      const waitForContainer = () => {
+        return new Promise<void>((resolve) => {
+          const container = document.getElementById('turnstile-container');
+          if (container) {
+            resolve();
+            return;
+          }
+          
+          // Poll for container (max 5 seconds)
+          let attempts = 0;
+          const maxAttempts = 25; // 25 * 200ms = 5 seconds
+          const checkInterval = setInterval(() => {
+            attempts++;
+            const container = document.getElementById('turnstile-container');
+            if (container) {
+              clearInterval(checkInterval);
+              resolve();
+            } else if (attempts >= maxAttempts) {
+              clearInterval(checkInterval);
+              console.error('❌ Turnstile container not found in DOM after 5 seconds');
+              resolve(); // Resolve anyway to prevent hanging
+            }
+          }, 200);
+        });
+      };
+      
+      console.log('🔐 Waiting for Turnstile script and container...');
+      await Promise.all([waitForTurnstile(), waitForContainer()]);
+      console.log('🔐 Turnstile ready, initializing widget...');
       await generateToken();
     } catch (error) {
       console.error('Failed to initialize Turnstile:', error);
