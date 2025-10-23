@@ -56,7 +56,7 @@ onMounted(async () => {
     try {
       // Wait for DOM to be fully ready
       await nextTick();
-      
+
       // Wait for Turnstile script to load before rendering widget
       const waitForTurnstile = () => {
         return new Promise<void>((resolve) => {
@@ -64,7 +64,7 @@ onMounted(async () => {
             resolve();
             return;
           }
-          
+
           // Poll for script to load (max 10 seconds)
           let attempts = 0;
           const maxAttempts = 50; // 50 * 200ms = 10 seconds
@@ -81,7 +81,7 @@ onMounted(async () => {
           }, 200);
         });
       };
-      
+
       // Also wait for DOM container to exist
       const waitForContainer = () => {
         return new Promise<void>((resolve) => {
@@ -90,7 +90,7 @@ onMounted(async () => {
             resolve();
             return;
           }
-          
+
           // Poll for container (max 5 seconds)
           let attempts = 0;
           const maxAttempts = 25; // 25 * 200ms = 5 seconds
@@ -108,7 +108,7 @@ onMounted(async () => {
           }, 200);
         });
       };
-      
+
       console.log('🔐 Waiting for Turnstile script and container...');
       await Promise.all([waitForTurnstile(), waitForContainer()]);
       console.log('🔐 Turnstile ready, initializing widget...');
