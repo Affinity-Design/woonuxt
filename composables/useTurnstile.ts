@@ -67,13 +67,13 @@ export function useTurnstile() {
         container.innerHTML = '';
       }
 
-      // Render widget for checkout
+      // Render widget as compact visible widget (replaces Google reCAPTCHA)
       let widgetId: string;
       try {
         widgetId = window.turnstile.render(container, {
           sitekey: config.public.turnstile.siteKey,
           theme: 'light',
-          size: 'compact',
+          size: 'normal', // Changed from 'invisible' to 'normal' for visible checkbox widget
           callback: (token: string) => {
             console.log('✅ Turnstile token generated successfully');
             turnstileToken.value = token;
@@ -94,13 +94,10 @@ export function useTurnstile() {
             isLoading.value = false;
             reject(new Error(`Turnstile error: ${errorCode}`));
           },
-          // Remove execution: 'execute' to prevent auto-execution conflicts
+          // Auto-render without manual execution
         });
 
-        if (widgetId) {
-          console.log('🚀 Executing Turnstile challenge...');
-          window.turnstile.execute(widgetId);
-        }
+        console.log('🚀 Turnstile widget rendered with ID:', widgetId);
       } catch (renderError: any) {
         console.error('❌ Failed to render Turnstile widget:', renderError);
         isLoading.value = false;

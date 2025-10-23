@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import VueTurnstile from "vue-turnstile";
+import VueTurnstile from 'vue-turnstile';
 
-const turnstileToken = ref<string>("");
-const turnstileError = ref<string>("");
+const turnstileToken = ref<string>('');
+const turnstileError = ref<string>('');
 const turnstileMounted = ref(false);
 const turnstileSiteKey = useRuntimeConfig();
 
 const form = ref({
-  name: "",
-  email: "",
-  message: "",
+  name: '',
+  email: '',
+  message: '',
 });
 
 const status = ref({
@@ -19,9 +19,9 @@ const status = ref({
 });
 
 const verifyTurnstile = async () => {
-  turnstileError.value = "";
+  turnstileError.value = '';
   if (!turnstileToken.value) {
-    turnstileError.value = "Please complete the security check";
+    turnstileError.value = 'Please complete the security check';
     return false;
   }
   return true;
@@ -36,13 +36,13 @@ async function submitForm() {
     status.value.submitting = true;
     status.value.error = null;
 
-    console.log("Submitting form...");
+    console.log('Submitting form...');
 
     // Send form data to the API
-    const response = await fetch("/api/contact", {
-      method: "POST",
+    const response = await fetch('/api/contact', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         ...form.value,
@@ -51,31 +51,30 @@ async function submitForm() {
     });
 
     const result = await response.json();
-    console.log("Form submission response:", result);
+    console.log('Form submission response:', result);
 
     if (!response.ok) {
-      const errorMsg = result.error || "Failed to send message";
-      console.error("Form submission error:", errorMsg, result);
+      const errorMsg = result.error || 'Failed to send message';
+      console.error('Form submission error:', errorMsg, result);
       throw new Error(errorMsg);
     }
 
     // Success state
     status.value.success = true;
-    console.log("Form submitted successfully");
+    console.log('Form submitted successfully');
 
     // Reset form after submission
-    form.value = { name: "", email: "", message: "" };
-    turnstileToken.value = "";
+    form.value = {name: '', email: '', message: ''};
+    turnstileToken.value = '';
 
     // Reset Turnstile
     if (window.turnstile) {
       window.turnstile.reset();
     }
   } catch (error) {
-    console.error("Error submitting form:", error);
-    status.value.error =
-      error.message || "An error occurred while sending your message";
-    turnstileToken.value = "";
+    console.error('Error submitting form:', error);
+    status.value.error = error.message || 'An error occurred while sending your message';
+    turnstileToken.value = '';
 
     // Reset Turnstile
     if (window.turnstile) {
@@ -109,65 +108,41 @@ async function submitForm() {
         <h2 class="text-2xl font-semibold mb-4">Contact Us</h2>
 
         <!-- Success message -->
-        <div
-          v-if="status.success"
-          class="mb-4 p-3 bg-green-100 text-green-800 rounded"
-        >
+        <div v-if="status.success" class="mb-4 p-3 bg-green-100 text-green-800 rounded">
           Your message has been sent successfully! We'll get back to you soon.
         </div>
 
         <!-- Error message -->
-        <div
-          v-if="status.error"
-          class="mb-4 p-3 bg-red-100 text-red-800 rounded"
-        >
+        <div v-if="status.error" class="mb-4 p-3 bg-red-100 text-red-800 rounded">
           {{ status.error }}
         </div>
 
         <form @submit.prevent="submitForm" class="space-y-4">
           <div>
             <label for="name" class="block mb-1">Name</label>
-            <input
-              type="text"
-              id="name"
-              v-model="form.name"
-              required
-              class="w-full p-2 border rounded"
-              :disabled="status.submitting"
-            />
+            <input type="text" id="name" v-model="form.name" required class="w-full p-2 border rounded" :disabled="status.submitting" />
           </div>
           <div>
             <label for="email" class="block mb-1">Email</label>
-            <input
-              type="email"
-              id="email"
-              v-model="form.email"
-              required
-              class="w-full p-2 border rounded"
-              :disabled="status.submitting"
-            />
+            <input type="email" id="email" v-model="form.email" required class="w-full p-2 border rounded" :disabled="status.submitting" />
           </div>
           <div>
             <label for="message" class="block mb-1">Message</label>
-            <textarea
-              id="message"
-              v-model="form.message"
-              required
-              class="w-full p-2 border rounded"
-              rows="4"
-              :disabled="status.submitting"
-            ></textarea>
+            <textarea id="message" v-model="form.message" required class="w-full p-2 border rounded" rows="4" :disabled="status.submitting"></textarea>
           </div>
 
-          <!-- Turnstile widget using VueTurnstile -->
-          <div class="my-4">
+          <!-- Turnstile widget using VueTurnstile - compact size pinned to bottom right -->
+          <div class="my-4 turnstile-contact-widget">
             <ClientOnly>
               <VueTurnstile
-                :site-key="turnstileSiteKey.public.turnstyleSiteKey"
+                :site-key="turnstileSiteKey.public.turnstile?.siteKey"
                 v-model="turnstileToken"
+                theme="light"
+                size="compact"
                 @verify="
                   () => {
                     turnstileMounted = true;
+                    turnstileError = '';
                     if (!turnstileToken) console.error('No token after mount');
                   }
                 "
@@ -176,8 +151,7 @@ async function submitForm() {
                     turnstileError = 'Security check failed - please try again';
                   }
                 "
-                :reset-interval="30000"
-              />
+                :reset-interval="30000" />
               <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
                 {{ turnstileError }}
               </div>
@@ -186,9 +160,8 @@ async function submitForm() {
 
           <button
             type="submit"
-            class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
-            :disabled="status.submitting || !turnstileToken"
-          >
+            class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="status.submitting">
             <span v-if="status.submitting">Sending...</span>
             <span v-else>Send Message</span>
           </button>
@@ -199,5 +172,22 @@ async function submitForm() {
 </template>
 
 <style scoped>
-/* Add any additional styles here */
+/* Turnstile widget positioning for contact form */
+.turnstile-contact-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* Mobile positioning - center bottom */
+@media (max-width: 768px) {
+  .turnstile-contact-widget {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 10px;
+  }
+}
 </style>

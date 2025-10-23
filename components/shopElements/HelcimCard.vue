@@ -315,9 +315,16 @@ const removeHelcimIframe = () => {
       }
     });
 
-    // Remove any elements with Helcim-related classes
+    // Remove any elements with Helcim-related classes BUT NOT our own component container
     const helcimElements = document.querySelectorAll('[class*="helcim"], [id*="helcim"]');
     helcimElements.forEach((element) => {
+      // Skip if it's our own component container or any of our component's children
+      if (element.classList.contains('helcim-payment-container') || element.closest('.helcim-payment-container')) {
+        console.log('[HelcimCard] Skipping removal of our own component:', element);
+        return;
+      }
+
+      // Only remove iframes and divs that are modals/overlays (not our component)
       if (element.tagName === 'IFRAME' || element.tagName === 'DIV') {
         console.log(`[HelcimCard] Removing Helcim element:`, element);
         element.remove();
