@@ -1,13 +1,13 @@
 ---
-title: "The Ultimate Roller Skating Guide for Toronto Beginners"
+title: 'The Ultimate Roller Skating Guide for Toronto Beginners'
 description: "New to roller skating in Toronto? Our complete beginner's guide covers the best spots, essential gear, and safety tips for quad skating success."
-category: "Beginner Guides"
+category: 'Beginner Guides'
 date: 2025-06-28
-author: "Proskaters Place Team"
-authorBio: "Certified roller skating instructor and Toronto skating community organizer"
-image: "/images/Complete Beginner's Guide to Inline and Quad Skating.png"
-ogImage: "/images/Complete Beginner's Guide to Inline and Quad Skating.png"
-tags: ["roller skating", "toronto", "beginners", "quad skates", "safety"]
+author: 'Proskaters Place Team'
+authorBio: 'Certified roller skating instructor and Toronto skating community organizer'
+image: '/images/posted/girl rollerskating in park.png'
+ogImage: '/images/posted/girl rollerskating in park.png'
+tags: ['roller skating', 'toronto', 'beginners', 'quad skates', 'safety']
 ---
 
 # The Ultimate Roller Skating Guide for Toronto Beginners
