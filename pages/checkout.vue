@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import {ref, computed, onMounted, onUnmounted, watch, nextTick} from 'vue';
+import {ref, computed, onUnmounted, watch, nextTick} from 'vue';
+import VueTurnstile from 'vue-turnstile';
 
 const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
+const config = useRuntimeConfig();
 
 // Refs for managing checkout state
 const buttonText = ref<string>(isProcessingOrder.value ? t('messages.general.processing') : t('messages.shop.checkoutButton'));
@@ -16,6 +18,13 @@ const isPaid = ref<boolean>(false);
 const paymentError = ref<string | null>(null);
 const isSubmitting = ref<boolean>(false);
 const helcimCardRef = ref<any>(null);
+
+// Turnstile state
+const turnstileToken = ref<string>('');
+const turnstileError = ref<string>('');
+const isTurnstileEnabled = computed(() => {
+  return config.public.turnstile?.siteKey && process.env.TURNSTILE_ENABLED !== 'false';
+});
 
 // Helcim payment state
 const helcimPaymentComplete = ref<boolean>(false);
@@ -41,94 +50,7 @@ watch(
   {deep: true},
 );
 
-// Turnstile integration for spam protection
-const {generateToken, verifyToken, isEnabled: isTurnstileEnabled, error: turnstileError, turnstileToken, isVerified} = useTurnstile();
-
-// Auto-generate Turnstile token when component mounts (if enabled)
-onMounted(async () => {
-  if (query.cancel_order) {
-    window.close();
-    return;
-  }
-
-  // Wait a bit for payment method auto-selection to complete
-  // PaymentOptions component auto-selects first method on mount
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Initialize Turnstile widget on page load if enabled AND not using Helcim
-  // Turnstile is only shown for non-Helcim payments
-  if (isTurnstileEnabled.value && !shouldShowHelcimCard.value) {
-    try {
-      // Wait for DOM to be fully ready
-      await nextTick();
-
-      // Wait for Turnstile script to load before rendering widget
-      const waitForTurnstile = () => {
-        return new Promise<void>((resolve) => {
-          if (typeof window !== 'undefined' && window.turnstile) {
-            resolve();
-            return;
-          }
-
-          // Poll for script to load (max 10 seconds)
-          let attempts = 0;
-          const maxAttempts = 50; // 50 * 200ms = 10 seconds
-          const checkInterval = setInterval(() => {
-            attempts++;
-            if (window.turnstile) {
-              clearInterval(checkInterval);
-              resolve();
-            } else if (attempts >= maxAttempts) {
-              clearInterval(checkInterval);
-              console.error('❌ Turnstile script failed to load after 10 seconds');
-              resolve(); // Resolve anyway to prevent hanging
-            }
-          }, 200);
-        });
-      };
-
-      // Also wait for DOM container to exist
-      const waitForContainer = () => {
-        return new Promise<void>((resolve) => {
-          const container = document.getElementById('turnstile-container');
-          if (container) {
-            resolve();
-            return;
-          }
-
-          // Poll for container (max 5 seconds)
-          let attempts = 0;
-          const maxAttempts = 25; // 25 * 200ms = 5 seconds
-          const checkInterval = setInterval(() => {
-            attempts++;
-            const container = document.getElementById('turnstile-container');
-            if (container) {
-              clearInterval(checkInterval);
-              resolve();
-            } else if (attempts >= maxAttempts) {
-              clearInterval(checkInterval);
-              console.error('❌ Turnstile container not found in DOM after 5 seconds');
-              resolve(); // Resolve anyway to prevent hanging
-            }
-          }, 200);
-        });
-      };
-
-      console.log('🔐 Waiting for Turnstile script and container...');
-      await Promise.all([waitForTurnstile(), waitForContainer()]);
-      console.log('🔐 Turnstile ready, initializing widget...');
-      await generateToken();
-    } catch (error) {
-      console.error('Failed to initialize Turnstile:', error);
-    }
-  } else {
-    console.log('🔐 Turnstile initialization skipped:', {
-      isTurnstileEnabled: isTurnstileEnabled.value,
-      shouldShowHelcimCard: shouldShowHelcimCard.value,
-      reason: shouldShowHelcimCard.value ? 'Using Helcim payment (Turnstile not needed)' : 'Turnstile disabled',
-    });
-  }
-}); // Listen for Helcim modal close events to reset button state
+// Listen for Helcim modal close events to reset button state
 const helcimModalCloseHandler = (event: MessageEvent) => {
   // Log ALL postMessage events to debug
   if (event.data?.eventName) {
@@ -191,30 +113,15 @@ const payNow = async () => {
   buttonText.value = t('messages.general.processing');
 
   try {
-    // Step 1: Verify Turnstile token if enabled (token already generated by user clicking checkbox)
-    if (isTurnstileEnabled.value) {
-      console.log('🔐 Verifying Turnstile token for spam protection...');
-
-      // Check if token exists (user should have clicked checkbox)
+    // Step 1: Check Turnstile token if enabled (widget auto-generates token)
+    if (isTurnstileEnabled.value && !shouldShowHelcimCard.value) {
       if (!turnstileToken.value) {
-        console.error('❌ No Turnstile token found - user must complete security check');
-        throw new Error('Please complete the security verification checkbox');
+        console.error('❌ No Turnstile token - security check not completed');
+        throw new Error('Please complete the security verification');
       }
-
-      buttonText.value = 'Verifying security...';
-      const isValidToken = await verifyToken(turnstileToken.value);
-
-      if (!isValidToken) {
-        console.error('❌ Turnstile token verification failed on server');
-        throw new Error('Security verification failed. Please try again.');
-      }
-
-      console.log('✅ Turnstile verification successful');
-      console.log('🔐 Turnstile token verified, proceeding with order submission');
-      buttonText.value = t('messages.general.processing');
-    } else {
-      console.log('⚠️ Turnstile is disabled - skipping security verification');
+      console.log('✅ Turnstile token present');
     }
+
     // Validate cart
     if (!cart.value || cart.value.isEmpty) {
       throw new Error(t('messages.shop.cartEmpty'));
@@ -662,8 +569,22 @@ useSeoMeta({
                   <div class="text-xs text-gray-600 mt-1">Please verify you're human to complete your order</div>
                 </div>
               </div>
-              <!-- Visible Turnstile widget container -->
-              <div id="turnstile-container" class="turnstile-checkout-widget"></div>
+              <!-- Visible Turnstile widget -->
+              <VueTurnstile
+                v-model="turnstileToken"
+                :site-key="config.public.turnstile?.siteKey"
+                theme="light"
+                size="normal"
+                @verify="
+                  () => {
+                    turnstileError = '';
+                  }
+                "
+                @error="
+                  () => {
+                    turnstileError = 'Security check failed. Please refresh the page.';
+                  }
+                " />
               <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
                 {{ turnstileError }}
               </div>
