@@ -570,21 +570,23 @@ useSeoMeta({
                 </div>
               </div>
               <!-- Visible Turnstile widget -->
-              <VueTurnstile
-                v-model="turnstileToken"
-                :site-key="config.public.turnstile?.siteKey"
-                theme="light"
-                size="normal"
-                @verify="
-                  () => {
-                    turnstileError = '';
-                  }
-                "
-                @error="
-                  () => {
-                    turnstileError = 'Security check failed. Please refresh the page.';
-                  }
-                " />
+              <ClientOnly>
+                <VueTurnstile
+                  v-model="turnstileToken"
+                  :site-key="config.public.turnstile?.siteKey"
+                  theme="light"
+                  size="normal"
+                  @verify="
+                    () => {
+                      turnstileError = '';
+                    }
+                  "
+                  @error="
+                    () => {
+                      turnstileError = 'Security check failed. Please refresh the page.';
+                    }
+                  " />
+              </ClientOnly>
               <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
                 {{ turnstileError }}
               </div>
