@@ -1,9 +1,9 @@
 ---
 title: 'How to Skate Backwards on Roller Skates & Inline Skates: 5-Minute Tutorial for Canadians'
 description: 'Master backwards skating in just 5 minutes with this step-by-step Canadian guide. Works for both roller skates and inline skates. Includes video tips, common mistakes, and practice drills for all skill levels.'
-image: '/images/posted/girl indoor rollerskating.png'
+image: '/images/posted/girl-indoor-rollerskating.png'
 alt: 'Skater demonstrating backwards skating technique in Canada'
-ogImage: '/images/posted/girl indoor rollerskating.png'
+ogImage: '/images/posted/girl-indoor-rollerskating.png'
 date: 2025-10-23
 categories: ['Tutorials', 'Skills', 'Inline Skates', 'Roller Skates']
 tags: ['how to skate backwards', 'backwards skating', 'roller skates tutorial', 'inline skating tricks', 'skating skills', 'canada']

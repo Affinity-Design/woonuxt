@@ -1,13 +1,13 @@
 ---
-title: "Best Inline Skates for 2025: Expert Reviews & Buying Guide"
-description: "Discover the top inline skates for 2025. Our experts review the latest models for fitness, recreation, and speed skating in Toronto and beyond."
-category: "Product Reviews"
+title: 'Best Inline Skates for 2025: Expert Reviews & Buying Guide'
+description: 'Discover the top inline skates for 2025. Our experts review the latest models for fitness, recreation, and speed skating in Toronto and beyond.'
+category: 'Product Reviews'
 date: 2025-06-30
-author: "Proskaters Place Team"
-authorBio: "Professional skating instructor with 15+ years experience"
-image: "/images/inline-skates.jpg"
-ogImage: "/images/inline-skates.jpg"
-tags: ["inline skates", "reviews", "buying guide", "2025"]
+author: 'Proskaters Place Team'
+authorBio: 'Professional skating instructor with 15+ years experience'
+image: '/images/posted/inline-skates.jpg'
+ogImage: '/images/posted/inline-skates.jpg'
+tags: ['inline skates', 'reviews', 'buying guide', '2025']
 ---
 
 # Best Inline Skates for 2025: Expert Reviews & Buying Guide

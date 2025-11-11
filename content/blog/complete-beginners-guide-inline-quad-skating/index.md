@@ -1,9 +1,9 @@
 ---
 title: "Complete Beginner's Guide to Inline & Quad Skating in Canada (2025 Edition)"
 description: 'New to skating? This ultimate guide covers everything Canadian beginners need to know about inline skates and roller skates - from choosing your first pair to mastering the basics across Ontario, BC, and beyond.'
-image: '/images/posted/preaty girl holding pair of white quadskates.png'
+image: '/images/posted/preaty-girl-holding-pair-of-white-quadskates.png'
 alt: 'Beginner learning to skate with proper safety gear in Canada'
-ogImage: '/images/posted/preaty girl holding pair of white quadskates.png'
+ogImage: '/images/posted/preaty-girl-holding-pair-of-white-quadskates.png'
 date: 2025-10-23
 categories: ['Beginner Guides', 'Inline Skates', 'Roller Skates', 'Canada']
 tags: ['beginner', 'inline skates for beginners', 'roller skates for beginners', 'adult inline skates', 'how to skate', 'canada', 'skating basics']

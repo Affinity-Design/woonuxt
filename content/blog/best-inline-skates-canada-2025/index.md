@@ -1,9 +1,9 @@
 ---
 title: "Best Inline Skates in Canada 2025: Expert Reviews & Buyer's Guide"
 description: "Find the best inline skates for 2025 with our comprehensive Canadian buyer's guide. Expert reviews, honest comparisons, and CAD pricing for fitness, urban, and beginner inline skates across Canada."
-image: '/images/posted/inline speed skaters.png'
+image: '/images/posted/inline-speed-skaters.png'
 alt: 'Best inline skates for Canadians in 2025'
-ogImage: '/images/posted/inline speed skaters.png'
+ogImage: '/images/posted/inline-speed-skaters.png'
 date: 2025-10-23
 categories: ['Reviews', 'Buying Guides', 'Inline Skates', 'Canada']
 tags: ['best inline skates 2025', 'inline skates canada', 'inline skates reviews', 'adult inline skates', 'fitness inline skates', 'inline skates toronto']

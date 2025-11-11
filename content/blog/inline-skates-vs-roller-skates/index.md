@@ -1,22 +1,13 @@
 ---
-title: "Inline Skates vs Roller Skates: Complete 2025 Comparison Guide for Canadian Skaters"
-description: "Confused between inline skates and roller skates? Our expert comparison covers performance, comfort, cost, and which is best for Toronto skating. Find your perfect match in Canada."
-category: "Buying Guides"
+title: 'Inline Skates vs Roller Skates: Complete 2025 Comparison Guide for Canadian Skaters'
+description: 'Confused between inline skates and roller skates? Our expert comparison covers performance, comfort, cost, and which is best for Toronto skating. Find your perfect match in Canada.'
+category: 'Buying Guides'
 date: 2025-09-17
-author: "ProSkaters Place Canada Team"
-authorBio: "Professional skating experts with 20+ years serving Canadian skaters from Toronto to Vancouver"
-image: "/images/inline-vs-rollerskates.png"
-ogImage: "/images/inline-vs-rollerskates.png"
-tags:
-  [
-    "inline skates",
-    "roller skates",
-    "quad skates",
-    "comparison",
-    "buying guide",
-    "canada",
-    "toronto",
-  ]
+author: 'ProSkaters Place Canada Team'
+authorBio: 'Professional skating experts with 20+ years serving Canadian skaters from Toronto to Vancouver'
+image: '/images/posted/inline-vs-rollerskates.png'
+ogImage: '/images/posted/inline-vs-rollerskates.png'
+tags: ['inline skates', 'roller skates', 'quad skates', 'comparison', 'buying guide', 'canada', 'toronto']
 featured: true
 ---
 
