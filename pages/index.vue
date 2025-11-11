@@ -48,6 +48,9 @@ const {data: productData} = await useAsyncGql('getProducts', {
 });
 const popularProducts = productData.value.products?.nodes || [];
 
+// Get latest 6 blog posts
+const {data: latestPosts} = await useAsyncData('latest-blog-posts', () => queryContent('blog').sort({date: -1}).limit(6).find());
+
 const title = `ProSkaters Place - Canada's Most Trusted Skate Shop`;
 const desc = `#1 Inline Skates, Roller Skates, Skate Parts & Tools in Canada. ProSkaters Place, Canada's top online retailer for all your skating and skiing needs. Unparalleled selection of high-quality inline skates, rollerblades, roller skates, quad skates, scooters, skateboards, and both alpine and cross-country ski equipment.`;
 
@@ -183,76 +186,14 @@ useSeoMeta({
     <!-- REviews -->
     <GoogleReviewRotator />
 
-    <!-- Blog Section TODO dymanic-->
+    <!-- Blog Section -->
     <section class="container my-16">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">Latest Skating Tips</h2>
         <NuxtLink class="text-primary" to="/blog">{{ $t('messages.general.viewAll') }}</NuxtLink>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <NuxtLink
-          to="/best-inline-skates-2025"
-          class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-          <div class="aspect-video bg-gray-100 overflow-hidden">
-            <img
-              src="/images/inline-skates.jpg"
-              alt="Best Inline Skates for 2025"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy" />
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Best Inline Skates for 2025: Expert Reviews</h3>
-            <p class="text-gray-600 text-sm mt-2">Discover the top inline skates for 2025 with our expert reviews and buying guide.</p>
-          </div>
-        </NuxtLink>
-
-        <NuxtLink
-          to="/inline-skates-vs-roller-skates"
-          class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-          <div class="aspect-video bg-gray-100 overflow-hidden">
-            <img
-              src="/images/inline-vs-rollerskates.png"
-              alt="Inline Skates vs Roller Skates Comparison"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy" />
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Inline Skates vs Roller Skates: 2025 Guide</h3>
-            <p class="text-gray-600 text-sm mt-2">Complete comparison guide to help Canadian skaters choose between inline and roller skates.</p>
-          </div>
-        </NuxtLink>
-
-        <NuxtLink
-          to="/roller-skating-toronto-guide"
-          class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-          <div class="aspect-video bg-gray-100 overflow-hidden">
-            <img
-              src="/images/roller-skates.jpg"
-              alt="Roller Skating in Toronto"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy" />
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Toronto Roller Skating Guide for Beginners</h3>
-            <p class="text-gray-600 text-sm mt-2">Complete beginner's guide to roller skating in Toronto with tips and locations.</p>
-          </div>
-        </NuxtLink>
-
-        <NuxtLink
-          to="/skate-maintenance-winter"
-          class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-          <div class="aspect-video bg-gray-100 overflow-hidden">
-            <img
-              src="/images/Inline-Skates-Toronto.jpg"
-              alt="Skate Maintenance"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy" />
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Winter Skate Storage & Maintenance</h3>
-            <p class="text-gray-600 text-sm mt-2">Keep your skates in perfect condition during Toronto's harsh winters.</p>
-          </div>
-        </NuxtLink>
+        <BlogPostCard v-for="post in latestPosts" :key="post._path" :post="post" />
       </div>
     </section>
   </main>
