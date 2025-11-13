@@ -48,12 +48,10 @@ export const useExchangeRate = () => {
     // This runs only once on the client after hydration
     if (isServerContext()) return; // Should not run on server
 
-    // 1. Check if state already has a value (could be from build-time fallback via payload)
-    if (exchangeRate.value !== null) {
-      // We might still check the cookie or fetch if the build-time value is potentially stale
-    }
+    const now = Date.now();
+    const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-    // 2. Check client-side cookie
+    // 1. Check client-side cookie FIRST (highest priority)
     let rateFromCookie: number | null = null;
     let updateTimeFromCookie: number | null = null;
     if (cookie.value) {
@@ -64,44 +62,44 @@ export const useExchangeRate = () => {
           typeof parsed.rate === "number" &&
           typeof parsed.lastUpdated === "number"
         ) {
-          // Optional: Check cookie age
-          // const MAX_COOKIE_AGE = 24 * 60 * 60 * 1000;
-          // if (Date.now() - parsed.lastUpdated < MAX_COOKIE_AGE) {
-
-          rateFromCookie = parsed.rate;
-          updateTimeFromCookie = parsed.lastUpdated;
-          // } else {
-          //     console.log("[useExchangeRate - Client Init] Cookie data is expired.");
-          //     cookie.value = null; // Clear expired cookie
-          // }
+          // Check if cookie is still fresh (less than 24 hours old)
+          if (now - parsed.lastUpdated < ONE_DAY_IN_MS) {
+            rateFromCookie = parsed.rate;
+            updateTimeFromCookie = parsed.lastUpdated;
+            console.log("[useExchangeRate] Using fresh cookie data, age:", Math.round((now - parsed.lastUpdated) / 1000 / 60 / 60), "hours");
+          } else {
+            console.log("[useExchangeRate] Cookie data is expired, will fetch fresh");
+            cookie.value = null; // Clear expired cookie
+          }
         } else {
+          console.log("[useExchangeRate] Cookie data is invalid");
           cookie.value = null; // Clear invalid cookie
         }
       } catch (e) {
+        console.log("[useExchangeRate] Cookie parsing failed");
         cookie.value = null; // Clear invalid cookie
       }
-    } else {
     }
 
-    // 3. Decide initial client state: Prioritize fresh cookie over potentially stale build-time value
+    // 2. If fresh cookie data exists, use it and skip fetch
     if (rateFromCookie !== null && updateTimeFromCookie !== null) {
-      // If cookie is valid, use it as the initial client state
-      if (exchangeRate.value !== rateFromCookie) {
-        exchangeRate.value = rateFromCookie;
-      }
+      exchangeRate.value = rateFromCookie;
       lastClientUpdate.value = updateTimeFromCookie;
-    } else if (exchangeRate.value !== null) {
-      // If no valid cookie, but we have a build-time value, keep it for now
-      // but mark lastClientUpdate as null so fetchExchangeRate knows to check freshness
-      lastClientUpdate.value = null;
-    } else {
-      // No build-time value, no cookie value
+      console.log("[useExchangeRate] Initialized from cookie, no fetch needed");
+      return; // Don't call fetchExchangeRate - we have fresh data
+    }
 
+    // 3. Check if state already has a value (from build-time fallback via payload)
+    if (exchangeRate.value !== null) {
+      console.log("[useExchangeRate] Using build-time fallback rate");
+      lastClientUpdate.value = null; // Mark as needing eventual refresh
+    } else {
+      console.log("[useExchangeRate] No cached data found");
       lastClientUpdate.value = null;
     }
 
-    // 4. Trigger fetch if needed based on current state and last update time
-    fetchExchangeRate(); // fetchExchangeRate has internal logic to check if fetch is necessary
+    // 4. Trigger fetch if needed (only if no fresh cookie data)
+    fetchExchangeRate();
   };
 
   // --- Client-Side Fetch/Refresh Logic ---
@@ -109,18 +107,21 @@ export const useExchangeRate = () => {
     if (isServerContext()) return; // Only run client-side
 
     const now = Date.now();
-    const FETCH_INTERVAL = 23 * 60 * 60 * 1000; // Re-fetch if older than 23 hours
+    const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-    // Fetch if no rate, or no known last update time, or if last update is too old
+    // Fetch if no rate, or no known last update time, or if last update is older than 24 hours
     const shouldFetch =
       exchangeRate.value === null ||
       lastClientUpdate.value === null ||
-      now - lastClientUpdate.value > FETCH_INTERVAL;
+      now - lastClientUpdate.value > ONE_DAY_IN_MS;
 
     if (!shouldFetch) {
-      // console.log("[useExchangeRate] Client fetch skipped, data is fresh enough based on lastClientUpdate.");
+      const hoursSinceUpdate = Math.round((now - lastClientUpdate.value!) / 1000 / 60 / 60);
+      console.log(`[useExchangeRate] Client fetch skipped, data is ${hoursSinceUpdate} hours old (fresh for 24 hours)`);
       return;
     }
+
+    console.log("[useExchangeRate] Fetching fresh exchange rate from API...");
 
     try {
       // Use useFetch for client-side fetching
@@ -156,6 +157,8 @@ export const useExchangeRate = () => {
 
         // Update cookie
         cookie.value = JSON.stringify({ rate: newRate, lastUpdated: now });
+        
+        console.log("[useExchangeRate] Successfully fetched and cached new rate:", newRate);
       } else {
         console.warn(
           "[useExchangeRate] Client fetch returned unexpected data:",
