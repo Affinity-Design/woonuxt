@@ -9,7 +9,7 @@ import {
   type TermNode, // Import TermNode type
 } from '#woo';
 import {defineAsyncComponent, computed, ref, onMounted, watch} from 'vue';
-import {useRoute, useNuxtApp, useAppConfig, useCart, useI18n, useHead, useAsyncData} from '#imports';
+import {useRoute, useNuxtApp, useAppConfig, useCart, useI18n, useHead, useAsyncData, useRuntimeConfig} from '#imports';
 import {useHelpers} from '~/composables/useHelpers';
 import {useExchangeRate} from '~/composables/useExchangeRate';
 // Import from the updated priceConverter.ts
@@ -25,7 +25,23 @@ const {t} = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
-const {exchangeRate, refresh: refreshExchangeRate} = useExchangeRate();
+// Initialize exchange rate with error handling
+let exchangeRate = ref<number | null>(null);
+let refreshExchangeRate = () => {};
+
+try {
+  const exchangeRateComposable = useExchangeRate();
+  exchangeRate = exchangeRateComposable.exchangeRate;
+  refreshExchangeRate = exchangeRateComposable.refresh;
+} catch (error) {
+  console.error('[Product Page] Failed to initialize exchange rate:', error);
+  // Use fallback rate from config
+  const config = useRuntimeConfig();
+  const buildTimeRate = config.public.buildTimeExchangeRate;
+  if (buildTimeRate) {
+    exchangeRate.value = parseFloat(String(buildTimeRate));
+  }
+}
 
 const cacheKey = `product-${slug}`;
 
@@ -43,17 +59,21 @@ const {data, pending, error, refresh} = await useAsyncData(
   cacheKey,
   async () => {
     console.log(`[[slug].vue] useAsyncData: Fetching product data for slug: ${slug}`);
-    // @ts-ignore
-    const result = await GqlGetProduct({slug});
-    if (!result?.product) {
-      console.error(`[[slug].vue] useAsyncData: Product not found for slug: ${slug}`);
+    try {
       // @ts-ignore
-      throw new Error(t('messages.shop.productNotFound', 'Product not found'));
+      const result = await GqlGetProduct({slug});
+      if (!result?.product) {
+        console.error(`[[slug].vue] useAsyncData: Product not found for slug: ${slug}`);
+        // Return null instead of throwing to prevent crashes
+        return null;
+      }
+      console.log(`[[slug].vue] useAsyncData: Product data fetched successfully for slug: ${slug}`);
+      return result.product;
+    } catch (err) {
+      console.error(`[[slug].vue] useAsyncData: Error fetching product:`, err);
+      // Return null instead of throwing
+      return null;
     }
-    console.log(`[[slug].vue] useAsyncData: Product data fetched successfully for slug: ${slug}`);
-    // Log the entire product object once fetched
-    // console.log('[[slug].vue] Full fetched product data:', JSON.parse(JSON.stringify(result.product)));
-    return result.product;
   },
   {
     server: true,
@@ -63,9 +83,16 @@ const {data, pending, error, refresh} = await useAsyncData(
     transform: (p) => p,
     getCachedData: (key) => {
       const pD = nuxtApp.payload?.data?.[key];
-      if (pD) return pD;
+      if (pD) {
+        console.log(`[[slug].vue] Using cached payload data for: ${key}`);
+        return pD;
+      }
       const sD = nuxtApp.static?.data?.[key];
-      if (sD) return sD;
+      if (sD) {
+        console.log(`[[slug].vue] Using static data for: ${key}`);
+        return sD;
+      }
+      console.log(`[[slug].vue] No cached data found for: ${key}`);
       return undefined;
     },
   },

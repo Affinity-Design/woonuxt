@@ -129,7 +129,21 @@ export const useExchangeRate = () => {
       });
 
       if (error.value) {
-        throw error.value; // Throw error to be caught below
+        console.warn("[useExchangeRate] Client fetch error:", error.value);
+        // Don't throw - keep existing rate if available
+        if (exchangeRate.value === null) {
+          // Fallback to build-time rate if available
+          const buildTimeRateRaw = config.public.buildTimeExchangeRate;
+          if (buildTimeRateRaw) {
+            const buildTimeRate = parseFloat(String(buildTimeRateRaw));
+            if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
+              console.log("[useExchangeRate] Using build-time fallback rate:", buildTimeRate);
+              exchangeRate.value = buildTimeRate;
+              return;
+            }
+          }
+        }
+        return; // Keep existing rate, don't crash
       }
 
       if (data.value && data.value.success && data.value.data?.rate) {
@@ -147,13 +161,34 @@ export const useExchangeRate = () => {
           "[useExchangeRate] Client fetch returned unexpected data:",
           data.value
         );
+        // Don't clear existing rate - keep what we have
+        if (exchangeRate.value === null) {
+          // Fallback to build-time rate
+          const buildTimeRateRaw = config.public.buildTimeExchangeRate;
+          if (buildTimeRateRaw) {
+            const buildTimeRate = parseFloat(String(buildTimeRateRaw));
+            if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
+              console.log("[useExchangeRate] Using build-time fallback rate after unexpected data:", buildTimeRate);
+              exchangeRate.value = buildTimeRate;
+            }
+          }
+        }
       }
     } catch (fetchError) {
       console.error("[useExchangeRate] Client fetch failed:", fetchError);
-      // Decide if you want to clear the rate or keep the potentially stale one
-      // exchangeRate.value = null; // Option: clear on failure
-      // lastClientUpdate.value = null;
-      // cookie.value = null;
+      // Keep existing rate if we have one, don't crash the page
+      if (exchangeRate.value === null) {
+        // Last resort: use build-time rate
+        const buildTimeRateRaw = config.public.buildTimeExchangeRate;
+        if (buildTimeRateRaw) {
+          const buildTimeRate = parseFloat(String(buildTimeRateRaw));
+          if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
+            console.log("[useExchangeRate] Using build-time fallback rate after fetch error:", buildTimeRate);
+            exchangeRate.value = buildTimeRate;
+          }
+        }
+      }
+      // Do NOT clear the rate or throw - graceful degradation
     }
   };
 
