@@ -31,7 +31,8 @@ export const useExchangeRate = () => {
   const cookie = useCookie<string | null>('exchange-rate-data', {
     maxAge: 24 * 60 * 60, // 1 day expiry
     path: '/',
-    // Consider `secure: true` and `sameSite: 'lax'` or 'strict' for production
+    sameSite: 'lax', // Allow cookie on same-site navigation
+    secure: process.env.NODE_ENV === 'production', // Secure in production only
   });
 
   // --- Client-Side Initialization Logic ---
