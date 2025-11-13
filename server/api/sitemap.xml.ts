@@ -1,19 +1,40 @@
 export default defineEventHandler(async (event) => {
   try {
-    // Try to read the generated sitemap data
+    // Try to read the sitemap data from Cloudflare KV first (production)
+    // Then fall back to local file (development)
     let sitemapData;
 
     try {
-      // Read from the generated sitemap data file
-      const { readFileSync } = await import("fs");
-      const { resolve } = await import("path");
-      const dataPath = resolve(process.cwd(), "data", "sitemap-data.json");
-      const rawData = readFileSync(dataPath, "utf8");
-      sitemapData = JSON.parse(rawData);
-    } catch (error) {
-      console.warn("Generated sitemap data not found, using fallback routes");
+      // PRODUCTION: Read from Cloudflare KV (NUXT_SCRIPT_DATA namespace)
+      const storage = useStorage('script_data');
+      sitemapData = await storage.getItem('sitemap-data');
 
-      // Fallback routes if data file doesn't exist
+      if (sitemapData) {
+        console.log('[sitemap.xml] Using sitemap data from Cloudflare KV');
+      }
+    } catch (kvError) {
+      console.warn('[sitemap.xml] Failed to read from KV, trying local file:', kvError);
+    }
+
+    // FALLBACK: Read from local file (development or if KV fails)
+    if (!sitemapData) {
+      try {
+        const { readFileSync } = await import("fs");
+        const { resolve } = await import("path");
+        const dataPath = resolve(process.cwd(), "data", "sitemap-data.json");
+        const rawData = readFileSync(dataPath, "utf8");
+        sitemapData = JSON.parse(rawData);
+        console.log('[sitemap.xml] Using sitemap data from local file');
+      } catch (fileError) {
+        console.warn('[sitemap.xml] Generated sitemap data not found in KV or filesystem');
+        sitemapData = null;
+      }
+    }
+
+    // LAST RESORT: Use hardcoded fallback routes
+    if (!sitemapData) {
+      console.warn("[sitemap.xml] Using fallback routes (minimal sitemap)");
+
       const staticRoutes = [
         "/",
         "/blog",
@@ -70,7 +91,7 @@ export default defineEventHandler(async (event) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapData.routes
   .map(
-    (route) => `  <url>
+    (route: any) => `  <url>
     <loc>https://proskatersplace.ca${route.url}</loc>
     <lastmod>${route.lastmod}</lastmod>
     <changefreq>${route.changefreq}</changefreq>

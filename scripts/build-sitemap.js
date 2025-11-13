@@ -32,6 +32,11 @@ const CONFIG = {
   SITEMAP_FILE: 'sitemap-data.json',
   PRODUCT_SEO_FILE: 'product-seo-meta.json',
   BASE_URL: 'https://proskatersplace.ca',
+  // Cloudflare KV Configuration
+  CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+  CF_API_TOKEN: process.env.CF_API_TOKEN,
+  CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA,
+  KV_KEY_SITEMAP: 'sitemap-data', // Key for storing sitemap in KV
 };
 
 // GraphQL Queries
@@ -291,6 +296,52 @@ function generateProductSEOMetadata(products) {
 }
 
 /**
+ * Upload sitemap data to Cloudflare KV
+ * @param {Object} sitemapData - The complete sitemap data object
+ * @returns {Promise<boolean>} - Success status
+ */
+async function uploadSitemapToKV(sitemapData) {
+  if (!CONFIG.CF_ACCOUNT_ID || !CONFIG.CF_API_TOKEN || !CONFIG.CF_KV_NAMESPACE_ID) {
+    console.warn('\n⚠️  Cloudflare KV credentials not found. Skipping KV upload.');
+    console.warn('   Sitemap will be available locally but not on production.');
+    console.warn('   Set CF_ACCOUNT_ID, CF_API_TOKEN, and CF_KV_NAMESPACE_ID_SCRIPT_DATA environment variables.');
+    return false;
+  }
+
+  console.log(`\n📤 Uploading sitemap data to Cloudflare KV...`);
+  console.log(`   Account: ${CONFIG.CF_ACCOUNT_ID}`);
+  console.log(`   Namespace: ${CONFIG.CF_KV_NAMESPACE_ID}`);
+  console.log(`   Key: ${CONFIG.KV_KEY_SITEMAP}`);
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID}/values/${CONFIG.KV_KEY_SITEMAP}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sitemapData),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok || !responseData.success) {
+      console.error(`\n❌ Error storing sitemap in KV: ${response.status} ${response.statusText}`);
+      console.error('   Response:', responseData);
+      return false;
+    }
+
+    console.log(`✅ Successfully uploaded sitemap to KV (${sitemapData.totalRoutes} routes, ${Math.round(JSON.stringify(sitemapData).length / 1024)} KB)`);
+    return true;
+  } catch (error) {
+    console.error('\n❌ Error making API call to Cloudflare KV:', error);
+    return false;
+  }
+}
+
+/**
  * Generate complete sitemap data
  */
 async function generateCompleteSitemap() {
@@ -387,6 +438,9 @@ async function generateCompleteSitemap() {
     - Products:         ${sitemapData.breakdown.products}
     - TOTAL ROUTES:     ${sitemapData.totalRoutes}
   `);
+
+  // Upload to Cloudflare KV
+  await uploadSitemapToKV(sitemapData);
 
   return sitemapData;
 }
