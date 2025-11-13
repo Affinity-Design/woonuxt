@@ -37,6 +37,7 @@ const CONFIG = {
   CF_API_TOKEN: process.env.CF_API_TOKEN,
   CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA,
   KV_KEY_SITEMAP: 'sitemap-data', // Key for storing sitemap in KV
+  KV_KEY_PRODUCT_SEO: 'product-seo-meta', // Key for storing product SEO metadata in KV
 };
 
 // GraphQL Queries
@@ -342,6 +343,55 @@ async function uploadSitemapToKV(sitemapData) {
 }
 
 /**
+ * Upload product SEO metadata to Cloudflare KV
+ * @param {Array} productSEO - Array of product SEO metadata objects
+ * @returns {Promise<boolean>} - Success status
+ */
+async function uploadProductSEOToKV(productSEO) {
+  if (!CONFIG.CF_ACCOUNT_ID || !CONFIG.CF_API_TOKEN || !CONFIG.CF_KV_NAMESPACE_ID) {
+    console.warn('\n⚠️  Cloudflare KV credentials not found. Skipping product SEO upload.');
+    return false;
+  }
+
+  console.log(`\n📤 Uploading product SEO metadata to Cloudflare KV...`);
+  console.log(`   Products: ${productSEO.length}`);
+  console.log(`   Key: ${CONFIG.KV_KEY_PRODUCT_SEO}`);
+
+  // Convert array to object for faster lookup by slug
+  const seoBySlug = {};
+  productSEO.forEach((item) => {
+    seoBySlug[item.slug] = item;
+  });
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID}/values/${CONFIG.KV_KEY_PRODUCT_SEO}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(seoBySlug),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok || !responseData.success) {
+      console.error(`\n❌ Error storing product SEO in KV: ${response.status} ${response.statusText}`);
+      console.error('   Response:', responseData);
+      return false;
+    }
+
+    console.log(`✅ Successfully uploaded product SEO to KV (${productSEO.length} products, ${Math.round(JSON.stringify(seoBySlug).length / 1024)} KB)`);
+    return true;
+  } catch (error) {
+    console.error('\n❌ Error making API call to Cloudflare KV:', error);
+    return false;
+  }
+}
+
+/**
  * Generate complete sitemap data
  */
 async function generateCompleteSitemap() {
@@ -441,6 +491,7 @@ async function generateCompleteSitemap() {
 
   // Upload to Cloudflare KV
   await uploadSitemapToKV(sitemapData);
+  await uploadProductSEOToKV(productSEO);
 
   return sitemapData;
 }

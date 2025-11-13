@@ -12,6 +12,7 @@ import {defineAsyncComponent, computed, ref, onMounted, watch} from 'vue';
 import {useRoute, useNuxtApp, useAppConfig, useCart, useI18n, useHead, useAsyncData, useRuntimeConfig} from '#imports';
 import {useHelpers} from '~/composables/useHelpers';
 import {useExchangeRate} from '~/composables/useExchangeRate';
+import {useProductSEO} from '~/composables/useProductSEO';
 // Import from the updated priceConverter.ts
 import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter'; // Added cleanAndExtractPriceInfo for fallback
 
@@ -25,10 +26,12 @@ const {t} = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
+// Initialize SEO composable
+const {setProductSEO} = useProductSEO();
+
 // Initialize exchange rate with error handling
 let exchangeRate = ref<number | null>(null);
 let refreshExchangeRate = () => {};
-
 try {
   const exchangeRateComposable = useExchangeRate();
   exchangeRate = exchangeRateComposable.exchangeRate;
@@ -99,6 +102,17 @@ const {data, pending, error, refresh} = await useAsyncData(
 );
 
 const product = computed(() => data.value);
+
+// Apply Canadian SEO when product is loaded
+watch(
+  product,
+  async (newProduct) => {
+    if (newProduct) {
+      await setProductSEO(newProduct);
+    }
+  },
+  {immediate: true}
+);
 
 // --- Updated Price Formatting Logic ---
 const getFormattedPriceDisplay = (priceValue?: string | null, regularPriceValue?: string | null) => {

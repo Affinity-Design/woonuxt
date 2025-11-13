@@ -35,15 +35,26 @@ export const useProductSEO = () => {
 
   /**
    * Load pre-generated product SEO metadata
-   * This data is generated at build time by build-sitemap.js
+   * This data is generated at build time by build-sitemap.js and stored in Cloudflare KV
    */
   const loadProductSEOData = async (slug: string): Promise<ProductSEOData | null> => {
     try {
-      // In production, this would be a static import or API call
-      // For now, we'll construct SEO data from the product itself
+      // Try to fetch from API endpoint (reads from KV in production, local file in dev)
+      const response = await fetch(`/api/product-seo/${slug}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.slug === slug) {
+          console.log('[useProductSEO] Loaded pre-generated SEO data for:', slug);
+          return data;
+        }
+      }
+      
+      // If not found or error, return null to trigger fallback
+      console.log('[useProductSEO] No pre-generated SEO data found for:', slug);
       return null;
     } catch (error) {
-      console.warn(`Could not load SEO data for product: ${slug}`, error);
+      console.warn(`[useProductSEO] Could not load SEO data for product: ${slug}`, error);
       return null;
     }
   };
