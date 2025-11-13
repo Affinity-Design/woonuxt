@@ -1,8 +1,11 @@
 // composables/useExchangeRate.ts
-import {useState, useRuntimeConfig, useFetch, useCookie, onMounted} from '#imports';
+import {useState, useRuntimeConfig, useFetch, useCookie} from '#imports';
 
 // Helper function to check if running on the server/build context
 const isServerContext = () => process.server;
+
+// Global flag to track if initialization has been attempted (singleton pattern)
+let initializationAttempted = false;
 
 export const useExchangeRate = () => {
   const config = useRuntimeConfig();
@@ -15,9 +18,7 @@ export const useExchangeRate = () => {
         const buildTimeRate = parseFloat(String(buildTimeRateRaw));
         if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
           return buildTimeRate;
-        } else {
         }
-      } else {
       }
     }
     // Default to null if not server context or no valid build-time rate
@@ -27,16 +28,26 @@ export const useExchangeRate = () => {
   // State to track the timestamp of the last *client-side* fetch/update
   const lastClientUpdate = useState<number | null>('exchangeRateLastClientUpdate', () => null);
 
+  // State to track if we're currently fetching (prevents duplicate fetches)
+  const isFetching = useState<boolean>('exchangeRateIsFetching', () => false);
+
   // Client-side cookie for persistence between sessions
-  const cookie = useCookie<string | null>('exchange-rate-data', {
+  const cookie = useCookie<string>('exchange-rate-data', {
     maxAge: 24 * 60 * 60, // 1 day expiry
     path: '/',
     sameSite: 'lax', // Allow cookie on same-site navigation
     secure: process.env.NODE_ENV === 'production', // Secure in production only
+    default: () => '', // Default to empty string instead of null
   });
 
   // --- Client-Side Initialization Logic ---
   const initializeOnClient = () => {
+    // Only run once globally across all component instances
+    if (initializationAttempted) {
+      return;
+    }
+    initializationAttempted = true;
+
     // This runs only once on the client after hydration
     if (isServerContext()) return; // Should not run on server
 
@@ -46,7 +57,8 @@ export const useExchangeRate = () => {
     // 1. Check client-side cookie FIRST (highest priority)
     let rateFromCookie: number | null = null;
     let updateTimeFromCookie: number | null = null;
-    if (cookie.value) {
+    
+    if (cookie.value && cookie.value.trim() !== '') {
       try {
         const parsed = JSON.parse(cookie.value);
         if (parsed && typeof parsed.rate === 'number' && typeof parsed.lastUpdated === 'number') {
@@ -57,15 +69,15 @@ export const useExchangeRate = () => {
             console.log('[useExchangeRate] Using fresh cookie data, age:', Math.round((now - parsed.lastUpdated) / 1000 / 60 / 60), 'hours');
           } else {
             console.log('[useExchangeRate] Cookie data is expired, will fetch fresh');
-            cookie.value = null; // Clear expired cookie
+            cookie.value = ''; // Clear expired cookie
           }
         } else {
-          console.log('[useExchangeRate] Cookie data is invalid');
-          cookie.value = null; // Clear invalid cookie
+          console.log('[useExchangeRate] Cookie data is invalid format');
+          cookie.value = ''; // Clear invalid cookie
         }
       } catch (e) {
-        console.log('[useExchangeRate] Cookie parsing failed');
-        cookie.value = null; // Clear invalid cookie
+        console.warn('[useExchangeRate] Cookie parsing failed:', e);
+        cookie.value = ''; // Clear invalid cookie
       }
     }
 
@@ -73,13 +85,13 @@ export const useExchangeRate = () => {
     if (rateFromCookie !== null && updateTimeFromCookie !== null) {
       exchangeRate.value = rateFromCookie;
       lastClientUpdate.value = updateTimeFromCookie;
-      console.log('[useExchangeRate] Initialized from cookie, no fetch needed');
+      console.log('[useExchangeRate] Initialized from cookie, rate:', rateFromCookie);
       return; // Don't call fetchExchangeRate - we have fresh data
     }
 
     // 3. Check if state already has a value (from build-time fallback via payload)
     if (exchangeRate.value !== null) {
-      console.log('[useExchangeRate] Using build-time fallback rate');
+      console.log('[useExchangeRate] Using build-time fallback rate:', exchangeRate.value);
       lastClientUpdate.value = null; // Mark as needing eventual refresh
     } else {
       console.log('[useExchangeRate] No cached data found');
@@ -94,6 +106,12 @@ export const useExchangeRate = () => {
   const fetchExchangeRate = async () => {
     if (isServerContext()) return; // Only run client-side
 
+    // Prevent duplicate fetches
+    if (isFetching.value) {
+      console.log('[useExchangeRate] Fetch already in progress, skipping');
+      return;
+    }
+
     const now = Date.now();
     const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
@@ -107,11 +125,12 @@ export const useExchangeRate = () => {
     }
 
     console.log('[useExchangeRate] Fetching fresh exchange rate from API...');
+    isFetching.value = true;
 
     try {
       // Use useFetch for client-side fetching
       const {data, error} = await useFetch('/api/exchange-rate', {
-        key: 'apiExchangeRateFetch' /* Optional key */,
+        key: `apiExchangeRateFetch-${now}`, // Unique key to prevent caching issues
       });
 
       if (error.value) {
@@ -125,23 +144,23 @@ export const useExchangeRate = () => {
             if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
               console.log('[useExchangeRate] Using build-time fallback rate:', buildTimeRate);
               exchangeRate.value = buildTimeRate;
-              return;
             }
           }
         }
+        isFetching.value = false;
         return; // Keep existing rate, don't crash
       }
 
       if (data.value && data.value.success && data.value.data?.rate) {
         const newRate = data.value.data.rate;
-        const apiLastUpdated = data.value.data.lastUpdated; // When the API last updated *its* source
 
         // Update state
         exchangeRate.value = newRate;
         lastClientUpdate.value = now; // Record time of *this* client update
 
-        // Update cookie
-        cookie.value = JSON.stringify({rate: newRate, lastUpdated: now});
+        // Update cookie with proper serialization
+        const cookieData = JSON.stringify({rate: newRate, lastUpdated: now});
+        cookie.value = cookieData;
 
         console.log('[useExchangeRate] Successfully fetched and cached new rate:', newRate);
       } else {
@@ -174,18 +193,22 @@ export const useExchangeRate = () => {
         }
       }
       // Do NOT clear the rate or throw - graceful degradation
+    } finally {
+      isFetching.value = false;
     }
   };
 
-  // --- Run Initialization ---
-  // Use onMounted to ensure this runs once on the client after hydration
-  onMounted(() => {
-    initializeOnClient();
-  });
+  // --- Auto-initialize on client (runs only once globally) ---
+  if (process.client && !initializationAttempted) {
+    // Use nextTick to ensure DOM is ready
+    import('#app').then(({callOnce}) => {
+      callOnce('exchangeRateInit', initializeOnClient);
+    });
+  }
 
   return {
     exchangeRate, // The reactive exchange rate ref
-    // lastUpdated: lastClientUpdate, // Expose client update time if needed
     refresh: fetchExchangeRate, // Function to manually trigger client-side refresh
+    isFetching, // Expose fetching state
   };
 };
