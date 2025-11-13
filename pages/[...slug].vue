@@ -1,15 +1,9 @@
 <script setup lang="ts">
 const route = useRoute();
-const slug = Array.isArray(route.params.slug)
-  ? route.params.slug.join("/")
-  : route.params.slug;
+const slug = Array.isArray(route.params.slug) ? route.params.slug.join('/') : route.params.slug;
 
 // Check if this might be a blog post without the /blog/ prefix
-const possibleBlogSlugs = [
-  "best-inline-skates-2025",
-  "roller-skating-toronto-guide",
-  "skate-maintenance-winter",
-];
+const possibleBlogSlugs = ['best-inline-skates-2025', 'roller-skating-toronto-guide', 'skate-maintenance-winter'];
 
 // If it's a known blog post slug without /blog/ prefix, redirect
 if (possibleBlogSlugs.includes(slug)) {
@@ -20,17 +14,17 @@ if (possibleBlogSlugs.includes(slug)) {
 }
 
 // Try to find a blog post with this slug first (for catch-all cases)
-const { data: post } = await useAsyncData(`blog-check-${slug}`, () =>
-  queryContent("blog")
-    .where({ _path: { $contains: slug } })
+const {data: post} = await useAsyncData(`blog-check-${slug}`, () =>
+  queryContent('blog')
+    .where({_path: {$contains: slug}})
     .findOne()
-    .catch(() => null)
+    .catch(() => null),
 );
 
 const isBlogPost = !!post.value;
 
 // If it's a blog post, redirect to proper blog URL
-if (isBlogPost && !slug.startsWith("blog/")) {
+if (isBlogPost && !slug.startsWith('blog/')) {
   await navigateTo(`/blog/${slug}`, {
     redirectCode: 301,
     external: false,
@@ -41,13 +35,13 @@ if (isBlogPost && !slug.startsWith("blog/")) {
 if (!isBlogPost) {
   throw createError({
     statusCode: 404,
-    statusMessage: "Page not found",
+    statusMessage: 'Page not found',
   });
 }
 
 definePageMeta({
-  layout: "default",
-  alias: ["/:catchAll(.*)*"],
+  layout: 'default',
+  alias: ['/:catchAll(.*)*'],
 });
 </script>
 
@@ -57,11 +51,7 @@ definePageMeta({
     <h1>Page Not Found</h1>
     <p>
       No match for:
-      {{
-        Array.isArray($route.params.slug)
-          ? $route.params.slug.join("/")
-          : $route.params.slug
-      }}
+      {{ Array.isArray($route.params.slug) ? $route.params.slug.join('/') : $route.params.slug }}
     </p>
   </div>
 </template>

@@ -56,15 +56,15 @@ Blog posts are stored as markdown files in `content/blog/[post-slug]/index.md` w
 
 ```markdown
 ---
-title: "Post Title"
-description: "Post description for SEO"
-category: "Product Reviews"
+title: 'Post Title'
+description: 'Post description for SEO'
+category: 'Product Reviews'
 date: 2025-06-30
-author: "Author Name"
-authorBio: "Author bio"
-image: "/images/post-image.jpg"
-ogImage: "/images/post-image.jpg"
-tags: ["tag1", "tag2"]
+author: 'Author Name'
+authorBio: 'Author bio'
+image: '/images/post-image.jpg'
+ogImage: '/images/post-image.jpg'
+tags: ['tag1', 'tag2']
 ---
 
 # Post Content Here
@@ -100,12 +100,12 @@ tags: ["tag1", "tag2"]
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ["@nuxt/content"],
+  modules: ['@nuxt/content'],
   content: {
     // Content module configuration
   },
   routeRules: {
-    "/blog": { prerender: true },
+    '/blog': {prerender: true},
     // Individual blog posts prerendered automatically
   },
 });
@@ -115,27 +115,25 @@ export default defineNuxtConfig({
 
 ```typescript
 // Get all posts for archive
-const { data: posts } = await useAsyncData("blog-posts", () =>
-  queryContent("blog").sort({ date: -1 }).find()
-);
+const {data: posts} = await useAsyncData('blog-posts', () => queryContent('blog').sort({date: -1}).find());
 
 // Get single post
-const { data: post } = await useAsyncData(`blog-${slug}`, () =>
-  queryContent("blog")
-    .where({ _path: { $contains: slug } })
-    .findOne()
+const {data: post} = await useAsyncData(`blog-${slug}`, () =>
+  queryContent('blog')
+    .where({_path: {$contains: slug}})
+    .findOne(),
 );
 
 // Get related posts
-const { data: relatedPosts } = await useAsyncData(`related-${slug}`, () =>
-  queryContent("blog")
+const {data: relatedPosts} = await useAsyncData(`related-${slug}`, () =>
+  queryContent('blog')
     .where({
       category: post.value?.category,
-      _path: { $ne: post.value?._path },
+      _path: {$ne: post.value?._path},
     })
-    .sort({ date: -1 })
+    .sort({date: -1})
     .limit(3)
-    .find()
+    .find(),
 );
 ```
 
@@ -157,15 +155,15 @@ touch content/blog/your-post-slug/index.md
 
 ```markdown
 ---
-title: "Your Post Title"
-description: "SEO-friendly description (150-160 characters)"
-category: "Product Reviews" # or "Beginner Guides", "Maintenance Tips", etc.
+title: 'Your Post Title'
+description: 'SEO-friendly description (150-160 characters)'
+category: 'Product Reviews' # or "Beginner Guides", "Maintenance Tips", etc.
 date: 2025-06-30
-author: "Proskaters Place Team"
-authorBio: "Professional skating instructor with 15+ years experience"
-image: "/images/your-image.jpg"
-ogImage: "/images/your-image.jpg"
-tags: ["tag1", "tag2", "tag3"]
+author: 'Proskaters Place Team'
+authorBio: 'Professional skating instructor with 15+ years experience'
+image: '/images/your-image.jpg'
+ogImage: '/images/your-image.jpg'
+tags: ['tag1', 'tag2', 'tag3']
 ---
 
 # Your Post Title
@@ -183,7 +181,118 @@ More content...
 
 ### 4. Add Images
 
-Place images in `public/images/` and reference them as `/images/filename.jpg`
+#### Image Naming Convention
+
+**IMPORTANT:** Always use dashes (hyphens) in image filenames, never spaces.
+
+```bash
+# ✅ CORRECT
+toronto-rollerblade-club.jpg
+best-inline-skates-2025.png
+how-to-skate-backwards.png
+
+# ❌ WRONG
+toronto rollerblade club.jpg
+Best Inline Skates 2025.png
+how to skate backwards.png
+```
+
+**Why this matters:**
+
+- URLs with spaces become encoded (`%20`) which looks unprofessional
+- Dashes are SEO-friendly and improve readability
+- Prevents broken links and image loading issues
+- Maintains consistency across the site
+
+#### Image Workflow
+
+**Step 1: Store Unused Images**
+Place new images for upcoming blog posts in: `public/images/`
+
+```bash
+# Example: Preparing images for future posts
+public/images/
+  ├── speed-skating-guide.png          # Ready for future post
+  ├── beginner-roller-derby.png        # Ready for future post
+  ├── winter-maintenance-tips.jpg      # Ready for future post
+```
+
+**Step 2: Use Images in Blog Post**
+Reference images in your markdown frontmatter:
+
+```markdown
+---
+title: 'Your Post Title'
+image: '/images/speed-skating-guide.png'
+ogImage: '/images/speed-skating-guide.png'
+---
+```
+
+**Step 3: Move to Posted Folder After Publishing**
+Once the blog post is written and images are used, move them to prevent reuse:
+
+```bash
+# Move used images
+public/images/
+  └── blog/
+      └── posted/
+          ├── speed-skating-guide.png      # ✅ Used in published post
+          ├── beginner-roller-derby.png    # ✅ Used in published post
+          ├── inline-vs-rollerskates.png   # ✅ Already posted
+```
+
+**Update image paths in markdown after moving:**
+
+```markdown
+---
+title: 'Your Post Title'
+image: '/images/blog/posted/speed-skating-guide.png'
+ogImage: '/images/blog/posted/speed-skating-guide.png'
+---
+```
+
+#### Image Organization Structure
+
+```
+public/images/
+  ├── [available-images.png]           # Unused, available for new posts
+  ├── [available-images.jpg]
+  └── blog/
+      └── posted/
+          ├── [used-image-1.png]       # Used in published posts
+          ├── [used-image-2.jpg]       # Won't be used twice
+          └── [used-image-3.png]
+```
+
+**Benefits of this workflow:**
+
+1. **Prevent duplicate usage** - Posted images are clearly separated
+2. **Visual inventory** - See available images at a glance
+3. **Asset management** - Track which images have been used
+4. **SEO consistency** - All images follow naming conventions
+
+#### Image Best Practices
+
+**Naming:**
+
+- Use lowercase letters
+- Separate words with dashes (hyphens)
+- Keep names descriptive but concise
+- Include primary keyword when relevant
+
+**Optimization:**
+
+- Use WebP format when possible
+- Compress images before upload
+- Recommended sizes: 1200x630px for social sharing
+- Keep file sizes under 200KB
+
+**SEO:**
+
+- Include descriptive filenames
+- Alt text is auto-generated from post title
+- OG images for social media previews
+- Lazy loading for performance
 
 ### 5. Test Locally
 

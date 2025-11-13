@@ -1,6 +1,6 @@
-const { resolve } = require("path");
-const { readdir, writeFileSync, readFileSync, existsSync } = require("fs");
-const { promisify } = require("util");
+const {resolve} = require('path');
+const {readdir, writeFileSync, readFileSync, existsSync} = require('fs');
+const {promisify} = require('util');
 
 const readdirAsync = promisify(readdir);
 
@@ -9,31 +9,27 @@ const readdirAsync = promisify(readdir);
  */
 async function generateBlogRoutes() {
   try {
-    const blogDir = resolve(__dirname, "..", "content", "blog");
+    const blogDir = resolve(__dirname, '..', 'content', 'blog');
 
     if (!existsSync(blogDir)) {
-      console.warn("Blog directory not found, creating empty blog routes");
+      console.warn('Blog directory not found, creating empty blog routes');
       return [];
     }
 
-    const blogFolders = await readdirAsync(blogDir, { withFileTypes: true });
+    const blogFolders = await readdirAsync(blogDir, {withFileTypes: true});
 
-    const blogRoutes = blogFolders
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => `/blog/${dirent.name}`);
+    const blogRoutes = blogFolders.filter((dirent) => dirent.isDirectory()).map((dirent) => `/blog/${dirent.name}`);
 
     // Also generate the slug-only versions for redirects
-    const blogSlugs = blogFolders
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name);
+    const blogSlugs = blogFolders.filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name);
 
     console.log(`Found ${blogRoutes.length} blog post routes:`, blogRoutes);
     console.log(`Blog slugs for redirects:`, blogSlugs);
 
-    return { blogRoutes, blogSlugs };
+    return {blogRoutes, blogSlugs};
   } catch (error) {
-    console.error("Error generating blog routes:", error);
-    return { blogRoutes: [], blogSlugs: [] };
+    console.error('Error generating blog routes:', error);
+    return {blogRoutes: [], blogSlugs: []};
   }
 }
 
@@ -42,38 +38,31 @@ async function generateBlogRoutes() {
  */
 async function generateCategoryRoutes() {
   try {
-    const categoryRoutesPath = resolve(
-      __dirname,
-      "..",
-      "data",
-      "category-routes.json"
-    );
+    const categoryRoutesPath = resolve(__dirname, '..', 'data', 'category-routes.json');
 
     if (existsSync(categoryRoutesPath)) {
-      const categoryData = JSON.parse(readFileSync(categoryRoutesPath, "utf8"));
-      console.log(
-        `Found ${categoryData.length} category routes from existing data`
-      );
+      const categoryData = JSON.parse(readFileSync(categoryRoutesPath, 'utf8'));
+      console.log(`Found ${categoryData.length} category routes from existing data`);
       return categoryData;
     } else {
-      console.warn("Category routes file not found, using fallback");
+      console.warn('Category routes file not found, using fallback');
       return [
-        "/product-category/inline-skates",
-        "/product-category/roller-skates",
-        "/product-category/replacement-parts",
-        "/product-category/skate-tools",
-        "/product-category/protection-gear-and-apparel",
-        "/product-category/backpacks-bags-carriers",
-        "/product-category/scooters",
-        "/product-category/skateboards-and-longboards",
-        "/product-category/alpine-skis",
-        "/product-category/alpine-poles",
-        "/product-category/cross-country-skis",
-        "/product-category/cross-country-poles",
+        '/product-category/inline-skates',
+        '/product-category/roller-skates',
+        '/product-category/replacement-parts',
+        '/product-category/skate-tools',
+        '/product-category/protection-gear-and-apparel',
+        '/product-category/backpacks-bags-carriers',
+        '/product-category/scooters',
+        '/product-category/skateboards-and-longboards',
+        '/product-category/alpine-skis',
+        '/product-category/alpine-poles',
+        '/product-category/cross-country-skis',
+        '/product-category/cross-country-poles',
       ];
     }
   } catch (error) {
-    console.error("Error loading category routes:", error);
+    console.error('Error loading category routes:', error);
     return [];
   }
 }
@@ -82,36 +71,29 @@ async function generateCategoryRoutes() {
  * Generate all routes for prerendering and sitemap
  */
 async function generateAllRoutes() {
-  console.log("🚀 Generating all routes for build process...");
+  console.log('🚀 Generating all routes for build process...');
 
   try {
     // Generate blog routes
-    const { blogRoutes, blogSlugs } = await generateBlogRoutes();
-    const blogRoutesPath = resolve(__dirname, "..", "data", "blog-routes.json");
+    const {blogRoutes, blogSlugs} = await generateBlogRoutes();
+    const blogRoutesPath = resolve(__dirname, '..', 'data', 'blog-routes.json');
     writeFileSync(blogRoutesPath, JSON.stringify(blogRoutes, null, 2));
     console.log(`Blog routes written to: ${blogRoutesPath}`);
 
     // Write blog slugs for redirect generation
-    const blogSlugsPath = resolve(__dirname, "..", "data", "blog-slugs.json");
+    const blogSlugsPath = resolve(__dirname, '..', 'data', 'blog-slugs.json');
     writeFileSync(blogSlugsPath, JSON.stringify(blogSlugs, null, 2));
     console.log(`Blog slugs written to: ${blogSlugsPath}`);
 
     // Generate route rules for redirects
-    const { generateRouteRules } = require("./generate-route-rules.js");
+    const {generateRouteRules} = require('./generate-route-rules.js');
     generateRouteRules();
 
     // Get category routes
     const categoryRoutes = await generateCategoryRoutes();
 
     // Static routes
-    const staticRoutes = [
-      "/",
-      "/blog",
-      "/categories",
-      "/contact",
-      "/terms",
-      "/privacy",
-    ];
+    const staticRoutes = ['/', '/blog', '/categories', '/contact', '/terms', '/privacy'];
 
     // Combine all routes
     const allRoutes = [...staticRoutes, ...blogRoutes, ...categoryRoutes];
@@ -121,23 +103,13 @@ async function generateAllRoutes() {
       lastGenerated: new Date().toISOString(),
       routes: allRoutes.map((route) => ({
         url: route,
-        lastmod: new Date().toISOString().split("T")[0],
-        changefreq: route.includes("/blog/")
-          ? "monthly"
-          : route === "/"
-            ? "daily"
-            : "weekly",
-        priority:
-          route === "/" ? "1.0" : route.includes("/blog/") ? "0.8" : "0.7",
+        lastmod: new Date().toISOString().split('T')[0],
+        changefreq: route.includes('/blog/') ? 'monthly' : route === '/' ? 'daily' : 'weekly',
+        priority: route === '/' ? '1.0' : route.includes('/blog/') ? '0.8' : '0.7',
       })),
     };
 
-    const sitemapDataPath = resolve(
-      __dirname,
-      "..",
-      "data",
-      "sitemap-data.json"
-    );
+    const sitemapDataPath = resolve(__dirname, '..', 'data', 'sitemap-data.json');
     writeFileSync(sitemapDataPath, JSON.stringify(sitemapData, null, 2));
     console.log(`Sitemap data written to: ${sitemapDataPath}`);
 
@@ -157,7 +129,7 @@ async function generateAllRoutes() {
       sitemapData,
     };
   } catch (error) {
-    console.error("❌ Error generating routes:", error);
+    console.error('❌ Error generating routes:', error);
     throw error;
   }
 }
@@ -166,11 +138,11 @@ async function generateAllRoutes() {
 if (require.main === module) {
   generateAllRoutes()
     .then(() => {
-      console.log("✅ Route generation completed successfully");
+      console.log('✅ Route generation completed successfully');
       process.exit(0);
     })
     .catch((error) => {
-      console.error("❌ Route generation failed:", error);
+      console.error('❌ Route generation failed:', error);
       process.exit(1);
     });
 }

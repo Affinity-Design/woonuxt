@@ -104,15 +104,15 @@ content/
 
 ```yaml
 ---
-title: "Post Title"
-description: "SEO description"
-category: "Category Name"
+title: 'Post Title'
+description: 'SEO description'
+category: 'Category Name'
 date: 2025-06-25
-author: "Author Name"
-authorBio: "Author description"
-image: "/images/post-image.jpeg"
-ogImage: "/images/post-image.jpeg"
-tags: ["tag1", "tag2", "tag3"]
+author: 'Author Name'
+authorBio: 'Author description'
+image: '/images/post-image.jpeg'
+ogImage: '/images/post-image.jpeg'
+tags: ['tag1', 'tag2', 'tag3']
 ---
 ```
 
@@ -160,9 +160,9 @@ tags: ["tag1", "tag2", "tag3"]
 #### Headers Set
 
 ```typescript
-setHeader(event, "content-type", "application/xml");
-setHeader(event, "cache-control", "max-age=3600");
-setHeader(event, "x-sitemap-generated", sitemapData.lastGenerated);
+setHeader(event, 'content-type', 'application/xml');
+setHeader(event, 'cache-control', 'max-age=3600');
+setHeader(event, 'x-sitemap-generated', sitemapData.lastGenerated);
 ```
 
 ### Robots.txt (`public/robots.txt`)
@@ -182,38 +182,267 @@ Crawl-delay: 1
 
 ## 4. SEO Meta Tag Implementation
 
-### Blog Post SEO (`pages/blog/[slug].vue`)
+### Blog Post SEO Components
+
+The blog system employs a comprehensive SEO strategy with Canadian market optimization:
+
+#### Canadian SEO Composable (`composables/useCanadianSEO.ts`)
+
+Provides bilingual Canadian-specific SEO optimization with full caching compatibility:
 
 ```typescript
-// Complete SEO implementation
-useSeoMeta({
-  title,
-  ogTitle: title,
-  description: desc,
-  ogDescription: desc,
-  ogImage: image,
-  twitterCard: "summary_large_image",
-  ogUrl: canonicalUrl,
-  twitterImage: image,
+export const useCanadianSEO = () => {
+  // Features:
+  // - Bilingual support (en-CA, fr-CA)
+  // - Canadian geographic targeting (Toronto coordinates)
+  // - Hreflang tags (en-CA, fr-CA, en-US, x-default)
+  // - CAD currency specification with locale-aware formatting
+  // - Canadian meta tags (geo.region: CA, locale: en_CA or fr_CA)
+  // - Canonical URL generation
+  // - Cache-friendly implementation (SSR, prerender, KV compatible)
+
+  const setCanadianSEO = (options: {
+    title: string;
+    description: string;
+    image?: string;
+    type?: 'website' | 'article' | 'product';
+    locale?: 'en-CA' | 'fr-CA';
+  }) => {
+    // Sets comprehensive meta tags
+    // Adds bilingual hreflang alternates
+    // Configures Canadian geo-targeting
+    // Includes og:locale with alternate locale support
+    // Works correctly with Nuxt prerendering and Cloudflare KV caching
+  };
+};
+```
+
+**Caching Compatibility (IMPORTANT):**
+
+The composable uses `useSeoMeta()` and `useHead()` which are:
+
+- ✅ **SSR-safe**: Meta tags generated during server-side rendering
+- ✅ **Prerender-safe**: Static HTML includes all meta tags at build time
+- ✅ **KV cache-safe**: Complete rendered HTML (with meta tags) stored in Cloudflare KV
+- ✅ **No runtime lookups**: All values serialized into page payload
+
+**How Caching Works:**
+
+1. During build/SSR, `useSeoMeta()` generates `<meta>` tags in HTML `<head>`
+2. Nitro caches the complete rendered HTML (including meta tags) in KV
+3. Subsequent requests serve cached HTML directly - no re-execution needed
+4. Meta tags are part of the static HTML, not dynamically generated
+
+**Why This Matters:**
+
+- Blog posts with `prerender: true` have SEO meta baked into static HTML
+- Category pages cached in KV serve with correct canonical/hreflang tags
+- No performance penalty for SEO optimization
+
+**Geographic Targeting:**
+
+- `geo.region: CA`
+- `geo.placename: Canada`
+- `geo.position: 43.651070;-79.347015` (Toronto)
+- `business:location:country_name: Canada`
+
+**Hreflang Implementation (Bilingual):**
+
+```html
+<link rel="alternate" hreflang="en-ca" href="https://proskatersplace.ca/post-slug" />
+<link rel="alternate" hreflang="fr-ca" href="https://proskatersplace.ca/fr/post-slug" />
+<link rel="alternate" hreflang="en-us" href="https://proskatersplace.com/post-slug" />
+<link rel="alternate" hreflang="x-default" href="https://proskatersplace.com/post-slug" />
+```
+
+**Bilingual Support:**
+
+The composable now supports French Canadian content:
+
+- `locale: 'en-CA'` - English Canadian (default)
+- `locale: 'fr-CA'` - French Canadian
+- Automatic locale detection via `detectLocale()` helper
+- French URLs use `/fr` prefix (e.g., `/fr/blog/post-slug`)
+- Price formatting respects locale (`formatCADPrice(price, locale)`)
+- `og:locale:alternate` tags for bilingual SEO
+
+#### Structured Data Component (`components/SEOStructuredData.vue`)
+
+Implements Schema.org markup for rich results:
+
+```vue
+<SEOStructuredData
+  type="Article"
+  :data="{
+    title: post.title,
+    description: post.description,
+    image: post.ogImage,
+    author: post.author,
+    authorBio: post.authorBio,
+    datePublished: post.date,
+    url: route.path,
+    category: post.category,
+    tags: post.tags,
+  }" />
+```
+
+**Article Schema Features:**
+
+- Publisher information (ProSkaters Place Canada)
+- Author details with bio
+- Publication and modification dates
+- Canadian audience targeting
+- Language specification (en-CA)
+- Keywords from tags
+- Free accessibility indicator
+
+#### Blog Post Implementation (`components/BlogPost.vue`)
+
+```typescript
+// Canadian SEO setup
+const {setCanadianSEO, detectLocale} = useCanadianSEO();
+
+// Auto-detect locale from route path (e.g., /fr/blog/post)
+const locale = detectLocale(); // Returns 'en-CA' or 'fr-CA'
+
+setCanadianSEO({
+  title: post.value.title,
+  description: post.value.description,
+  image: post.value.ogImage,
+  type: 'article',
+  locale, // Pass detected locale for bilingual support
 });
 
-useHead({
-  link: [{ rel: "canonical", href: canonicalUrl }],
-});
+// Structured data
+const articleStructuredData = {
+  title: post.value.title,
+  description: post.value.description,
+  image: post.value.ogImage,
+  author: post.value.author,
+  authorBio: post.value.authorBio,
+  datePublished: post.value.date,
+  dateModified: post.value.dateModified || post.value.date,
+  url: route.path,
+  category: post.value.category,
+  tags: post.value.tags,
+};
 ```
+
+**French Blog Post Example:**
+
+For a French blog post at `/fr/blog/meilleurs-patins-2025`:
+
+- Set `locale: 'fr-CA'` in `setCanadianSEO()`
+- HTML lang attribute becomes `lang="fr-CA"`
+- Hreflang tags include both en-ca and fr-ca alternates
+- Price formatting uses French Canadian format (123,45 $)
 
 ### Blog Index SEO (`pages/blog/index.vue`)
 
 ```typescript
-useSeoMeta({
-  title: "Skating Tips & Guides | ProSkaters Place Blog",
-  ogTitle: title,
-  description: "Expert skating advice, product reviews, and tips...",
-  ogDescription: desc,
-  ogImage: "/images/Inline-Skates-Toronto.jpg",
-  twitterCard: "summary_large_image",
+const {setCanadianSEO} = useCanadianSEO();
+
+setCanadianSEO({
+  title: 'Skating Tips & Guides | ProSkaters Place Canada Blog',
+  description: "Expert skating advice, product reviews, and tips from Canada's most trusted skate shop...",
+  image: '/images/Inline-Skates-Toronto.jpg',
+  type: 'website',
+  locale: 'en-CA', // Explicitly set for English version
 });
+
+// For French version (/fr/blog):
+// setCanadianSEO({
+//   title: 'Conseils de Patinage | Blog ProSkaters Place Canada',
+//   description: "Conseils d'experts, critiques de produits...",
+//   image: '/images/Inline-Skates-Toronto.jpg',
+//   type: 'website',
+//   locale: 'fr-CA',
+// });
 ```
+
+### SEO Strategy Alignment
+
+Blog posts target high-value keywords from SEO research:
+
+| **Target Keyword**          | **Search Volume**           | **KD** | **Blog Post**                   | **Status**   |
+| --------------------------- | --------------------------- | ------ | ------------------------------- | ------------ |
+| best inline skates 2025     | High                        | 30.7   | Best Inline Skates Canada 2025  | ✅ Targeting |
+| inline skates canada        | High                        | 17.7   | Best Inline Skates Canada 2025  | ✅ Targeting |
+| roller skates for beginners | 14.8k (+1956% YoY)          | 0-3    | Complete Beginner's Guide       | ✅ Targeting |
+| how to skate backwards      | High (Featured snippet opp) | 2-7    | How to Skate Backwards Tutorial | ✅ Targeting |
+| roller skates vs inline     | 2.9k                        | ≤10    | Inline Skates vs Roller Skates  | ✅ Targeting |
+| inline skates toronto       | High                        | 14.1   | Multiple posts                  | ✅ Targeting |
+
+### Advanced SEO Features
+
+#### 1. Table of Contents (Jump Links)
+
+- Auto-generated from H2/H3 headings
+- Sticky sidebar navigation
+- Anchor links for SERP features
+- Improved user experience
+
+#### 2. Internal Linking Strategy
+
+- Product category links
+- Specific product recommendations
+- Related blog posts (same category)
+- "Shop by Category" sections
+- E-commerce integration
+
+#### 3. Image Optimization
+
+- Lazy loading (except hero images)
+- Descriptive alt text from post title
+- NuxtImg optimization
+- Proper aspect ratios
+- WebP format support
+
+#### 4. Mobile Optimization
+
+- Responsive design (mobile-first)
+- Clamp typography
+- Adaptive layouts
+- Touch-friendly navigation
+
+#### 5. Performance Optimization
+
+- Static prerendering
+- CDN delivery (Cloudflare)
+- KV caching strategy
+- Instant page loads
+
+### SEO Checklist for New Posts
+
+✅ **Required Elements:**
+
+- Title (50-60 characters, includes primary keyword)
+- Description (150-160 characters, compelling CTR)
+- Category assignment
+- Publication date
+- Author and authorBio
+- Image with descriptive filename
+- ogImage (social sharing)
+- 3-5 relevant tags (target keywords)
+
+✅ **Content Requirements:**
+
+- H1 title (matches meta title)
+- Proper heading hierarchy (H2 → H3)
+- 2,000+ words for comprehensive coverage
+- Internal links to products/categories
+- External links to authoritative sources
+- Canadian spelling and terminology
+- Location references (Toronto, Canada, Ontario)
+
+✅ **Technical SEO:**
+
+- Clean URL slug (no /blog/ prefix)
+- Canonical URL set
+- Hreflang tags configured
+- Structured data included
+- Meta tags complete
+- Image alt text provided
 
 ## 5. Build Process Flow
 
