@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const { FALLBACK_IMG } = useHelpers();
+const {FALLBACK_IMG} = useHelpers();
 const props = defineProps({
-  node: { type: Object, required: true },
-  imageLoading: { type: String as PropType<"lazy" | "eager">, default: "lazy" },
+  node: {type: Object, required: true},
+  imageLoading: {type: String as PropType<'lazy' | 'eager'>, default: 'lazy'},
 });
 
 const imgWidth = 220;
@@ -13,11 +13,11 @@ const hasErrored = ref(false);
 
 // Function to convert category names to dash-separated filenames
 const convertToDashed = (categoryName: string) => {
-  if (!categoryName) return "";
+  if (!categoryName) return '';
 
   // Special case mapping for categories with custom image names
   const specialCases: Record<string, string> = {
-    "Trick Scooters | Stunt Scooters | Pro Scooters": "Trick-Scooters",
+    'Trick Scooters | Stunt Scooters | Pro Scooters': 'Trick-Scooters',
   };
 
   // If we have a special case mapping, use it
@@ -29,16 +29,16 @@ const convertToDashed = (categoryName: string) => {
   return (
     categoryName
       // First handle special characters that might need specific replacements
-      .replace(/\|/g, "-") // Replace pipe with dash
-      .replace(/\//g, "-") // Replace forward slash with dash
-      .replace(/!/g, "") // Remove exclamation marks
-      .replace(/&/g, "and") // Replace & with 'and'
+      .replace(/\|/g, '-') // Replace pipe with dash
+      .replace(/\//g, '-') // Replace forward slash with dash
+      .replace(/!/g, '') // Remove exclamation marks
+      .replace(/&/g, 'and') // Replace & with 'and'
       // Replace spaces with dashes
-      .replace(/\s+/g, "-")
+      .replace(/\s+/g, '-')
       // Remove any other special characters
-      .replace(/[^\w\-]/g, "")
+      .replace(/[^\w\-]/g, '')
       // Ensure no double dashes
-      .replace(/--+/g, "-")
+      .replace(/--+/g, '-')
   );
 };
 
@@ -82,12 +82,11 @@ const handleImageError = (event) => {
   <NuxtLink
     v-if="node"
     :to="`/product-category/${decodeURIComponent(node.slug)}`"
-    class="relative flex justify-center overflow-hidden border border-white rounded-xl item snap-mandatory snap-x"
-  >
+    class="group relative flex justify-center overflow-hidden border border-gray-200 rounded-xl item snap-mandatory snap-x hover:shadow-lg transition-shadow">
     <NuxtImg
       :width="imgWidth"
       :height="imgHeight"
-      class="absolute inset-0 object-cover w-full h-full"
+      class="absolute inset-0 object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
       :src="imageSrc"
       :alt="node.name"
       :title="node.name"
@@ -95,15 +94,11 @@ const handleImageError = (event) => {
       :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
       placeholder
       placeholder-class="blur-xl"
-      @error="handleImageError"
-    />
-    <div
-      class="absolute inset-x-0 bottom-0 opacity-50 bg-gradient-to-t from-black to-transparent h-1/2"
-    />
+      @error="handleImageError" />
+    <div class="absolute inset-x-0 bottom-0 opacity-50 bg-gradient-to-t from-black to-transparent h-1/2" />
     <span
-      class="relative z-10 mt-auto mb-2 text-sm font-semibold text-white capitalize md:text-base md:mb-4"
-      v-html="node.name"
-    />
+      class="relative z-10 mt-auto mb-2 text-sm font-semibold text-white capitalize md:text-base md:mb-4 group-hover:scale-105 transition-transform duration-300"
+      v-html="node.name" />
   </NuxtLink>
 </template>
 

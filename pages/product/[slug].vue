@@ -456,15 +456,15 @@ watch(
             </div>
             <div class="grid gap-2 my-8 text-sm empty:hidden">
               <div v-if="!isExternalProduct" class="flex items-center gap-2">
-                <span class="text-gray-400">{{ t('messages.shop.availability', 'Availability') }}:</span>
+                <span class="text-gray-700 font-medium">{{ t('messages.shop.availability', 'Availability') }}:</span>
                 <StockStatus :stockStatus="stockStatus" @updated="mergeLiveStockStatus" />
               </div>
               <div class="flex items-center gap-2" v-if="storeSettings.showSKU && product.sku">
-                <span class="text-gray-400">{{ t('messages.shop.sku', 'SKU') }}:</span>
+                <span class="text-gray-700 font-medium">{{ t('messages.shop.sku', 'SKU') }}:</span>
                 <span>{{ product.sku || 'N/A' }}</span>
               </div>
             </div>
-            <div class="mb-8 font-light prose" v-html="product.shortDescription || product.description" />
+            <div class="mb-8 prose prose-gray text-gray-900" v-html="product.shortDescription || product.description" />
             <hr />
             <form @submit.prevent="handleAddToCart">
               <AttributeSelections
@@ -500,7 +500,7 @@ watch(
             <div v-if="storeSettings.showProductCategoriesOnSingleProduct && product.productCategories?.nodes?.length">
               <div class="grid gap-2 my-8 text-sm">
                 <div class="flex items-center gap-2">
-                  <span class="text-gray-400"
+                  <span class="text-gray-700 font-medium"
                     >{{ t('messages.shop.category', product.productCategories.nodes.length, {count: product.productCategories.nodes.length}) }}:</span
                   >
                   <div class="product-categories">
