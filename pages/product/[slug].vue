@@ -48,7 +48,17 @@ try {
 
 const cacheKey = `product-${slug}`;
 
-console.log(`[[slug].vue] Initializing for product slug: ${slug}`);
+// Try KV cache first
+const {getProductFromCache} = useCachedProduct();
+let cachedProduct = null;
+try {
+  cachedProduct = await getProductFromCache(slug);
+  if (cachedProduct) {
+    console.log(`✓ Cache hit: ${slug}`);
+  }
+} catch (error) {
+  console.warn(`Cache error for ${slug}:`, error);
+}
 
 // Define a more specific type for product attributes if available from #woo or locally
 interface ProductAttributeWithTerms extends WooProductAttribute {
@@ -61,42 +71,32 @@ interface ProductAttributeWithTerms extends WooProductAttribute {
 const {data, pending, error, refresh} = await useAsyncData(
   cacheKey,
   async () => {
-    console.log(`[[slug].vue] useAsyncData: Fetching product data for slug: ${slug}`);
+    // If we have cached product, use it immediately
+    if (cachedProduct) {
+      return cachedProduct;
+    }
+
     try {
       // @ts-ignore
       const result = await GqlGetProduct({slug});
       if (!result?.product) {
-        console.error(`[[slug].vue] useAsyncData: Product not found for slug: ${slug}`);
-        // Return null instead of throwing to prevent crashes
+        console.error(`Product not found: ${slug}`);
         return null;
       }
-      console.log(`[[slug].vue] useAsyncData: Product data fetched successfully for slug: ${slug}`);
       return result.product;
     } catch (err) {
-      console.error(`[[slug].vue] useAsyncData: Error fetching product:`, err);
-      // Return null instead of throwing
+      console.error(`GraphQL error for ${slug}:`, err);
       return null;
     }
   },
   {
-    server: true,
-    lazy: false,
+    server: true, // Re-enable SSR since we're using KV cache
+    lazy: false, // Load immediately
     immediate: true,
     watch: [],
     transform: (p) => p,
     getCachedData: (key) => {
-      const pD = nuxtApp.payload?.data?.[key];
-      if (pD) {
-        console.log(`[[slug].vue] Using cached payload data for: ${key}`);
-        return pD;
-      }
-      const sD = nuxtApp.static?.data?.[key];
-      if (sD) {
-        console.log(`[[slug].vue] Using static data for: ${key}`);
-        return sD;
-      }
-      console.log(`[[slug].vue] No cached data found for: ${key}`);
-      return undefined;
+      return nuxtApp.payload?.data?.[key] || nuxtApp.static?.data?.[key] || undefined;
     },
   },
 );

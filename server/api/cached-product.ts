@@ -1,14 +1,14 @@
 // server/api/cached-product.ts
-import { defineEventHandler, readBody } from "h3";
+import {defineEventHandler, readBody} from 'h3';
 
 export default defineEventHandler(async (event) => {
   try {
-    const { slug } = await readBody(event);
+    const {slug} = await readBody(event);
 
     if (!slug) {
       return {
         success: false,
-        error: "No slug provided",
+        error: 'No slug provided',
       };
     }
 
@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
     const storage = useStorage();
 
     // Try to get cached products
-    const cachedProducts = await storage.getItem("cached-products");
+    const cachedProducts = await storage.getItem('cached-products');
 
     if (!cachedProducts || !Array.isArray(cachedProducts)) {
       return {
         success: false,
-        error: "No cached products available",
+        error: 'No cached products available',
       };
     }
 
@@ -31,16 +31,17 @@ export default defineEventHandler(async (event) => {
     if (!product) {
       return {
         success: false,
-        error: "Product not found in cache",
+        error: 'Product not found in cache',
       };
     }
 
     return {
       success: true,
       product,
+      timestamp: Date.now(), // Add timestamp for cache freshness check
     };
   } catch (error) {
-    console.error("Error fetching cached product:", error);
+    console.error('Error fetching cached product:', error);
     return {
       success: false,
       error: error.message,

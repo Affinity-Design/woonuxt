@@ -17,7 +17,6 @@ export const useExchangeRate = () => {
     if (buildTimeRateRaw) {
       const buildTimeRate = parseFloat(String(buildTimeRateRaw));
       if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-        console.log('[useExchangeRate] Initialized with build-time fallback:', buildTimeRate);
         return buildTimeRate;
       }
     }
@@ -67,13 +66,10 @@ export const useExchangeRate = () => {
           if (now - parsed.lastUpdated < ONE_DAY_IN_MS) {
             rateFromCookie = parsed.rate;
             updateTimeFromCookie = parsed.lastUpdated;
-            console.log('[useExchangeRate] Using fresh cookie data, age:', Math.round((now - parsed.lastUpdated) / 1000 / 60 / 60), 'hours');
           } else {
-            console.log('[useExchangeRate] Cookie data is expired, will fetch fresh');
             cookie.value = ''; // Clear expired cookie
           }
         } else {
-          console.log('[useExchangeRate] Cookie data is invalid format');
           cookie.value = ''; // Clear invalid cookie
         }
       } catch (e) {
@@ -86,13 +82,11 @@ export const useExchangeRate = () => {
     if (rateFromCookie !== null && updateTimeFromCookie !== null) {
       exchangeRate.value = rateFromCookie;
       lastClientUpdate.value = updateTimeFromCookie;
-      console.log('[useExchangeRate] Initialized from cookie, rate:', rateFromCookie);
       return; // Don't call fetchExchangeRate - we have fresh data
     }
 
     // 3. Check if state already has a value (from build-time fallback via payload)
     if (exchangeRate.value !== null) {
-      console.log('[useExchangeRate] Using build-time fallback rate immediately:', exchangeRate.value, '(fresh rate will be fetched in background)');
       lastClientUpdate.value = null; // Mark as needing eventual refresh
     } else {
       console.warn('[useExchangeRate] No fallback rate available - this should not happen!');
@@ -112,10 +106,7 @@ export const useExchangeRate = () => {
     if (isServerContext()) return; // Only run client-side
 
     // Prevent duplicate fetches
-    if (isFetching.value) {
-      console.log('[useExchangeRate] Fetch already in progress, skipping');
-      return;
-    }
+    if (isFetching.value) return;
 
     const now = Date.now();
     const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
@@ -123,13 +114,8 @@ export const useExchangeRate = () => {
     // Fetch if no rate, or no known last update time, or if last update is older than 24 hours
     const shouldFetch = exchangeRate.value === null || lastClientUpdate.value === null || now - lastClientUpdate.value > ONE_DAY_IN_MS;
 
-    if (!shouldFetch) {
-      const hoursSinceUpdate = Math.round((now - lastClientUpdate.value!) / 1000 / 60 / 60);
-      console.log(`[useExchangeRate] Client fetch skipped, data is ${hoursSinceUpdate} hours old (fresh for 24 hours)`);
-      return;
-    }
+    if (!shouldFetch) return;
 
-    console.log('[useExchangeRate] Fetching fresh exchange rate from API...');
     isFetching.value = true;
 
     try {
@@ -139,7 +125,7 @@ export const useExchangeRate = () => {
       });
 
       if (error.value) {
-        console.warn('[useExchangeRate] Client fetch error:', error.value);
+        console.warn('[useExchangeRate] Fetch error:', error.value);
         // Don't throw - keep existing rate if available
         if (exchangeRate.value === null) {
           // Fallback to build-time rate if available
@@ -147,7 +133,6 @@ export const useExchangeRate = () => {
           if (buildTimeRateRaw) {
             const buildTimeRate = parseFloat(String(buildTimeRateRaw));
             if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-              console.log('[useExchangeRate] Using build-time fallback rate:', buildTimeRate);
               exchangeRate.value = buildTimeRate;
             }
           }
@@ -167,7 +152,7 @@ export const useExchangeRate = () => {
         const cookieData = JSON.stringify({rate: newRate, lastUpdated: now});
         cookie.value = cookieData;
 
-        console.log('[useExchangeRate] Successfully fetched and cached new rate:', newRate);
+        console.log('[useExchangeRate] Updated rate:', newRate);
       } else {
         console.warn('[useExchangeRate] Client fetch returned unexpected data:', data.value);
         // Don't clear existing rate - keep what we have
@@ -177,14 +162,13 @@ export const useExchangeRate = () => {
           if (buildTimeRateRaw) {
             const buildTimeRate = parseFloat(String(buildTimeRateRaw));
             if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-              console.log('[useExchangeRate] Using build-time fallback rate after unexpected data:', buildTimeRate);
               exchangeRate.value = buildTimeRate;
             }
           }
         }
       }
     } catch (fetchError) {
-      console.error('[useExchangeRate] Client fetch failed:', fetchError);
+      console.error('[useExchangeRate] Fetch failed:', fetchError);
       // Keep existing rate if we have one, don't crash the page
       if (exchangeRate.value === null) {
         // Last resort: use build-time rate
@@ -192,7 +176,6 @@ export const useExchangeRate = () => {
         if (buildTimeRateRaw) {
           const buildTimeRate = parseFloat(String(buildTimeRateRaw));
           if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-            console.log('[useExchangeRate] Using build-time fallback rate after fetch error:', buildTimeRate);
             exchangeRate.value = buildTimeRate;
           }
         }

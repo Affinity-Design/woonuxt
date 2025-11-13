@@ -35,12 +35,10 @@ export function useCachedProduct() {
         if (currentTime - cacheTimestamp < maxAge) {
           return result.product;
         } else {
-          console.log('Cached product data is stale, fetching fresh data...');
           return null;
         }
       }
     } catch (error) {
-      console.error('Error fetching product from cache:', error);
       cacheError.value = error;
       return null;
     } finally {

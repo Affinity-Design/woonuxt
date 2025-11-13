@@ -254,6 +254,15 @@ export default defineNuxtConfig({
     markdown: {
       anchorLinks: false,
     },
+    experimental: {
+      clientDB: true, // Enable client-side database to prevent 404s
+    },
+    ignores: [
+      '/product-category', // Ignore product category routes (from WordPress)
+      '/product', // Ignore product routes (from WordPress)
+      '/my-account', // Ignore account routes
+      '/checkout', // Ignore checkout routes
+    ],
   },
 
   // SEO and localization improvements for .ca site

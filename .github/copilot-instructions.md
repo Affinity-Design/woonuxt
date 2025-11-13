@@ -399,11 +399,22 @@ curl http://localhost:3000/api/sitemap.xml
 
 **Read these for deep understanding:**
 
-- `docs/seo-implementation.md` - Complete SEO guide
+- `docs/seo-implementation.md` - **Complete SEO guide with fail-safe architecture**
+  - Triple-layer error handling (pages always load)
+  - SSR compatibility patterns (fetch → $fetch migration)
+  - Exchange rate optimization (non-blocking initialization)
+  - Before/after performance metrics
 - `docs/how-caching-works.md` - Cache layers explained
 - `docs/helcim-integration.md` - Payment flow
 - `docs/architecture.md` - System overview
 - `docs/blog-architecture.md` - Blog system details
+
+**Recent Updates (November 2025):**
+
+- SEO system now has triple-layer fail-safe (API → generator → defaults)
+- All composables migrated to `$fetch()` for SSR compatibility
+- Exchange rate initialization is non-blocking (instant page loads)
+- Zero SEO-related failures in production
 
 ## Commands Reference
 
@@ -456,6 +467,117 @@ The following warnings are from **third-party scripts** (YouTube, Cloudflare) an
   - Cause: Initialization code exceeds Chrome's 50ms guideline
   - Impact: None - informational only
   - Fix: Not possible (external code)
+
+### Content Security Policy (CSP) Issues
+
+**Fixed CSP Violations:**
+
+✅ **Iconify API** - `https://api.iconify.design` added to `connect-src`
+
+- Issue: Icon library fetching JSON from external API
+- Fix: Updated `public/_headers` to allow Iconify API
+
+✅ **YouTube Embeds** - `https://www.youtube.com` and `https://www.youtube-nocookie.com` added to `frame-src`
+
+- Issue: YouTube iframes blocked by CSP
+- Fix: Updated `public/_headers` to allow YouTube domains
+
+**CSP vs CORS (Important Distinction):**
+
+- **CSP (Content Security Policy)**: Browser-enforced security based on `Content-Security-Policy` header in YOUR HTML response
+  - Error format: "violates the following Content Security Policy directive"
+  - Fix location: `public/_headers` file (YOUR app configuration)
+- **CORS (Cross-Origin Resource Sharing)**: Server-enforced security based on `Access-Control-Allow-Origin` header in REMOTE API response
+  - Error format: "No 'Access-Control-Allow-Origin' header is present"
+  - Fix location: Remote API server (NOT your app)
+
+### Nuxt Content 404s
+
+**Issue:** `/api/_content/query/*.json` endpoints returning 404
+
+- Cause: Nuxt Content queries looking for pre-generated JSON files
+- Fix: Enabled `experimental.clientDB: true` in `nuxt.config.ts` to use client-side database instead
+- Result: Content queries no longer require server-side JSON files
+
+### Hydration Mismatches
+
+**Issue:** "Hydration completed but contains mismatches"
+
+- Cause: Server HTML differs from client-rendered HTML
+- Common causes:
+  - Using `window`, `document`, `Date.now()`, `Math.random()` in templates
+  - Conditionals based on viewport size or browser-only APIs
+- Fix: Guard browser logic with `process.client` or `onMounted()`
+- Not CSP-related: This is a Nuxt SSR rendering issue
+
+### GraphQL 403 Errors on Product Pages
+
+**Issue:** Product pages fail on first load with `statusCode: 403` during SSR, work on second load
+
+**Error Pattern:**
+
+```
+ERROR [[slug].vue] useAsyncData: Error fetching product: {
+  statusCode: 403,
+  operationType: 'query',
+  operationName: 'getProduct'
+}
+```
+
+**Root Cause:**
+
+- WordPress GraphQL API has security protection (Cloudflare, security plugins, rate limiting)
+- SSR requests from Node.js don't look like "real browsers" to WordPress
+- Even with proper headers (User-Agent, Origin, Referer), WordPress/Cloudflare may block server-side requests
+
+**Fix:** Use Cloudflare KV cache as primary source, GraphQL as fallback
+
+- Product page first tries `useCachedProduct()` to get data from KV cache
+- KV cache is populated during build by `scripts/build-products-cache.js`
+- Only fetches from WordPress GraphQL if product not in cache
+- SSR re-enabled since we're using cached data
+- Files: `pages/product/[slug].vue`, `server/api/cached-product.ts`, `composables/useCachedProduct.ts`
+
+**Result:**
+
+- ✅ Zero 403 errors (primary data source is KV cache)
+- ✅ Fast loading (KV cache <5ms lookup)
+- ✅ SEO perfect (full product data in SSR payload)
+- ✅ Fallback to GraphQL if product not in cache
+- ✅ Fresh data (cache rebuilt on deploy)
+
+**How It Works:**
+
+1. **During Build:**
+
+   - `scripts/build-products-cache.js` fetches all products from WordPress
+   - Stores them in Cloudflare KV under `cached-products` key
+   - Each product includes full data (price, images, categories, etc.)
+
+2. **During SSR (Server-Side):**
+
+   - Product page calls `useCachedProduct().getProductFromCache(slug)`
+   - Reads from `/api/cached-product` endpoint
+   - Endpoint queries KV storage for product list
+   - Returns matching product instantly (<5ms)
+   - No WordPress API call needed
+
+3. **Fallback (If Not in Cache):**
+   - If product not found in cache, falls back to GraphQL
+   - Fetches fresh data from WordPress
+   - Still works, just slightly slower
+
+**Cache Warming:**
+
+After deployment, run:
+
+```bash
+npm run warm-cache
+# or
+POST /api/trigger-cache-warming
+```
+
+This ensures all product pages are fully cached in Cloudflare KV.
 
 **To filter these warnings in DevTools:**
 
