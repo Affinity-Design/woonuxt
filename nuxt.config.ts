@@ -224,7 +224,26 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['nuxt-gtag', '@nuxt/content'],
+  modules: ['nuxt-gtag', '@nuxt/content', '@nuxtjs/i18n'],
+
+  // i18n configuration - Canadian locale
+  i18n: {
+    locales: [
+      {code: 'en', file: 'en.json', name: 'English (Base)', iso: 'en'},
+      {code: 'en-CA', file: 'en-CA.json', name: 'English (Canada) 🇨🇦', iso: 'en-CA'},
+      {code: 'en-US', file: 'en-US.json', name: 'English 🇺🇸', iso: 'en-US'},
+      {code: 'fr-CA', file: 'fr-CA.json', name: 'Français (Canada) 🇨🇦', iso: 'fr-CA'},
+    ],
+    langDir: './locales',
+    defaultLocale: 'en-CA',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: false,
+    compilation: {
+      strictMessage: false,
+      escapeHtml: false,
+    },
+    vueI18n: './i18n.config.ts',
+  },
 
   // Content module configuration for SEO
   content: {

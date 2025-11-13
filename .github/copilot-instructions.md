@@ -438,6 +438,33 @@ npm run build-category-cache  # Category cache only
 - **Route naming:** Products use slug, categories use `/product-category/slug`
 - **GraphQL caching:** Uses `getCachedGqlQuery` from nuxt-graphql-client
 
+## Known Console Warnings (Safe to Ignore)
+
+### External Script Violations
+
+The following warnings are from **third-party scripts** (YouTube, Cloudflare) and cannot be fixed:
+
+- `[Violation] Added non-passive event listener to a scroll-blocking 'touchstart' event`
+
+  - Source: YouTube embed player (`base.js`, `www-embed-player.js`)
+  - Cause: YouTube's player adds touch listeners for mobile interaction
+  - Impact: None - informational only
+  - Fix: Not possible (external code)
+
+- `[Violation] 'setTimeout' handler took XXms`
+  - Source: YouTube embeds, Cloudflare scripts
+  - Cause: Initialization code exceeds Chrome's 50ms guideline
+  - Impact: None - informational only
+  - Fix: Not possible (external code)
+
+**To filter these warnings in DevTools:**
+
+1. Open Console
+2. Click the filter dropdown
+3. Select "Hide violations" or add custom filter: `-Violation`
+
+These warnings do not affect site functionality or SEO.
+
 ## When Making Changes
 
 **Always test the build process:**

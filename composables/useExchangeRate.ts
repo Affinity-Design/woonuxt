@@ -10,18 +10,19 @@ let initializationAttempted = false;
 export const useExchangeRate = () => {
   const config = useRuntimeConfig();
 
-  // Initialize useState. Try build-time fallback ONLY during server/build context.
+  // Initialize useState. ALWAYS start with build-time fallback to prevent white screens
   const exchangeRate = useState<number | null>('exchangeRate', () => {
-    if (isServerContext()) {
-      const buildTimeRateRaw = config.public.buildTimeExchangeRate;
-      if (buildTimeRateRaw) {
-        const buildTimeRate = parseFloat(String(buildTimeRateRaw));
-        if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-          return buildTimeRate;
-        }
+    // Always try to use build-time fallback first (works on both server and client)
+    const buildTimeRateRaw = config.public.buildTimeExchangeRate;
+    if (buildTimeRateRaw) {
+      const buildTimeRate = parseFloat(String(buildTimeRateRaw));
+      if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
+        console.log('[useExchangeRate] Initialized with build-time fallback:', buildTimeRate);
+        return buildTimeRate;
       }
     }
-    // Default to null if not server context or no valid build-time rate
+    // Only return null as absolute last resort
+    console.warn('[useExchangeRate] No build-time fallback available!');
     return null;
   });
 
@@ -57,8 +58,8 @@ export const useExchangeRate = () => {
     // 1. Check client-side cookie FIRST (highest priority)
     let rateFromCookie: number | null = null;
     let updateTimeFromCookie: number | null = null;
-    
-    if (cookie.value && cookie.value.trim() !== '') {
+
+    if (cookie.value && typeof cookie.value === 'string' && cookie.value !== '') {
       try {
         const parsed = JSON.parse(cookie.value);
         if (parsed && typeof parsed.rate === 'number' && typeof parsed.lastUpdated === 'number') {
@@ -91,15 +92,19 @@ export const useExchangeRate = () => {
 
     // 3. Check if state already has a value (from build-time fallback via payload)
     if (exchangeRate.value !== null) {
-      console.log('[useExchangeRate] Using build-time fallback rate:', exchangeRate.value);
+      console.log('[useExchangeRate] Using build-time fallback rate immediately:', exchangeRate.value, '(fresh rate will be fetched in background)');
       lastClientUpdate.value = null; // Mark as needing eventual refresh
     } else {
-      console.log('[useExchangeRate] No cached data found');
+      console.warn('[useExchangeRate] No fallback rate available - this should not happen!');
       lastClientUpdate.value = null;
     }
 
-    // 4. Trigger fetch if needed (only if no fresh cookie data)
-    fetchExchangeRate();
+    // 4. Trigger BACKGROUND fetch (non-blocking)
+    // This happens asynchronously and won't block the UI
+    // The page will render with fallback rate, then update when fresh data arrives
+    setTimeout(() => {
+      fetchExchangeRate();
+    }, 0); // Use setTimeout to ensure this runs after initial render
   };
 
   // --- Client-Side Fetch/Refresh Logic ---

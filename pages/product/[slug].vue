@@ -103,15 +103,20 @@ const {data, pending, error, refresh} = await useAsyncData(
 
 const product = computed(() => data.value);
 
-// Apply Canadian SEO when product is loaded
+// Apply Canadian SEO when product is loaded (fail-safe - never blocks page load)
 watch(
   product,
   async (newProduct) => {
     if (newProduct) {
-      await setProductSEO(newProduct);
+      try {
+        await setProductSEO(newProduct);
+      } catch (error) {
+        // Silently catch any SEO errors - never break the page for SEO
+        // The page will load with default meta tags if SEO fails
+      }
     }
   },
-  {immediate: true}
+  {immediate: true},
 );
 
 // --- Updated Price Formatting Logic ---

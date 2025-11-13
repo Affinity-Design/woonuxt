@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       if (allProductSEO && typeof allProductSEO === 'object') {
         // Data is stored as {slug: seoData} object for fast lookup
         productSEOData = (allProductSEO as any)[slug];
-        
+
         if (productSEOData) {
           console.log('[product-seo API] Using SEO data from Cloudflare KV for:', slug);
         }
@@ -31,8 +31,8 @@ export default defineEventHandler(async (event) => {
     // Fallback to local file (development)
     if (!productSEOData) {
       try {
-        const { readFileSync } = await import('fs');
-        const { resolve } = await import('path');
+        const {readFileSync} = await import('fs');
+        const {resolve} = await import('path');
         const dataPath = resolve(process.cwd(), 'data', 'product-seo-meta.json');
         const rawData = readFileSync(dataPath, 'utf8');
         const allProductSEO = JSON.parse(rawData);

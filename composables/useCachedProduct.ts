@@ -1,5 +1,5 @@
 // composables/useCachedProduct.ts
-import { ref, Ref } from "vue";
+import {ref, Ref} from 'vue';
 
 export function useCachedProduct() {
   const nuxtApp = useNuxtApp();
@@ -16,18 +16,17 @@ export function useCachedProduct() {
     }
 
     try {
-      // Try to fetch from our product cache
-      const response = await fetch("/api/cached-product", {
-        method: "POST",
+      // Try to fetch from our product cache using $fetch for SSR compatibility
+      const result = await $fetch('/api/cached-product', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ slug }),
+        body: JSON.stringify({slug}),
+        ignoreResponseError: true,
       });
 
-      const result = await response.json();
-
-      if (result.success && result.product) {
+      if (result && result.success && result.product) {
         // Check if the cached data is still fresh (e.g., less than 24 hours old)
         const cacheTimestamp = result.timestamp;
         const currentTime = Date.now();
@@ -36,12 +35,12 @@ export function useCachedProduct() {
         if (currentTime - cacheTimestamp < maxAge) {
           return result.product;
         } else {
-          console.log("Cached product data is stale, fetching fresh data...");
+          console.log('Cached product data is stale, fetching fresh data...');
           return null;
         }
       }
     } catch (error) {
-      console.error("Error fetching product from cache:", error);
+      console.error('Error fetching product from cache:', error);
       cacheError.value = error;
       return null;
     } finally {

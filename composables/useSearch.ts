@@ -1,15 +1,15 @@
 // composables/useSearch.ts
-import { ref, computed, watch, onMounted } from "vue";
-import Fuse from "fuse.js";
-import productsData from "~/data/products-list.json";
+import {ref, computed, watch, onMounted} from 'vue';
+import Fuse from 'fuse.js';
+import productsData from '~/data/products-list.json';
 
 export function useSearch() {
   const router = useRouter();
   const route = useRoute();
   const isLoading = ref(false);
-  const searchQuery = ref((route.query.search as string) || "");
+  const searchQuery = ref((route.query.search as string) || '');
   const searchResults = ref<any[]>([]);
-  const isShowingSearch = useState("isShowingSearch", () => false);
+  const isShowingSearch = useState('isShowingSearch', () => false);
 
   let fuseInstance: Fuse<any> | null = null;
 
@@ -20,10 +20,7 @@ export function useSearch() {
       const hostname = window.location.hostname;
       const port = window.location.port;
       // Local environment check - localhost or 127.0.0.1, typically on port 3000
-      return (
-        (hostname === "localhost" || hostname === "127.0.0.1") &&
-        port === "3000"
-      );
+      return (hostname === 'localhost' || hostname === '127.0.0.1') && port === '3000';
     }
     return false;
   };
@@ -44,7 +41,7 @@ export function useSearch() {
           if (Array.isArray(productsData)) {
             products = productsData;
           } else {
-            throw new Error("Imported JSON data is not an array");
+            throw new Error('Imported JSON data is not an array');
           }
         } catch (localError) {
           // Use mock data as fallback
@@ -52,16 +49,17 @@ export function useSearch() {
         }
       } else {
         // PRODUCTION ENVIRONMENT: Use KV store via API endpoint
-        const response = await fetch("/api/search-products");
+        products = await $fetch('/api/search-products', {
+          // Ignore errors and use empty array as fallback
+          ignoreResponseError: true,
+        }).catch(() => []);
 
-        if (!response.ok) {
+        if (!Array.isArray(products) || products.length === 0) {
           searchResults.value = [];
           fuseInstance = null;
           isLoading.value = false;
           return;
         }
-
-        products = await response.json();
       }
 
       // Validate products data structure
@@ -74,18 +72,11 @@ export function useSearch() {
 
       if (products.length === 0) {
       } else {
-        console.log(
-          `[useSearch] Successfully loaded ${products.length} products for search.`
-        );
+        console.log(`[useSearch] Successfully loaded ${products.length} products for search.`);
       }
 
       fuseInstance = new Fuse(products, {
-        keys: [
-          "name",
-          "sku",
-          "shortDescription",
-          "productCategories.nodes.name",
-        ],
+        keys: ['name', 'sku', 'shortDescription', 'productCategories.nodes.name'],
         threshold: 0.3,
         ignoreLocation: true,
         includeScore: true,
@@ -137,27 +128,23 @@ export function useSearch() {
     searchQuery.value = query; // This will trigger the watcher
 
     if (query) {
-      router.push({ query: { ...route.query, search: query } });
+      router.push({query: {...route.query, search: query}});
     } else {
-      const queryParams = { ...route.query };
+      const queryParams = {...route.query};
       delete queryParams.search;
-      router.push({ query: queryParams });
+      router.push({query: queryParams});
     }
   };
 
   const clearSearch = () => {
-    setSearchQuery("");
+    setSearchQuery('');
   };
 
   const toggleSearch = () => {
     isShowingSearch.value = !isShowingSearch.value;
     if (isShowingSearch.value && !fuseInstance) {
       initializeSearchEngine();
-    } else if (
-      isShowingSearch.value &&
-      searchQuery.value &&
-      searchResults.value.length === 0
-    ) {
+    } else if (isShowingSearch.value && searchQuery.value && searchResults.value.length === 0) {
       performSearch();
     }
   };
@@ -165,11 +152,11 @@ export function useSearch() {
   watch(
     () => route.query.search,
     (newQuery) => {
-      const currentRouteQuery = (newQuery as string) || "";
+      const currentRouteQuery = (newQuery as string) || '';
       if (currentRouteQuery !== searchQuery.value) {
         searchQuery.value = currentRouteQuery; // Update internal state, watcher on searchQuery will call performSearch
       }
-    }
+    },
   );
 
   watch(searchQuery, (newSearchText) => {
@@ -190,20 +177,20 @@ export function useSearch() {
   const generateMockProducts = () => {
     const mockProducts = [
       {
-        id: "mock-1",
-        name: "Mock Product 1",
-        slug: "mock-product-1",
-        price: "$19.99",
-        sku: "MOCK001",
-        shortDescription: "This is a sample product for testing",
+        id: 'mock-1',
+        name: 'Mock Product 1',
+        slug: 'mock-product-1',
+        price: '$19.99',
+        sku: 'MOCK001',
+        shortDescription: 'This is a sample product for testing',
       },
       {
-        id: "mock-2",
-        name: "Mock Product 2",
-        slug: "mock-product-2",
-        price: "$29.99",
-        sku: "MOCK002",
-        shortDescription: "Another sample product for testing",
+        id: 'mock-2',
+        name: 'Mock Product 2',
+        slug: 'mock-product-2',
+        price: '$29.99',
+        sku: 'MOCK002',
+        shortDescription: 'Another sample product for testing',
       },
     ];
     return mockProducts;

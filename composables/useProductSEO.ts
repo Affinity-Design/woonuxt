@@ -36,25 +36,33 @@ export const useProductSEO = () => {
   /**
    * Load pre-generated product SEO metadata
    * This data is generated at build time by build-sitemap.js and stored in Cloudflare KV
+   *
+   * FAIL-SAFE: This function will NEVER throw errors. It always returns null on failure
+   * to ensure the product page loads even if SEO data cannot be fetched.
    */
   const loadProductSEOData = async (slug: string): Promise<ProductSEOData | null> => {
+    // Early return with null - never let this break the page
+    if (!slug || typeof slug !== 'string') {
+      return null;
+    }
+
     try {
-      // Try to fetch from API endpoint (reads from KV in production, local file in dev)
-      const response = await fetch(`/api/product-seo/${slug}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.slug === slug) {
-          console.log('[useProductSEO] Loaded pre-generated SEO data for:', slug);
-          return data;
-        }
+      // Use $fetch for SSR-compatible API calls (handles relative URLs automatically)
+      const data = await $fetch<ProductSEOData>(`/api/product-seo/${slug}`, {
+        // Ignore response errors (404, 500, etc)
+        ignoreResponseError: true,
+      });
+
+      if (data && data.slug === slug) {
+        console.log('[useProductSEO] Loaded pre-generated SEO data for:', slug);
+        return data;
       }
-      
-      // If not found or error, return null to trigger fallback
-      console.log('[useProductSEO] No pre-generated SEO data found for:', slug);
+
+      // If not found, return null silently to trigger fallback
       return null;
     } catch (error) {
-      console.warn(`[useProductSEO] Could not load SEO data for product: ${slug}`, error);
+      // Silently catch ALL errors - don't even log warnings to avoid console spam
+      // The fallback generateProductSEO will handle SEO generation
       return null;
     }
   };
@@ -62,52 +70,67 @@ export const useProductSEO = () => {
   /**
    * Set SEO metadata for a product page
    * Uses pre-generated data if available, falls back to generating from product
+   *
+   * FAIL-SAFE: This function will NEVER throw errors or break the page.
+   * It gracefully handles all failures and always provides SEO metadata.
    */
   const setProductSEO = async (product: any, locale: 'en-CA' | 'fr-CA' = 'en-CA') => {
+    // Fail-safe: if no product, silently return without breaking the page
     if (!product) {
-      console.warn('setProductSEO called without product data');
       return;
     }
 
-    // Try to load pre-generated SEO data
-    const seoData = await loadProductSEOData(product.slug);
+    try {
+      // Try to load pre-generated SEO data (this is wrapped in its own try-catch)
+      const seoData = await loadProductSEOData(product.slug);
 
-    if (seoData) {
-      // Use pre-generated SEO metadata
-      canadianSEO.setCanadianSEO({
-        title: seoData.seo.title,
-        description: seoData.seo.description,
-        image: seoData.seo.image,
-        type: 'product',
-        locale: seoData.seo.locale,
-      });
+      if (seoData) {
+        // Use pre-generated SEO metadata
+        canadianSEO.setCanadianSEO({
+          title: seoData.seo.title,
+          description: seoData.seo.description,
+          image: seoData.seo.image,
+          type: 'product',
+          locale: seoData.seo.locale,
+        });
 
-      // Add product-specific structured data
-      useHead({
-        script: [
-          {
-            type: 'application/ld+json',
-            children: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Product',
-              name: product.name,
-              description: seoData.seo.description,
-              image: seoData.seo.image,
-              offers: {
-                '@type': 'Offer',
-                price: seoData.seo.price,
-                priceCurrency: 'CAD',
-                availability: seoData.seo.availability === 'in stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                url: `https://proskatersplace.ca/product/${product.slug}`,
-              },
-              category: seoData.seo.category,
-            }),
-          },
-        ],
-      });
-    } else {
-      // Generate SEO metadata from product data (fallback)
-      generateProductSEO(product, locale);
+        // Add product-specific structured data
+        useHead({
+          script: [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                name: product.name,
+                description: seoData.seo.description,
+                image: seoData.seo.image,
+                offers: {
+                  '@type': 'Offer',
+                  price: seoData.seo.price,
+                  priceCurrency: 'CAD',
+                  availability: seoData.seo.availability === 'in stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                  url: `https://proskatersplace.ca/product/${product.slug}`,
+                },
+                category: seoData.seo.category,
+              }),
+            },
+          ],
+        });
+      } else {
+        // Generate SEO metadata from product data (fallback)
+        generateProductSEO(product, locale);
+      }
+    } catch (error) {
+      // ULTIMATE FAIL-SAFE: If anything goes wrong, use the fallback generator
+      // This ensures the page ALWAYS has SEO metadata even if everything fails
+      try {
+        generateProductSEO(product, locale);
+      } catch (fallbackError) {
+        // If even the fallback fails, just silently return
+        // The page will load without custom SEO but with default meta tags
+        return;
+      }
     }
   };
 
