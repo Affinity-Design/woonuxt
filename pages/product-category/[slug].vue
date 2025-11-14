@@ -1,27 +1,22 @@
 <script lang="ts" setup>
-import {
-  defineAsyncComponent,
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onUnmounted,
-} from "vue"; // Added ref, computed, watch, onMounted, onUnmounted
-const PulseLoader = defineAsyncComponent(
-  () => import("vue-spinner/src/PulseLoader.vue")
-);
+import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from 'vue';
+const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
 // Core composables
-const { setProducts, updateProductList } = useProducts();
-const { isQueryEmpty } = useHelpers();
-const { storeSettings } = useAppConfig();
+const {setProducts, updateProductList} = useProducts();
+const {isQueryEmpty} = useHelpers();
+const {storeSettings} = useAppConfig();
 const route = useRoute();
 const nuxtApp = useNuxtApp();
 
+// SEO composables
+const {setCategorySEO} = useCategorySEO();
+
+// Category content data
+import {getCategoryContent} from '~/data/category-content';
+
 // Ensure slug is a string
-const slug = Array.isArray(route.params.slug)
-  ? route.params.slug[0]
-  : (route.params.slug as string); // Added type assertion for clarity
+const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : (route.params.slug as string);
 
 // Create a consistent cache key for this request
 const cacheKey = `category-${slug}`;
@@ -30,33 +25,33 @@ const cacheKey = `category-${slug}`;
  * Formats a slug string to a readable title
  */
 const formatSlug = (slugValue: string | string[]): string => {
-  if (!slugValue) return "";
+  if (!slugValue) return '';
   if (Array.isArray(slugValue)) {
-    slugValue = slugValue.join("-");
+    slugValue = slugValue.join('-');
   }
-  let title = slugValue.toString().replace(/-/g, " ");
-  title = title.replace(/pa /g, ""); // Consider if "pa " removal is always desired or specific
+  let title = slugValue.toString().replace(/-/g, ' ');
+  title = title.replace(/pa /g, '');
   title = title
-    .split(" ")
+    .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
+    .join(' ');
   return title;
 };
 
 const isDesktop = ref(false);
 const categoryTitle = computed(() => formatSlug(slug));
 
+// Get SEO content for this category
+const categoryContent = getCategoryContent(slug);
+
 // Get product count first
 // Using a default value if countResult.data.value or products or found is undefined
-const countResult = await useAsyncGql("getProductsTotal", { slug });
-const getCount =
-  slug === "clearance-items"
-    ? 255
-    : countResult.data.value?.products?.found || 150; // Default to 150 if not found
+const countResult = await useAsyncGql('getProductsTotal', {slug});
+const getCount = slug === 'clearance-items' ? 255 : countResult.data.value?.products?.found || 150; // Default to 150 if not found
 const productCount = ref(getCount);
 
 // Use Nuxt's useAsyncData with proper caching options
-const { data, pending, error, refresh } = await useAsyncData(
+const {data, pending, error, refresh} = await useAsyncData(
   cacheKey,
   async () => {
     console.log(`🔄 Fetching products for category: ${slug}`);
@@ -64,12 +59,10 @@ const { data, pending, error, refresh } = await useAsyncData(
     // Use GqlGetProducts directly for the data fetch
     const result = await GqlGetProducts({
       slug,
-      first: slug === "clearance-items" ? 255 : productCount.value,
+      first: slug === 'clearance-items' ? 255 : productCount.value,
     });
 
-    console.log(
-      `✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`
-    );
+    console.log(`✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`);
     return result;
   },
   {
@@ -107,7 +100,7 @@ const { data, pending, error, refresh } = await useAsyncData(
       console.log(`❌ No cached data found for ${key}`);
       return undefined;
     },
-  }
+  },
 );
 
 // Products storage for UI
@@ -118,13 +111,38 @@ watch(
   () => productsInCategory.value,
   (products) => {
     if (products && products.length > 0) {
-      console.log(
-        `📦 Setting ${products.length} products for display from initial fetch`
-      );
+      console.log(`📦 Setting ${products.length} products for display from initial fetch`);
       setProducts(products); // This sets the base list of products for the category
     }
   },
-  { immediate: true }
+  {immediate: true},
+);
+
+// Apply comprehensive SEO for category
+watch(
+  () => [productsInCategory.value, productCount.value],
+  async ([products, count]) => {
+    if (products && products.length > 0 && count > 0) {
+      await setCategorySEO({
+        slug,
+        name: categoryTitle.value,
+        description: categoryContent?.topDescription,
+        products: products.map((p: any) => ({
+          name: p.name,
+          slug: p.slug,
+          image: p.image,
+          regularPrice: p.regularPrice,
+          salePrice: p.salePrice,
+          onSale: p.onSale,
+          averageRating: p.averageRating,
+          reviewCount: p.reviewCount,
+        })),
+        totalProducts: count,
+        locale: 'en-CA',
+      });
+    }
+  },
+  {immediate: true},
 );
 
 // ---------------------------------------------------------------------------
@@ -156,28 +174,20 @@ onMounted(() => {
   // because the watcher above is disabled.
   if (!isQueryEmpty.value) {
     // isQueryEmpty likely checks for any query params
-    console.log(
-      "[Category Page] onMounted: Query is not empty, calling updateProductList for initial filters/sort."
-    );
+    console.log('[Category Page] onMounted: Query is not empty, calling updateProductList for initial filters/sort.');
     updateProductList(); // This will apply filters/sorting based on URL params at load time.
     // If search terms are part of these initial params, they might be applied once.
   } else {
-    console.log(
-      "[Category Page] onMounted: Query is empty, no initial updateProductList call based on query."
-    );
+    console.log('[Category Page] onMounted: Query is empty, no initial updateProductList call based on query.');
   }
 
   // Check viewport for desktop state
   isDesktop.value = window.innerWidth >= 768;
-  window.addEventListener("resize", handleResize);
+  window.addEventListener('resize', handleResize);
 
   // Log cache status for debugging
-  console.log(
-    `[Category Page] Mount: Cache status: ${pending.value ? "pending" : error.value ? "error" : "ready"}`
-  );
-  console.log(
-    `[Category Page] Mount: Found ${productsInCategory.value.length} products initially.`
-  );
+  console.log(`[Category Page] Mount: Cache status: ${pending.value ? 'pending' : error.value ? 'error' : 'ready'}`);
+  console.log(`[Category Page] Mount: Found ${productsInCategory.value.length} products initially.`);
 });
 
 function handleResize() {
@@ -186,19 +196,11 @@ function handleResize() {
 
 // Clean up
 onUnmounted(() => {
-  window.removeEventListener("resize", handleResize);
+  window.removeEventListener('resize', handleResize);
 });
 
-// Set page metadata
-useHead({
-  title: categoryTitle.value,
-  meta: [
-    {
-      name: "description",
-      content: `Browse our ${categoryTitle.value} collection`,
-    },
-  ],
-});
+// Note: SEO meta tags are now handled by setCategorySEO composable
+// which applies Canadian SEO, structured data, and comprehensive meta tags
 </script>
 
 <template>
@@ -212,45 +214,32 @@ useHead({
 
     <div v-else-if="error" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error.message || "Failed to load products" }}
+        {{ error.message || 'Failed to load products' }}
       </div>
-      <button
-        @click="refresh"
-        class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark"
-      >
-        Try Again
-      </button>
+      <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark">Try Again</button>
     </div>
 
-    <div
-      v-else-if="productsInCategory.length > 0"
-      class="container py-4 md:py-8"
-    >
+    <div v-else-if="productsInCategory.length > 0" class="container pt-4 md:pt-8 pb-4 md:pb-8">
+      <!-- SEO-Optimized Category Header Content (Above fold) - NO BENEFITS -->
+      <CategoryContent v-if="categoryContent" :top-description="categoryContent.topDescription" :subcategories="categoryContent.subcategories" class="mb-8" />
+
       <div class="flex flex-col md:flex-row items-start md:gap-8">
-        <div
-          v-if="storeSettings.showFilters === true"
-          class="w-full md:w-64 flex-shrink-0 md:mr-8"
-        >
+        <div v-if="storeSettings.showFilters === true" class="w-full md:w-64 flex-shrink-0 md:mr-8">
           <Filters :hide-categories="true" />
         </div>
 
         <div class="flex-1 w-full">
-          <div class="flex flex-row items-center justify-between">
-            <h1
-              class="text-2xl md:text-3xl font-bold text-gray-900 font-system tracking-tight"
-            >
-              {{ categoryTitle }}
-            </h1>
+          <div class="flex flex-row items-center justify-between mb-4">
+            <div>
+              <h1 class="text-2xl md:text-3xl font-bold text-gray-900 font-system tracking-tight">
+                {{ categoryTitle }}
+              </h1>
+              <p class="text-sm text-gray-600 mt-1">{{ productCount }} products available in Canada</p>
+            </div>
 
             <div class="flex items-center ml-auto">
-              <OrderByDropdown
-                vif="storeSettings.showOrderByDropdown === true"
-                class="ml-auto"
-              />
-              <ShowFilterTrigger
-                v-if="storeSettings.showFilters && !isDesktop"
-                class="md:hidden ml-2"
-              />
+              <OrderByDropdown v-if="storeSettings.showOrderByDropdown === true" class="ml-auto" />
+              <ShowFilterTrigger v-if="storeSettings.showFilters && !isDesktop" class="md:hidden ml-2" />
             </div>
           </div>
 
@@ -261,6 +250,17 @@ useHead({
           <ProductGrid :count="productCount" :slug="slug" />
         </div>
       </div>
+
+      <!-- Benefits Section (After Products) -->
+      <CategoryContent v-if="categoryContent" :benefits="categoryContent.benefits" class="mt-12" />
+
+      <!-- SEO-Optimized Category Bottom Content (Below fold) -->
+      <CategoryContent
+        v-if="categoryContent"
+        :bottom-description="categoryContent.bottomDescription"
+        :faqs="categoryContent.faqs"
+        :buying-guide="categoryContent.buyingGuide"
+        class="mt-12" />
     </div>
 
     <div v-else class="container py-8 text-center">
@@ -271,9 +271,7 @@ useHead({
 
 <style scoped>
 .font-system {
-  font-family:
-    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @media (max-width: 768px) {
