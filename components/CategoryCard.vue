@@ -70,7 +70,7 @@ const imageSrc = computed(() => {
 });
 
 // Handle image error
-const handleImageError = (event) => {
+const handleImageError = () => {
   // Only change the source if we haven't already errored
   if (!hasErrored.value) {
     hasErrored.value = true;
@@ -91,7 +91,10 @@ const handleImageError = (event) => {
       :alt="node.name"
       :title="node.name"
       :loading="imageLoading"
-      :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
+      :sizes="`(max-width: 768px) 110px, 220px`"
+      format="webp"
+      quality="85"
+      fit="cover"
       placeholder
       placeholder-class="blur-xl"
       @error="handleImageError" />

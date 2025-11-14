@@ -70,6 +70,30 @@ export default defineNuxtConfig({
     },
   },
 
+  experimental: {
+    payloadExtraction: true,
+  },
+
+  // Performance optimizations
+  vite: {
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split vendor chunks
+            if (id.includes('node_modules')) {
+              if (id.includes('stripe')) return 'stripe';
+              if (id.includes('vue')) return 'vue';
+              if (id.includes('nuxt')) return 'nuxt';
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
+  },
+
   devtools: {enabled: true},
   ssr: true,
 
@@ -104,7 +128,12 @@ export default defineNuxtConfig({
         // For large product catalogs, rely on KV cache instead
         ...(productRoutesToPrerender && productRoutesToPrerender.length < 500 ? productRoutesToPrerender : []),
       ],
-      ignore: ['/checkout/**', '/cart', '/account/**'],
+      ignore: [
+        '/checkout/**',
+        '/cart',
+        '/account/**',
+        '/api/_content/**', // Ignore Nuxt Content API routes
+      ],
       concurrency: 10,
       interval: 1000,
       failOnError: false,
@@ -167,6 +196,16 @@ export default defineNuxtConfig({
       ],
       link: [
         {rel: 'canonical', href: 'https://proskatersplace.ca'},
+        // Preconnect to critical origins
+        {
+          rel: 'preconnect',
+          href: 'https://proskatersplace.com',
+          crossorigin: 'anonymous',
+        },
+        {
+          rel: 'dns-prefetch',
+          href: 'https://static.cloudflareinsights.com',
+        },
         // Hreflang for international targeting
         {
           rel: 'alternate',
@@ -225,6 +264,51 @@ export default defineNuxtConfig({
   },
 
   modules: ['nuxt-gtag', '@nuxt/content', '@nuxtjs/i18n'],
+
+  // Nuxt Image optimization configuration
+  image: {
+    quality: 80,
+    format: ['webp', 'avif', 'jpeg'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+    densities: [1, 2],
+    domains: ['proskatersplace.com', 'proskatersplace.ca'],
+    alias: {
+      wordpress: process.env.BASE_URL || 'https://proskatersplace.com',
+    },
+    presets: {
+      category: {
+        modifiers: {
+          format: 'webp',
+          quality: 85,
+          width: 220,
+          height: 248,
+          fit: 'cover',
+        },
+      },
+      hero: {
+        modifiers: {
+          format: 'webp',
+          quality: 80,
+          width: 1920,
+          fit: 'cover',
+        },
+      },
+      product: {
+        modifiers: {
+          format: 'webp',
+          quality: 85,
+          fit: 'contain',
+        },
+      },
+    },
+  },
 
   // i18n configuration - Canadian locale
   i18n: {

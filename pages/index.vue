@@ -118,11 +118,19 @@ useSeoMeta({
     </section>
 
     <!-- Featured Product Section - Inline Skates -->
-    <section class="relative bg-cover bg-bottom text-white my-16 sm:my-24" :style="{backgroundImage: `url('/images/inline-skates.jpg')`}">
+    <section class="relative text-white my-16 sm:my-24 h-[400px] sm:h-[500px] md:h-[550px] overflow-hidden">
+      <!-- Optimized background image -->
+      <img
+        src="/images/inline-skates.jpg"
+        alt="Inline Skates Toronto"
+        class="absolute inset-0 w-full h-full object-cover object-bottom"
+        width="1920"
+        height="550"
+        loading="lazy" />
       <!-- Overlay for better text readability -->
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
 
-      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
+      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-full px-6 py-12 lg:px-8">
         <div class="max-w-xl">
           <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5">Best Inline Skates Toronto</h2>
           <p class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed">
@@ -164,11 +172,19 @@ useSeoMeta({
     </section>
 
     <!-- Featured Product Section - Roller Skates -->
-    <section class="relative bg-cover bg-bottom text-white my-16 sm:my-24" :style="{backgroundImage: `url('/images/roller-skates.jpg')`}">
+    <section class="relative text-white my-16 sm:my-24 h-[400px] sm:h-[500px] md:h-[550px] overflow-hidden">
+      <!-- Optimized background image -->
+      <img
+        src="/images/roller-skates.jpg"
+        alt="Roller Skates Toronto"
+        class="absolute inset-0 w-full h-full object-cover object-bottom"
+        width="1920"
+        height="550"
+        loading="lazy" />
       <!-- Overlay for better text readability -->
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
 
-      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-[400px] sm:h-[500px] md:h-[550px] px-6 py-12 lg:px-8">
+      <div class="container mx-auto relative z-10 flex flex-col justify-center items-start h-full px-6 py-12 lg:px-8">
         <div class="max-w-xl">
           <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-5">Best Roller Skates Toronto</h2>
           <p class="text-base sm:text-lg text-gray-200 mb-6 sm:mb-8 leading-relaxed">

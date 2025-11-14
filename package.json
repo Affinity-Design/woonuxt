@@ -25,6 +25,7 @@
     "rebuild-cache": "npm run setup-cache && node scripts/cache-warmer.js all --force",
     "postdeploy": "node scripts/post-deploy.js",
     "debug:cache": "node scripts/debug-cache.js",
+    "optimize-images": "node scripts/optimize-images.js",
     "preinstall": "npx only-allow npm"
   },
   "dependencies": {
@@ -56,7 +57,8 @@
   },
   "devDependencies": {
     "@iconify-json/ion": "^1.2.2",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "sharp": "^0.32.6"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.34.8"
