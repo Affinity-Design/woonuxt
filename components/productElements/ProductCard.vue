@@ -65,7 +65,6 @@ const isVariableProduct = computed(() => {
       </div>
     </NuxtLink>
     <div class="p-2">
-      <StarRating v-if="storeSettings.showReviews" :rating="node.averageRating" :count="node.reviewCount" />
       <NuxtLink v-if="node.slug" :to="`/product/${decodeURIComponent(node.slug)}`" :title="node.name">
         <h2 class="mb-2 font-semibold leading-tight text-gray-900 group-hover:text-primary transition-colors">
           {{ node.name }}
@@ -78,6 +77,8 @@ const isVariableProduct = computed(() => {
         :is-variable="isVariableProduct"
         :show-as-range="false"
         :show-both-prices="false" />
+      <div class="p-1"></div>
+      <StarRating v-if="storeSettings.showReviews" :rating="node.averageRating" :count="node.reviewCount" />
     </div>
   </div>
 </template>

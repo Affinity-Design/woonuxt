@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { ref, computed, watch, PropType, toRaw } from "vue";
+import {ref, computed, watch, PropType, toRaw} from 'vue';
 
 // Import StockStatusEnum as a value for runtime access.
-import { StockStatusEnum } from "#woo";
+import {StockStatusEnum} from '#woo';
 import type {
   Variation as WooVariation,
   Attribute as WooProductAttribute,
   VariationAttribute as WooVariationAttribute,
   TermNode, // Assuming TermNode is exported or define it if not
-} from "#woo";
+} from '#woo';
 
 // --- Local Type Definitions ---
 // Define TermNode if not properly exported/typed by #woo, e.g.:
@@ -51,10 +51,7 @@ const props = defineProps({
 
 // --- Component Emits ---
 const emit = defineEmits<{
-  (
-    e: "attrs-changed",
-    selectedAttributes: { name: string; value: string }[]
-  ): void;
+  (e: 'attrs-changed', selectedAttributes: {name: string; value: string}[]): void;
 }>();
 
 // --- Internal State ---
@@ -65,95 +62,61 @@ const selectedOptions = ref<Record<string, string>>({}); // Stores selected slug
 /**
  * Formats a slug for display according to specified rules:
  * 1. Capitalizes "eu" to "EU".
- * 2. Inserts decimals for patterns like "N-D" -> "N.D" (e.g., "35-5eu" -> "35.5EU").
- * 3. Inserts decimals for patterns like "XY5" -> "XY.5" within segments (e.g., "36-425eu" -> "36-42.5EU").
+ * 2. Capitalizes "adjustable" to "Adjustable".
+ * 3. For shoe sizes: Inserts decimals for patterns like "N-5" -> "N.5" (e.g., "43-5" -> "43.5").
+ * 4. DOES NOT insert decimals for size ranges (e.g., "41-28-32" stays "41-28-32").
+ * 5. Handles formats: "28-32EU", "41-28-32EUadjustable", "43-5eu", etc.
  * @param slug The original slug string.
  */
 const formatSlugForDisplayWorkaround = (slug: string): string => {
-  if (!slug) return "";
+  if (!slug) return '';
 
-  let formattedSlug = slug.toLowerCase();
+  let formattedSlug = slug;
 
-  // Step 1: Handle cases like "N-D" -> "N.D" where D is a single digit not followed by another digit.
-  // This specifically targets hyphens followed by a single digit.
-  // Example: "43-5-44-5eu" -> "43.5-44.5eu", "35-5eu" -> "35.5eu"
-  formattedSlug = formattedSlug.replace(/(\d+)-(\d)(?![0-9])/g, "$1.$2");
+  // Detect if this is a size range pattern (multiple hyphens with numbers)
+  // Pattern: XX-YY-ZZ or XX-YY (adjustable sizes)
+  // Examples: "41-28-32euadjustable", "28-32eu", "69-33-37euadjustable"
+  const isSizeRange = /^\d+-\d+(-\d+)?/i.test(formattedSlug);
 
-  // Step 2: Handle cases like "XYZ" -> "XY.Z" if Z is 5, for segments.
-  // This is to address "36-425eu" -> "36-42.5eu" and "25-36-425euadjustable" -> "25-36-42.5euadjustable".
-  // It processes parts of the slug that are separated by hyphens.
-  const parts = formattedSlug.split("-");
-  const processedParts = parts.map((part) => {
-    // If the part already contains a decimal (from Step 1), leave it.
-    if (part.includes(".")) return part;
+  if (!isSizeRange) {
+    // Only apply decimal formatting for single shoe sizes with half sizes
+    // Pattern: "43-5eu" -> "43.5EU", "35-5" -> "35.5"
+    formattedSlug = formattedSlug.replace(/(\d+)-5(eu|$)/gi, '$1.5$2');
+  }
 
-    // Try to match a numeric prefix and any following non-numeric suffix (like 'eu', 'adjustable')
-    const numericPartMatch = part.match(/^(\d+)(.*)$/);
-    if (numericPartMatch) {
-      let numStr = numericPartMatch[1]; // e.g., "425"
-      const restOfPart = numericPartMatch[2]; // e.g., "eu", "euadjustable", or ""
+  // Capitalize "EU"
+  formattedSlug = formattedSlug.replace(/eu/gi, 'EU');
 
-      // If the numeric string has at least two digits and ends with '5',
-      // insert a decimal before the '5'. Handles "425" -> "42.5".
-      // Does not affect "35" -> "3.5" if "35" is a whole segment (Step 1 handles "X-5").
-      // Does not affect "5" if "5" is a whole segment.
-      if (numStr.length >= 2 && numStr.endsWith("5")) {
-        const charBeforeLast = numStr.charAt(numStr.length - 2);
-        // Ensure the character before '5' is also a digit (e.g., "X5", "XX5")
-        if (charBeforeLast >= "0" && charBeforeLast <= "9") {
-          numStr = numStr.slice(0, -1) + "." + numStr.slice(-1);
-        }
-      }
-      return numStr + restOfPart;
-    }
-    return part; // Not a primarily numeric part, or doesn't fit the pattern for this step
-  });
-  formattedSlug = processedParts.join("-");
-
-  // Step 3: Capitalize "eu" to "EU" globally
-  formattedSlug = formattedSlug.replace(/eu/g, "EU");
+  // Capitalize "Adjustable"
+  formattedSlug = formattedSlug.replace(/adjustable/gi, 'Adjustable');
 
   return formattedSlug;
 };
 
 const normalizeAttributeName = (name?: string): string => {
-  if (!name) return "";
+  if (!name) return '';
   const lowerName = name.toLowerCase().trim();
   const productLevelAttribute = props.attributes.find((attr) => {
     const attrNameLower = attr.name?.toLowerCase().trim();
     if (!attrNameLower) return false;
-    return (
-      attrNameLower === lowerName ||
-      attrNameLower === `pa_${lowerName}` ||
-      (lowerName.startsWith("pa_") && attrNameLower === lowerName.substring(3))
-    );
+    return attrNameLower === lowerName || attrNameLower === `pa_${lowerName}` || (lowerName.startsWith('pa_') && attrNameLower === lowerName.substring(3));
   });
   if (productLevelAttribute?.name) return productLevelAttribute.name;
-  return lowerName.startsWith("pa_") ? lowerName : `pa_${lowerName}`;
+  return lowerName.startsWith('pa_') ? lowerName : `pa_${lowerName}`;
 };
 
-const isOptionAvailable = (
-  attributeNameToEvaluate: string,
-  optionSlugToEvaluate: string
-): boolean => {
+const isOptionAvailable = (attributeNameToEvaluate: string, optionSlugToEvaluate: string): boolean => {
   if (!props.variations || props.variations.length === 0) return false;
-  const normalizedAttrNameToEvaluate = normalizeAttributeName(
-    attributeNameToEvaluate
-  );
+  const normalizedAttrNameToEvaluate = normalizeAttributeName(attributeNameToEvaluate);
 
   return props.variations.some((variation) => {
     const stockStatusValue = variation.stockStatus;
-    const isVariationInStock =
-      stockStatusValue?.toUpperCase() === StockStatusEnum.IN_STOCK ||
-      stockStatusValue?.toUpperCase() === StockStatusEnum.ON_BACKORDER;
+    const isVariationInStock = stockStatusValue?.toUpperCase() === StockStatusEnum.IN_STOCK || stockStatusValue?.toUpperCase() === StockStatusEnum.ON_BACKORDER;
     if (!isVariationInStock) return false;
 
     let variationContainsOptionToEvaluate = false;
     variation.attributes?.nodes?.forEach((varAttr) => {
-      if (
-        normalizeAttributeName(varAttr.name) === normalizedAttrNameToEvaluate &&
-        varAttr.value?.toLowerCase() === optionSlugToEvaluate.toLowerCase()
-      ) {
+      if (normalizeAttributeName(varAttr.name) === normalizedAttrNameToEvaluate && varAttr.value?.toLowerCase() === optionSlugToEvaluate.toLowerCase()) {
         variationContainsOptionToEvaluate = true;
       }
     });
@@ -161,15 +124,10 @@ const isOptionAvailable = (
 
     for (const selectedNormalizedAttrName in selectedOptions.value) {
       if (selectedNormalizedAttrName === normalizedAttrNameToEvaluate) continue;
-      const selectedValueForOtherAttr =
-        selectedOptions.value[selectedNormalizedAttrName];
+      const selectedValueForOtherAttr = selectedOptions.value[selectedNormalizedAttrName];
       let variationMatchesOtherSelectedAttr = false;
       variation.attributes?.nodes?.forEach((varAttr) => {
-        if (
-          normalizeAttributeName(varAttr.name) === selectedNormalizedAttrName &&
-          varAttr.value?.toLowerCase() ===
-            selectedValueForOtherAttr.toLowerCase()
-        ) {
+        if (normalizeAttributeName(varAttr.name) === selectedNormalizedAttrName && varAttr.value?.toLowerCase() === selectedValueForOtherAttr.toLowerCase()) {
           variationMatchesOtherSelectedAttr = true;
         }
       });
@@ -180,20 +138,15 @@ const isOptionAvailable = (
 };
 
 // --- Event Handlers ---
-const handleOptionSelect = (
-  productLevelAttributeName: string,
-  optionSlug: string
-) => {
+const handleOptionSelect = (productLevelAttributeName: string, optionSlug: string) => {
   const normalizedNameKey = normalizeAttributeName(productLevelAttributeName);
-  const newSelectedOptions = { ...toRaw(selectedOptions.value) };
+  const newSelectedOptions = {...toRaw(selectedOptions.value)};
   if (newSelectedOptions[normalizedNameKey] !== optionSlug) {
     newSelectedOptions[normalizedNameKey] = optionSlug;
   }
   selectedOptions.value = newSelectedOptions;
-  const selectedAttributesForEmit = Object.entries(selectedOptions.value).map(
-    ([name, value]) => ({ name, value })
-  );
-  emit("attrs-changed", selectedAttributesForEmit);
+  const selectedAttributesForEmit = Object.entries(selectedOptions.value).map(([name, value]) => ({name, value}));
+  emit('attrs-changed', selectedAttributesForEmit);
 };
 
 // --- Computed Properties ---
@@ -203,9 +156,7 @@ const displayAttributes = computed(() => {
   }
   return props.attributes.map((productAttribute) => {
     const originalAttributeName = productAttribute.name;
-    const normalizedForSelectionKey = normalizeAttributeName(
-      originalAttributeName
-    );
+    const normalizedForSelectionKey = normalizeAttributeName(originalAttributeName);
 
     const termNameMap = new Map<string, string>();
     if (productAttribute.terms?.nodes) {
@@ -226,9 +177,7 @@ const displayAttributes = computed(() => {
         displayName = formatSlugForDisplayWorkaround(optionSlug); // Apply workaround
       }
 
-      const isSel =
-        selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() ===
-        lowerOptionSlug;
+      const isSel = selectedOptions.value[normalizedForSelectionKey]?.toLowerCase() === lowerOptionSlug;
       return {
         value: optionSlug,
         displayName: displayName,
@@ -253,14 +202,9 @@ watch(
       newAttributes.forEach((attr) => {
         const originalAttrName = attr.name;
         const normalizedAttrNameKey = normalizeAttributeName(originalAttrName);
-        const defaultAttr = newDefaultAttributes?.find(
-          (da) => normalizeAttributeName(da.name) === normalizedAttrNameKey
-        );
+        const defaultAttr = newDefaultAttributes?.find((da) => normalizeAttributeName(da.name) === normalizedAttrNameKey);
 
-        if (
-          defaultAttr?.value &&
-          isOptionAvailable(originalAttrName, defaultAttr.value)
-        ) {
+        if (defaultAttr?.value && isOptionAvailable(originalAttrName, defaultAttr.value)) {
           initialSelections[normalizedAttrNameKey] = defaultAttr.value;
         } else {
           const currentSelectionsForAvailabilityCheck = {
@@ -283,13 +227,11 @@ watch(
     }
     selectedOptions.value = initialSelections;
     if (Object.keys(initialSelections).length > 0) {
-      const selectedAttributesForEmit = Object.entries(initialSelections).map(
-        ([name, value]) => ({ name, value })
-      );
-      emit("attrs-changed", selectedAttributesForEmit);
+      const selectedAttributesForEmit = Object.entries(initialSelections).map(([name, value]) => ({name, value}));
+      emit('attrs-changed', selectedAttributesForEmit);
     }
   },
-  { immediate: true, deep: true }
+  {immediate: true, deep: true},
 );
 
 const t = (key: string, fallback: string): string => fallback; // Placeholder
@@ -298,32 +240,20 @@ const t = (key: string, fallback: string): string => fallback; // Placeholder
 <template>
   <div class="space-y-5 attribute-selections">
     <template v-for="attribute in displayAttributes" :key="attribute.name">
-      <div
-        v-if="attribute.displayOptions.some((opt) => opt.available)"
-        class="attribute-group"
-      >
+      <div v-if="attribute.displayOptions.some((opt) => opt.available)" class="attribute-group">
         <h3 class="text-sm font-semibold text-gray-800 mb-2">
           {{ attribute.label || attribute.name }}:
           <span class="text-gray-600 font-normal ml-1">
             {{
               selectedOptions[attribute.keyForSelection]
-                ? attribute.displayOptions.find(
-                    (opt) =>
-                      opt.value.toLowerCase() ===
-                      selectedOptions[attribute.keyForSelection]?.toLowerCase()
-                  )?.displayName ||
-                  formatSlugForDisplayWorkaround(
-                    selectedOptions[attribute.keyForSelection]
-                  )
-                : t("messages.shop.selectOption", "Select")
+                ? attribute.displayOptions.find((opt) => opt.value.toLowerCase() === selectedOptions[attribute.keyForSelection]?.toLowerCase())?.displayName ||
+                  formatSlugForDisplayWorkaround(selectedOptions[attribute.keyForSelection])
+                : t('messages.shop.selectOption', 'Select')
             }}
           </span>
         </h3>
         <div class="flex flex-wrap gap-2">
-          <template
-            v-for="option in attribute.displayOptions"
-            :key="option.value"
-          >
+          <template v-for="option in attribute.displayOptions" :key="option.value">
             <button
               v-if="option.available"
               type="button"
@@ -335,8 +265,7 @@ const t = (key: string, fallback: string): string => fallback; // Placeholder
                   : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:bg-gray-50 focus:ring-primary-focus',
               ]"
               :aria-pressed="option.selected"
-              :aria-label="`${attribute.label || attribute.name}: ${option.displayName}`"
-            >
+              :aria-label="`${attribute.label || attribute.name}: ${option.displayName}`">
               {{ option.displayName }}
             </button>
           </template>
@@ -344,21 +273,9 @@ const t = (key: string, fallback: string): string => fallback; // Placeholder
       </div>
     </template>
     <div
-      v-if="
-        !displayAttributes ||
-        displayAttributes.length === 0 ||
-        displayAttributes.every(
-          (attr) => !attr.displayOptions.some((opt) => opt.available)
-        )
-      "
-      class="text-sm text-gray-500"
-    >
-      {{
-        t(
-          "messages.shop.noOptionsAvailable",
-          "No options available for this product."
-        )
-      }}
+      v-if="!displayAttributes || displayAttributes.length === 0 || displayAttributes.every((attr) => !attr.displayOptions.some((opt) => opt.available))"
+      class="text-sm text-gray-500">
+      {{ t('messages.shop.noOptionsAvailable', 'No options available for this product.') }}
     </div>
   </div>
 </template>

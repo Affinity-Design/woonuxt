@@ -26,7 +26,7 @@ const {t} = useI18n();
 const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
-// Initialize SEO composable
+// Initialize SEO composable with enhanced features
 const {setProductSEO} = useProductSEO();
 
 // Initialize exchange rate with error handling
@@ -103,13 +103,23 @@ const {data, pending, error, refresh} = await useAsyncData(
 
 const product = computed(() => data.value);
 
-// Apply Canadian SEO when product is loaded (fail-safe - never blocks page load)
+// Apply Canadian SEO with ENHANCED rich snippets when product is loaded
+// Includes: Product schema, Reviews, FAQs, Breadcrumbs, Video (if available)
 watch(
   product,
   async (newProduct) => {
     if (newProduct) {
       try {
-        await setProductSEO(newProduct);
+        // Apply comprehensive SEO with all rich snippets
+        await setProductSEO(newProduct, {
+          locale: 'en-CA', // or detectLocale() for bilingual support
+          includeReviews: true, // Enable review rich snippets
+          includeFAQ: true, // Enable FAQ rich snippets
+          includeVideo: false, // Set to true if product has demo video
+          // Optional: videoUrl: 'https://youtube.com/watch?v=...',
+          // Optional: videoThumbnail: '/images/video-thumb.jpg',
+          // Optional: customFAQs: [{question: '...', answer: '...'}],
+        });
       } catch (error) {
         // Silently catch any SEO errors - never break the page for SEO
         // The page will load with default meta tags if SEO fails
@@ -170,6 +180,68 @@ const displayPrice = computed(() => {
   }
   return priceString;
 });
+
+// Description expansion state
+const isDescriptionExpanded = ref(false);
+
+const fullDescription = computed(() => {
+  if (!product.value) return '';
+  return product.value.shortDescription || product.value.description || '';
+});
+
+const descriptionNeedsExpansion = computed(() => {
+  if (!product.value) return false;
+  const desc = product.value.shortDescription || product.value.description || '';
+  // Strip HTML tags to count characters accurately
+  // SSR-safe: Check if we're in browser environment
+  if (typeof document === 'undefined') {
+    // Server-side: use regex to strip HTML
+    const textContent = desc.replace(/<[^>]*>/g, '');
+    return textContent.length > 500;
+  }
+  // Client-side: use DOM parser
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = desc;
+  const textContent = tempDiv.textContent || tempDiv.innerText || '';
+  return textContent.length > 500;
+});
+
+const displayDescription = computed(() => {
+  if (!product.value) return '';
+  const desc = product.value.shortDescription || product.value.description || '';
+
+  // If expanded or description is short, show full description
+  if (isDescriptionExpanded.value || !descriptionNeedsExpansion.value) {
+    return desc;
+  }
+
+  // Strip HTML tags to count characters accurately
+  let textContent = '';
+  // SSR-safe: Check if we're in browser environment
+  if (typeof document === 'undefined') {
+    // Server-side: use regex to strip HTML
+    textContent = desc.replace(/<[^>]*>/g, '');
+  } else {
+    // Client-side: use DOM parser
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = desc;
+    textContent = tempDiv.textContent || tempDiv.innerText || '';
+  }
+
+  // Find the 500th character and truncate at the last complete word
+  let truncated = textContent.substring(0, 500);
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > 0) {
+    truncated = truncated.substring(0, lastSpace);
+  }
+
+  // Return the truncated text with ellipsis
+  return truncated + '...';
+});
+
+const toggleDescription = () => {
+  isDescriptionExpanded.value = !isDescriptionExpanded.value;
+};
 
 const quantity = ref<number>(1);
 const activeVariation = ref<Variation | null>(null);
@@ -443,62 +515,90 @@ watch(
             height="600"
             placeholder />
           <div class="lg:max-w-md xl:max-w-lg md:py-2 w-full">
-            <div class="flex justify-between mb-4">
-              <div class="flex-1">
-                <h1 class="flex flex-wrap items-center gap-2 mb-2 text-2xl font-sesmibold">
-                  {{ product.name }}
-                </h1>
-                <StarRating :rating="product.averageRating || 0" :count="product.reviewCount || 0" v-if="storeSettings.showReviews" />
-              </div>
-              <div class="text-xl font-semibold" v-if="displayPrice">
-                <span>{{ displayPrice }}</span>
-              </div>
+            <!-- Star Rating -->
+            <div class="mb-3" v-if="storeSettings.showReviews && product.reviewCount && product.reviewCount > 0">
+              <StarRating :rating="product.averageRating || 0" :count="product.reviewCount || 0" />
             </div>
-            <div class="grid gap-2 my-8 text-sm empty:hidden">
-              <div v-if="!isExternalProduct" class="flex items-center gap-2">
-                <span class="text-gray-700 font-medium">{{ t('messages.shop.availability', 'Availability') }}:</span>
-                <StockStatus :stockStatus="stockStatus" @updated="mergeLiveStockStatus" />
-              </div>
+
+            <!-- Product Title -->
+            <h1 class="mb-4 text-2xl font-semibold">
+              {{ product.name }}
+            </h1>
+
+            <!-- Price with Sale Display -->
+            <div class="mb-6">
+              <ProductPrice
+                class="text-4xl font-bold"
+                :sale-price="activeVariation ? activeVariation.salePrice : product.salePrice"
+                :regular-price="activeVariation ? activeVariation.regularPrice : product.regularPrice" />
+            </div>
+
+            <!-- SKU and Availability -->
+            <div class="grid gap-2 mb-6 text-sm empty:hidden">
               <div class="flex items-center gap-2" v-if="storeSettings.showSKU && product.sku">
                 <span class="text-gray-700 font-medium">{{ t('messages.shop.sku', 'SKU') }}:</span>
                 <span>{{ product.sku || 'N/A' }}</span>
               </div>
+              <div v-if="!isExternalProduct" class="flex items-center gap-2">
+                <span class="text-gray-700 font-medium">{{ t('messages.shop.availability', 'Availability') }}:</span>
+                <StockStatus :stockStatus="stockStatus" @updated="mergeLiveStockStatus" />
+              </div>
             </div>
-            <div class="mb-8 prose prose-gray text-gray-900" v-html="product.shortDescription || product.description" />
-            <hr />
+
+            <hr class="mb-6" />
+
+            <!-- Product Options/Attributes -->
             <form @submit.prevent="handleAddToCart">
               <AttributeSelections
                 v-if="isVariableProduct && product.attributes && product.variations?.nodes?.length"
-                class="mt-4 mb-8"
+                class="mb-6"
                 :attributes="product.attributes.nodes"
                 :defaultAttributes="product.defaultAttributes"
                 :variations="product.variations.nodes"
                 @attrs-changed="updateSelectedVariations" />
-              <div v-else-if="isVariableProduct && (!product.attributes || !product.variations?.nodes?.length)" class="mt-4 mb-8 text-sm text-gray-500">
+              <div v-else-if="isVariableProduct && (!product.attributes || !product.variations?.nodes?.length)" class="mb-6 text-sm text-gray-500">
                 {{ t('messages.shop.noVariationsRequired', 'This product has no selectable options.') }}
               </div>
 
-              <div
-                v-if="isVariableProduct || isSimpleProduct"
-                class="fixed bottom-0 left-0 z-10 flex items-center w-full gap-4 p-4 mt-12 bg-white md:static md:bg-transparent bg-opacity-90 md:p-0">
+              <!-- Quantity and Add to Cart in same row -->
+              <div v-if="isVariableProduct || isSimpleProduct" class="flex items-center gap-4 mb-8">
                 <input
                   v-model.number="quantity"
                   type="number"
                   min="1"
                   aria-label="Quantity"
-                  class="bg-white border rounded-lg flex text-left p-2.5 w-20 gap-4 items-center justify-center focus:outline-none" />
-                <AddToCartButton class="flex-1 w-full md:max-w-xs" :disabled="disabledAddToCart" :class="{loading: isUpdatingCart}" />
+                  class="bg-white border rounded-lg flex text-left p-2.5 w-24 gap-4 items-center justify-center focus:outline-none" />
+                <AddToCartButton class="flex-1 md:max-w-xs" :disabled="disabledAddToCart" :class="{loading: isUpdatingCart}" />
               </div>
               <a
                 v-if="isExternalProduct && product.externalUrl"
                 :href="product.externalUrl"
                 target="_blank"
-                class="rounded-lg flex font-bold bg-gray-800 text-white text-center min-w-[150px] p-2.5 gap-4 items-center justify-center focus:outline-none">
+                class="rounded-lg flex font-bold bg-gray-800 text-white text-center min-w-[150px] p-2.5 gap-4 items-center justify-center focus:outline-none mb-8">
                 {{ product?.buttonText || t('messages.shop.viewProduct', 'View product') }}
               </a>
             </form>
-            <div v-if="storeSettings.showProductCategoriesOnSingleProduct && product.productCategories?.nodes?.length">
-              <div class="grid gap-2 my-8 text-sm">
+
+            <!-- Wishlist and Share -->
+            <div class="flex flex-wrap gap-4 mb-8">
+              <WishlistButton :product="product" />
+              <ShareButton :product="product" />
+            </div>
+
+            <!-- Product Description -->
+            <div class="mb-2">
+              <div class="prose prose-gray text-gray-900" v-html="displayDescription" />
+              <button
+                v-if="descriptionNeedsExpansion"
+                @click="toggleDescription"
+                class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                {{ isDescriptionExpanded ? 'Read less' : 'Read more' }}
+              </button>
+            </div>
+
+            <!-- Categories -->
+            <div v-if="storeSettings.showProductCategoriesOnSingleProduct && product.productCategories?.nodes?.length" class="mt-8 mb-6">
+              <div class="grid gap-2 text-sm">
                 <div class="flex items-center gap-2">
                   <span class="text-gray-700 font-medium"
                     >{{ t('messages.shop.category', product.productCategories.nodes.length, {count: product.productCategories.nodes.length}) }}:</span
@@ -515,17 +615,33 @@ watch(
                   </div>
                 </div>
               </div>
-              <hr />
-            </div>
-            <div class="flex flex-wrap gap-4">
-              <WishlistButton :product="product" />
-              <ShareButton :product="product" />
             </div>
           </div>
         </div>
-        <div v-if="product.description || product.reviews" class="my-32">
+        <div v-if="product.description || product.reviews" class="my-12">
           <ProductTabs :product="product" />
         </div>
+
+        <!-- ENHANCED: Product Reviews with Rich Snippets -->
+        <div v-if="product.reviews?.nodes?.length > 0" class="my-32">
+          <ProductReviews :product="product" />
+        </div>
+
+        <!-- ENHANCED: Product FAQ with Rich Snippets -->
+        <div class="my-32">
+          <ProductFAQ :product="product" />
+        </div>
+
+        <!-- OPTIONAL: Product Video (uncomment and configure if video available) -->
+        <!-- <div v-if="productVideoUrl" class="my-32">
+          <h2 class="text-2xl font-semibold mb-6">Product Video</h2>
+          <ProductVideo 
+            :videoUrl="productVideoUrl" 
+            :product="product" 
+            videoThumbnail="/images/video-thumb.jpg"
+            videoDescription="Watch our detailed product demonstration" />
+        </div> -->
+
         <div class="my-32" v-if="product.related?.nodes?.length && storeSettings.showRelatedProducts">
           <div class="mb-4 text-xl font-semibold">
             {{ t('messages.shop.youMayLike', 'You may also like...') }}
