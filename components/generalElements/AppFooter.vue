@@ -45,6 +45,16 @@ const {wishlistLink} = useAuth();
           >
         </div>
       </div> -->
+      <!-- quick links -->
+      <div class="w-3/7 lg:w-auto">
+        <div class="mb-1 font-semibold">Quick Links</div>
+        <div class="text-sm">
+          <NuxtLink to="/inline-skates-size-calculator" class="py-1.5 block">Size Calculator</NuxtLink>
+          <NuxtLink to="/blog" class="py-1.5 block">Blog</NuxtLink>
+          <NuxtLink to="/categories" class="py-1.5 block">All Categories</NuxtLink>
+          <NuxtLink to="/products" class="py-1.5 block">All Products</NuxtLink>
+        </div>
+      </div>
       <!-- contact -->
       <div class="w-3/7 lg:w-auto">
         <div class="mb-1 font-semibold">

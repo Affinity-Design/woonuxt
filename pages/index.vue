@@ -6,7 +6,8 @@ const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
   title: 'Best Roller Skates & Inline Skates Canada | ProSkaters Place Toronto',
-  description: 'Shop Canada\'s #1 roller skates & inline skates store. ⭐ 1000+ models ⭐ Free shipping $99+ ⭐ Expert fitting ⭐ Toronto-based. Inline skates, quad roller skates, protective gear & more!',
+  description:
+    "Shop Canada's #1 roller skates & inline skates store. ⭐ 1000+ models ⭐ Free shipping $99+ ⭐ Expert fitting ⭐ Toronto-based. Inline skates, quad roller skates, protective gear & more!",
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',
 });
@@ -23,7 +24,8 @@ useHead({
         name: 'ProSkaters Place',
         url: 'https://proskatersplace.ca',
         logo: 'https://proskatersplace.ca/icon.png',
-        description: 'Canada\'s most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 1995.',
+        description:
+          "Canada's most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 1995.",
         address: {
           '@type': 'PostalAddress',
           streetAddress: '3600 Langstaff Road',
@@ -39,10 +41,7 @@ useHead({
           areaServed: 'CA',
           availableLanguage: ['en', 'fr'],
         },
-        sameAs: [
-          'https://www.facebook.com/proskatersplace',
-          'https://www.instagram.com/proskatersplace',
-        ],
+        sameAs: ['https://www.facebook.com/proskatersplace', 'https://www.instagram.com/proskatersplace'],
       }),
     },
     {
@@ -53,7 +52,7 @@ useHead({
         '@id': 'https://proskatersplace.ca/#website',
         url: 'https://proskatersplace.ca',
         name: 'ProSkaters Place',
-        description: 'Canada\'s premier online destination for roller skates, inline skates, and skating equipment',
+        description: "Canada's premier online destination for roller skates, inline skates, and skating equipment",
         publisher: {
           '@id': 'https://proskatersplace.ca/#organization',
         },
@@ -124,35 +123,43 @@ const {data: latestPosts} = await useAsyncData('latest-blog-posts', () => queryC
 const homepageFAQs = [
   {
     question: 'What types of roller skates and inline skates do you sell?',
-    answer: 'We carry a comprehensive selection of inline skates (rollerblades), quad roller skates, speed skates, recreational skates, fitness skates, aggressive skates, artistic roller skates, and roller derby skates. Top brands include Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.',
+    answer:
+      'We carry a comprehensive selection of inline skates (rollerblades), quad roller skates, speed skates, recreational skates, fitness skates, aggressive skates, artistic roller skates, and roller derby skates. Top brands include Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.',
   },
   {
     question: 'Do you ship roller skates across Canada?',
-    answer: 'Yes! We offer free shipping on orders over $99 to all Canadian provinces and territories. Orders within the Greater Toronto Area (GTA) qualify for same-day shipping. We ship from our Toronto warehouse for fast delivery across Ontario, Quebec, British Columbia, Alberta, and beyond.',
+    answer:
+      'Yes! We offer free shipping on orders over $99 to all Canadian provinces and territories. Orders within the Greater Toronto Area (GTA) qualify for same-day shipping. We ship from our Toronto warehouse for fast delivery across Ontario, Quebec, British Columbia, Alberta, and beyond.',
   },
   {
     question: 'How do I choose the right size for inline skates or roller skates?',
-    answer: 'Most skates fit true to your regular shoe size, but sizing varies by brand. Check our detailed sizing charts on each product page. Measure your feet in centimeters and compare to the brand\'s sizing guide. For first-time buyers, we recommend contacting our expert staff for personalized fitting advice to ensure comfort and prevent injuries.',
+    answer:
+      "Most skates fit true to your regular shoe size, but sizing varies by brand. Check our detailed sizing charts on each product page. Measure your feet in centimeters and compare to the brand's sizing guide. For first-time buyers, we recommend contacting our expert staff for personalized fitting advice to ensure comfort and prevent injuries.",
   },
   {
     question: 'What protective gear do I need for roller skating?',
-    answer: 'We strongly recommend wearing a helmet, knee pads, elbow pads, and wrist guards - especially for beginners. Our protective gear collection includes certified safety equipment from top brands. A complete protection set typically costs $60-$150 and significantly reduces injury risk according to the Consumer Product Safety Commission.',
+    answer:
+      'We strongly recommend wearing a helmet, knee pads, elbow pads, and wrist guards - especially for beginners. Our protective gear collection includes certified safety equipment from top brands. A complete protection set typically costs $60-$150 and significantly reduces injury risk according to the Consumer Product Safety Commission.',
   },
   {
-    question: 'Can I return or exchange roller skates if they don\'t fit?',
-    answer: 'Yes! We offer hassle-free returns and exchanges on regular-priced items within 30 days of purchase. Skates must be unused (indoor try-on only, not used outside) with original packaging. Clearance and sale items may have different return policies - check the product page for details.',
+    question: "Can I return or exchange roller skates if they don't fit?",
+    answer:
+      'Yes! We offer hassle-free returns and exchanges on regular-priced items within 30 days of purchase. Skates must be unused (indoor try-on only, not used outside) with original packaging. Clearance and sale items may have different return policies - check the product page for details.',
   },
   {
     question: 'Do you have a physical store in Toronto?',
-    answer: 'Yes! Our Toronto showroom is located at 3600 Langstaff Road in Etobicoke. Visit us for in-person fitting, expert advice, and to see our full selection. Store hours: Mon-Fri 12-4pm, Wed 12-7pm, Sat 2-7pm. We also serve customers online across Canada 24/7.',
+    answer:
+      'Yes! Our Toronto showroom is located at 3600 Langstaff Road in Etobicoke. Visit us for in-person fitting, expert advice, and to see our full selection. Store hours: Mon-Fri 12-4pm, Wed 12-7pm, Sat 2-7pm. We also serve customers online across Canada 24/7.',
   },
   {
     question: 'What brands of roller skates and inline skates do you carry?',
-    answer: 'We stock premium brands including Rollerblade, K2 Skates, Bauer, Powerslide, FR Skates, Moxi, Riedell, Sure-Grip, Impala, Rio Roller, Chaya, and more. Whether you need recreational skates, performance inline skates, or artistic quad skates, we have trusted brands for every skating style.',
+    answer:
+      'We stock premium brands including Rollerblade, K2 Skates, Bauer, Powerslide, FR Skates, Moxi, Riedell, Sure-Grip, Impala, Rio Roller, Chaya, and more. Whether you need recreational skates, performance inline skates, or artistic quad skates, we have trusted brands for every skating style.',
   },
   {
     question: 'Are roller skates suitable for adults or just kids?',
-    answer: 'Both! We carry extensive selections for adults and children. Adult roller skating has surged in popularity for fitness, recreation, and roller derby. Our adult skates range from beginner-friendly recreational models to high-performance speed and aggressive skates. We also have kids\' skates with adjustable sizing to grow with your child.',
+    answer:
+      "Both! We carry extensive selections for adults and children. Adult roller skating has surged in popularity for fitness, recreation, and roller derby. Our adult skates range from beginner-friendly recreational models to high-performance speed and aggressive skates. We also have kids' skates with adjustable sizing to grow with your child.",
   },
 ];
 </script>
@@ -163,7 +170,7 @@ const homepageFAQs = [
     <div class="sr-only">
       <h1>Best Roller Skates and Inline Skates Canada | ProSkaters Place Toronto Online Skate Shop</h1>
     </div>
-    
+
     <HeroBanner />
     <!-- Catagories -->
     <section class="container my-16">
@@ -311,87 +318,176 @@ const homepageFAQs = [
       </div>
     </section>
 
-    <!-- Homepage FAQs Section -->
-    <section class="container my-16 py-12 bg-gray-50 rounded-lg">
-      <div class="max-w-4xl mx-auto px-6">
-        <h2 class="text-2xl md:text-3xl font-bold text-center text-primary mb-3">Frequently Asked Questions</h2>
-        <p class="text-center text-gray-600 mb-10">Everything you need to know about buying roller skates and inline skates in Canada</p>
-        
-        <div class="space-y-4">
-          <details v-for="(faq, index) in homepageFAQs" :key="index" class="bg-white rounded-lg shadow-md group">
-            <summary class="flex justify-between items-center p-5 cursor-pointer list-none font-semibold text-gray-800 hover:text-primary transition-colors">
-              <span class="flex-1 pr-4">{{ faq.question }}</span>
-              <Icon name="mdi:chevron-down" class="w-6 h-6 text-primary transition-transform group-open:rotate-180" />
-            </summary>
-            <div class="px-5 pb-5 pt-2 text-gray-700 leading-relaxed border-t border-gray-100">
-              {{ faq.answer }}
-            </div>
-          </details>
-        </div>
+    <!-- Dynamic Content Sections with Alternating Image Layout -->
 
-        <div class="mt-10 text-center">
-          <p class="text-gray-600 mb-4">Still have questions? We're here to help!</p>
-          <NuxtLink 
-            to="/contact"
-            class="inline-flex items-center bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-md">
-            <Icon name="mdi:email-outline" class="w-5 h-5 mr-2" />
-            Contact Our Experts
-          </NuxtLink>
+    <!-- Section 1: Image Right, Text Left - Canada's Premier Store -->
+    <section class="py-16 my-16">
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <!-- Text Content -->
+          <div class="order-2 lg:order-1 space-y-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary">Canada's Premier Roller Skates & Inline Skates Store</h2>
+            <p class="text-gray-700 leading-relaxed text-lg">
+              Welcome to <strong>ProSkaters Place</strong> - Canada's most trusted destination for roller skates, inline skates, and skating equipment since
+              1995. Based in Toronto, Ontario, we serve skaters across Canada with an unmatched selection of over 1,000 models from world-renowned brands
+              including Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.
+            </p>
+            <p class="text-gray-700 leading-relaxed text-lg">
+              Whether you're searching for
+              <NuxtLink to="/product-category/inline-skates" class="text-primary font-semibold hover:underline">inline skates</NuxtLink> (also known as
+              rollerblades) for fitness and speed, or classic
+              <NuxtLink to="/product-category/roller-skates" class="text-primary font-semibold hover:underline">quad roller skates</NuxtLink> for artistic
+              skating and roller derby, we have the perfect skates for your needs.
+            </p>
+            <div class="pt-4">
+              <NuxtLink
+                to="/products"
+                class="inline-flex items-center bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-lg">
+                Shop All Products
+                <Icon name="mdi:arrow-right" class="w-5 h-5 ml-2" />
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Image -->
+          <div class="order-1 lg:order-2">
+            <img
+              src="/images/blog/posted/canadas-premier-roller-skates-store.jpg"
+              alt="Canada's Premier Roller Skates Store - Toronto ProSkaters Place Interior"
+              class="w-full h-auto rounded-lg shadow-2xl object-cover"
+              width="600"
+              height="400"
+              loading="lazy" />
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SEO Content Section -->
-    <section class="container my-16 py-12">
-      <div class="max-w-5xl mx-auto prose prose-lg">
-        <h2 class="text-2xl md:text-3xl font-bold text-primary mb-6">Canada's Premier Roller Skates & Inline Skates Store</h2>
-        
-        <p class="text-gray-700 leading-relaxed mb-4">
-          Welcome to <strong>ProSkaters Place</strong> - Canada's most trusted destination for roller skates, inline skates, and skating equipment since 1995. Based in Toronto, Ontario, we serve skaters across Canada with an unmatched selection of over 1,000 models from world-renowned brands including Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.
-        </p>
+    <!-- Section 2: Image Left, Text Right - Why Choose Us -->
+    <section class="py-16 my-16 bg-gray-50">
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <!-- Image -->
+          <div class="order-1">
+            <img
+              src="/images/blog/posted/why-choose-proskaters-place.jpg"
+              alt="Why Choose ProSkaters Place - Expert Fitting & Customer Service"
+              class="w-full h-auto rounded-lg shadow-2xl object-cover"
+              width="600"
+              height="400"
+              loading="lazy" />
+          </div>
 
-        <h3 class="text-xl font-bold text-gray-900 mt-8 mb-4">Shop Inline Skates & Roller Skates Online in Canada</h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          Whether you're searching for <NuxtLink to="/product-category/inline-skates" class="text-primary hover:underline">inline skates</NuxtLink> (also known as rollerblades) for fitness and speed, or classic <NuxtLink to="/product-category/roller-skates" class="text-primary hover:underline">quad roller skates</NuxtLink> for artistic skating and roller derby, we have the perfect skates for your needs. Our extensive inventory includes recreational skates for beginners, high-performance speed skates for experienced athletes, and everything in between.
-        </p>
+          <!-- Text Content -->
+          <div class="order-2 space-y-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary">Why Choose ProSkaters Place?</h2>
+            <ul class="space-y-4 text-gray-700 text-lg">
+              <li class="flex items-start">
+                <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                <div><strong>Free Shipping:</strong> Complimentary shipping on all orders over $99 across Canada</div>
+              </li>
+              <li class="flex items-start">
+                <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                <div><strong>Expert Advice:</strong> Our knowledgeable team includes experienced skaters who provide personalized recommendations</div>
+              </li>
+              <li class="flex items-start">
+                <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                <div><strong>Fast Delivery:</strong> Same-day shipping available for Greater Toronto Area customers</div>
+              </li>
+              <li class="flex items-start">
+                <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                <div><strong>Hassle-Free Returns:</strong> 30-day return policy on regular-priced items ensures satisfaction</div>
+              </li>
+              <li class="flex items-start">
+                <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
+                <div><strong>Toronto Showroom:</strong> Visit our Etobicoke location for in-person fitting and product demos</div>
+              </li>
+            </ul>
+            <div class="pt-4">
+              <NuxtLink
+                to="/contact"
+                class="inline-flex items-center bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-lg">
+                Visit Our Store
+                <Icon name="mdi:map-marker" class="w-5 h-5 ml-2" />
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <h3 class="text-xl font-bold text-gray-900 mt-8 mb-4">Why Choose ProSkaters Place?</h3>
-        <ul class="space-y-2 text-gray-700 mb-4">
-          <li class="flex items-start">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 mr-2 mt-1 flex-shrink-0" />
-            <span><strong>Free Shipping:</strong> Complimentary shipping on all orders over $99 across Canada</span>
-          </li>
-          <li class="flex items-start">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 mr-2 mt-1 flex-shrink-0" />
-            <span><strong>Expert Advice:</strong> Our knowledgeable team includes experienced skaters who provide personalized recommendations</span>
-          </li>
-          <li class="flex items-start">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 mr-2 mt-1 flex-shrink-0" />
-            <span><strong>Fast Delivery:</strong> Same-day shipping available for Greater Toronto Area customers</span>
-          </li>
-          <li class="flex items-start">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 mr-2 mt-1 flex-shrink-0" />
-            <span><strong>Hassle-Free Returns:</strong> 30-day return policy on regular-priced items ensures satisfaction</span>
-          </li>
-          <li class="flex items-start">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 mr-2 mt-1 flex-shrink-0" />
-            <span><strong>Toronto Showroom:</strong> Visit our Etobicoke location for in-person fitting and product demos</span>
-          </li>
-        </ul>
+    <!-- Section 3: Image Right, Text Left - Complete Equipment -->
+    <section class="py-16 my-16">
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <!-- Text Content -->
+          <div class="order-2 lg:order-1 space-y-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary">Trusted by Canadian Skaters Since 1995</h2>
+            <p class="text-gray-700 leading-relaxed text-lg">
+              With decades of experience serving the Canadian skating community, ProSkaters Place has earned a reputation for quality products, competitive
+              pricing, and exceptional customer service. Our customers in Toronto, Vancouver, Montreal, Calgary, Ottawa, and every corner of Canada trust us for
+              authentic products, expert guidance, and reliable shipping.
+            </p>
+            <p class="text-gray-700 leading-relaxed text-lg">
+              Beyond skates, we stock everything you need for a safe and enjoyable skating experience. Browse our comprehensive selection of
+              <NuxtLink to="/product-category/protection-gear-and-apparel" class="text-primary font-semibold hover:underline">protective gear</NuxtLink>
+              including certified helmets, knee pads, elbow pads, and wrist guards. We also carry
+              <NuxtLink to="/product-category/replacement-parts" class="text-primary font-semibold hover:underline">replacement parts</NuxtLink> like wheels,
+              bearings, brake pads, and laces.
+            </p>
+            <div class="pt-4">
+              <NuxtLink
+                to="/categories"
+                class="inline-flex items-center bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-lg">
+                Shop by Category
+                <Icon name="mdi:arrow-right" class="w-5 h-5 ml-2" />
+              </NuxtLink>
+            </div>
+          </div>
 
-        <h3 class="text-xl font-bold text-gray-900 mt-8 mb-4">Complete Skating Equipment & Accessories</h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          Beyond skates, we stock everything you need for a safe and enjoyable skating experience. Browse our comprehensive selection of <NuxtLink to="/product-category/protection-gear-and-apparel" class="text-primary hover:underline">protective gear</NuxtLink> including certified helmets, knee pads, elbow pads, and wrist guards. We also carry <NuxtLink to="/product-category/replacement-parts" class="text-primary hover:underline">replacement parts</NuxtLink> like wheels, bearings, brake pads, and laces to keep your skates performing at their best.
-        </p>
+          <!-- Image -->
+          <div class="order-1 lg:order-2">
+            <img
+              src="/images/Inline-Skates-Toronto.jpg"
+              alt="Complete Skating Equipment Toronto - Protective Gear & Accessories"
+              class="w-full h-auto rounded-lg shadow-2xl object-cover"
+              width="600"
+              height="400"
+              loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <h3 class="text-xl font-bold text-gray-900 mt-8 mb-4">Trusted by Canadian Skaters Since 1995</h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
-          With decades of experience serving the Canadian skating community, ProSkaters Place has earned a reputation for quality products, competitive pricing, and exceptional customer service. Our customers in Toronto, Vancouver, Montreal, Calgary, Ottawa, and every corner of Canada trust us for authentic products, expert guidance, and reliable shipping.
-        </p>
+    <!-- Homepage FAQs Section - Full Width with Gray Background -->
+    <section class="w-full bg-gray-100 py-16 my-16">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="text-3xl md:text-4xl font-bold text-center text-primary mb-4">Frequently Asked Questions</h2>
+          <p class="text-center text-gray-600 text-lg mb-12">Everything you need to know about buying roller skates and inline skates in Canada</p>
 
-        <p class="text-gray-700 leading-relaxed">
-          <strong>Ready to start skating?</strong> Explore our collections of <NuxtLink to="/product-category/inline-skates" class="text-primary hover:underline">inline skates</NuxtLink> and <NuxtLink to="/product-category/roller-skates" class="text-primary hover:underline">roller skates</NuxtLink>, or <NuxtLink to="/contact" class="text-primary hover:underline">contact our team</NuxtLink> for personalized recommendations. Happy skating! 🛼
-        </p>
+          <div class="space-y-4">
+            <details v-for="(faq, index) in homepageFAQs" :key="index" class="bg-white rounded-lg shadow-sm group hover:shadow-md transition-shadow">
+              <summary class="flex justify-between items-center p-6 cursor-pointer list-none font-semibold text-gray-800 hover:text-primary transition-colors">
+                <span class="flex-1 pr-4 text-base md:text-lg">{{ faq.question }}</span>
+                <Icon name="mdi:chevron-down" class="w-6 h-6 text-primary transition-transform group-open:rotate-180 flex-shrink-0" />
+              </summary>
+              <div class="px-6 pb-6 pt-2 text-gray-700 leading-relaxed border-t border-gray-100">
+                {{ faq.answer }}
+              </div>
+            </details>
+          </div>
+
+          <div class="mt-12 text-center bg-white rounded-lg shadow-md p-8">
+            <p class="text-gray-700 text-lg mb-6">Still have questions? We're here to help!</p>
+            <NuxtLink
+              to="/contact"
+              class="inline-flex items-center bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-lg">
+              <Icon name="mdi:email-outline" class="w-6 h-6 mr-2" />
+              Contact Our Experts
+            </NuxtLink>
+          </div>
+        </div>
       </div>
     </section>
   </main>

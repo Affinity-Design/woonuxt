@@ -94,6 +94,52 @@ See `docs/how-caching-works.md` for deep dive.
 
 ## Working with Blog Posts
 
+### Blog Writing Rules (CRITICAL - READ FIRST)
+
+**Before writing ANY blog post, you MUST follow these rules:**
+
+1. **Keywords:** Only use keywords from `data/seo_Keywordlist.csv`
+
+   - Check `data/blog-keywords-used.md` to verify keyword not already used
+   - Update checklist when using a keyword
+   - Prevent keyword cannibalization
+
+2. **Images:** Generate AI images BEFORE writing the post
+
+   - Run: `node scripts/generate-blog-image.js "keyword" --posted`
+   - Use the provided path in frontmatter
+   - Fallback to existing images if AI generation fails
+
+3. **Internal Links:** Use `data/sitemap-data.json` for all internal links
+
+   - Link to product categories, products, and related blog posts
+   - Minimum 5-10 internal links per post
+   - Use descriptive anchor text
+
+4. **Word Count:** 1,000 - 2,500 words total
+
+   - Write in 500-word sections
+   - Paragraphs max 120 words
+   - NEVER use: "Introduction", "In Conclusion", "Historically", "In This Section", "Comprehensive Guide"
+
+5. **Formatting:** Use markdown only (no HTML)
+
+   - H1, H2, H3 headings (include keyword in H2/H3)
+   - Lists, tables, blockquotes, bold/italic
+   - Target keyword used 5-15 times naturally
+
+6. **SEO Title & Meta:**
+
+   - Title: Max 60 chars, keyword at start, power word, number, sentiment
+   - Description: Max 155 chars, includes keyword
+
+7. **Links:**
+   - 5-10 internal links from sitemap-data.json
+   - 2-4 outbound links to authority sites (DA 60+)
+   - healthline.com, nih.gov, cpsc.gov, wikipedia.org, etc.
+
+**📚 Full Documentation:** See `docs/blog-architecture.md` section "Blog Writing Rules & Guidelines"
+
 ### Creating New Posts
 
 1. Create directory: `content/blog/your-slug-here/`

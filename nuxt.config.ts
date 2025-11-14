@@ -122,6 +122,7 @@ export default defineNuxtConfig({
         '/terms',
         '/privacy',
         '/blog',
+        '/inline-skates-size-calculator',
         ...(categoryRoutesToPrerender || []),
         ...(blogRoutesToPrerender || []),
         // Include product routes for prerendering (only if list is reasonable size)
@@ -166,6 +167,10 @@ export default defineNuxtConfig({
     '/contact': {prerender: true},
     '/terms': {prerender: true},
     '/privacy': {prerender: true},
+    '/inline-skates-size-calculator': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+    }, // Size calculator page
   },
 
   hooks: {

@@ -278,8 +278,8 @@ async function submitForm() {
         </div>
         <p class="text-gray-700 mb-2">
           <strong>ProSkaters Place</strong><br />
-          3600 Langstaff Road<br />
-          Etobicoke, ON M9W 5S4<br />
+          110 Galaxy Blvd<br />
+          Etobicoke, ON M9W 6A4<br />
           Canada
         </p>
       </div>
@@ -504,7 +504,7 @@ async function submitForm() {
         </p>
         <p class="mt-4">
           <strong>Contact us today</strong> by phone at <a href="tel:+14167392929" class="text-primary hover:underline">(416) 739-2929</a>, visit our Etobicoke
-          store at 3600 Langstaff Road, or send us a message using the form above. We're here to help you enjoy the thrill of skating!
+          store at 110 Galaxy Blvd, Etobicoke, ON M9W 6A4, or send us a message using the form above. We're here to help you enjoy the thrill of skating!
         </p>
       </div>
     </div>
