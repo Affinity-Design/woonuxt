@@ -1,0 +1,5 @@
+# Allow _nuxt assets to be served directly (don't redirect to index.html)
+/_nuxt/* /_nuxt/:splat 200
+
+# SPA fallback - redirect all other requests to index.html
+/* /index.html 200
