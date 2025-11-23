@@ -37,6 +37,9 @@ export default defineEventHandler(async (event) => {
             variationId: item.variationId || item.variation_id,
             hasVariationData: !!item.variation,
             attributeCount: item.variation?.attributes?.length || 0,
+            attributes: item.variation?.attributes || [],
+            name: item.name,
+            sku: item.sku,
           })),
           null,
           2,
@@ -165,23 +168,48 @@ export default defineEventHandler(async (event) => {
         },
 
         // Line items with complete product data including SKU and variations
-        lineItems: (lineItems || []).map((item: any) => ({
-          productId: item.productId || item.product_id,
-          variationId: item.variationId || item.variation_id || null,
-          quantity: item.quantity || 1,
-          name: item.name || '',
-          sku: item.sku || '',
-          total: item.total || null,
-          subtotal: item.subtotal || null,
-          // Include variation metadata if present
-          metaData:
-            item.variation && Array.isArray(item.variation.attributes)
-              ? item.variation.attributes.map((attr: any) => ({
-                  key: attr.name,
-                  value: attr.value,
-                }))
-              : [],
-        })),
+        lineItems: (lineItems || []).map((item: any) => {
+          const lineItem: any = {
+            productId: item.productId || item.product_id,
+            variationId: item.variationId || item.variation_id || null,
+            quantity: item.quantity || 1,
+            name: item.name || '',
+            sku: item.sku || '',
+            total: item.total || null,
+            subtotal: item.subtotal || null,
+          };
+
+          // Add variation attributes as metadata in WooCommerce format
+          if (item.variation && Array.isArray(item.variation.attributes)) {
+            console.log('🔍 Processing variation attributes for item:', {
+              name: item.name,
+              variationId: item.variationId || item.variation_id,
+              attributes: item.variation.attributes,
+            });
+
+            lineItem.metaData = item.variation.attributes.map((attr: any) => {
+              // WooCommerce expects attribute keys in format 'pa_size', 'pa_color', etc.
+              // The attr.name should already be in the correct format from the cart
+              const attributeKey = attr.name || attr.attributeName || attr.key;
+              const attributeValue = attr.value || attr.attributeValue;
+
+              console.log('  📋 Mapping attribute:', {
+                originalKey: attr.name,
+                finalKey: attributeKey,
+                value: attributeValue,
+              });
+
+              return {
+                key: attributeKey,
+                value: attributeValue,
+              };
+            });
+
+            console.log('✅ Final metaData for line item:', lineItem.metaData);
+          }
+
+          return lineItem;
+        }),
 
         // Add shipping line with costs from cart totals
         shippingLines: cartTotals?.shippingTotal
