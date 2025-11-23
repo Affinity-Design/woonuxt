@@ -271,9 +271,12 @@ export default defineNuxtConfig({
   modules: ['nuxt-gtag', '@nuxt/content', '@nuxtjs/i18n'],
 
   // Nuxt Image optimization configuration
+  // DISABLED: Causing issues with Cloudflare Pages - images not loading
+  // Using regular <img> tags instead for better compatibility
   image: {
+    provider: 'none', // Disable image optimization
     quality: 80,
-    format: ['webp', 'avif', 'jpeg'],
+    format: ['jpeg', 'png', 'webp'],
     screens: {
       xs: 320,
       sm: 640,
@@ -282,37 +285,7 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
-    densities: [1, 2],
-    domains: ['proskatersplace.com', 'proskatersplace.ca'],
-    alias: {
-      wordpress: process.env.BASE_URL || 'https://proskatersplace.com',
-    },
-    presets: {
-      category: {
-        modifiers: {
-          format: 'webp',
-          quality: 85,
-          width: 220,
-          height: 248,
-          fit: 'cover',
-        },
-      },
-      hero: {
-        modifiers: {
-          format: 'webp',
-          quality: 80,
-          width: 1920,
-          fit: 'cover',
-        },
-      },
-      product: {
-        modifiers: {
-          format: 'webp',
-          quality: 85,
-          fit: 'contain',
-        },
-      },
-    },
+    domains: ['proskatersplace.com', 'proskatersplace.ca', 'www.proskatersplace.com'],
   },
 
   // i18n configuration - Canadian locale

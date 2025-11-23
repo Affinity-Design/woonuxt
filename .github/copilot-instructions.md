@@ -1,5 +1,28 @@
 # WooNuxt E-commerce Development Guide
 
+## 🤖 AI Agent Quick Guide
+
+**Context:** Nuxt 3 + WPGraphQL + Cloudflare Pages (KV Cache).
+**Target:** Canadian Market (CAD, en-CA/fr-CA).
+
+### ⚡ Critical Rules
+
+1.  **Architecture:** `woonuxt_base/` is READ-ONLY. Override components by copying to root `components/`.
+2.  **SEO:** MUST use `useCanadianSEO()` composable. Never use generic `useHead` for meta tags.
+3.  **Data:** Products = WPGraphQL (via `useCachedProduct` for SSR). Blog = Nuxt Content.
+4.  **Images:** Always use `<NuxtImg>`.
+5.  **Build:** `npm run build` is REQUIRED (runs route generation scripts).
+6.  **Cache:** Run `npm run warm-cache` after deploy.
+
+### 🗺️ Documentation Map
+
+- **SEO:** `docs/seo-implementation.md`
+- **Caching:** `docs/how-caching-works.md`
+- **Blog:** `docs/blog-architecture.md`
+- **Payments:** `docs/helcim-integration.md`
+
+---
+
 ## Project Overview
 
 This is a **headless WooCommerce e-commerce site** built with Nuxt 3, using WordPress + WPGraphQL as the backend. The frontend is statically generated and deployed to **Cloudflare Pages** with aggressive KV-based caching for performance.

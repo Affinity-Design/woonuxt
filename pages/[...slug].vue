@@ -32,12 +32,10 @@ if (isBlogPost && !slug.startsWith('blog/')) {
 }
 
 // If not a blog post, show 404
-if (!isBlogPost) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: 'Page not found',
-  });
-}
+throw createError({
+  statusCode: 404,
+  statusMessage: 'Page not found',
+});
 
 definePageMeta({
   layout: 'default',
@@ -46,12 +44,9 @@ definePageMeta({
 </script>
 
 <template>
-  <BlogPost v-if="isBlogPost" />
-  <div v-else class="container">
-    <h1>Page Not Found</h1>
-    <p>
-      No match for:
-      {{ Array.isArray($route.params.slug) ? $route.params.slug.join('/') : $route.params.slug }}
-    </p>
+  <div class="container mx-auto px-4 py-16 text-center">
+    <h1 class="text-4xl font-bold text-white mb-4">Page Not Found</h1>
+    <p class="text-gray-400 mb-8">The page "{{ Array.isArray($route.params.slug) ? $route.params.slug.join('/') : $route.params.slug }}" could not be found.</p>
+    <NuxtLink to="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"> Return Home </NuxtLink>
   </div>
 </template>

@@ -83,7 +83,7 @@ const handleImageError = () => {
     v-if="node"
     :to="`/product-category/${decodeURIComponent(node.slug)}`"
     class="group relative flex justify-center overflow-hidden border border-gray-200 rounded-xl item snap-mandatory snap-x hover:shadow-lg transition-shadow">
-    <NuxtImg
+    <img
       :width="imgWidth"
       :height="imgHeight"
       class="absolute inset-0 object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
@@ -91,12 +91,6 @@ const handleImageError = () => {
       :alt="node.name"
       :title="node.name"
       :loading="imageLoading"
-      :sizes="`(max-width: 768px) 110px, 220px`"
-      format="webp"
-      quality="85"
-      fit="cover"
-      placeholder
-      placeholder-class="blur-xl"
       @error="handleImageError" />
     <div class="absolute inset-x-0 bottom-0 opacity-50 bg-gradient-to-t from-black to-transparent h-1/2" />
     <span
