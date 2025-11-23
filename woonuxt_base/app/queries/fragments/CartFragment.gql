@@ -44,6 +44,8 @@ fragment Cart on Cart {
           name
           slug
           price
+          databaseId
+          sku
           stockStatus
           regularPrice
           rawRegularPrice: regularPrice(format: RAW)
@@ -54,6 +56,13 @@ fragment Cart on Cart {
             cartSourceUrl: sourceUrl(size: THUMBNAIL)
             altText
             title
+          }
+          attributes {
+            nodes {
+              name
+              label
+              value
+            }
           }
         }
       }
