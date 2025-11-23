@@ -27,6 +27,23 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
 
+    // Log line items for debugging variation issues
+    if (lineItems && lineItems.length > 0) {
+      console.log(
+        '📦 Processing line items for admin order:',
+        JSON.stringify(
+          lineItems.map((item: any) => ({
+            productId: item.productId || item.product_id,
+            variationId: item.variationId || item.variation_id,
+            hasVariationData: !!item.variation,
+            attributeCount: item.variation?.attributes?.length || 0,
+          })),
+          null,
+          2,
+        ),
+      );
+    }
+
     // Create WordPress Application Password authentication
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
     const auth = Buffer.from(appPassword).toString('base64');
@@ -157,14 +174,13 @@ export default defineEventHandler(async (event) => {
           total: item.total || null,
           subtotal: item.subtotal || null,
           // Include variation metadata if present
-          metaData: item.variation
-            ? [
-                ...Object.entries(item.variation.attributes || {}).map(([key, value]: [string, any]) => ({
-                  key: `attribute_${key}`,
-                  value: value?.name || value,
-                })),
-              ]
-            : [],
+          metaData:
+            item.variation && Array.isArray(item.variation.attributes)
+              ? item.variation.attributes.map((attr: any) => ({
+                  key: attr.name,
+                  value: attr.value,
+                }))
+              : [],
         })),
 
         // Add shipping line with costs from cart totals
