@@ -343,13 +343,13 @@ export default defineEventHandler(async (event) => {
           const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
 
           // Add coupon to the order
-          await $fetch(restApiUrl, {
+          const couponResponse = await fetch(restApiUrl, {
             method: 'PUT',
             headers: {
               Authorization: `Basic ${auth}`,
               'Content-Type': 'application/json',
             },
-            body: {
+            body: JSON.stringify({
               coupon_lines: [
                 {
                   code: coupon.code,
@@ -358,27 +358,37 @@ export default defineEventHandler(async (event) => {
                 },
               ],
               currency: currency, // Explicitly set currency to prevent USD conversion
-            },
+            }),
           });
 
-          console.log(`✅ Coupon ${coupon.code} applied to order ${orderData.orderNumber}`);
+          if (couponResponse.ok) {
+            console.log(`✅ Coupon ${coupon.code} applied to order ${orderData.orderNumber}`);
+          } else {
+            const errorText = await couponResponse.text();
+            console.warn(`⚠️ Failed to apply coupon ${coupon.code}:`, errorText);
+          }
         }
 
         // Recalculate totals after applying coupons
-        await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        const recalcResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
           method: 'PUT',
           headers: {
             Authorization: `Basic ${auth}`,
             'Content-Type': 'application/json',
           },
-          body: {
+          body: JSON.stringify({
             // Trigger recalculation
             recalculate: true,
             currency: currency, // Explicitly set currency to prevent USD conversion
-          },
+          }),
         });
 
-        console.log('🔄 Order totals recalculated after coupon application');
+        if (recalcResponse.ok) {
+          console.log('🔄 Order totals recalculated after coupon application');
+        } else {
+          const errorText = await recalcResponse.text();
+          console.warn('⚠️ Failed to recalculate totals:', errorText);
+        }
       } catch (couponError: any) {
         console.warn('⚠️ Failed to apply coupons via REST API:', couponError.message);
         // Don't fail the entire order creation, just log the warning
@@ -390,43 +400,44 @@ export default defineEventHandler(async (event) => {
     try {
       console.log('📧 Updating order to PROCESSING to trigger proper emails...');
 
-      // Small delay to ensure all WooCommerce processing is complete
-      setTimeout(async () => {
-        try {
-          // Update order status to PROCESSING - this triggers proper emails with complete data
-          await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-            method: 'PUT',
-            headers: {
-              Authorization: `Basic ${auth}`,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              // Change status to PROCESSING - this triggers both admin and customer emails
-              status: 'processing',
-              // Force WooCommerce to recalculate totals before sending emails
-              set_paid: true,
-              currency: currency, // Explicitly set currency to prevent USD conversion
-              // Add metadata to track email fix
-              meta_data: [
-                {
-                  key: '_email_fix_applied',
-                  value: new Date().toISOString(),
-                },
-                {
-                  key: '_order_completed_processing',
-                  value: 'true',
-                },
-              ],
-            },
-          });
+      // Wait a moment for WooCommerce to finish processing
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-          console.log('✅ Order status updated to PROCESSING with complete data');
-        } catch (statusError: any) {
-          console.warn('⚠️ Failed to update order status:', statusError.message);
-        }
-      }, 1500); // 1.5 second delay to ensure complete processing
+      // Update order status to PROCESSING - this triggers proper emails with complete data
+      const statusUpdateResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Change status to PROCESSING - this triggers both admin and customer emails
+          status: 'processing',
+          // Force WooCommerce to recalculate totals before sending emails
+          set_paid: true,
+          currency: currency, // Explicitly set currency to prevent USD conversion
+          // Add metadata to track email fix
+          meta_data: [
+            {
+              key: '_email_fix_applied',
+              value: new Date().toISOString(),
+            },
+            {
+              key: '_order_completed_processing',
+              value: 'true',
+            },
+          ],
+        }),
+      });
+
+      if (statusUpdateResponse.ok) {
+        console.log('✅ Order status updated to PROCESSING with complete data');
+      } else {
+        const errorText = await statusUpdateResponse.text();
+        console.warn('⚠️ Failed to update order status:', errorText);
+      }
     } catch (emailError: any) {
-      console.warn('⚠️ Email processing setup failed:', emailError.message);
+      console.warn('⚠️ Failed to update order status for email:', emailError.message);
     }
 
     return {
