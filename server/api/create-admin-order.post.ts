@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
 
-    // Log line items for debugging variation issues
+    // Log line items for debugging variation issues and pricing
     if (lineItems && lineItems.length > 0) {
       console.log(
         '📦 Processing line items for admin order:',
@@ -40,12 +40,32 @@ export default defineEventHandler(async (event) => {
             attributes: item.variation?.attributes || [],
             name: item.name,
             sku: item.sku,
+            total: item.total,
+            subtotal: item.subtotal,
           })),
           null,
           2,
         ),
       );
     }
+
+    // Log cart totals to verify CAD currency
+    console.log('💰 Cart totals received:', {
+      subtotal: cartTotals?.subtotal,
+      total: cartTotals?.total,
+      totalTax: cartTotals?.totalTax,
+      shippingTotal: cartTotals?.shippingTotal,
+      discountTotal: cartTotals?.discountTotal,
+      currency: currency,
+    });
+
+    // Helper function to parse CAD price strings to numeric values
+    const parseCADPrice = (priceString: string | null): string | null => {
+      if (!priceString) return null;
+      // Remove currency symbols, commas, and whitespace
+      const cleaned = priceString.replace(/[^0-9.\\-]/g, '');
+      return cleaned || null;
+    };
 
     // Create WordPress Application Password authentication
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
@@ -175,9 +195,18 @@ export default defineEventHandler(async (event) => {
             quantity: item.quantity || 1,
             name: item.name || '',
             sku: item.sku || '',
-            total: item.total || null,
-            subtotal: item.subtotal || null,
+            // Ensure prices are numeric CAD values (strip formatting)
+            total: parseCADPrice(item.total),
+            subtotal: parseCADPrice(item.subtotal),
           };
+
+          console.log('💵 Line item pricing:', {
+            name: item.name,
+            originalTotal: item.total,
+            parsedTotal: lineItem.total,
+            originalSubtotal: item.subtotal,
+            parsedSubtotal: lineItem.subtotal,
+          });
 
           // Add variation attributes as metadata in WooCommerce format
           if (item.variation && Array.isArray(item.variation.attributes)) {
