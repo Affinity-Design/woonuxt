@@ -45,14 +45,14 @@ const isActive = (path: string) => {
       ]">
       Blog
     </NuxtLink>
-    <NuxtLink
+    <!-- <NuxtLink
       to="/inline-skates-size-calculator"
       :class="[
         'px-3 py-2 rounded-lg transition-colors font-medium',
         isActive('/inline-skates-size-calculator') ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
       ]">
       Size Calculator
-    </NuxtLink>
+    </NuxtLink> -->
     <NuxtLink
       to="/contact"
       :class="[
