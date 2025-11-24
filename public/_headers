@@ -1,6 +1,57 @@
+# Cloudflare Pages Headers Configuration
+
+# JavaScript and CSS Assets - Critical MIME Types
+/_nuxt/*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.mjs
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.css
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+# Image Assets
+/_nuxt/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.jpg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.jpeg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.webp
+  Content-Type: image/webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.svg
+  Content-Type: image/svg+xml
+  Cache-Control: public, max-age=31536000, immutable
+
+# Product Pages
 /product/*
   Cache-Control: public, max-age=172800, stale-while-revalidate=900
 
+# Category Pages
 /product-category/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=3600
+
+# HTML Pages - No cache for dynamic content
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Type: text/html; charset=utf-8
 

@@ -28,6 +28,8 @@
     "clear-page-cache": "node scripts/clear-kv-cache.js --namespace=cache",
     "clear-data-cache": "node scripts/clear-kv-cache.js --namespace=script_data",
     "reset-cache": "npm run clear-cache-all && npm run setup-cache",
+    "clean": "node scripts/clean-build.js",
+    "clean:build": "npm run clean && npm install && npm run build",
     "postdeploy": "node scripts/post-deploy.js",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
