@@ -1,0 +1,30 @@
+# Cloudflare Pages Configuration
+# This file defines KV namespace bindings for different environments
+
+# Note: Cloudflare Pages automatically detects this file
+# Make sure to set the actual namespace IDs in Cloudflare Pages dashboard
+
+name = "woonuxt"
+
+# KV Namespace bindings
+# These binding names MUST match what's used in nuxt.config.ts
+[[kv_namespaces]]
+binding = "NUXT_CACHE"
+id = "" # Set in Cloudflare Pages dashboard per environment
+
+[[kv_namespaces]]
+binding = "NUXT_SCRIPT_DATA"
+id = "" # Set in Cloudflare Pages dashboard per environment
+
+# Environment-specific configuration
+[env.production]
+name = "woonuxt-production"
+vars = { ENVIRONMENT = "production" }
+
+[env.preview]
+name = "woonuxt-preview"
+vars = { ENVIRONMENT = "test" }
+
+# Compatibility settings
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]

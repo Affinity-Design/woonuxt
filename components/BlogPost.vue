@@ -61,7 +61,7 @@ const productCategories = computed(() => {
     <!-- Hero Section -->
     <div class="relative">
       <div v-if="post.image" class="relative h-96 overflow-hidden">
-        <NuxtImg :src="post.image" :alt="post.title" class="w-full h-full object-cover" width="1200" height="600" loading="eager" />
+        <img :src="post.image" :alt="post.title" class="w-full h-full object-cover" width="1200" height="600" loading="eager" />
         <div class="absolute inset-0 bg-black bg-opacity-40"></div>
       </div>
 
@@ -187,7 +187,7 @@ const productCategories = computed(() => {
               :to="relatedPost._path"
               class="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors">
               <div v-if="relatedPost.image" class="h-48 overflow-hidden">
-                <NuxtImg :src="relatedPost.image" :alt="relatedPost.title" class="w-full h-full object-cover" width="400" height="200" />
+                <img :src="relatedPost.image" :alt="relatedPost.title" class="w-full h-full object-cover" width="400" height="200" />
               </div>
               <div class="p-6">
                 <h4 class="text-white font-semibold mb-2 line-clamp-2">

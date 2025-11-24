@@ -52,7 +52,7 @@ const moveToWishList = () => {
     <div v-if="productType" class="flex items-start gap-2 group py-2">
       <!-- Product Image (fixed width) -->
       <NuxtLink :to="productSlug" class="flex-shrink-0">
-        <NuxtImg
+        <img
           width="64"
           height="64"
           class="w-16 h-16 rounded-md skeleton"

@@ -50,7 +50,7 @@ const isVariableProduct = computed(() => {
       <SaleBadge :node class="absolute top-2 right-2 z-10" />
       <div class="relative w-full pt-[100%] overflow-hidden bg-white rounded-lg">
         <!-- The pt-[100%] creates a perfect square aspect ratio container -->
-        <NuxtImg
+        <img
           v-if="imagetoDisplay"
           :width="imgWidth"
           :height="imgWidth"
@@ -58,10 +58,7 @@ const isVariableProduct = computed(() => {
           :alt="node.image?.altText || node.name || 'Product image'"
           :title="node.image?.title || node.name"
           :loading="index <= 3 ? 'eager' : 'lazy'"
-          :sizes="`sm:${imgWidth / 2}px md:${imgWidth}px`"
-          class="absolute top-0 left-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-          placeholder
-          placeholder-class="blur-xl" />
+          class="absolute top-0 left-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300" />
       </div>
     </NuxtLink>
     <div class="p-2">
