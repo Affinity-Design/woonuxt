@@ -1,31 +1,12 @@
 # Cloudflare Pages Configuration
-# This file defines KV namespace bindings and build output directory
+# For Pages, KV bindings are configured in the dashboard (Settings > Bindings)
+# This file only specifies the build output directory
 
 name = "woonuxt"
 
-# CRITICAL: Pages build output directory
-# This tells Cloudflare Pages where to find the built files
+# REQUIRED: Pages build output directory
 pages_build_output_dir = ".output/public"
-
-# KV Namespace bindings
-# These binding names MUST match what's used in nuxt.config.ts
-[[kv_namespaces]]
-binding = "NUXT_CACHE"
-id = "" # Set in Cloudflare Pages dashboard per environment
-
-[[kv_namespaces]]
-binding = "NUXT_SCRIPT_DATA"
-id = "" # Set in Cloudflare Pages dashboard per environment
-
-# Environment-specific configuration
-[env.production]
-name = "woonuxt-production"
-vars = { ENVIRONMENT = "production" }
-
-[env.preview]
-name = "woonuxt-preview"
-vars = { ENVIRONMENT = "test" }
 
 # Compatibility settings
 compatibility_date = "2024-01-01"
-compatibility_flags = ["nodejs_compat"]
+
