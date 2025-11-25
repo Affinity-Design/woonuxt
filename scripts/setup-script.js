@@ -1,6 +1,7 @@
 // scripts/setup-script.js
 require('dotenv').config(); // Ensure environment variables are loaded
 const {execSync} = require('child_process');
+const fetch = require('node-fetch');
 
 console.log('🚀 Starting build-time data population for Cloudflare KV...');
 
@@ -11,12 +12,81 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const CONFIG = {
   LIMIT_PRODUCTS: process.env.LIMIT_PRODUCTS === 'true',
   MAX_PRODUCTS: parseInt(process.env.MAX_PRODUCTS || '2000', 10),
+  CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+  CF_API_TOKEN: process.env.CF_API_TOKEN,
+  CF_KV_NAMESPACE_ID_SCRIPT_DATA: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA,
   // Add any other relevant build-time configurations here
   // RUN_CACHE_WARMING and WARM_CRITICAL_ONLY might be relevant for a post-deploy trigger,
   // but their data isn't directly handled by this script anymore.
 };
 
 console.log('Build Configuration:', JSON.stringify(CONFIG, null, 2));
+
+/**
+ * Purge all keys from KV namespace before rebuilding cache
+ * This ensures we start with a clean slate
+ */
+async function purgeKVCache() {
+  console.log('🗑️  Purging existing KV cache...');
+
+  if (!CONFIG.CF_ACCOUNT_ID || !CONFIG.CF_API_TOKEN || !CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA) {
+    console.warn('⚠️  Cloudflare credentials not set. Skipping cache purge.');
+    return false;
+  }
+
+  try {
+    // List all keys in the namespace
+    const listUrl = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA}/keys`;
+    
+    const listResponse = await fetch(listUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
+      },
+    });
+
+    const listData = await listResponse.json();
+
+    if (!listResponse.ok || !listData.success) {
+      console.error('Error listing KV keys:', listData);
+      return false;
+    }
+
+    const keys = listData.result.map(item => item.name);
+    
+    if (keys.length === 0) {
+      console.log('✅ KV namespace is already empty.');
+      return true;
+    }
+
+    console.log(`Found ${keys.length} keys to delete: ${keys.join(', ')}`);
+
+    // Delete all keys
+    const bulkDeleteUrl = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA}/bulk`;
+    
+    const deleteResponse = await fetch(bulkDeleteUrl, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${CONFIG.CF_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(keys),
+    });
+
+    const deleteData = await deleteResponse.json();
+
+    if (!deleteResponse.ok || !deleteData.success) {
+      console.error('Error deleting KV keys:', deleteData);
+      return false;
+    }
+
+    console.log(`✅ Successfully purged ${keys.length} keys from KV cache.`);
+    return true;
+  } catch (error) {
+    console.error('Error purging KV cache:', error.message);
+    return false;
+  }
+}
 
 /**
  * Run the category data population script (writes to KV).
@@ -91,19 +161,26 @@ function generateAllRoutes() {
 // Main function to sequence operations
 async function main() {
   try {
-    console.log('Starting route generation...');
-    await generateAllRoutes();
+    console.log('🧹 Step 1: Purging existing KV cache...');
+    await purgeKVCache();
+    console.log('');
 
-    console.log('Starting data population for categories...');
+    console.log('📝 Step 2: Generating routes...');
+    await generateAllRoutes();
+    console.log('');
+
+    console.log('📦 Step 3: Populating category data...');
     await populateCategoryData();
+    console.log('');
 
     // Optional: Add a small delay if there are concerns about rapid API calls,
     // though each script makes multiple calls already.
-    console.log('Waiting 1 second before populating product data...');
+    console.log('⏳ Waiting 1 second before populating product data...');
     await delay(1000);
 
-    console.log('Starting data population for products...');
+    console.log('📦 Step 4: Populating product data...');
     await populateProductData();
+    console.log('');
 
     // The 'deployment-data.json' file is no longer created here as data goes directly to KV.
     // If you need to signal the post-deploy script (cache warmer) or pass build-time metadata,

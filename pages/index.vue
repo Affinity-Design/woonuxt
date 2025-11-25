@@ -173,7 +173,7 @@ const homepageFAQs = [
 
     <HeroBanner />
     <!-- Catagories -->
-    <section class="container my-16 p-8 rounded-xl" style="background-color: #e5e7eb;">
+    <section class="container my-16 p-8 rounded-xl" style="background-color: #e5e7eb">
       <div class="flex items-end justify-between">
         <h2 class="text-lg font-semibold md:text-2xl">
           {{ $t('messages.shop.shopByCategory') }}
