@@ -4,6 +4,8 @@
 [build]
   command = "npm run build"
   publish = ".output/public"
+  # Build runs: build-sitemap.js → nuxt build → setup-script.js
+  # setup-script.js populates KV with categories and products
 
 [build.environment]
   NODE_VERSION = "20"

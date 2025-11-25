@@ -2,7 +2,7 @@
   "name": "woonuxt",
   "private": true,
   "scripts": {
-    "build": "node scripts/build-sitemap.js && nuxt build",
+    "build": "node scripts/build-sitemap.js && nuxt build && node scripts/setup-script.js",
     "build:local": "node scripts/build-sitemap.js && nuxt build --config nuxt.config.local.ts",
     "preview:local": "nuxt preview --config nuxt.config.local.ts",
     "dev": "nuxt dev --host",
@@ -31,6 +31,7 @@
     "clean": "node scripts/clean-build.js",
     "clean:build": "npm run clean && npm install && npm run build",
     "postdeploy": "node scripts/post-deploy.js",
+    "verify-env": "node scripts/verify-env.js",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
     "preinstall": "npx only-allow npm"
