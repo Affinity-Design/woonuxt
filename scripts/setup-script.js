@@ -37,7 +37,7 @@ async function purgeKVCache() {
   try {
     // List all keys in the namespace
     const listUrl = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA}/keys`;
-    
+
     const listResponse = await fetch(listUrl, {
       method: 'GET',
       headers: {
@@ -52,8 +52,8 @@ async function purgeKVCache() {
       return false;
     }
 
-    const keys = listData.result.map(item => item.name);
-    
+    const keys = listData.result.map((item) => item.name);
+
     if (keys.length === 0) {
       console.log('✅ KV namespace is already empty.');
       return true;
@@ -63,7 +63,7 @@ async function purgeKVCache() {
 
     // Delete all keys
     const bulkDeleteUrl = `https://api.cloudflare.com/client/v4/accounts/${CONFIG.CF_ACCOUNT_ID}/storage/kv/namespaces/${CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA}/bulk`;
-    
+
     const deleteResponse = await fetch(bulkDeleteUrl, {
       method: 'DELETE',
       headers: {
