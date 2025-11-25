@@ -1,5 +1,5 @@
 // composables/useExchangeRate.ts
-import {useState, useRuntimeConfig, useFetch, useCookie} from '#imports';
+import {useState, useRuntimeConfig, useFetch, useCookie, callOnce} from '#imports';
 
 // Helper function to check if running on the server/build context
 const isServerContext = () => process.server;
@@ -188,10 +188,7 @@ export const useExchangeRate = () => {
 
   // --- Auto-initialize on client (runs only once globally) ---
   if (process.client && !initializationAttempted) {
-    // Use nextTick to ensure DOM is ready
-    import('#app').then(({callOnce}) => {
-      callOnce('exchangeRateInit', initializeOnClient);
-    });
+    callOnce('exchangeRateInit', initializeOnClient);
   }
 
   return {
