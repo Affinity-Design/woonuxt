@@ -1,21 +1,17 @@
-import pkg from "../woonuxt_base/package.json";
+import pkg from '../woonuxt_base/package.json';
 
 // A collection of helper functions.
 export function useHelpers() {
   const route = useRoute();
   const runtimeConfig = useRuntimeConfig();
 
-  const isShowingMobileMenu = useState<boolean>(
-    "isShowingMobileMenu",
-    () => false
-  );
-  const wooNuxtVersionInfo: string = pkg.version || "0.0.0";
+  const isShowingMobileMenu = useState<boolean>('isShowingMobileMenu', () => false);
+  const wooNuxtVersionInfo: string = pkg.version || '0.0.0';
   const productsPerPage: number = runtimeConfig.public?.PRODUCTS_PER_PAGE || 24;
   const wooNuxtSEO = runtimeConfig.public?.WOO_NUXT_SEO as WooNuxtSEOItem[];
-  const frontEndUrl =
-    runtimeConfig.public?.FRONT_END_URL?.replace(/\/$/, "") || null;
-  const isDev: boolean = process.env.NODE_ENV === "development";
-  const FALLBACK_IMG = "/images/placeholder.jpg";
+  const frontEndUrl = runtimeConfig.public?.FRONT_END_URL?.replace(/\/$/, '') || null;
+  const isDev: boolean = process.env.NODE_ENV === 'development';
+  const FALLBACK_IMG = '/images/placeholder.jpg';
 
   /**
    * Toggles the mobile menu.
@@ -31,8 +27,8 @@ export function useHelpers() {
    */
   const formatVariationArrays = (arr: any[]): any[] =>
     arr.map((a) => ({
-      name: a.name.replace(/[-\s]/g, ""),
-      value: a.value.replace(/[-\s]/g, ""),
+      name: a.name.replace(/[-\s]/g, ''),
+      value: a.value.replace(/[-\s]/g, ''),
     }));
 
   /**
@@ -41,17 +37,15 @@ export function useHelpers() {
    * @param {any[]} a2 - The second array of variations to compare.
    * @returns {boolean} True if the arrays are equal, false otherwise.
    */
-  const arraysEqual = (a1: any[], a2: any[]): boolean =>
-    JSON.stringify(formatVariationArrays(a1)) ===
-    JSON.stringify(formatVariationArrays(a2));
+  const arraysEqual = (a1: any[], a2: any[]): boolean => JSON.stringify(formatVariationArrays(a1)) === JSON.stringify(formatVariationArrays(a2));
 
   // Formats an array of variations by converting the name and value properties to lowercase.
   const formatArray = (arr: any[]): any[] => {
     return arr.map((v) => {
       let name = v.name.toLowerCase();
-      name = name.startsWith("pa_") ? name.replace("pa_", "") : name;
+      name = name.startsWith('pa_') ? name.replace('pa_', '') : name;
       const value = v.value.toLowerCase();
-      return { name, value };
+      return {name, value};
     });
   };
 
@@ -59,11 +53,11 @@ export function useHelpers() {
    * Clears all cookies.
    */
   function clearAllCookies(): void {
-    const cookies = document.cookie.split(";");
+    const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
-      const eqPos = cookie.indexOf("=");
+      const eqPos = cookie.indexOf('=');
       const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
   }
 
@@ -81,17 +75,10 @@ export function useHelpers() {
    * @param {string} search - The URL to search.
    * @returns {string} The updated URL.
    */
-  function replaceQueryParam(
-    param: string,
-    newval: string,
-    search: string
-  ): string {
-    const regex = new RegExp("([?;&])" + param + "[^&;]*[;&]?");
-    const query = search.replace(regex, "$1").replace(/&$/, "");
-    return (
-      (query.length > 2 ? query + "&" : "?") +
-      (newval ? param + "=" + newval : "")
-    );
+  function replaceQueryParam(param: string, newval: string, search: string): string {
+    const regex = new RegExp('([?;&])' + param + '[^&;]*[;&]?');
+    const query = search.replace(regex, '$1').replace(/&$/, '');
+    return (query.length > 2 ? query + '&' : '?') + (newval ? param + '=' + newval : '');
   }
 
   /**
@@ -99,7 +86,7 @@ export function useHelpers() {
    * @param {string} className - The class to remove.
    */
   function removeBodyClass(className: string): void {
-    const body = document.querySelector("body");
+    const body = document.querySelector('body');
     body?.classList.remove(className);
   }
 
@@ -108,7 +95,7 @@ export function useHelpers() {
    * @param {string} className - The class to add.
    */
   function addBodyClass(className: string): void {
-    const body = document.querySelector("body");
+    const body = document.querySelector('body');
     body?.classList.add(className);
   }
 
@@ -117,10 +104,8 @@ export function useHelpers() {
    * @param {string} className - The class to toggle.
    */
   function toggleBodyClass(className: string): void {
-    const body = document.querySelector("body");
-    body?.classList.contains(className)
-      ? body.classList.remove(className)
-      : body?.classList.add(className);
+    const body = document.querySelector('body');
+    body?.classList.contains(className) ? body.classList.remove(className) : body?.classList.add(className);
   }
 
   /**
@@ -136,8 +121,7 @@ export function useHelpers() {
       const tempArray = [] as string[];
       product.variations?.nodes.forEach((element) => {
         // @ts-ignore
-        if (element.attributes?.nodes[index]?.value)
-          tempArray.push(element.attributes.nodes[index].value);
+        if (element.attributes?.nodes[index]?.value) tempArray.push(element.attributes.nodes[index].value);
       });
 
       if (!tempArray.some(Boolean)) indexOfTypeAny.push(index);
@@ -150,9 +134,7 @@ export function useHelpers() {
    * Determines if the route query is empty.
    * @returns {boolean} True if the route query is empty, false otherwise.
    */
-  const isQueryEmpty = computed<boolean>(
-    () => Object.keys(route.query).length === 0
-  );
+  const isQueryEmpty = computed<boolean>(() => Object.keys(route.query).length === 0);
 
   /**
    * Formats a date string.
@@ -160,11 +142,11 @@ export function useHelpers() {
    * @returns {string} The formatted date string.
    */
   const formatDate = (date?: string | null): string => {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
     });
   };
 
@@ -175,11 +157,11 @@ export function useHelpers() {
    */
   const formatPrice = (price: string | number | null | undefined): string => {
     // Ensure price is a string and clean it
-    let numericString = String(price || "0");
+    let numericString = String(price || '0');
 
     // Remove common currency symbols, non-breaking spaces, and other non-numeric characters
     // except for the decimal point. This regex can be expanded if other characters are common.
-    numericString = numericString.replace(/[^\d.-]/g, "");
+    numericString = numericString.replace(/[^\d.-]/g, '');
 
     // Attempt to parse the cleaned string
     const number = parseFloat(numericString);
@@ -187,15 +169,15 @@ export function useHelpers() {
     // Check if parsing was successful and it's a valid number
     if (isNaN(number)) {
       // Fallback for safety, though ideally numericString should be parseable
-      return (0).toLocaleString("en-US", {
-        style: "currency",
-        currency: "CAD",
+      return (0).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'CAD',
       });
     }
 
-    return number.toLocaleString("en-US", {
-      style: "currency",
-      currency: "CAD",
+    return number.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'CAD',
     });
   };
 
@@ -203,7 +185,7 @@ export function useHelpers() {
    * Scrolls to the top of the page.
    */
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({top: 0, behavior: 'smooth'});
   };
 
   /**
@@ -211,8 +193,8 @@ export function useHelpers() {
    * @param {string} str - The string to strip.
    * @returns {string} The stripped string.
    */
-  const stripHtml = (str: string | null | undefined = ""): string => {
-    return str === null ? "" : str.replace(/(<([^>]+)>)/gi, "");
+  const stripHtml = (str: string | null | undefined = ''): string => {
+    return str === null ? '' : str.replace(/(<([^>]+)>)/gi, '');
   };
 
   /**
@@ -248,15 +230,10 @@ export function useHelpers() {
    */
   const getDomain = (url: string): string => {
     const match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
-    if (
-      match !== null &&
-      match.length > 2 &&
-      typeof match[2] === "string" &&
-      match[2].length > 0
-    ) {
+    if (match !== null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
       return match[2];
     }
-    return "";
+    return '';
   };
 
   return {

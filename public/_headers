@@ -1,0 +1,62 @@
+# Cloudflare Pages Headers Configuration
+# Set proper MIME types for static assets to prevent "Unexpected token '<'" errors
+
+# JavaScript files - CRITICAL for site functionality
+/_nuxt/*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.mjs
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+# CSS files
+/_nuxt/*.css
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+# JSON files (including payload files)
+/_nuxt/*.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/_payload.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: no-cache
+
+# Fonts
+/_nuxt/*.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.woff
+  Content-Type: font/woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images
+/_nuxt/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.jpg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.jpeg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.webp
+  Content-Type: image/webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/_nuxt/*.svg
+  Content-Type: image/svg+xml
+  Cache-Control: public, max-age=31536000, immutable
+
+# Security headers for all pages
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
