@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "description": "Cloudflare Pages routing configuration",
+  "include": ["/*"],
+  "exclude": [
+    "/_nuxt/*",
+    "/images/*",
+    "/icons/*",
+    "/*.txt",
+    "/*.xml",
+    "/*.json",
+    "/*.ico",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml"
+  ]
+}

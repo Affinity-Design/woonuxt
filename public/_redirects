@@ -1,25 +1,11 @@
-# Cloudflare Pages - Static Assets First
-# Critical: _nuxt assets MUST be served directly, not redirected
+# Cloudflare Pages Redirects Configuration
+# CRITICAL: Static assets must NOT be caught by SPA fallback
 
-# IMPORTANT: Cloudflare Pages processes redirects in order
-# Static asset rules MUST come before SPA fallback
+# Blog post redirects (without /blog prefix redirect to /blog/slug)
+# These are dynamically generated from blog posts
 
-# All _nuxt assets - serve directly (NO redirect to index.html)
-/_nuxt/* 200
-
-# Public folder assets (images, icons, etc.) - serve directly
-/images/* 200
-/icons/* 200
-
-# Static files - serve directly
-/*.txt 200
-/*.xml 200
-/*.json 200
-/*.ico 200
-/favicon.ico 200
-/robots.txt 200
-/sitemap.xml 200
-
-# SPA fallback - ONLY for routes that don't match above
-# This will NOT match _nuxt/* because it was already handled
+# SPA fallback for client-side routing
+# This catches all requests that don't match static files
+# Cloudflare Pages automatically serves files from _nuxt/ directory
+# so we DON'T need explicit rules for /_nuxt/*
 /* /index.html 200
