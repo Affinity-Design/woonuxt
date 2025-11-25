@@ -1,10 +1,11 @@
 # Cloudflare Pages Configuration
-# This file defines KV namespace bindings for different environments
-
-# Note: Cloudflare Pages automatically detects this file
-# Make sure to set the actual namespace IDs in Cloudflare Pages dashboard
+# This file defines KV namespace bindings and build output directory
 
 name = "woonuxt"
+
+# CRITICAL: Pages build output directory
+# This tells Cloudflare Pages where to find the built files
+pages_build_output_dir = ".output/public"
 
 # KV Namespace bindings
 # These binding names MUST match what's used in nuxt.config.ts
