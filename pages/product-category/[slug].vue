@@ -13,7 +13,7 @@ const nuxtApp = useNuxtApp();
 const {setCategorySEO} = useCategorySEO();
 
 // Category content data
-import {getCategoryContent} from '~/data/category-content';
+import {getCategoryContent} from '../../data/category-content';
 
 // Ensure slug is a string
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : (route.params.slug as string);

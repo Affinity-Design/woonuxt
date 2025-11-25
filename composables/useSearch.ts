@@ -1,7 +1,6 @@
 // composables/useSearch.ts
 import {ref, computed, watch, onMounted} from 'vue';
 import Fuse from 'fuse.js';
-import productsData from '~/data/products-list.json';
 
 export function useSearch() {
   const router = useRouter();
@@ -37,7 +36,11 @@ export function useSearch() {
       if (isLocal) {
         // LOCAL ENVIRONMENT: Use local text file
         try {
-          // Directly use the imported JSON data
+          // Dynamically fetch the JSON data
+          const response = await fetch('/data/products-list.json');
+          if (!response.ok) throw new Error('Failed to fetch products data');
+          const productsData = await response.json();
+
           if (Array.isArray(productsData)) {
             products = productsData;
           } else {

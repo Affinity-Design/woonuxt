@@ -10,11 +10,11 @@ import {
 } from '#woo';
 import {defineAsyncComponent, computed, ref, onMounted, watch} from 'vue';
 import {useRoute, useNuxtApp, useAppConfig, useCart, useI18n, useHead, useAsyncData, useRuntimeConfig} from '#imports';
-import {useHelpers} from '~/composables/useHelpers';
-import {useExchangeRate} from '~/composables/useExchangeRate';
-import {useProductSEO} from '~/composables/useProductSEO';
+// import {useHelpers} from '~/composables/useHelpers';
+// import {useExchangeRate} from '~/composables/useExchangeRate';
+// import {useProductSEO} from '~/composables/useProductSEO';
 // Import from the updated priceConverter.ts
-import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter'; // Added cleanAndExtractPriceInfo for fallback
+// import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter'; // Added cleanAndExtractPriceInfo for fallback
 
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 

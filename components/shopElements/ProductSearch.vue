@@ -1,12 +1,11 @@
 <script setup>
-import { ref, watch, computed, nextTick } from "vue";
-import { useDebounceFn, onClickOutside } from "@vueuse/core";
-import { useSearch } from "~/composables/useSearch"; // Assuming this path is correct
+import {ref, watch, computed, nextTick} from 'vue';
+import {useDebounceFn, onClickOutside} from '@vueuse/core';
 
 // Composables
-const componentName = "SearchComponent";
+const componentName = 'SearchComponent';
 const router = useRouter();
-const { t } = useI18n();
+const {t} = useI18n();
 
 // Search composable state and functions
 const {
@@ -25,20 +24,16 @@ const preventAutoClose = ref(true);
 
 // Helper to format price string
 const formatPrice = (priceString) => {
-  if (!priceString) return "";
+  if (!priceString) return '';
   let priceToFormat = String(priceString);
-  if (priceToFormat.includes(",")) {
-    priceToFormat = priceToFormat.split(",")[0];
+  if (priceToFormat.includes(',')) {
+    priceToFormat = priceToFormat.split(',')[0];
   }
-  priceToFormat = priceToFormat.replace(/&nbsp;/g, " ").trim();
-  const numericPart = priceToFormat.replace(/[^0-9.-]+/g, "");
-  if (priceToFormat.startsWith("$")) {
+  priceToFormat = priceToFormat.replace(/&nbsp;/g, ' ').trim();
+  const numericPart = priceToFormat.replace(/[^0-9.-]+/g, '');
+  if (priceToFormat.startsWith('$')) {
     return priceToFormat;
-  } else if (
-    numericPart &&
-    !isNaN(parseFloat(numericPart)) &&
-    priceToFormat === numericPart
-  ) {
+  } else if (numericPart && !isNaN(parseFloat(numericPart)) && priceToFormat === numericPart) {
     return `$${priceToFormat}`;
   }
   return priceToFormat;
@@ -78,7 +73,7 @@ const onInputChange = (e) => {
 
 // Handler to clear search input and results
 const handleClear = () => {
-  localInputValue.value = ""; // Clear the local input value
+  localInputValue.value = ''; // Clear the local input value
   clearSearch(); // Call the composable's clearSearch function
 
   if (isShowingSearch.value) {
@@ -144,12 +139,7 @@ watch(isShowingSearch, (newValue, oldValue) => {
 
 // MODIFIED: Click outside handler now respects preventAutoClose flag
 onClickOutside(searchWrapper, (event) => {
-  if (
-    !preventAutoClose.value &&
-    isShowingSearch.value &&
-    !isInputFocused.value &&
-    !isSearchJustOpened.value
-  ) {
+  if (!preventAutoClose.value && isShowingSearch.value && !isInputFocused.value && !isSearchJustOpened.value) {
     toggleSearch(); // Hides the dropdown
   } else {
     // onClickOutside detected but ignored due to conditions
@@ -162,8 +152,7 @@ const shouldShowResultsDropdown = computed(() => {
   if (isLoading.value) return true; // Show dropdown for loading state
   // Show if there's input and results, or input and no results (for "no results" message)
   if (localInputValue.value && hasResults.value) return true;
-  if (localInputValue.value && !isLoading.value && !hasResults.value)
-    return true; // For "no results" message
+  if (localInputValue.value && !isLoading.value && !hasResults.value) return true; // For "no results" message
   return false;
 });
 
@@ -182,7 +171,7 @@ const showNoResultsMessage = computed(() => {
 // ---------------------------------------------------------------------------
 const handleEnterKeyNavigation = () => {
   // If we have a search query, navigate to the search page with the query parameter
-  if (localInputValue.value && localInputValue.value.trim() !== "") {
+  if (localInputValue.value && localInputValue.value.trim() !== '') {
     // Close the search dropdown
     if (isShowingSearch.value) {
       toggleSearch();
@@ -190,8 +179,8 @@ const handleEnterKeyNavigation = () => {
 
     // Navigate to the search page with the query parameter
     router.push({
-      path: "/search",
-      query: { q: localInputValue.value },
+      path: '/search',
+      query: {q: localInputValue.value},
     });
   } else {
     // Enter key: No search query entered.
@@ -201,16 +190,9 @@ const handleEnterKeyNavigation = () => {
 </script>
 
 <template>
-  <div
-    ref="searchWrapper"
-    class="relative w-full md:w-[150%] lg:w-[150%] xl:w-[150%] max-w-4xl"
-  >
+  <div ref="searchWrapper" class="relative w-full md:w-[150%] lg:w-[150%] xl:w-[150%] max-w-4xl">
     <div class="relative flex items-center w-full">
-      <Icon
-        name="ion:search-outline"
-        size="20"
-        class="absolute z-10 opacity-50 pointer-events-none left-2"
-      />
+      <Icon name="ion:search-outline" size="20" class="absolute z-10 opacity-50 pointer-events-none left-2" />
       <input
         ref="searchInputDOM"
         v-model="localInputValue"
@@ -224,14 +206,12 @@ const handleEnterKeyNavigation = () => {
         aria-label="Search products"
         role="searchbox"
         :aria-expanded="shouldShowResultsDropdown"
-        aria-controls="search-results-dropdown"
-      />
+        aria-controls="search-results-dropdown" />
       <span
         v-if="localInputValue && localInputValue.trim() !== ''"
         class="absolute z-10 flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer bg-primary bg-opacity-10 hover:bg-opacity-20 text-primary right-2"
-        @click="handleClear"
-      >
-        <span>{{ $t("messages.general.clear") }}</span>
+        @click="handleClear">
+        <span>{{ $t('messages.general.clear') }}</span>
         <Icon name="ion:close-outline" size="18" />
       </span>
     </div>
@@ -242,56 +222,28 @@ const handleEnterKeyNavigation = () => {
         id="search-results-dropdown"
         class="absolute z-30 mt-[50px] w-full bg-white shadow-lg rounded-lg border border-gray-200 max-h-96 overflow-y-auto"
         role="listbox"
-        aria-labelledby="search-results-info"
-      >
-        <div
-          class="flex justify-between items-center p-2 border-b bg-gray-50 sticky top-0 z-10"
-        >
-          <div
-            id="search-results-info"
-            class="text-xs text-gray-500"
-            aria-live="polite"
-          >
+        aria-labelledby="search-results-info">
+        <div class="flex justify-between items-center p-2 border-b bg-gray-50 sticky top-0 z-10">
+          <div id="search-results-info" class="text-xs text-gray-500" aria-live="polite">
             <span v-if="isLoading">
-              {{ t("messages.shop.searching", "Searching...") }}
+              {{ t('messages.shop.searching', 'Searching...') }}
             </span>
             <span v-else-if="hasResults">
-              {{
-                t(
-                  "messages.shop.resultsFound",
-                  { count: searchResults.length },
-                  searchResults.length + " results found"
-                )
-              }}
+              {{ t('messages.shop.resultsFound', {count: searchResults.length}, searchResults.length + ' results found') }}
             </span>
             <span v-else-if="localInputValue && !isLoading && !hasResults">
-              {{
-                t(
-                  "messages.shop.noResults",
-                  "No products found matching your query."
-                )
-              }}
+              {{ t('messages.shop.noResults', 'No products found matching your query.') }}
             </span>
-            <span v-else> {{ t("messages.shop.search", "Search") }} </span>
+            <span v-else> {{ t('messages.shop.search', 'Search') }} </span>
           </div>
-          <button
-            type="button"
-            aria-label="Close search results"
-            class="text-gray-400 hover:text-gray-600 p-1"
-            @click="handleClose"
-          >
+          <button type="button" aria-label="Close search results" class="text-gray-400 hover:text-gray-600 p-1" @click="handleClose">
             <Icon name="ion:close" size="16" aria-hidden="true" />
           </button>
         </div>
 
         <div v-if="isLoading" class="p-4 text-center text-gray-500">
-          <Icon
-            name="ion:reload"
-            size="24"
-            class="animate-spin"
-            aria-hidden="true"
-          />
-          <p>{{ t("messages.shop.loading", "Loading results...") }}</p>
+          <Icon name="ion:reload" size="24" class="animate-spin" aria-hidden="true" />
+          <p>{{ t('messages.shop.loading', 'Loading results...') }}</p>
         </div>
 
         <div v-else-if="hasResults">
@@ -301,14 +253,12 @@ const handleEnterKeyNavigation = () => {
               :key="product.databaseId || index"
               class="border-b last:border-0"
               role="option"
-              :aria-selected="false"
-            >
+              :aria-selected="false">
               <div
                 class="flex items-center p-3 hover:bg-gray-50 cursor-pointer"
                 @click="navigateToProduct(product.slug)"
                 @keydown.enter="navigateToProduct(product.slug)"
-                tabindex="0"
-              >
+                tabindex="0">
                 <!-- Image Container -->
                 <div class="w-[30%] pr-3 flex-shrink-0">
                   <img
@@ -316,14 +266,8 @@ const handleEnterKeyNavigation = () => {
                     :src="product.image.sourceUrl"
                     :alt="product.image.altText || product.name"
                     class="object-contain w-full h-auto max-h-20 rounded border"
-                    loading="lazy"
-                  />
-                  <div
-                    v-else
-                    class="w-full h-20 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500"
-                  >
-                    No Image
-                  </div>
+                    loading="lazy" />
+                  <div v-else class="w-full h-20 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">No Image</div>
                 </div>
 
                 <!-- Details Container -->
@@ -334,24 +278,15 @@ const handleEnterKeyNavigation = () => {
                   </p>
                   <div class="text-xs text-gray-400 mt-1 line-clamp-1">
                     <span v-if="product.productCategories?.nodes?.length">
-                      {{
-                        product.productCategories.nodes
-                          .map((cat) => cat.name)
-                          .join(", ")
-                      }}
+                      {{ product.productCategories.nodes.map((cat) => cat.name).join(', ') }}
                     </span>
                     <span v-else-if="product.categories?.length">
-                      {{ product.categories.join(", ") }}
+                      {{ product.categories.join(', ') }}
                     </span>
                   </div>
                 </div>
                 <div class="ml-2 flex-shrink-0">
-                  <Icon
-                    name="ion:chevron-forward"
-                    size="16"
-                    class="text-gray-400"
-                    aria-hidden="true"
-                  />
+                  <Icon name="ion:chevron-forward" size="16" class="text-gray-400" aria-hidden="true" />
                 </div>
               </div>
             </li>
