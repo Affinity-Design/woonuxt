@@ -1,9 +1,10 @@
 {
   "version": 1,
-  "description": "Cloudflare Pages routing configuration",
+  "description": "Cloudflare Pages routing configuration - Static assets only",
   "include": ["/*"],
   "exclude": [
     "/_nuxt/*",
+    "/_payload.json",
     "/images/*",
     "/icons/*",
     "/*.txt",
