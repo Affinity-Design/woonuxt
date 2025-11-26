@@ -154,9 +154,9 @@ export function useCheckout() {
                 quantity: item.quantity,
                 name: item.product?.node?.name,
                 sku: item.product?.node?.sku || item.variation?.node?.sku,
-                // Pass the item's actual total from cart (after discounts)
-                total: item.total,
-                subtotal: item.subtotal,
+                // Pass the item's actual CAD total from cart (use raw string values which are already in CAD)
+                total: item.total, // Already in CAD from cart
+                subtotal: item.subtotal, // Already in CAD from cart
                 // Pass variation attributes (size, color, etc.)
                 variation: item.variation?.node
                   ? {

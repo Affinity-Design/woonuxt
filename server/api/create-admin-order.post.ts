@@ -27,6 +27,46 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
 
+    // Log line items for debugging variation issues and pricing
+    if (lineItems && lineItems.length > 0) {
+      console.log(
+        '📦 Processing line items for admin order:',
+        JSON.stringify(
+          lineItems.map((item: any) => ({
+            productId: item.productId || item.product_id,
+            variationId: item.variationId || item.variation_id,
+            hasVariationData: !!item.variation,
+            attributeCount: item.variation?.attributes?.length || 0,
+            attributes: item.variation?.attributes || [],
+            name: item.name,
+            sku: item.sku,
+            total: item.total,
+            subtotal: item.subtotal,
+          })),
+          null,
+          2,
+        ),
+      );
+    }
+
+    // Log cart totals to verify CAD currency
+    console.log('💰 Cart totals received:', {
+      subtotal: cartTotals?.subtotal,
+      total: cartTotals?.total,
+      totalTax: cartTotals?.totalTax,
+      shippingTotal: cartTotals?.shippingTotal,
+      discountTotal: cartTotals?.discountTotal,
+      currency: currency,
+    });
+
+    // Helper function to parse CAD price strings to numeric values
+    const parseCADPrice = (priceString: string | null): string | null => {
+      if (!priceString) return null;
+      // Remove currency symbols, commas, and whitespace
+      const cleaned = priceString.replace(/[^0-9.\\-]/g, '');
+      return cleaned || null;
+    };
+
     // Create WordPress Application Password authentication
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
     const auth = Buffer.from(appPassword).toString('base64');
@@ -148,24 +188,57 @@ export default defineEventHandler(async (event) => {
         },
 
         // Line items with complete product data including SKU and variations
-        lineItems: (lineItems || []).map((item: any) => ({
-          productId: item.productId || item.product_id,
-          variationId: item.variationId || item.variation_id || null,
-          quantity: item.quantity || 1,
-          name: item.name || '',
-          sku: item.sku || '',
-          total: item.total || null,
-          subtotal: item.subtotal || null,
-          // Include variation metadata if present
-          metaData: item.variation
-            ? [
-                ...Object.entries(item.variation.attributes || {}).map(([key, value]: [string, any]) => ({
-                  key: `attribute_${key}`,
-                  value: value?.name || value,
-                })),
-              ]
-            : [],
-        })),
+        lineItems: (lineItems || []).map((item: any) => {
+          const lineItem: any = {
+            productId: item.productId || item.product_id,
+            variationId: item.variationId || item.variation_id || null,
+            quantity: item.quantity || 1,
+            name: item.name || '',
+            sku: item.sku || '',
+            // Ensure prices are numeric CAD values (strip formatting)
+            total: parseCADPrice(item.total),
+            subtotal: parseCADPrice(item.subtotal),
+          };
+
+          console.log('💵 Line item pricing:', {
+            name: item.name,
+            originalTotal: item.total,
+            parsedTotal: lineItem.total,
+            originalSubtotal: item.subtotal,
+            parsedSubtotal: lineItem.subtotal,
+          });
+
+          // Add variation attributes as metadata in WooCommerce format
+          if (item.variation && Array.isArray(item.variation.attributes)) {
+            console.log('🔍 Processing variation attributes for item:', {
+              name: item.name,
+              variationId: item.variationId || item.variation_id,
+              attributes: item.variation.attributes,
+            });
+
+            lineItem.metaData = item.variation.attributes.map((attr: any) => {
+              // WooCommerce expects attribute keys in format 'pa_size', 'pa_color', etc.
+              // The attr.name should already be in the correct format from the cart
+              const attributeKey = attr.name || attr.attributeName || attr.key;
+              const attributeValue = attr.value || attr.attributeValue;
+
+              console.log('  📋 Mapping attribute:', {
+                originalKey: attr.name,
+                finalKey: attributeKey,
+                value: attributeValue,
+              });
+
+              return {
+                key: attributeKey,
+                value: attributeValue,
+              };
+            });
+
+            console.log('✅ Final metaData for line item:', lineItem.metaData);
+          }
+
+          return lineItem;
+        }),
 
         // Add shipping line with costs from cart totals
         shippingLines: cartTotals?.shippingTotal
@@ -299,13 +372,13 @@ export default defineEventHandler(async (event) => {
           const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
 
           // Add coupon to the order
-          await $fetch(restApiUrl, {
+          const couponResponse = await fetch(restApiUrl, {
             method: 'PUT',
             headers: {
               Authorization: `Basic ${auth}`,
               'Content-Type': 'application/json',
             },
-            body: {
+            body: JSON.stringify({
               coupon_lines: [
                 {
                   code: coupon.code,
@@ -314,27 +387,37 @@ export default defineEventHandler(async (event) => {
                 },
               ],
               currency: currency, // Explicitly set currency to prevent USD conversion
-            },
+            }),
           });
 
-          console.log(`✅ Coupon ${coupon.code} applied to order ${orderData.orderNumber}`);
+          if (couponResponse.ok) {
+            console.log(`✅ Coupon ${coupon.code} applied to order ${orderData.orderNumber}`);
+          } else {
+            const errorText = await couponResponse.text();
+            console.warn(`⚠️ Failed to apply coupon ${coupon.code}:`, errorText);
+          }
         }
 
         // Recalculate totals after applying coupons
-        await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        const recalcResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
           method: 'PUT',
           headers: {
             Authorization: `Basic ${auth}`,
             'Content-Type': 'application/json',
           },
-          body: {
+          body: JSON.stringify({
             // Trigger recalculation
             recalculate: true,
             currency: currency, // Explicitly set currency to prevent USD conversion
-          },
+          }),
         });
 
-        console.log('🔄 Order totals recalculated after coupon application');
+        if (recalcResponse.ok) {
+          console.log('🔄 Order totals recalculated after coupon application');
+        } else {
+          const errorText = await recalcResponse.text();
+          console.warn('⚠️ Failed to recalculate totals:', errorText);
+        }
       } catch (couponError: any) {
         console.warn('⚠️ Failed to apply coupons via REST API:', couponError.message);
         // Don't fail the entire order creation, just log the warning
@@ -346,43 +429,44 @@ export default defineEventHandler(async (event) => {
     try {
       console.log('📧 Updating order to PROCESSING to trigger proper emails...');
 
-      // Small delay to ensure all WooCommerce processing is complete
-      setTimeout(async () => {
-        try {
-          // Update order status to PROCESSING - this triggers proper emails with complete data
-          await $fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-            method: 'PUT',
-            headers: {
-              Authorization: `Basic ${auth}`,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              // Change status to PROCESSING - this triggers both admin and customer emails
-              status: 'processing',
-              // Force WooCommerce to recalculate totals before sending emails
-              set_paid: true,
-              currency: currency, // Explicitly set currency to prevent USD conversion
-              // Add metadata to track email fix
-              meta_data: [
-                {
-                  key: '_email_fix_applied',
-                  value: new Date().toISOString(),
-                },
-                {
-                  key: '_order_completed_processing',
-                  value: 'true',
-                },
-              ],
-            },
-          });
+      // Wait a moment for WooCommerce to finish processing
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-          console.log('✅ Order status updated to PROCESSING with complete data');
-        } catch (statusError: any) {
-          console.warn('⚠️ Failed to update order status:', statusError.message);
-        }
-      }, 1500); // 1.5 second delay to ensure complete processing
+      // Update order status to PROCESSING - this triggers proper emails with complete data
+      const statusUpdateResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Change status to PROCESSING - this triggers both admin and customer emails
+          status: 'processing',
+          // Force WooCommerce to recalculate totals before sending emails
+          set_paid: true,
+          currency: currency, // Explicitly set currency to prevent USD conversion
+          // Add metadata to track email fix
+          meta_data: [
+            {
+              key: '_email_fix_applied',
+              value: new Date().toISOString(),
+            },
+            {
+              key: '_order_completed_processing',
+              value: 'true',
+            },
+          ],
+        }),
+      });
+
+      if (statusUpdateResponse.ok) {
+        console.log('✅ Order status updated to PROCESSING with complete data');
+      } else {
+        const errorText = await statusUpdateResponse.text();
+        console.warn('⚠️ Failed to update order status:', errorText);
+      }
     } catch (emailError: any) {
-      console.warn('⚠️ Email processing setup failed:', emailError.message);
+      console.warn('⚠️ Failed to update order status for email:', emailError.message);
     }
 
     return {
