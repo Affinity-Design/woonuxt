@@ -56,13 +56,22 @@ const {data, pending, error, refresh} = await useAsyncData(
   async () => {
     console.log(`🔄 Fetching products for category: ${slug}`);
 
-    // Use GqlGetProducts directly for the data fetch
+    // Use the base GqlGetProducts query
     const result = await GqlGetProducts({
       slug,
       first: slug === 'clearance-items' ? 255 : productCount.value,
     });
 
     console.log(`✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`);
+
+    if (result?.products?.nodes?.length > 0) {
+      console.log('📋 First product structure:', {
+        name: result.products.nodes[0].name,
+        keys: Object.keys(result.products.nodes[0]),
+        hasTerms: 'terms' in result.products.nodes[0],
+      });
+    }
+
     return result;
   },
   {
@@ -145,27 +154,14 @@ watch(
   {immediate: true},
 );
 
-// ---------------------------------------------------------------------------
-// MODIFICATION: Comment out or remove the watcher for route.query
-// This watcher was responsible for reactively updating the product list
-// based on changes in query parameters (e.g., search terms).
-// ---------------------------------------------------------------------------
-/*
+// Watch for filter changes in the URL query parameters
 watch(
   () => route.query,
   () => {
-    // Guard to ensure this only runs on the category page, though now it's commented out
-    if (route.name !== "product-category-slug") return;
-
-    console.log('[Category Page] route.query changed, previously would call updateProductList. Now inactive.');
-    // updateProductList(); // THIS LINE IS NOW COMMENTED OUT
-                         // updateProductList() from useProducts() is what would typically
-                         // read the query parameters (including search) and filter/sort
-                         // the product list displayed in the UI.
-  }
+    console.log('[Category Page] route.query changed, updating product list with filters');
+    updateProductList(); // Update filtered product list when query params change
+  },
 );
-*/
-// ---------------------------------------------------------------------------
 
 // When the component mounts
 onMounted(() => {

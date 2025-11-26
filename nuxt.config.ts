@@ -70,31 +70,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // Disabled experimental features that can cause hydration issues on Cloudflare Pages
-  // experimental: {
-  //   payloadExtraction: true,
-  // },
-
-  // Simplified Vite config - removed manual chunk splitting that can break hydration
-  // vite: {
-  //   build: {
-  //     cssCodeSplit: true,
-  //     rollupOptions: {
-  //       output: {
-  //         manualChunks(id) {
-  //           // Split vendor chunks
-  //           if (id.includes('node_modules')) {
-  //             if (id.includes('stripe')) return 'stripe';
-  //             if (id.includes('vue')) return 'vue';
-  //             if (id.includes('nuxt')) return 'nuxt';
-  //             return 'vendor';
-  //           }
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
-
   devtools: {enabled: true},
   ssr: true,
 

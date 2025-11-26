@@ -274,4 +274,41 @@ input[type='radio']:checked:after {
   opacity: 1;
   transform: scale(1);
 }
+
+/* Responsive iframe/video containers for embedded content (YouTube, Vimeo, etc.) */
+.prose iframe,
+.prose embed,
+.prose object,
+.prose video {
+  @apply max-w-full h-auto;
+}
+
+/* Specific handling for YouTube/Vimeo embeds - maintain 16:9 aspect ratio */
+.prose iframe[src*='youtube.com'],
+.prose iframe[src*='youtube-nocookie.com'],
+.prose iframe[src*='youtu.be'],
+.prose iframe[src*='vimeo.com'] {
+  @apply w-full;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile-specific constraints for all iframes */
+@media (max-width: 768px) {
+  .prose iframe,
+  .prose embed,
+  .prose object {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .prose iframe[src*='youtube.com'],
+  .prose iframe[src*='youtube-nocookie.com'],
+  .prose iframe[src*='youtu.be'],
+  .prose iframe[src*='vimeo.com'] {
+    aspect-ratio: 16 / 9;
+  }
+}
 </style>

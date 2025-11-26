@@ -2,24 +2,31 @@ let allProducts = [] as Product[];
 
 export function useProducts() {
   // Declare the state variables and the setter functions
-  const products = useState<Product[]>("products");
+  const products = useState<Product[]>('products');
 
   /**
    * Sets the products state variable and the allProducts variable.
    * @param {Product[]} newProducts - The new products to set.
    */
   function setProducts(newProducts: Product[]): void {
-    if (!Array.isArray(newProducts))
-      throw new Error("Products must be an array.");
+    if (!Array.isArray(newProducts)) throw new Error('Products must be an array.');
     products.value = newProducts ?? [];
     allProducts = JSON.parse(JSON.stringify(newProducts));
+
+    // Debug: Log product terms structure
+    if (newProducts.length > 0) {
+      console.log(
+        '[useProducts] Sample product terms:',
+        newProducts[0]?.terms?.nodes?.map((t) => ({taxonomyName: t.taxonomyName, slug: t.slug})),
+      );
+    }
   }
 
   const updateProductList = async (): Promise<void> => {
-    const { scrollToTop } = useHelpers();
-    const { isSortingActive, sortProducts } = useSorting();
-    const { isFiltersActive, filterProducts } = useFiltering();
-    const { searchQuery, searchResults } = useSearch();
+    const {scrollToTop} = useHelpers();
+    const {isSortingActive, sortProducts} = useSorting();
+    const {isFiltersActive, filterProducts} = useFiltering();
+    const {searchQuery, searchResults} = useSearch();
 
     // Check if search is active based on searchQuery
     const isSearchActive = computed(() => !!searchQuery.value);
@@ -28,11 +35,7 @@ export function useProducts() {
     scrollToTop();
 
     // return all products if no filters are active
-    if (
-      !isFiltersActive.value &&
-      !isSearchActive.value &&
-      !isSortingActive.value
-    ) {
+    if (!isFiltersActive.value && !isSearchActive.value && !isSortingActive.value) {
       products.value = allProducts;
       return;
     }
@@ -50,15 +53,13 @@ export function useProducts() {
       // If we reach here and search is active, we need to filter by search
       if (isSearchActive.value) {
         // Make sure searchProducts is defined or use a fallback
-        if (typeof searchProducts === "function") {
+        if (typeof searchProducts === 'function') {
           newProducts = searchProducts(newProducts);
         } else {
           // Simple fallback search function if searchProducts is not defined
           const searchTerm = searchQuery.value.toLowerCase();
           newProducts = newProducts.filter(
-            (product) =>
-              product.name?.toLowerCase().includes(searchTerm) ||
-              product.description?.toLowerCase().includes(searchTerm)
+            (product) => product.name?.toLowerCase().includes(searchTerm) || product.description?.toLowerCase().includes(searchTerm),
           );
         }
       }
@@ -71,5 +72,5 @@ export function useProducts() {
     }
   };
 
-  return { products, allProducts, setProducts, updateProductList };
+  return {products, allProducts, setProducts, updateProductList};
 }

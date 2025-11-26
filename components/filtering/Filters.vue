@@ -1,38 +1,49 @@
 <script setup lang="ts">
-import { TaxonomyEnum } from "#woo";
+import {TaxonomyEnum} from '#woo';
 
-const { isFiltersActive } = useFiltering();
-const { removeBodyClass } = useHelpers();
+const {isFiltersActive} = useFiltering();
+const {removeBodyClass} = useHelpers();
 const runtimeConfig = useRuntimeConfig();
-const { storeSettings } = useAppConfig();
+const {storeSettings} = useAppConfig();
 
 // Define props for hiding various filter components
-const { hideCategories, hidePriceSlider, hideRatings } = defineProps({
-  hideCategories: { type: Boolean, default: false },
-  hidePriceSlider: { type: Boolean, default: false },
-  hideRatings: { type: Boolean, default: false },
+const {hideCategories, hidePriceSlider, hideRatings} = defineProps({
+  hideCategories: {type: Boolean, default: false},
+  hidePriceSlider: {type: Boolean, default: false},
+  hideRatings: {type: Boolean, default: false},
 });
 
-const globalProductAttributes =
-  (runtimeConfig?.public?.GLOBAL_PRODUCT_ATTRIBUTES as WooNuxtFilter[]) || [];
-const taxonomies = globalProductAttributes.map((attr) =>
-  attr?.slug?.toUpperCase().replace("_", "")
-) as TaxonomyEnum[];
-const { data } = await useAsyncGql("getAllTerms", {
+const globalProductAttributes = (runtimeConfig?.public?.GLOBAL_PRODUCT_ATTRIBUTES as WooNuxtFilter[]) || [];
+const taxonomies = globalProductAttributes.map((attr) => attr?.slug?.toUpperCase().replace(/_/g, '')) as TaxonomyEnum[];
+
+console.log(
+  '[Filters] Global attributes:',
+  globalProductAttributes.map((a) => a.slug),
+);
+console.log('[Filters] Taxonomies for query:', taxonomies);
+
+const {data} = await useAsyncGql('getAllTerms', {
   taxonomies: [...taxonomies, TaxonomyEnum.PRODUCTCATEGORY],
 });
 const terms = data.value?.terms?.nodes || [];
 
+console.log('[Filters] Terms fetched:', terms.length);
+console.log('[Filters] Taxonomy names in terms:', [...new Set(terms.map((t) => t.taxonomyName))]);
+
 // Filter out the product category terms and the global product attributes with their terms
-const productCategoryTerms = terms.filter(
-  (term) => term.taxonomyName === "product_cat"
-);
+const productCategoryTerms = terms.filter((term) => term.taxonomyName === 'product_cat');
+
+// Attributes to hide (not working correctly)
+const hiddenAttributes = ['pa_size', 'pa_brand', 'pa_skating_style', 'pa_wheel_size'];
 
 // Filter out the color attribute and the rest of the global product attributes
-const attributesWithTerms = globalProductAttributes.map((attr) => ({
-  ...attr,
-  terms: terms.filter((term) => term.taxonomyName === attr.slug),
-}));
+// Exclude the hidden attributes
+const attributesWithTerms = globalProductAttributes
+  .filter((attr) => !hiddenAttributes.includes(attr.slug))
+  .map((attr) => ({
+    ...attr,
+    terms: terms.filter((term) => term.taxonomyName === attr.slug),
+  }));
 </script>
 
 <template>
@@ -42,10 +53,7 @@ const attributesWithTerms = globalProductAttributes.map((attr) => ({
       <PriceFilter v-if="!hidePriceSlider" />
       <CategoryFilter v-if="!hideCategories" :terms="productCategoryTerms" />
       <div v-for="attribute in attributesWithTerms" :key="attribute.slug">
-        <ColorFilter
-          v-if="attribute.slug == 'pa_color' || attribute.slug == 'pa_colour'"
-          :attribute
-        />
+        <ColorFilter v-if="attribute.slug == 'pa_color' || attribute.slug == 'pa_colour'" :attribute />
         <GlobalFilter v-else :attribute />
       </div>
       <OnSaleFilter />
@@ -53,10 +61,7 @@ const attributesWithTerms = globalProductAttributes.map((attr) => ({
       <LazyResetFiltersButton v-if="isFiltersActive" />
     </div>
   </aside>
-  <div
-    class="fixed inset-0 z-50 hidden bg-black opacity-25 filter-overlay"
-    @click="removeBodyClass('show-filters')"
-  ></div>
+  <div class="fixed inset-0 z-50 hidden bg-black opacity-25 filter-overlay" @click="removeBodyClass('show-filters')"></div>
 </template>
 
 <style lang="postcss">

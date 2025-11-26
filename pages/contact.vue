@@ -296,16 +296,16 @@ async function submitForm() {
         <p class="text-sm text-gray-600 mt-3">Speak with our skate experts about sizing, products, or skating advice. We're happy to help!</p>
       </div>
 
-      <!-- Email Us -->
+      <!-- Message Us -->
       <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
         <div class="flex items-center mb-3">
           <Icon name="mdi:email" class="w-8 h-8 text-primary mr-3" />
-          <h2 class="text-xl font-semibold">Email Us</h2>
+          <h2 class="text-xl font-semibold">Message Us</h2>
         </div>
         <p class="text-gray-700 mb-2">
-          <a href="mailto:info@proskatersplace.ca" class="text-primary hover:underline"> info@proskatersplace.ca </a>
+          <strong>Use the contact form below</strong>
         </p>
-        <p class="text-sm text-gray-600 mt-3">Send us your questions or feedback. We typically respond within 24 hours during business days.</p>
+        <p class="text-sm text-gray-600 mt-3">Send us your questions or feedback using the form. We typically respond within 24 hours during business days.</p>
       </div>
 
       <!-- Store Hours Card -->
