@@ -161,9 +161,14 @@ function generateAllRoutes() {
 // Main function to sequence operations
 async function main() {
   try {
-    console.log('🧹 Step 1: Purging existing KV cache...');
-    await purgeKVCache();
-    console.log('');
+    // COMMENTED OUT: Do not purge KV cache here.
+    // The build process runs 'scripts/build-sitemap.js' BEFORE this script,
+    // which uploads 'product-seo-meta' and 'sitemap-data' to KV.
+    // If we purge here, we delete that critical data.
+    // Individual scripts (build-products-cache, build-categories-cache) will overwrite their specific keys.
+    // console.log('🧹 Step 1: Purging existing KV cache...');
+    // await purgeKVCache();
+    // console.log('');
 
     console.log('📝 Step 2: Generating routes...');
     await generateAllRoutes();
