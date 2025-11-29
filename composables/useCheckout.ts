@@ -87,7 +87,7 @@ export function useCheckout() {
     }
   }
 
-  const processCheckout = async (isPaid = false): Promise<any> => {
+  const processCheckout = async (isPaid = false, turnstileToken = ''): Promise<any> => {
     const {customer, loginUser} = useAuth();
     const router = useRouter();
     const {cart, emptyCart, refreshCart} = useCart();
@@ -262,7 +262,7 @@ export function useCheckout() {
         checkoutPayload.account = {
           username,
           password,
-          turnstileToken: '', // Required field
+          turnstileToken: turnstileToken || '', // Required field
         } as CreateAccountInput;
       } else {
         // Remove account from checkoutPayload if not creating account
@@ -355,7 +355,11 @@ export function useCheckout() {
           createAccount: !!orderInput.value.createAccount,
         });
 
-        const result = await GqlCheckout(checkoutPayload);
+        const result = await GqlCheckout(checkoutPayload, {
+          headers: {
+            'X-Turnstile-Token': turnstileToken || '',
+          },
+        });
         checkout = result.checkout;
 
         if (checkout?.result !== 'success') {

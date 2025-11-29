@@ -1,10 +1,4 @@
-import type {
-  RegisterCustomerInput,
-  CreateAccountInput,
-  ResetPasswordKeyMutationVariables,
-  ResetPasswordEmailMutationVariables,
-  LoginInput,
-} from "#gql";
+import type {RegisterCustomerInput, CreateAccountInput, ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
 
 interface AuthCredentials extends LoginCredentials {
   turnstileToken: string;
@@ -12,30 +6,22 @@ interface AuthCredentials extends LoginCredentials {
 }
 
 export const useAuth = () => {
-  const { refreshCart } = useCart();
-  const { logGQLError, clearAllCookies } = useHelpers();
+  const {refreshCart} = useCart();
+  const {logGQLError, clearAllCookies} = useHelpers();
   const router = useRouter();
 
-  const customer = useState<Customer>("customer", () => ({
+  const customer = useState<Customer>('customer', () => ({
     billing: {},
     shipping: {},
   }));
-  const viewer = useState<Viewer | null>("viewer", () => null);
-  const isPending = useState<boolean>("isPending", () => false);
-  const orders = useState<Order[] | null>("orders", () => null);
-  const downloads = useState<DownloadableItem[] | null>(
-    "downloads",
-    () => null
-  );
-  const loginClients = useState<LoginClient[] | null>(
-    "loginClients",
-    () => null
-  );
+  const viewer = useState<Viewer | null>('viewer', () => null);
+  const isPending = useState<boolean>('isPending', () => false);
+  const orders = useState<Order[] | null>('orders', () => null);
+  const downloads = useState<DownloadableItem[] | null>('downloads', () => null);
+  const loginClients = useState<LoginClient[] | null>('loginClients', () => null);
 
   // Log in the user
-  const loginUser = async (
-    credentials: CreateAccountInput
-  ): Promise<{ success: boolean; error: any }> => {
+  const loginUser = async (credentials: CreateAccountInput): Promise<{success: boolean; error: any}> => {
     isPending.value = true;
 
     try {
@@ -45,12 +31,12 @@ export const useAuth = () => {
         turnstileToken: credentials.turnstileToken,
       };
 
-      const { login } = await GqlLogin(extendedCredentials, {
+      const {login} = await GqlLogin(extendedCredentials, {
         headers: {
-          "Content-Type": "application/json",
-          "X-Turnstile-Token": credentials.turnstileToken,
+          'Content-Type': 'application/json',
+          'X-Turnstile-Token': credentials.turnstileToken,
         },
-        credentials: "include", // 👈 Critical for cookies
+        credentials: 'include', // 👈 Critical for cookies
       });
 
       if (login?.user && login?.authToken) {
@@ -73,16 +59,12 @@ export const useAuth = () => {
       };
     }
   };
-  const loginWithProvider = async (
-    state: string,
-    code: string,
-    provider: any
-  ): Promise<{ success: boolean; error: any }> => {
+  const loginWithProvider = async (state: string, code: string, provider: any): Promise<{success: boolean; error: any}> => {
     isPending.value = true;
 
     try {
-      const input: LoginInput = { oauthResponse: { state, code }, provider };
-      const response = await GqlLoginWithProvider({ input });
+      const input: LoginInput = {oauthResponse: {state, code}, provider};
+      const response = await GqlLoginWithProvider({input});
       if (response.login?.authToken) {
         useGqlToken(response.login.authToken);
         await refreshCart();
@@ -90,7 +72,7 @@ export const useAuth = () => {
           return {
             success: false,
             error:
-              "Your credentials are correct, but there was an error logging in. This is most likely due to an SSL error. Please try again later. If the problem persists, please contact support.",
+              'Your credentials are correct, but there was an error logging in. This is most likely due to an SSL error. Please try again later. If the problem persists, please contact support.',
           };
         }
       }
@@ -112,44 +94,47 @@ export const useAuth = () => {
   };
 
   // Log out the user
-  const logoutUser = async (): Promise<{ success: boolean; error: any }> => {
+  const logoutUser = async (): Promise<{success: boolean; error: any}> => {
     isPending.value = true;
     try {
-      const { logout } = await GqlLogout();
+      const {logout} = await GqlLogout();
       if (logout) {
         await refreshCart();
         clearAllCookies();
-        customer.value = { billing: {}, shipping: {} };
+        customer.value = {billing: {}, shipping: {}};
       }
-      return { success: true, error: null };
+      return {success: true, error: null};
     } catch (error: any) {
       logGQLError(error);
-      return { success: false, error };
+      return {success: false, error};
     } finally {
       updateViewer(null);
-      if (
-        router.currentRoute.value.path === "/my-account" &&
-        viewer.value === null
-      ) {
-        router.push("/my-account");
+      if (router.currentRoute.value.path === '/my-account' && viewer.value === null) {
+        router.push('/my-account');
       } else {
-        router.push("/");
+        router.push('/');
       }
     }
   };
 
-  const registerUser = async (
-    userInfo: RegisterCustomerInput
-  ): Promise<{ success: boolean; error: any }> => {
+  const registerUser = async (userInfo: RegisterCustomerInput & {turnstileToken?: string}): Promise<{success: boolean; error: any}> => {
     isPending.value = true;
     try {
-      await GqlRegisterCustomer({ input: userInfo });
-      return { success: true, error: null };
+      const {turnstileToken, ...input} = userInfo;
+      await GqlRegisterCustomer(
+        {input},
+        {
+          headers: {
+            'X-Turnstile-Token': turnstileToken || '',
+          },
+        },
+      );
+      return {success: true, error: null};
     } catch (error: any) {
       logGQLError(error);
       const gqlError = error?.gqlErrors?.[0];
       isPending.value = false;
-      return { success: false, error: gqlError?.message };
+      return {success: false, error: gqlError?.message};
     }
   };
 
@@ -157,8 +142,8 @@ export const useAuth = () => {
   const updateCustomer = (payload: Customer): void => {
     const sessionToken = payload?.sessionToken;
     if (sessionToken) {
-      useGqlHeaders({ "woocommerce-session": `Session ${sessionToken}` });
-      const newToken = useCookie("woocommerce-session");
+      useGqlHeaders({'woocommerce-session': `Session ${sessionToken}`});
+      const newToken = useCookie('woocommerce-session');
       newToken.value = sessionToken;
     }
     customer.value = payload;
@@ -178,23 +163,22 @@ export const useAuth = () => {
   }> => {
     try {
       isPending.value = true;
-      const { sendPasswordResetEmail } = await GqlResetPasswordEmail({
+      const {sendPasswordResetEmail} = await GqlResetPasswordEmail({
         username,
       });
       if (sendPasswordResetEmail?.success) {
         isPending.value = false;
-        return { success: true, error: null };
+        return {success: true, error: null};
       }
       return {
         success: false,
-        error:
-          "There was an error sending the reset password email. Please try again later.",
+        error: 'There was an error sending the reset password email. Please try again later.',
       };
     } catch (error: any) {
       logGQLError(error);
       isPending.value = false;
       const gqlError = error?.gqlErrors?.[0];
-      return { success: false, error: gqlError?.message };
+      return {success: false, error: gqlError?.message};
     }
   };
 
@@ -208,7 +192,7 @@ export const useAuth = () => {
   }> => {
     try {
       isPending.value = true;
-      const { resetUserPassword } = await GqlResetPasswordKey({
+      const {resetUserPassword} = await GqlResetPasswordKey({
         key,
         login,
         password,
@@ -216,55 +200,52 @@ export const useAuth = () => {
       const wasPasswordReset = Boolean(resetUserPassword?.user?.id);
       if (wasPasswordReset) {
         isPending.value = false;
-        return { success: true, error: null };
+        return {success: true, error: null};
       }
       return {
         success: false,
-        error:
-          "There was an error resetting the password. Please try again later.",
+        error: 'There was an error resetting the password. Please try again later.',
       };
     } catch (error: any) {
       isPending.value = false;
       const gqlError = error?.gqlErrors?.[0];
-      return { success: false, error: gqlError?.message };
+      return {success: false, error: gqlError?.message};
     }
   };
 
-  const getOrders = async (): Promise<{ success: boolean; error: any }> => {
+  const getOrders = async (): Promise<{success: boolean; error: any}> => {
     try {
-      const { customer } = await GqlGetOrders();
+      const {customer} = await GqlGetOrders();
       if (customer) {
         orders.value = customer.orders?.nodes ?? [];
-        return { success: true, error: null };
+        return {success: true, error: null};
       }
       return {
         success: false,
-        error:
-          "There was an error getting your orders. Please try again later.",
+        error: 'There was an error getting your orders. Please try again later.',
       };
     } catch (error: any) {
       logGQLError(error);
       const gqlError = error?.gqlErrors?.[0];
-      return { success: false, error: gqlError?.message };
+      return {success: false, error: gqlError?.message};
     }
   };
 
-  const getDownloads = async (): Promise<{ success: boolean; error: any }> => {
+  const getDownloads = async (): Promise<{success: boolean; error: any}> => {
     try {
-      const { customer } = await GqlGetDownloads();
+      const {customer} = await GqlGetDownloads();
       if (customer) {
         downloads.value = customer.downloadableItems?.nodes ?? [];
-        return { success: true, error: null };
+        return {success: true, error: null};
       }
       return {
         success: false,
-        error:
-          "There was an error getting your downloads. Please try again later.",
+        error: 'There was an error getting your downloads. Please try again later.',
       };
     } catch (error: any) {
       logGQLError(error);
       const gqlError = error?.gqlErrors?.[0];
-      return { success: false, error: gqlError?.message };
+      return {success: false, error: gqlError?.message};
     }
   };
 
@@ -273,9 +254,7 @@ export const useAuth = () => {
   };
 
   const avatar = computed(() => viewer.value?.avatar?.url ?? null);
-  const wishlistLink = computed<string>(() =>
-    viewer.value ? "/my-account?tab=wishlist" : "/wishlist"
-  );
+  const wishlistLink = computed<string>(() => (viewer.value ? '/my-account?tab=wishlist' : '/wishlist'));
 
   return {
     viewer,

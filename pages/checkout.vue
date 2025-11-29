@@ -18,6 +18,7 @@ const isPaid = ref<boolean>(false);
 const paymentError = ref<string | null>(null);
 const isSubmitting = ref<boolean>(false);
 const helcimCardRef = ref<any>(null);
+const turnstileWidget = ref<any>(null);
 
 // Turnstile state
 const turnstileToken = ref<string>('');
@@ -32,6 +33,31 @@ const helcimTransactionData = ref<any>(null);
 const isCreatingOrder = ref<boolean>(false);
 const orderCreationMessage = ref<string>('');
 const helcimModalClosed = ref<boolean>(false); // Track if user closed modal
+
+// Auto-fill customer details from viewer if available
+watchEffect(() => {
+  if (viewer.value && customer.value && customer.value.billing) {
+    if (!customer.value.billing.firstName && viewer.value.firstName) {
+      customer.value.billing.firstName = viewer.value.firstName;
+    }
+    if (!customer.value.billing.lastName && viewer.value.lastName) {
+      customer.value.billing.lastName = viewer.value.lastName;
+    }
+    if (!customer.value.billing.email && viewer.value.email) {
+      customer.value.billing.email = viewer.value.email;
+    }
+
+    // Also prefill shipping name if empty
+    if (customer.value.shipping) {
+      if (!customer.value.shipping.firstName && viewer.value.firstName) {
+        customer.value.shipping.firstName = viewer.value.firstName;
+      }
+      if (!customer.value.shipping.lastName && viewer.value.lastName) {
+        customer.value.shipping.lastName = viewer.value.lastName;
+      }
+    }
+  }
+});
 
 // Watch for cart updates and preserve Helcim payment state
 watch(
@@ -220,7 +246,7 @@ const payNow = async () => {
     console.log('[payNow] Payment successful, completing order...');
 
     // Complete checkout only if payment succeeded
-    const checkoutResult = await processCheckout(success);
+    const checkoutResult = await processCheckout(success, turnstileToken.value);
     if (!checkoutResult?.success) {
       console.log('[payNow] Order completion failed:', checkoutResult?.errorMessage);
       paymentError.value = checkoutResult?.errorMessage || 'Order completion failed after payment';
@@ -233,6 +259,12 @@ const payNow = async () => {
     paymentError.value = error.message || t('messages.shop.genericError', 'An error occurred');
     isPaid.value = false;
     buttonText.value = t('messages.shop.placeOrder');
+
+    // Reset Turnstile on error so user can try again
+    if (turnstileWidget.value && typeof turnstileWidget.value.reset === 'function') {
+      turnstileWidget.value.reset();
+      turnstileToken.value = '';
+    }
   } finally {
     isSubmitting.value = false;
     if (!paymentError.value) {
@@ -559,37 +591,28 @@ useSeoMeta({
               @payment-complete="handleHelcimComplete" />
           </div>
 
-          <!-- Turnstile security verification - visible widget (shown for non-Helcim payments) -->
+          <!-- Turnstile security verification - invisible widget -->
           <div v-if="isTurnstileEnabled && !shouldShowHelcimCard" class="mt-4 mb-4">
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div class="flex items-start gap-3 mb-3">
-                <Icon name="ion:shield-checkmark" size="20" class="text-green-600 mt-1" />
-                <div>
-                  <div class="font-medium text-gray-800 text-sm">Security Verification</div>
-                  <div class="text-xs text-gray-600 mt-1">Please verify you're human to complete your order</div>
-                </div>
-              </div>
-              <!-- Visible Turnstile widget -->
-              <ClientOnly>
-                <VueTurnstile
-                  v-model="turnstileToken"
-                  :site-key="config.public.turnstile?.siteKey"
-                  theme="light"
-                  size="normal"
-                  @verify="
-                    () => {
-                      turnstileError = '';
-                    }
-                  "
-                  @error="
-                    () => {
-                      turnstileError = 'Security check failed. Please refresh the page.';
-                    }
-                  " />
-              </ClientOnly>
-              <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
-                {{ turnstileError }}
-              </div>
+            <ClientOnly>
+              <VueTurnstile
+                ref="turnstileWidget"
+                v-model="turnstileToken"
+                :site-key="config.public.turnstile?.siteKey"
+                theme="light"
+                size="invisible"
+                @verify="
+                  () => {
+                    turnstileError = '';
+                  }
+                "
+                @error="
+                  () => {
+                    turnstileError = 'Security check failed. Please refresh the page.';
+                  }
+                " />
+            </ClientOnly>
+            <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+              {{ turnstileError }}
             </div>
           </div>
 
