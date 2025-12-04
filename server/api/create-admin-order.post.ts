@@ -362,24 +362,20 @@ export default defineEventHandler(async (event) => {
     // No need to update them separately to avoid duplicates
     console.log('✅ Order created with complete line items via GraphQL');
 
-    // Combine Coupon Application, Recalculation, and Status Update into a single atomic operation
-    // This prevents race conditions where emails are sent before totals are fully calculated
+    // Split into two steps to ensure totals are correct BEFORE triggering the email
+    // Step 1: Apply coupons and recalculate totals
+    // Step 2: Update status to 'processing' (which triggers the email)
     try {
-      console.log('🔄 Finalizing order (Coupons + Recalc + Status)...');
+      console.log('🔄 Step 1: Applying coupons and recalculating...');
 
-      // Prepare the update payload
-      const updatePayload: any = {
+      // Prepare the coupon update payload
+      const couponPayload: any = {
         currency: currency,
         recalculate: true, // Force recalculation of totals/taxes
-        status: 'processing', // Trigger emails
         meta_data: [
           {
             key: '_email_fix_applied',
             value: new Date().toISOString(),
-          },
-          {
-            key: '_order_completed_processing',
-            value: 'true',
           },
         ],
       };
@@ -387,7 +383,7 @@ export default defineEventHandler(async (event) => {
       // Add coupons if present
       if (coupons && coupons.length > 0) {
         console.log(`🎫 Adding ${coupons.length} coupons to payload...`);
-        updatePayload.coupon_lines = coupons.map((c: any) => ({
+        couponPayload.coupon_lines = coupons.map((c: any) => ({
           code: c.code,
           // Pass explicit amounts to override backend defaults (since we use CAD frontend values)
           discount: c.discountAmount || '0',
@@ -398,22 +394,58 @@ export default defineEventHandler(async (event) => {
       // Wait a moment to ensure GraphQL creation is fully settled in DB
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const finalUpdateResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+      const couponResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Basic ${auth}`,
           'Content-Type': 'application/json',
           'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
         },
-        body: JSON.stringify(updatePayload),
+        body: JSON.stringify(couponPayload),
       });
 
-      if (finalUpdateResponse.ok) {
-        console.log('✅ Order finalized successfully (Coupons applied, Recalculated, Status updated)');
+      if (!couponResponse.ok) {
+        const errorText = await couponResponse.text();
+        console.warn('⚠️ Failed to apply coupons:', errorText);
+        // Continue anyway to try and set status, or throw?
+        // If coupons fail, the total will be wrong. Better to log and proceed so the order at least exists.
       } else {
-        const errorText = await finalUpdateResponse.text();
-        console.warn('⚠️ Failed to finalize order:', errorText);
+        console.log('✅ Coupons applied and totals recalculated');
       }
+
+      // Step 2: Update status to processing
+      console.log('🔄 Step 2: Updating status to processing...');
+      
+      // Small delay to ensure DB write completes
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const statusPayload = {
+        status: 'processing',
+        meta_data: [
+          {
+            key: '_order_completed_processing',
+            value: 'true',
+          },
+        ],
+      };
+
+      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+        },
+        body: JSON.stringify(statusPayload),
+      });
+
+      if (statusResponse.ok) {
+        console.log('✅ Order status updated to processing (Email triggered)');
+      } else {
+        const errorText = await statusResponse.text();
+        console.warn('⚠️ Failed to update status:', errorText);
+      }
+
     } catch (finalError: any) {
       console.warn('⚠️ Failed to finalize order:', finalError.message);
     }
