@@ -398,32 +398,36 @@ export default defineEventHandler(async (event) => {
             console.warn(`⚠️ Failed to apply coupon ${coupon.code}:`, errorText);
           }
         }
-
-        // Recalculate totals after applying coupons
-        const recalcResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Basic ${auth}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
-          },
-          body: JSON.stringify({
-            // Trigger recalculation
-            recalculate: true,
-            currency: currency, // Explicitly set currency to prevent USD conversion
-          }),
-        });
-
-        if (recalcResponse.ok) {
-          console.log('🔄 Order totals recalculated after coupon application');
-        } else {
-          const errorText = await recalcResponse.text();
-          console.warn('⚠️ Failed to recalculate totals:', errorText);
-        }
       } catch (couponError: any) {
         console.warn('⚠️ Failed to apply coupons via REST API:', couponError.message);
-        // Don't fail the entire order creation, just log the warning
       }
+    }
+
+    // ALWAYS recalculate totals to ensure tax and shipping are correct before sending emails
+    try {
+      console.log('🔄 Recalculating order totals...');
+      const recalcResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+        },
+        body: JSON.stringify({
+          // Trigger recalculation
+          recalculate: true,
+          currency: currency, // Explicitly set currency to prevent USD conversion
+        }),
+      });
+
+      if (recalcResponse.ok) {
+        console.log('✅ Order totals recalculated successfully');
+      } else {
+        const errorText = await recalcResponse.text();
+        console.warn('⚠️ Failed to recalculate totals:', errorText);
+      }
+    } catch (recalcError: any) {
+      console.warn('⚠️ Failed to recalculate totals:', recalcError.message);
     }
 
     // BEST PRACTICE: Update order to PROCESSING after all calculations are complete
@@ -445,8 +449,8 @@ export default defineEventHandler(async (event) => {
         body: JSON.stringify({
           // Change status to PROCESSING - this triggers both admin and customer emails
           status: 'processing',
-          // Force WooCommerce to recalculate totals before sending emails
-          set_paid: true,
+          // DO NOT force recalculation here as it might revert our manual fixes
+          // set_paid: true, // Removed to prevent auto-recalc
           currency: currency, // Explicitly set currency to prevent USD conversion
           // Add metadata to track email fix
           meta_data: [
