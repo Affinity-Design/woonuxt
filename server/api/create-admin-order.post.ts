@@ -377,6 +377,7 @@ export default defineEventHandler(async (event) => {
             headers: {
               Authorization: `Basic ${auth}`,
               'Content-Type': 'application/json',
+              'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
             },
             body: JSON.stringify({
               coupon_lines: [
@@ -404,6 +405,7 @@ export default defineEventHandler(async (event) => {
           headers: {
             Authorization: `Basic ${auth}`,
             'Content-Type': 'application/json',
+            'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
           },
           body: JSON.stringify({
             // Trigger recalculation
@@ -438,6 +440,7 @@ export default defineEventHandler(async (event) => {
         headers: {
           Authorization: `Basic ${auth}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
         },
         body: JSON.stringify({
           // Change status to PROCESSING - this triggers both admin and customer emails
