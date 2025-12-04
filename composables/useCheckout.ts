@@ -110,7 +110,7 @@ export function useCheckout() {
   }
 
   const processCheckout = async (isPaid = false, turnstileToken = ''): Promise<any> => {
-    const {customer, loginUser} = useAuth();
+    const {customer, viewer, loginUser} = useAuth();
     const router = useRouter();
     const {cart, emptyCart, refreshCart} = useCart();
 
@@ -176,6 +176,7 @@ export function useCheckout() {
               ...(shipToDifferentAddress ? shipping : billing),
               city: sanitizeCity((shipToDifferentAddress ? shipping : billing)?.city || ''),
             },
+            customerId: viewer.value?.databaseId,
             transactionId: orderInput.value.transactionId,
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:

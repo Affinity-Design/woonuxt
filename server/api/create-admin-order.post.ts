@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       metaData = [],
       createAccount = false,
       currency = 'CAD',
+      customerId,
     } = body;
 
     // Validate required configuration
@@ -160,6 +161,7 @@ export default defineEventHandler(async (event) => {
         status: 'PENDING', // Start as PENDING to prevent premature emails
         isPaid: true,
         currency: currency, // Use provided currency or default to CAD
+        customerId: customerId ? parseInt(customerId) : undefined,
 
         billing: {
           firstName: billing?.firstName || '',
@@ -360,120 +362,60 @@ export default defineEventHandler(async (event) => {
     // No need to update them separately to avoid duplicates
     console.log('✅ Order created with complete line items via GraphQL');
 
-    // Apply coupons if any were provided
-    if (coupons && coupons.length > 0) {
-      console.log('🎫 Applying coupons to order via REST API...');
-
-      try {
-        for (const coupon of coupons) {
-          console.log(`📋 Applying coupon: ${coupon.code}`);
-
-          // Use WooCommerce REST API to apply coupon to the order
-          const restApiUrl = `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`;
-
-          // Add coupon to the order
-          const couponResponse = await fetch(restApiUrl, {
-            method: 'PUT',
-            headers: {
-              Authorization: `Basic ${auth}`,
-              'Content-Type': 'application/json',
-              'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
-            },
-            body: JSON.stringify({
-              coupon_lines: [
-                {
-                  code: coupon.code,
-                  discount: coupon.discountAmount || '0',
-                  discount_tax: coupon.discountTax || '0',
-                },
-              ],
-              currency: currency, // Explicitly set currency to prevent USD conversion
-            }),
-          });
-
-          if (couponResponse.ok) {
-            console.log(`✅ Coupon ${coupon.code} applied to order ${orderData.orderNumber}`);
-          } else {
-            const errorText = await couponResponse.text();
-            console.warn(`⚠️ Failed to apply coupon ${coupon.code}:`, errorText);
-          }
-        }
-      } catch (couponError: any) {
-        console.warn('⚠️ Failed to apply coupons via REST API:', couponError.message);
-      }
-    }
-
-    // ALWAYS recalculate totals to ensure tax and shipping are correct before sending emails
+    // Combine Coupon Application, Recalculation, and Status Update into a single atomic operation
+    // This prevents race conditions where emails are sent before totals are fully calculated
     try {
-      console.log('🔄 Recalculating order totals...');
-      const recalcResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+      console.log('🔄 Finalizing order (Coupons + Recalc + Status)...');
+
+      // Prepare the update payload
+      const updatePayload: any = {
+        currency: currency,
+        recalculate: true, // Force recalculation of totals/taxes
+        status: 'processing', // Trigger emails
+        meta_data: [
+          {
+            key: '_email_fix_applied',
+            value: new Date().toISOString(),
+          },
+          {
+            key: '_order_completed_processing',
+            value: 'true',
+          },
+        ],
+      };
+
+      // Add coupons if present
+      if (coupons && coupons.length > 0) {
+        console.log(`🎫 Adding ${coupons.length} coupons to payload...`);
+        updatePayload.coupon_lines = coupons.map((c: any) => ({
+          code: c.code,
+          // Pass explicit amounts to override backend defaults (since we use CAD frontend values)
+          discount: c.discountAmount || '0',
+          discount_tax: c.discountTax || '0',
+        }));
+      }
+
+      // Wait a moment to ensure GraphQL creation is fully settled in DB
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const finalUpdateResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Basic ${auth}`,
           'Content-Type': 'application/json',
           'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
         },
-        body: JSON.stringify({
-          // Trigger recalculation
-          recalculate: true,
-          currency: currency, // Explicitly set currency to prevent USD conversion
-        }),
+        body: JSON.stringify(updatePayload),
       });
 
-      if (recalcResponse.ok) {
-        console.log('✅ Order totals recalculated successfully');
+      if (finalUpdateResponse.ok) {
+        console.log('✅ Order finalized successfully (Coupons applied, Recalculated, Status updated)');
       } else {
-        const errorText = await recalcResponse.text();
-        console.warn('⚠️ Failed to recalculate totals:', errorText);
+        const errorText = await finalUpdateResponse.text();
+        console.warn('⚠️ Failed to finalize order:', errorText);
       }
-    } catch (recalcError: any) {
-      console.warn('⚠️ Failed to recalculate totals:', recalcError.message);
-    }
-
-    // BEST PRACTICE: Update order to PROCESSING after all calculations are complete
-    // This triggers emails with proper data instead of $0.00 totals
-    try {
-      console.log('📧 Updating order to PROCESSING to trigger proper emails...');
-
-      // Wait a moment for WooCommerce to finish processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Update order status to PROCESSING - this triggers proper emails with complete data
-      const statusUpdateResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
-        },
-        body: JSON.stringify({
-          // Change status to PROCESSING - this triggers both admin and customer emails
-          status: 'processing',
-          // DO NOT force recalculation here as it might revert our manual fixes
-          // set_paid: true, // Removed to prevent auto-recalc
-          currency: currency, // Explicitly set currency to prevent USD conversion
-          // Add metadata to track email fix
-          meta_data: [
-            {
-              key: '_email_fix_applied',
-              value: new Date().toISOString(),
-            },
-            {
-              key: '_order_completed_processing',
-              value: 'true',
-            },
-          ],
-        }),
-      });
-
-      if (statusUpdateResponse.ok) {
-        console.log('✅ Order status updated to PROCESSING with complete data');
-      } else {
-        const errorText = await statusUpdateResponse.text();
-        console.warn('⚠️ Failed to update order status:', errorText);
-      }
-    } catch (emailError: any) {
-      console.warn('⚠️ Failed to update order status for email:', emailError.message);
+    } catch (finalError: any) {
+      console.warn('⚠️ Failed to finalize order:', finalError.message);
     }
 
     return {
