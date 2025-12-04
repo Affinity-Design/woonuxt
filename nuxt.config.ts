@@ -41,6 +41,16 @@ export default defineNuxtConfig({
   extends: ['./woonuxt_base'],
   components: [{path: './components', pathPrefix: false, priority: 1000}],
 
+  'graphql-client': {
+    clients: {
+      default: {
+        host: process.env.GQL_HOST || '',
+        proxyCookies: true,
+        proxy: true, // Force proxying through Nuxt server
+      },
+    },
+  },
+
   runtimeConfig: {
     // Server-only secrets
     stripeSecretKey: process.env.NUXT_STRIPE_SECRET_KEY,

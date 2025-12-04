@@ -13,11 +13,15 @@ export default defineEventHandler(async (event) => {
   // Read the request body to check if it's a checkout mutation
   const body = await readBody(event);
 
-  if (!body.query || !body.query.includes('checkout(')) {
-    return; // Not a checkout request, skip validation
+  // Check for both checkout AND registerCustomer mutations
+  const isCheckout = body.query && body.query.includes('checkout(');
+  const isRegistration = body.query && body.query.includes('registerCustomer(');
+
+  if (!isCheckout && !isRegistration) {
+    return; // Not a sensitive request, skip validation
   }
 
-  console.log('🔐 Checkout request detected, checking security...');
+  console.log(`🔐 ${isCheckout ? 'Checkout' : 'Registration'} request detected, checking security...`);
 
   // **BYPASS METHOD 1: User-Agent Whitelist**
   // Your main site can use a specific User-Agent to bypass
