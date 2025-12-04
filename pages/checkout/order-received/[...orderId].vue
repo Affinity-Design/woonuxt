@@ -136,7 +136,10 @@ useSeoMeta({
 <template>
   <div
     class="w-full min-h-[600px] flex items-center p-4 text-gray-800 md:bg-white md:rounded-xl md:mx-auto md:shadow-lg md:my-24 md:mt-8 md:max-w-3xl md:p-16 flex-col">
-    <LoadingIcon v-if="!isLoaded" class="flex-1" />
+    <div v-if="!isLoaded" class="flex flex-col items-center justify-center flex-1 w-full min-h-[300px]">
+      <LoadingIcon size="60" stroke="4" />
+      <p class="mt-6 text-gray-500 font-medium animate-pulse">Loading order details...</p>
+    </div>
     <template v-else>
       <div v-if="order" class="w-full">
         <!-- Checkout Page -->
