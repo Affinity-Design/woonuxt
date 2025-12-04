@@ -159,7 +159,7 @@ export default defineEventHandler(async (event) => {
         paymentMethodTitle: 'Helcim Credit Card Payment',
         transactionId: transactionId,
         status: 'PENDING', // Start as PENDING to prevent premature emails
-        isPaid: true,
+        isPaid: false, // Do not mark as paid yet, wait for final update
         currency: currency, // Use provided currency or default to CAD
         customerId: customerId ? parseInt(customerId) : undefined,
 
@@ -416,20 +416,20 @@ export default defineEventHandler(async (event) => {
       // Step 2: Update status to processing
       console.log('🔄 Step 2: Updating status to processing...');
       
-      // Small delay to ensure DB write completes
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Delay to ensure DB write completes and totals are stable
+      // User requested longer wait to guarantee correctness
+      await new Promise((resolve) => setTimeout(resolve, 4000));
 
       const statusPayload = {
         status: 'processing',
+        set_paid: true,
         meta_data: [
           {
             key: '_order_completed_processing',
             value: 'true',
           },
         ],
-      };
-
-      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+      };      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Basic ${auth}`,
@@ -445,7 +445,6 @@ export default defineEventHandler(async (event) => {
         const errorText = await statusResponse.text();
         console.warn('⚠️ Failed to update status:', errorText);
       }
-
     } catch (finalError: any) {
       console.warn('⚠️ Failed to finalize order:', finalError.message);
     }
