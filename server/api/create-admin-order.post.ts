@@ -415,7 +415,7 @@ export default defineEventHandler(async (event) => {
 
       // Step 2: Update status to processing
       console.log('🔄 Step 2: Updating status to processing...');
-      
+
       // Delay to ensure DB write completes and totals are stable
       // User requested longer wait to guarantee correctness
       await new Promise((resolve) => setTimeout(resolve, 4000));
@@ -429,7 +429,8 @@ export default defineEventHandler(async (event) => {
             value: 'true',
           },
         ],
-      };      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
+      };
+      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Basic ${auth}`,
