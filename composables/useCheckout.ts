@@ -57,6 +57,14 @@ export function useCheckout() {
     });
   };
 
+  // Helper to sanitize city names (remove province codes like "Kelowna BC" -> "Kelowna")
+  const sanitizeCity = (city: string): string => {
+    if (!city) return '';
+    // Remove common Canadian province codes and "Canada" from the end of the string
+    // Matches: " BC", ", BC", " B.C.", ", B.C.", " British Columbia", etc.
+    return city.replace(/[\s,]+(BC|AB|SK|MB|ON|QC|NB|NS|PE|NL|YT|NT|NU|Canada|CA|B\.C\.|A\.B\.)[\.]*$/i, '').trim();
+  };
+
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
     const {customer, viewer} = useAuth();
@@ -65,12 +73,26 @@ export function useCheckout() {
     isUpdatingCart.value = true;
 
     try {
+      // Sanitize city before sending to API
+      const shippingCity = sanitizeCity(orderInput.value.shipToDifferentAddress ? customer.value.shipping?.city : customer.value.billing?.city);
+      const billingCity = sanitizeCity(customer.value.billing?.city);
+
+      // Update the customer object with sanitized values locally so the UI reflects it (optional, but good UX)
+      if (customer.value.billing) customer.value.billing.city = billingCity;
+      if (customer.value.shipping) customer.value.shipping.city = shippingCity;
+
       // Call GqlUpdateCustomer for both logged-in users (with ID) and guests (ID will be undefined).
       await GqlUpdateCustomer({
         input: {
           id: viewer?.value?.id,
-          shipping: orderInput.value.shipToDifferentAddress ? customer.value.shipping : customer.value.billing,
-          billing: customer.value.billing,
+          shipping: {
+            ...(orderInput.value.shipToDifferentAddress ? customer.value.shipping : customer.value.billing),
+            city: shippingCity,
+          },
+          billing: {
+            ...customer.value.billing,
+            city: billingCity,
+          },
         } as any,
       });
 
@@ -141,31 +163,54 @@ export function useCheckout() {
         });
 
         try {
+          // Helper to parse price string to float
+          const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
+
           // Prepare admin order data
           const adminOrderData = {
-            billing,
-            shipping: shipToDifferentAddress ? shipping : billing,
+            billing: {
+              ...billing,
+              city: sanitizeCity(billing?.city || ''),
+            },
+            shipping: {
+              ...(shipToDifferentAddress ? shipping : billing),
+              city: sanitizeCity((shipToDifferentAddress ? shipping : billing)?.city || ''),
+            },
             transactionId: orderInput.value.transactionId,
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
-              cart.value?.contents?.nodes?.map((item: any) => ({
-                productId: item.product?.node?.databaseId,
-                variationId: item.variation?.node?.databaseId || null,
-                quantity: item.quantity,
-                name: item.product?.node?.name,
-                sku: item.product?.node?.sku || item.variation?.node?.sku,
-                // Pass the item's actual CAD total from cart (use raw string values which are already in CAD)
-                total: item.total, // Already in CAD from cart
-                subtotal: item.subtotal, // Already in CAD from cart
-                // Pass variation attributes (size, color, etc.)
-                variation: item.variation?.node
-                  ? {
-                      attributes: item.variation.node.attributes?.nodes || [],
-                      name: item.variation.node.name,
-                      sku: item.variation.node.sku,
-                    }
-                  : null,
-              })) || [],
+              cart.value?.contents?.nodes?.map((item: any) => {
+                // Calculate tax-exclusive totals to prevent double taxation in WooCommerce
+                // WooCommerce createOrder expects exclusive prices, but cart items might be inclusive
+                const itemTotal = parsePrice(item.total);
+                const itemTax = parsePrice(item.tax);
+                const itemSubtotal = parsePrice(item.subtotal);
+                const itemSubtotalTax = parsePrice(item.subtotalTax); // Assuming this exists or we approximate
+
+                // If we have tax, subtract it to get exclusive amount
+                // If tax is 0, we assume it's already exclusive or tax wasn't calculated
+                const exclusiveTotal = itemTotal > itemTax ? itemTotal - itemTax : itemTotal;
+                const exclusiveSubtotal = itemSubtotal > (itemSubtotalTax || 0) ? itemSubtotal - (itemSubtotalTax || 0) : itemSubtotal;
+
+                return {
+                  productId: item.product?.node?.databaseId,
+                  variationId: item.variation?.node?.databaseId || null,
+                  quantity: item.quantity,
+                  name: item.product?.node?.name,
+                  sku: item.product?.node?.sku || item.variation?.node?.sku,
+                  // Pass the calculated tax-exclusive totals
+                  total: exclusiveTotal.toFixed(2),
+                  subtotal: exclusiveSubtotal.toFixed(2),
+                  // Pass variation attributes (size, color, etc.)
+                  variation: item.variation?.node
+                    ? {
+                        attributes: item.variation.node.attributes?.nodes || [],
+                        name: item.variation.node.name,
+                        sku: item.variation.node.sku,
+                      }
+                    : null,
+                };
+              }) || [],
             coupons:
               cart.value?.appliedCoupons?.map((coupon: any) => ({
                 code: coupon.code,
@@ -246,8 +291,14 @@ export function useCheckout() {
       }
 
       let checkoutPayload: any = {
-        billing,
-        shipping,
+        billing: {
+          ...billing,
+          city: sanitizeCity(billing?.city || ''),
+        },
+        shipping: {
+          ...shipping,
+          city: sanitizeCity(shipping?.city || ''),
+        },
         shippingMethod,
         metaData: enhancedMetaData,
         paymentMethod: effectivePaymentMethod,
