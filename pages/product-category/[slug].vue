@@ -52,12 +52,12 @@ const getCount = slug === 'clearance-items' ? 255 : countResult.data.value?.prod
 const productCount = ref(getCount);
 
 // Use Nuxt's useAsyncData with proper caching options
-const {data, pending, error, refresh} = await useAsyncData(
+const {data, pending, error, refresh, status} = await useAsyncData(
   cacheKey,
   async () => {
     console.log(`🔄 Fetching products for category: ${slug}`);
 
-    // Use the base GqlGetProducts query
+    // Use the base GqlGetProducts query (without terms - filtering handled separately)
     const result = await GqlGetProducts({
       slug,
       first: slug === 'clearance-items' ? 255 : productCount.value,
@@ -65,21 +65,13 @@ const {data, pending, error, refresh} = await useAsyncData(
 
     console.log(`✅ Fetched ${result?.products?.nodes?.length || 0} products for ${slug}`);
 
-    if (result?.products?.nodes?.length > 0) {
-      console.log('📋 First product structure:', {
-        name: result.products.nodes[0].name,
-        keys: Object.keys(result.products.nodes[0]),
-        hasTerms: 'terms' in result.products.nodes[0],
-      });
-    }
-
     return result;
   },
   {
     // Caching options per Nuxt docs
     server: true, // Enable server-side caching
-    lazy: false, // Start fetching immediately
-    immediate: true, // Don't wait for onMounted
+    lazy: true, // Don't block SSR - let it load on client if SSR fails
+    immediate: true, // Start fetching immediately
     watch: [], // Don't watch reactive dependencies for re-running the asyncData fetcher
 
     // Transform data for our needs
@@ -202,14 +194,16 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <div v-if="pending" class="flex justify-center items-center min-h-screen">
+    <!-- Loading State: Show when pending or when error with no data yet -->
+    <div v-if="pending && productsInCategory.length === 0" class="flex justify-center items-center min-h-screen">
       <div class="text-center">
         <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
         <p class="mt-4 text-gray-500">Loading products...</p>
       </div>
     </div>
 
-    <div v-else-if="error" class="container my-12 text-center">
+    <!-- Error State: Only show if error AND no products AND not pending -->
+    <div v-else-if="error && productsInCategory.length === 0 && !pending" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
         {{ error.message || 'Failed to load products' }}
       </div>

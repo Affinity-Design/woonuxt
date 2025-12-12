@@ -118,12 +118,31 @@ export function useFiltering() {
       const ratingCondition = starRating.length ? (product?.averageRating || 0) >= parseFloat(starRating[0] as string) : true;
 
       // Product attribute filters
+      // Supports both old terms structure and new attributes structure
       const globalProductAttributes = runtimeConfig?.public?.GLOBAL_PRODUCT_ATTRIBUTES?.map((attribute: any) => attribute.slug) || [];
       const attributeCondition = globalProductAttributes
         .map((attribute: string) => {
           const attributeValues = getFilter(attribute) || [];
           if (!attributeValues.length) return true;
-          return product.terms?.nodes?.find((node: any) => node.taxonomyName === attribute && attributeValues.includes(node.slug));
+
+          // Try terms structure first (legacy)
+          const termsMatch = product.terms?.nodes?.find((node: any) => node.taxonomyName === attribute && attributeValues.includes(node.slug));
+          if (termsMatch) return true;
+
+          // Try attributes structure (new - from product fragments)
+          const productAttribute = (product as any).attributes?.nodes?.find((attr: any) => attr.slug === attribute || attr.name === attribute);
+          if (productAttribute?.options) {
+            // Options are display labels, filter values are slugs
+            // Check if any option matches when slugified (e.g., "Red" matches "red")
+            return attributeValues.some((filterValue: string) =>
+              productAttribute.options.some(
+                (option: string) =>
+                  option.toLowerCase().replace(/\s+/g, '-') === filterValue.toLowerCase() || option.toLowerCase() === filterValue.toLowerCase(),
+              ),
+            );
+          }
+
+          return false;
         })
         .every((condition: any) => condition);
 

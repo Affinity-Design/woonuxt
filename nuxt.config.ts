@@ -77,6 +77,105 @@ export default defineNuxtConfig({
       // --- NEW: Build-time fallback exchange rate ---
       // Provide a default value (e.g., 1.0) if the env var isn't set during build
       buildTimeExchangeRate: process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || '1.37',
+
+      // --- Product Attribute Filters Configuration ---
+      // These appear as filter options on category pages
+      // 'categories' array controls which category slugs show this filter (empty = all categories)
+      GLOBAL_PRODUCT_ATTRIBUTES: [
+        // === GLOBAL FILTERS (show on all category pages) ===
+        {
+          slug: 'pa_manufacturer',
+          label: 'Brand',
+          type: 'brand', // Special searchable checkbox component
+          showCount: true,
+          hideEmpty: true,
+          categories: [], // Empty = show on all categories
+        },
+        {
+          slug: 'pa_colour',
+          label: 'Colour',
+          type: 'color', // Color swatch component
+          showCount: true,
+          hideEmpty: true,
+          categories: [], // Empty = show on all categories
+        },
+
+        // === INLINE/ROLLER SKATING FILTERS ===
+        {
+          slug: 'pa_style',
+          label: 'Skating Style',
+          type: 'pill', // Pill/tag button component
+          showCount: true,
+          hideEmpty: true,
+          categories: [
+            'inline-skates',
+            'roller-skates',
+            'inline-skate-frames',
+            'inline-skate-wheels',
+            'roller-skate-wheels',
+            'inline-skate-boots',
+            'roller-skate-boots',
+          ],
+        },
+        {
+          slug: 'pa_fit',
+          label: 'Fit',
+          type: 'pill',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['inline-skates', 'roller-skates', 'inline-skate-boots', 'roller-skate-boots', 'ice-skates', 'figure-skates', 'hockey-skates'],
+        },
+        {
+          slug: 'pa_wheelsize',
+          label: 'Wheel Size',
+          type: 'dropdown',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['inline-skates', 'inline-skate-wheels', 'inline-skate-frames'],
+        },
+        {
+          slug: 'pa_length',
+          label: 'Length',
+          type: 'dropdown',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['inline-skates', 'roller-skates', 'inline-skate-frames'],
+        },
+        {
+          slug: 'pa_size',
+          label: 'Size',
+          type: 'dropdown',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['inline-skates', 'roller-skates', 'ice-skates', 'figure-skates', 'hockey-skates', 'inline-skate-boots', 'roller-skate-boots'],
+        },
+
+        // === ALPINE/NORDIC SKIING FILTERS ===
+        {
+          slug: 'pa_skiing_style',
+          label: 'Skiing Style',
+          type: 'pill',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['alpine-skis', 'nordic-skis', 'cross-country-skis', 'ski-boots', 'ski-bindings', 'ski-poles'],
+        },
+        {
+          slug: 'pa_flex',
+          label: 'Flex',
+          type: 'pill',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['alpine-skis', 'nordic-skis', 'cross-country-skis', 'ski-boots'],
+        },
+        {
+          slug: 'pa_poleslength',
+          label: 'Poles Length',
+          type: 'dropdown',
+          showCount: true,
+          hideEmpty: true,
+          categories: ['ski-poles', 'nordic-poles', 'cross-country-poles'],
+        },
+      ],
     },
   },
 

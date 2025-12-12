@@ -1,5 +1,5 @@
 // composables/useSearch.ts
-import {ref, computed, watch, onMounted} from 'vue';
+import {ref, computed, watch} from 'vue';
 import Fuse from 'fuse.js';
 
 export function useSearch() {
@@ -17,9 +17,8 @@ export function useSearch() {
     // Check if we're running in the browser
     if (process.client) {
       const hostname = window.location.hostname;
-      const port = window.location.port;
-      // Local environment check - localhost or 127.0.0.1, typically on port 3000
-      return (hostname === 'localhost' || hostname === '127.0.0.1') && port === '3000';
+      // Local environment check - localhost or 127.0.0.1 on any port (http/https)
+      return hostname === 'localhost' || hostname === '127.0.0.1';
     }
     return false;
   };
@@ -36,8 +35,9 @@ export function useSearch() {
       if (isLocal) {
         // LOCAL ENVIRONMENT: Use local text file
         try {
-          // Dynamically fetch the JSON data
-          const response = await fetch('/data/products-list.json');
+          // Fetch from dev-only endpoint that reads `data/products-list.json`
+          // (keeps large product data out of /public)
+          const response = await fetch('/api/local-products-list');
           if (!response.ok) throw new Error('Failed to fetch products data');
           const productsData = await response.json();
 
@@ -47,8 +47,8 @@ export function useSearch() {
             throw new Error('Imported JSON data is not an array');
           }
         } catch (localError) {
-          // Use mock data as fallback
-          products = generateMockProducts();
+          console.warn('[useSearch] Local products list missing/unreadable. Expected /api/local-products-list', localError);
+          products = [];
         }
       } else {
         // PRODUCTION ENVIRONMENT: Use KV store via API endpoint
@@ -168,36 +168,6 @@ export function useSearch() {
     } else {
     }
   });
-
-  onMounted(() => {
-    if (isShowingSearch.value || searchQuery.value) {
-      initializeSearchEngine();
-    } else {
-    }
-  });
-
-  // Helper function to generate mock products
-  const generateMockProducts = () => {
-    const mockProducts = [
-      {
-        id: 'mock-1',
-        name: 'Mock Product 1',
-        slug: 'mock-product-1',
-        price: '$19.99',
-        sku: 'MOCK001',
-        shortDescription: 'This is a sample product for testing',
-      },
-      {
-        id: 'mock-2',
-        name: 'Mock Product 2',
-        slug: 'mock-product-2',
-        price: '$29.99',
-        sku: 'MOCK002',
-        shortDescription: 'Another sample product for testing',
-      },
-    ];
-    return mockProducts;
-  };
 
   return {
     searchQuery,

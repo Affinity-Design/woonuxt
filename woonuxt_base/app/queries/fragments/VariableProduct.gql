@@ -8,6 +8,15 @@ fragment VariableProduct on VariableProduct {
   length
   width
   height
+  attributes {
+    nodes {
+      ... on GlobalProductAttribute {
+        name
+        slug
+        options
+      }
+    }
+  }
   image {
     ...Image
     cartSourceUrl: sourceUrl(size: THUMBNAIL)

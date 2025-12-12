@@ -7,6 +7,7 @@
     "preview:local": "nuxt preview --config nuxt.config.local.ts",
     "dev": "nuxt dev --host",
     "dev:ssl": "nuxt dev --https --ssl-cert localhost.pem --ssl-key localhost-key.pem",
+    "dev:ssl:local": "nuxt dev --https --ssl-cert localhost.pem --ssl-key localhost-key.pem --config nuxt.config.local.ts",
     "generate": "node scripts/build-sitemap.js && nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
