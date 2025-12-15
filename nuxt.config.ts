@@ -49,6 +49,7 @@ export default defineNuxtConfig({
         proxy: true, // Force proxying through Nuxt server
       },
     },
+    documentPaths: ['./woonuxt_base/app/queries'],
   },
 
   runtimeConfig: {

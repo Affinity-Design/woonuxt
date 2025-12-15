@@ -29,6 +29,8 @@ fragment Cart on Cart {
       key
       total
       subtotal
+      tax
+      subtotalTax
       product {
         node {
           name

@@ -2,7 +2,7 @@ query getProductsPaged($after: String, $slug: [String], $first: Int, $orderby: P
   products(
     first: $first
     after: $after
-    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: $orderby, order: DESC}, status: "publish"}
+    where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: { field: $orderby, order: DESC }, status: "publish" }
   ) {
     found
     pageInfo {
