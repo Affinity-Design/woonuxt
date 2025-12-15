@@ -52,7 +52,7 @@ const {wishlistLink} = useAuth();
           <!-- <NuxtLink to="/inline-skates-size-calculator" class="py-1.5 block">Size Calculator</NuxtLink> -->
           <NuxtLink to="/blog" class="py-1.5 block">Blog</NuxtLink>
           <NuxtLink to="/categories" class="py-1.5 block">All Categories</NuxtLink>
-          <NuxtLink to="/products" class="py-1.5 block">All Products</NuxtLink>
+          <!-- <NuxtLink to="/products" class="py-1.5 block">All Products</NuxtLink> -->
         </div>
       </div>
       <!-- contact -->
