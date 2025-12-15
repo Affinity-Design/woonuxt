@@ -28,30 +28,32 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
 
-    // Log line items for debugging variation issues and pricing
+    // ===== TAX FIX VERIFICATION LOGGING =====
+    console.log('💰 [TAX FIX] Received line items from frontend:');
     if (lineItems && lineItems.length > 0) {
-      console.log(
-        '📦 Processing line items for admin order:',
-        JSON.stringify(
-          lineItems.map((item: any) => ({
-            productId: item.productId || item.product_id,
-            variationId: item.variationId || item.variation_id,
-            hasVariationData: !!item.variation,
-            attributeCount: item.variation?.attributes?.length || 0,
-            attributes: item.variation?.attributes || [],
-            name: item.name,
-            sku: item.sku,
-            total: item.total,
-            subtotal: item.subtotal,
-          })),
-          null,
-          2,
-        ),
-      );
+      lineItems.forEach((item: any, index: number) => {
+        console.log(`  📦 Item ${index + 1}:`, {
+          productId: item.productId || item.product_id,
+          variationId: item.variationId || item.variation_id,
+          quantity: item.quantity,
+          // These should be undefined/null now (not passed from frontend)
+          total: item.total || 'NOT PROVIDED ✓',
+          subtotal: item.subtotal || 'NOT PROVIDED ✓',
+          hasVariationData: !!item.variation,
+        });
+      });
+
+      // Verify we're NOT receiving totals (the fix)
+      const hasUnwantedTotals = lineItems.some((item: any) => item.total || item.subtotal);
+      if (hasUnwantedTotals) {
+        console.warn('⚠️ [TAX FIX] WARNING: Line items still contain total/subtotal! Double tax may occur.');
+      } else {
+        console.log('✅ [TAX FIX] Good: No total/subtotal in line items - WooCommerce will calculate correctly.');
+      }
     }
 
-    // Log cart totals to verify CAD currency
-    console.log('💰 Cart totals received:', {
+    // Log cart totals to verify CAD currency (for reference/debugging only)
+    console.log('💰 Cart totals received (reference only - WooCommerce calculates actual totals):', {
       subtotal: cartTotals?.subtotal,
       total: cartTotals?.total,
       totalTax: cartTotals?.totalTax,
@@ -59,14 +61,6 @@ export default defineEventHandler(async (event) => {
       discountTotal: cartTotals?.discountTotal,
       currency: currency,
     });
-
-    // Helper function to parse CAD price strings to numeric values
-    const parseCADPrice = (priceString: string | null): string | null => {
-      if (!priceString) return null;
-      // Remove currency symbols, commas, and whitespace
-      const cleaned = priceString.replace(/[^0-9.\\-]/g, '');
-      return cleaned || null;
-    };
 
     // Create WordPress Application Password authentication
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
@@ -189,25 +183,24 @@ export default defineEventHandler(async (event) => {
           country: shipping?.country || billing?.country || 'CA',
         },
 
-        // Line items with complete product data including SKU and variations
+        // Line items - DO NOT pass total/subtotal to avoid double taxation!
+        // WooGraphQL calls calculate_totals(true) which recalculates taxes.
+        // If we pass totals, WooCommerce adds tax AGAIN on top of them.
+        // Let WooCommerce calculate prices from productId and quantity.
         lineItems: (lineItems || []).map((item: any) => {
           const lineItem: any = {
             productId: item.productId || item.product_id,
             variationId: item.variationId || item.variation_id || null,
             quantity: item.quantity || 1,
-            name: item.name || '',
-            sku: item.sku || '',
-            // Ensure prices are numeric CAD values (strip formatting)
-            total: parseCADPrice(item.total),
-            subtotal: parseCADPrice(item.subtotal),
+            // DO NOT include total/subtotal - let WooCommerce calculate to avoid double tax
+            // name and sku are optional metadata, not used for pricing
           };
 
-          console.log('💵 Line item pricing:', {
+          console.log('📦 Line item (no pricing - WooCommerce calculates):', {
             name: item.name,
-            originalTotal: item.total,
-            parsedTotal: lineItem.total,
-            originalSubtotal: item.subtotal,
-            parsedSubtotal: lineItem.subtotal,
+            productId: lineItem.productId,
+            variationId: lineItem.variationId,
+            quantity: lineItem.quantity,
           });
 
           // Add variation attributes as metadata in WooCommerce format
@@ -357,6 +350,43 @@ export default defineEventHandler(async (event) => {
       total: orderData.total,
       globalId: orderData.id,
     });
+
+    // ===== TAX FIX VERIFICATION LOGGING =====
+    console.log('💰 [TAX FIX] Comparing cart totals vs WooCommerce calculated order:');
+    console.log('  📊 Cart totals (from frontend - what customer saw):', {
+      subtotal: cartTotals?.subtotal,
+      totalTax: cartTotals?.totalTax,
+      total: cartTotals?.total,
+      shippingTotal: cartTotals?.shippingTotal,
+    });
+    console.log('  📊 Order totals (WooCommerce calculated - should match cart):', {
+      subtotal: orderData.subtotal,
+      totalTax: orderData.totalTax,
+      total: orderData.total,
+      shippingTotal: orderData.shippingTotal,
+    });
+    console.log(
+      '  📦 Line items created by WooCommerce:',
+      orderData.lineItems?.nodes?.map((item: any) => ({
+        name: item.product?.node?.name || item.variation?.node?.name,
+        quantity: item.quantity,
+        subtotal: item.subtotal,
+        total: item.total,
+        totalTax: item.totalTax,
+      })),
+    );
+
+    // Check if totals match (accounting for formatting differences)
+    const cartTotalNumeric = parseFloat(String(cartTotals?.total || '0').replace(/[^0-9.]/g, ''));
+    const orderTotalNumeric = parseFloat(String(orderData.total || '0').replace(/[^0-9.]/g, ''));
+    const totalsDiff = Math.abs(cartTotalNumeric - orderTotalNumeric);
+
+    if (totalsDiff > 0.02) {
+      console.warn('⚠️ [TAX FIX] MISMATCH DETECTED! Cart total vs Order total differ by:', totalsDiff.toFixed(2));
+      console.warn('  This may indicate double taxation or pricing issue!');
+    } else {
+      console.log('✅ [TAX FIX] Totals match! Cart and Order totals are within $0.02');
+    }
 
     // Line items are already created by GraphQL mutation with all necessary data
     // No need to update them separately to avoid duplicates

@@ -156,6 +156,25 @@ export function useCheckout() {
 
       // Try admin order creation for Helcim payments to bypass session issues
       if (isHelcimPayment && orderInput.value.transactionId) {
+        // ===== TAX FIX VERIFICATION LOGGING =====
+        console.log('💰 [TAX FIX] Cart totals from WooCommerce (what customer sees):', {
+          subtotal: cart.value?.subtotal,
+          totalTax: cart.value?.totalTax,
+          total: cart.value?.total,
+          rawTotal: cart.value?.rawTotal,
+          shippingTotal: cart.value?.shippingTotal,
+        });
+        console.log(
+          '💰 [TAX FIX] Line items from cart (NOT passing totals to prevent double tax):',
+          cart.value?.contents?.nodes?.map((item: any) => ({
+            name: item.product?.node?.name,
+            quantity: item.quantity,
+            itemTotal: item.total,
+            itemSubtotal: item.subtotal,
+            // These are what we WON'T pass - WooCommerce will calculate fresh
+            note: 'total/subtotal NOT sent to API - WooCommerce calculates from product price',
+          })),
+        );
         console.log('[processCheckout] Using admin order creation for Helcim payment:', {
           transactionId: orderInput.value.transactionId,
           amount: cart.value?.total,
@@ -163,9 +182,6 @@ export function useCheckout() {
         });
 
         try {
-          // Helper to parse price string to float
-          const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
-
           // Prepare admin order data
           const adminOrderData = {
             billing: {
@@ -179,29 +195,17 @@ export function useCheckout() {
             customerId: viewer.value?.databaseId,
             transactionId: orderInput.value.transactionId,
             currency: 'CAD', // Explicitly set currency for all order operations
+            // Line items - DO NOT pass total/subtotal to avoid double taxation!
+            // WooGraphQL calls calculate_totals(true) which recalculates taxes.
+            // If we pass totals, WooCommerce adds tax AGAIN on top of them.
+            // Let WooCommerce calculate prices from productId and quantity.
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
-                // Calculate tax-exclusive totals to prevent double taxation in WooCommerce
-                // WooCommerce createOrder expects exclusive prices, but cart items might be inclusive
-                const itemTotal = parsePrice(item.total);
-                const itemTax = parsePrice(item.tax);
-                const itemSubtotal = parsePrice(item.subtotal);
-                const itemSubtotalTax = parsePrice(item.subtotalTax); // Assuming this exists or we approximate
-
-                // If we have tax, subtract it to get exclusive amount
-                // If tax is 0, we assume it's already exclusive or tax wasn't calculated
-                const exclusiveTotal = itemTotal > itemTax ? itemTotal - itemTax : itemTotal;
-                const exclusiveSubtotal = itemSubtotal > (itemSubtotalTax || 0) ? itemSubtotal - (itemSubtotalTax || 0) : itemSubtotal;
-
                 return {
                   productId: item.product?.node?.databaseId,
                   variationId: item.variation?.node?.databaseId || null,
                   quantity: item.quantity,
-                  name: item.product?.node?.name,
-                  sku: item.product?.node?.sku || item.variation?.node?.sku,
-                  // Pass the calculated tax-exclusive totals
-                  total: exclusiveTotal.toFixed(2),
-                  subtotal: exclusiveSubtotal.toFixed(2),
+                  // DO NOT pass total/subtotal - let WooCommerce calculate to avoid double tax
                   // Pass variation attributes (size, color, etc.)
                   variation: item.variation?.node
                     ? {
@@ -218,7 +222,7 @@ export function useCheckout() {
                 discountAmount: coupon.discountAmount,
                 discountTax: coupon.discountTax,
               })) || [],
-            // Pass complete cart totals including shipping and tax
+            // Pass complete cart totals including shipping and tax (for reference only, not for pricing)
             cartTotals: {
               subtotal: cart.value?.subtotal,
               total: cart.value?.total,
