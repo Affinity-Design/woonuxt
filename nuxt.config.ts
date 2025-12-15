@@ -394,7 +394,7 @@ export default defineNuxtConfig({
 
   // Content module configuration for SEO
   content: {
-    documentDriven: true,
+    documentDriven: false,
     highlight: {
       theme: 'github-light',
     },

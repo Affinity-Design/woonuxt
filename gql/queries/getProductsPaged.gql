@@ -1,0 +1,24 @@
+query getProductsPaged($after: String, $slug: [String], $first: Int, $orderby: ProductsOrderByEnum = DATE) {
+  products(
+    first: $first
+    after: $after
+    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: $orderby, order: DESC}, status: "publish"}
+  ) {
+    found
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      name
+      slug
+      type
+      databaseId
+      id
+      averageRating
+      reviewCount
+      ...SimpleProduct
+      ...VariableProduct
+    }
+  }
+}

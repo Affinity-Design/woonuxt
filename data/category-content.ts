@@ -345,6 +345,152 @@ export const categoryContentData: Record<string, CategoryContentData> = {
 
     h2Headings: ['Clearance Skates & Gear', 'Massive Savings on Quality Products'],
   },
+
+  'alpine-skis': {
+    topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Premium Alpine Skis in Canada</h2>
+      <p>
+        Discover the thrill of the slopes with ProSkaters Place, <strong>Canada's trusted source for alpine skis</strong>. Based in Toronto, we offer a curated selection of high-performance downhill skis for all skill levels. From carving groomers to floating through powder, find the perfect pair of skis to elevate your winter experience. We stock top brands and offer <strong>free shipping on orders over $99 CAD</strong> across Canada. Our expert team can help you choose the right length, width, and stiffness for your skiing style. All prices in CAD.
+      </p>`,
+
+    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Buy Alpine Skis from ProSkaters Place?</h2>
+      <p class="mb-4">
+        <strong>🇨🇦 Canadian Winter Experts</strong> - We know Canadian winters. Whether you're skiing Blue Mountain, Mont Tremblant, or the Rockies, we have the gear to keep you performing your best. Our Toronto-based team understands the local conditions and can recommend the right equipment.
+      </p>
+      <p class="mb-4">
+        <strong>Wide Selection</strong> - We carry a variety of alpine skis including All-Mountain, Carving, Powder, and Park & Pipe skis. We also stock bindings, poles, and ski accessories to complete your setup.
+      </p>
+      <p class="mb-4">
+        <strong>Competitive Pricing</strong> - Get the best value for your money with our competitive CAD pricing. No surprise duties or exchange rates. What you see is what you pay.
+      </p>
+      <h3 class="text-xl font-semibold mb-3">Types of Alpine Skis We Carry:</h3>
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li><strong>All-Mountain Skis</strong> - Versatile skis for all terrain and conditions</li>
+        <li><strong>Carving Skis</strong> - Designed for groomed runs and hard snow</li>
+        <li><strong>Powder Skis</strong> - Wide skis for deep snow and off-piste adventures</li>
+        <li><strong>Park & Pipe Skis</strong> - Twin-tip skis for tricks and jumps</li>
+      </ul>
+      <p>
+        Shop online with confidence. We offer fast shipping across Canada, including Ontario, Quebec, British Columbia, and Alberta.
+      </p>`,
+
+    benefits: [
+      {
+        icon: 'mdi:truck-fast',
+        title: 'Free Shipping',
+        description: 'On orders over $99 CAD',
+      },
+      {
+        icon: 'mdi:currency-usd',
+        title: 'CAD Pricing',
+        description: 'No hidden fees or duties',
+      },
+      {
+        icon: 'mdi:account-star',
+        title: 'Expert Selection',
+        description: 'Curated for Canadian skiers',
+      },
+      {
+        icon: 'mdi:shield-check',
+        title: 'Quality Guaranteed',
+        description: 'Authentic top-brand gear',
+      },
+    ],
+
+    faqs: [
+      {
+        question: 'How do I choose the right ski length?',
+        answer:
+          'Ski length depends on your height, weight, and ability level. Generally, a ski should reach somewhere between your chin and the top of your head. Beginners may prefer shorter skis for easier turning, while advanced skiers often choose longer skis for stability at speed. Contact our experts for a personalized recommendation.',
+      },
+      {
+        question: 'Do you sell ski bindings?',
+        answer:
+          'Yes, we offer a selection of alpine ski bindings. Some skis come as a system with bindings included, while others are sold flat (skis only). Check the product description to see if bindings are included. We recommend having bindings mounted and adjusted by a certified technician.',
+      },
+      {
+        question: 'What is the difference between all-mountain and carving skis?',
+        answer:
+          'Carving skis have a narrower waist and are designed for precise turns on groomed runs. All-mountain skis are wider and more versatile, performing well in a variety of conditions including powder, crud, and groomers. If you ski mostly on groomed trails, carving skis are a great choice. If you explore the whole mountain, go for all-mountain.',
+      },
+    ],
+
+    keywords: ['alpine skis Canada', 'downhill skis Toronto', 'buy skis online Canada', 'all-mountain skis', 'carving skis'],
+
+    h2Headings: ['Premium Alpine Skis for Canadian Slopes', 'Expert Advice & Fast Shipping'],
+  },
+
+  'cross-country-skis': {
+    topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Cross Country Skis in Canada</h2>
+      <p>
+        Embrace the winter with ProSkaters Place, your destination for <strong>cross country (Nordic) skis in Canada</strong>. We offer a wide range of classic, skate, and touring skis for fitness enthusiasts and recreational skiers alike. Enjoy the tranquility of the trails or get a full-body workout with our high-quality equipment. <strong>Free shipping on orders over $99 CAD</strong> nationwide. Based in Toronto, we serve the entire Canadian cross-country skiing community with expert advice and authentic products.
+      </p>`,
+
+    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Choose ProSkaters Place for Nordic Skiing?</h2>
+      <p class="mb-4">
+        <strong>🇨🇦 Canadian Nordic Specialists</strong> - Cross country skiing is a Canadian tradition. We provide the gear you need to enjoy our beautiful winters, from local parks to backcountry trails. Our selection is tailored to Canadian conditions.
+      </p>
+      <p class="mb-4">
+        <strong>Classic & Skate Styles</strong> - Whether you prefer the traditional kick-and-glide of classic skiing or the dynamic motion of skate skiing, we have the right skis for you. We also carry waxless (fishscale) and skin skis for easy maintenance.
+      </p>
+      <p class="mb-4">
+        <strong>Complete Packages</strong> - Build your perfect setup with our selection of skis, bindings, poles, and boots. We can help you match your gear for optimal performance and comfort.
+      </p>
+      <h3 class="text-xl font-semibold mb-3">Our Cross Country Ski Collection:</h3>
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li><strong>Classic Skis</strong> - Traditional style, great for groomed trails</li>
+        <li><strong>Skate Skis</strong> - For the skating technique, faster and more aerobic</li>
+        <li><strong>Touring Skis</strong> - Wider and more stable for off-track exploration</li>
+        <li><strong>Skin Skis</strong> - Waxless grip with mohair skins for consistent performance</li>
+      </ul>
+      <p>
+        Order online today and get ready for the snow. Fast shipping to Toronto, Ottawa, Montreal, Calgary, Vancouver, and everywhere in between.
+      </p>`,
+
+    benefits: [
+      {
+        icon: 'mdi:snowflake',
+        title: 'Winter Ready',
+        description: 'Gear for Canadian winters',
+      },
+      {
+        icon: 'mdi:truck-fast',
+        title: 'Free Shipping',
+        description: 'On orders over $99 CAD',
+      },
+      {
+        icon: 'mdi:currency-usd',
+        title: 'CAD Pricing',
+        description: 'All prices in Canadian dollars',
+      },
+      {
+        icon: 'mdi:help-circle-outline',
+        title: 'Sizing Help',
+        description: 'Expert guidance available',
+      },
+    ],
+
+    faqs: [
+      {
+        question: 'What size cross country skis do I need?',
+        answer:
+          "Cross country ski sizing is primarily based on your weight, not just your height. The ski needs to have the right camber (stiffness) to support your weight for kick and glide. Check the manufacturer's size chart or contact us with your weight and height for a recommendation.",
+      },
+      {
+        question: 'Should I choose waxable or waxless skis?',
+        answer:
+          'Waxless skis (fishscale or skin) are popular for recreational skiers because they require less maintenance and provide reliable grip in most conditions. Waxable skis offer better performance but require applying kick wax appropriate for the snow temperature. For most beginners and casual skiers, waxless skin skis are the best choice.',
+      },
+      {
+        question: 'What is the difference between classic and skate skiing?',
+        answer:
+          'Classic skiing involves a forward striding motion (kick and glide) in groomed tracks. It is easier to learn for beginners. Skate skiing uses a motion similar to ice skating or inline skating and requires a wider groomed trail. It is generally faster and provides a more intense workout.',
+      },
+    ],
+
+    keywords: ['cross country skis Canada', 'nordic skis Toronto', 'classic skis', 'skate skis', 'buy xc skis online'],
+
+    h2Headings: ['Explore Winter with Top Nordic Skis', 'Classic, Skate & Touring Equipment'],
+  },
 };
 
 // Export helper function to get category content
