@@ -1,0 +1,16 @@
+[
+  {
+    "title": "ProSkaters Place Canada 🍁",
+    "subtitle": "Canada's Premier Destination for Inline Skates, Roller Skates, and More!",
+    "text": "Experience the thrill of gliding on wheels or carving through snow with ProSkaters Place, Canada's top online retailer for all your skating and skiing needs. We offer an unparalleled selection of high-quality inline skates, rollerblades, roller skates, quad skates, scooters, skateboards, and both alpine and cross-country ski equipment.",
+    "buttonText": "Shop now",
+    "buttonLink": "/categories"
+  },
+  {
+    "title": "New Arrivals",
+    "subtitle": "Check out the latest gear for the season",
+    "text": "Discover our newest collection of inline skates, protective gear, and accessories. Stay ahead of the curve with the latest technology and designs from top brands.",
+    "buttonText": "View New Arrivals",
+    "buttonLink": "/products?orderby=date"
+  }
+]

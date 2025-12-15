@@ -1,12 +1,62 @@
 <script setup lang="ts">
-interface BlogPostProps {
-  post: any;
-  blogSlug: string;
+// Import required composables
+import {computed, ref, onMounted, onUnmounted} from 'vue';
+
+const route = useRoute();
+const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug;
+
+// Fetch the post content
+const {data: post} = await useAsyncData(`blog-${slug}`, () =>
+  queryContent('blog')
+    .where({_path: {$contains: slug}})
+    .findOne(),
+);
+
+// Handle 404
+if (!post.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Blog post not found',
+  });
 }
 
-const props = defineProps<BlogPostProps>();
+// Canadian SEO setup
+const {setCanadianSEO} = useCanadianSEO();
 
-// Format date helper
+// SEO Meta with Canadian optimization
+const title = post.value.title ?? 'ProSkaters Place Blog';
+const desc = post.value.description ?? "Expert skating advice and tips from Toronto's most trusted skate shop.";
+const image = post.value.ogImage ?? '/images/Inline-Skates-Toronto.jpg';
+
+// Set Canadian-specific SEO
+setCanadianSEO({
+  title,
+  description: desc,
+  image,
+  type: 'article',
+});
+
+// Structured data for article
+const articleStructuredData = {
+  title: post.value.title,
+  description: post.value.description,
+  image: post.value.ogImage,
+  author: post.value.author,
+  authorBio: post.value.authorBio,
+  datePublished: post.value.date,
+  dateModified: post.value.dateModified || post.value.date,
+  url: route.path,
+  category: post.value.category,
+  tags: post.value.tags,
+};
+
+// Structured data for author (Person schema)
+const authorStructuredData = {
+  name: post.value.author,
+  bio: post.value.authorBio,
+};
+
+// Format date
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('en-CA', {
     year: 'numeric',
@@ -15,234 +65,534 @@ const formatDate = (date: string) => {
   });
 };
 
+// Calculate reading time
+const readingTime = computed(() => {
+  if (!post.value?.body) return 0;
+  const text = JSON.stringify(post.value.body);
+  const wordCount = text.split(/\s+/).length;
+  const wordsPerMinute = 200;
+  return Math.ceil(wordCount / wordsPerMinute);
+});
+
+// Reading progress tracking
+const readingProgress = ref(0);
+const updateReadingProgress = () => {
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight - windowHeight;
+  const scrolled = window.scrollY;
+  const progress = (scrolled / documentHeight) * 100;
+  readingProgress.value = Math.min(100, Math.max(0, progress));
+};
+
+// Setup reading progress on client side only
+if (process.client) {
+  onMounted(() => {
+    window.addEventListener('scroll', updateReadingProgress);
+    updateReadingProgress();
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('scroll', updateReadingProgress);
+  });
+}
+
 // Related posts (same category, exclude current)
-const {data: relatedPosts} = await useAsyncData(`related-${props.blogSlug}`, () =>
+const {data: relatedPosts} = await useAsyncData(`related-${slug}`, () =>
   queryContent('blog')
     .where({
-      category: props.post?.category,
-      _path: {$ne: props.post?._path},
+      category: post.value?.category,
+      _path: {$ne: post.value?._path},
     })
+    .sort({date: -1})
     .limit(3)
     .find(),
 );
 
-// Fetch product categories for "Shop by Category" section
-const {data: categoriesData} = await useAsyncGql('getProductCategories');
-const categoryMapping = [
-  {display: 'Inline Skates', slug: 'inline-skates'},
-  {display: 'Roller Skates', slug: 'roller-skates'},
-  {display: 'Skate Parts', slug: 'replacement-parts'},
-  {display: 'Protection Gear', slug: 'protection-gear-and-apparel'},
-  {display: 'Skate Tools', slug: 'skate-tools'},
-  {display: 'Scooters', slug: 'scooters'},
-];
-
-const productCategories = computed(() => {
-  if (!categoriesData.value?.productCategories?.nodes) return [];
-
-  const categoriesMap = new Map(categoriesData.value.productCategories.nodes.map((cat: ProductCategory) => [cat.slug, cat]));
-
-  return categoryMapping
-    .map((category) => {
-      const categoryData = categoriesMap.get(category.slug);
-      return categoryData
-        ? {
-            ...categoryData,
-            displayName: category.display,
-          }
-        : undefined;
-    })
-    .filter((category) => category !== undefined);
+// Get one recommended post for the recommendation card
+const recommendedPost = computed(() => {
+  return relatedPosts.value?.[0] || null;
 });
+
+// Extract headings for table of contents
+const headings = computed(() => {
+  if (!post.value?.body?.children) return [];
+
+  const extractedHeadings: any[] = [];
+
+  const processNode = (node: any) => {
+    if (node.tag && ['h2', 'h3'].includes(node.tag)) {
+      // Get the heading text
+      const headingText = node.children?.[0]?.value || '';
+
+      // Use the same ID generation logic as Nuxt Content
+      const id =
+        node.props?.id ||
+        headingText
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/^-+|-+$/g, '');
+
+      extractedHeadings.push({
+        id,
+        tag: node.tag,
+        text: headingText,
+        level: node.tag === 'h2' ? 2 : 3,
+      });
+    }
+
+    // Recursively process children
+    if (node.children) {
+      node.children.forEach(processNode);
+    }
+  };
+
+  post.value.body.children.forEach(processNode);
+  return extractedHeadings;
+});
+
+// Static product categories for Shop by Category section
+const productCategories = [
+  {
+    displayName: 'Inline Skates',
+    slug: 'inline-skates',
+    image: '/images/inline-skates.jpg',
+  },
+  {
+    displayName: 'Roller Skates',
+    slug: 'roller-skates',
+    image: '/images/roller-skates.jpg',
+  },
+  {
+    displayName: 'Protective Helmets',
+    slug: 'protective-helmets',
+    image: '/images/Protective-Helmets.jpeg',
+  },
+  {
+    displayName: 'Skate Wheels',
+    slug: 'skate-wheels',
+    image: '/images/Skate-Wheels.jpeg',
+  },
+  {
+    displayName: 'Protection Gear & Apparel',
+    slug: 'protection-gear-and-apparel',
+    image: '/images/Protection-Gear-and-Apparel.jpeg',
+  },
+  {
+    displayName: 'Replacement Parts',
+    slug: 'replacement-parts',
+    image: '/images/Replacement-Parts.jpeg',
+  },
+];
 </script>
 
 <template>
-  <div v-if="post" class="min-h-screen" style="background-color: #1a1a1a">
-    <!-- Hero Section -->
-    <div class="relative">
-      <div v-if="post.image" class="relative h-96 overflow-hidden">
-        <img :src="post.image" :alt="post.title" class="w-full h-full object-cover" width="1200" height="600" loading="eager" />
-        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
-      </div>
+  <!-- SEO Structured Data -->
+  <SEOStructuredData type="Article" :data="articleStructuredData" />
+  <SEOStructuredData v-if="post.author" type="Person" :data="authorStructuredData" />
 
-      <!-- Article Header -->
-      <div class="container mx-auto px-4 py-12" :class="post.image ? 'relative -mt-32 z-10' : ''">
-        <div class="max-w-4xl mx-auto">
-          <div v-if="post.category" class="mb-4">
-            <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-              {{ post.category }}
-            </span>
-          </div>
+  <!-- Reading Progress Bar -->
+  <div class="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200">
+    <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-150 ease-out" :style="{width: `${readingProgress}%`}"></div>
+  </div>
 
-          <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-            {{ post.title }}
-          </h1>
-
-          <div class="flex items-center text-gray-300 mb-6">
-            <span v-if="post.author" class="mr-4"> By {{ post.author }} </span>
-            <span v-if="post.date">
-              {{ formatDate(post.date) }}
-            </span>
-          </div>
-
-          <p v-if="post.description" class="text-xl text-gray-200 leading-relaxed">
-            {{ post.description }}
-          </p>
-        </div>
+  <div class="min-h-screen" style="background-color: #f3f4f6">
+    <!-- Navigation Breadcrumb -->
+    <div class="bg-white">
+      <div class="container mx-auto px-4 py-6">
+        <nav class="flex items-center space-x-2 text-sm text-gray-600">
+          <NuxtLink to="/" class="hover:text-gray-900">Home</NuxtLink>
+          <span>/</span>
+          <NuxtLink to="/blog" class="hover:text-gray-900">Blog</NuxtLink>
+          <span>/</span>
+          <span class="text-gray-900">{{ post.title }}</span>
+        </nav>
       </div>
     </div>
 
-    <!-- Article Content -->
-    <div class="container mx-auto px-4 pb-16">
-      <div class="max-w-4xl mx-auto">
-        <article class="prose prose-lg prose-invert max-w-none">
-          <ContentRenderer :value="post" />
+    <!-- Main Content Container -->
+    <div class="w-full px-4 lg:px-8 py-8 lg:py-16">
+      <!-- Two Column Layout: Article + Right Sidebar -->
+      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
+        <!-- Main Article (3/4 width on desktop) -->
+        <article class="lg:col-span-3">
+          <!-- White Surface Card -->
+          <div class="bg-white rounded-xl overflow-hidden" style="box-shadow: 0 3px 18px rgba(0, 0, 0, 0.08); padding: 32px 48px">
+            <!-- Article Header (Centered) -->
+            <header class="text-center mb-12">
+              <!-- Category & Date & Reading Time -->
+              <div class="flex items-center justify-center gap-3 mb-6 flex-wrap">
+                <span v-if="post.category" class="inline-block px-4 py-1 text-sm font-medium text-gray-600 rounded-full" style="background-color: #eef2f7">
+                  {{ post.category }}
+                </span>
+                <time :datetime="post.date" class="text-gray-500 text-sm">
+                  {{ formatDate(post.date) }}
+                </time>
+                <span class="inline-flex items-center gap-1 text-gray-500 text-sm">
+                  <Icon name="ion:time-outline" class="text-gray-400" />
+                  <span>{{ readingTime }} min read</span>
+                </span>
+              </div>
+
+              <!-- Title (Reduced size by 50%) -->
+              <h1 class="font-bold text-black leading-tight mb-6" style="font-size: clamp(24px, 3vw, 44px); letter-spacing: -0.02em; line-height: 1.25">
+                {{ post.title }}
+              </h1>
+
+              <!-- Description -->
+              <p v-if="post.description" class="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
+                {{ post.description }}
+              </p>
+
+              <!-- Tags -->
+              <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-3 justify-center mt-8">
+                <span v-for="tag in post.tags" :key="tag" class="inline-block px-4 py-1 text-sm text-gray-600 rounded-full" style="background-color: #eef2f7">
+                  {{ tag }}
+                </span>
+              </div>
+            </header>
+
+            <!-- Hero Image -->
+            <div v-if="post.image" class="mb-12 rounded-lg overflow-hidden">
+              <NuxtImg :src="post.image" :alt="post.title" class="w-full object-cover" style="aspect-ratio: 16/9" loading="eager" />
+            </div>
+
+            <!-- Content -->
+            <div class="prose prose-lg max-w-none article-content mb-12">
+              <ContentRenderer :value="post" />
+            </div>
+
+            <!-- Social Share Section -->
+            <div class="mb-8 pb-8 border-b border-gray-200">
+              <div class="flex items-center justify-between flex-wrap gap-4">
+                <h4 class="text-sm font-semibold text-gray-900">Share this article:</h4>
+                <div class="flex items-center gap-3">
+                  <!-- Twitter/X -->
+                  <a
+                    :href="`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent('https://proskatersplace.ca' + route.path)}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-500 hover:text-white transition-colors"
+                    aria-label="Share on Twitter">
+                    <Icon name="ion:logo-twitter" class="text-lg" />
+                  </a>
+                  <!-- Facebook -->
+                  <a
+                    :href="`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://proskatersplace.ca' + route.path)}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition-colors"
+                    aria-label="Share on Facebook">
+                    <Icon name="ion:logo-facebook" class="text-lg" />
+                  </a>
+                  <!-- LinkedIn -->
+                  <a
+                    :href="`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent('https://proskatersplace.ca' + route.path)}&title=${encodeURIComponent(post.title)}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-700 hover:text-white transition-colors"
+                    aria-label="Share on LinkedIn">
+                    <Icon name="ion:logo-linkedin" class="text-lg" />
+                  </a>
+                  <!-- Copy Link -->
+                  <button
+                    @click="copyLink"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-green-500 hover:text-white transition-colors"
+                    aria-label="Copy link">
+                    <Icon name="ion:link-outline" class="text-lg" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags Section -->
+            <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-3 mb-12 pb-8 border-b border-gray-200">
+              <span class="text-sm font-semibold text-gray-900 mr-2">Tags:</span>
+              <span
+                v-for="tag in post.tags"
+                :key="tag"
+                class="inline-block px-4 py-2 text-sm text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                style="background-color: #eef2f7">
+                {{ tag }}
+              </span>
+            </div>
+
+            <!-- Shop by Category Section -->
+            <section class="mb-12">
+              <div class="flex items-end justify-between mb-8">
+                <h3 class="text-lg font-semibold md:text-2xl">Shop by Category</h3>
+                <NuxtLink class="text-primary hover:underline text-sm" to="/categories"> View All </NuxtLink>
+              </div>
+              <div class="grid justify-center grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3">
+                <CategoryCard
+                  v-for="(category, i) in productCategories"
+                  :key="category.slug"
+                  :node="{
+                    ...category,
+                    name: category.displayName,
+                  }"
+                  :image-loading="i <= 2 ? 'eager' : 'lazy'" />
+              </div>
+            </section>
+
+            <!-- Recommended Article Card -->
+            <div v-if="recommendedPost" class="mb-12">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">You Might Also Like</h3>
+              <NuxtLink
+                :to="recommendedPost._path.replace('/blog/', '/')"
+                class="group block transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-2xl overflow-hidden border border-gray-200"
+                style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)">
+                <div class="flex flex-col md:flex-row">
+                  <!-- Post Image -->
+                  <div class="w-full md:w-1/3 aspect-video md:aspect-square bg-gray-100 overflow-hidden">
+                    <NuxtImg
+                      v-if="recommendedPost.image"
+                      :src="recommendedPost.image"
+                      :alt="recommendedPost.title"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy" />
+                    <div v-else class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <Icon name="ion:image-outline" class="text-gray-400 text-4xl" />
+                    </div>
+                  </div>
+
+                  <!-- Post Content -->
+                  <div class="flex-1 p-6">
+                    <!-- Meta Row -->
+                    <div class="flex items-center gap-2 mb-3">
+                      <!-- Category Chip -->
+                      <span v-if="recommendedPost.category" class="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                        {{ recommendedPost.category }}
+                      </span>
+
+                      <!-- Date Label -->
+                      <span class="inline-block px-2 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-full">
+                        {{ formatDate(recommendedPost.date) }}
+                      </span>
+                    </div>
+
+                    <!-- Title -->
+                    <h4 class="text-xl font-semibold text-black group-hover:underline line-clamp-2 mb-2">
+                      {{ recommendedPost.title }}
+                    </h4>
+
+                    <!-- Description -->
+                    <p v-if="recommendedPost.description" class="text-gray-600 text-sm line-clamp-2">
+                      {{ recommendedPost.description }}
+                    </p>
+                  </div>
+                </div>
+              </NuxtLink>
+            </div>
+
+            <!-- Author Info - Enhanced for Canadian SEO -->
+            <div v-if="post.author" class="p-8 rounded-lg border border-gray-200" style="background-color: #f9fafb">
+              <h3 class="text-lg font-semibold text-gray-900 mb-6">About the Author</h3>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                  <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                    <Icon name="ion:person" class="text-white text-2xl" />
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-gray-900 text-lg mb-2">
+                    {{ post.author }}
+                  </h4>
+                  <p v-if="post.authorBio" class="text-gray-600 mb-3 leading-relaxed">
+                    {{ post.authorBio }}
+                  </p>
+                  <div class="flex flex-wrap gap-2 text-sm text-gray-500">
+                    <span class="inline-flex items-center gap-1">
+                      <Icon name="ion:location" class="text-blue-600" />
+                      <span>Toronto, Ontario, Canada</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1">
+                      <Icon name="ion:checkmark-circle" class="text-green-600" />
+                      <span>Skating Expert</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </article>
 
-        <!-- Author Bio - Enhanced for Canadian SEO -->
-        <div v-if="post.authorBio || post.author" class="mt-12 p-6 bg-gray-800 rounded-lg border border-gray-700">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0">
-              <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                {{ (post.author || 'P')[0].toUpperCase() }}
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-white font-bold text-lg mb-2">About {{ post.author || 'the Author' }}</h3>
-              <p class="text-gray-300 mb-3">
-                {{
-                  post.authorBio || `Expert skating advice from Canada's most trusted inline skate specialists in Toronto. Serving Canadian skaters since 1995.`
-                }}
-              </p>
-              <div class="flex flex-wrap gap-2 text-sm text-gray-400">
-                <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  Toronto, ON, Canada
-                </span>
-                <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                  </svg>
-                  ProSkaters Place Team
-                </span>
-              </div>
+        <!-- Right Sidebar (1/4 width on desktop) -->
+        <aside class="lg:col-span-1">
+          <!-- Table of Contents - Desktop Only -->
+          <div class="hidden lg:block">
+            <div class="sticky bg-white rounded-xl p-6" style="top: 120px; box-shadow: 0 3px 18px rgba(0, 0, 0, 0.08)">
+              <nav v-if="headings.length" class="space-y-3">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Table of Contents</h3>
+                <ul class="space-y-3">
+                  <li v-for="heading in headings" :key="heading.id">
+                    <a
+                      :href="`#${heading.id}`"
+                      :class="['block text-sm text-gray-600 hover:text-blue-600 transition-colors', heading.level === 3 ? 'ml-4' : '']">
+                      {{ heading.text }}
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
-        </div>
-
-        <!-- Tags -->
-        <div v-if="post.tags && post.tags.length" class="mt-8">
-          <h3 class="text-white font-semibold mb-4">Article Tags</h3>
-          <div class="flex flex-wrap gap-2">
-            <span v-for="tag in post.tags" :key="tag" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm hover:bg-gray-600 transition-colors">
-              {{ tag }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Shop by Category Section -->
-        <div
-          v-if="productCategories && productCategories.length"
-          class="mt-12 p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700">
-          <div class="text-center mb-6">
-            <h3 class="text-2xl font-bold text-white mb-2">Shop by Category</h3>
-            <p class="text-gray-300">Discover our premium selection of skating equipment and gear</p>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <CategoryCard
-              v-for="(category, i) in productCategories"
-              :key="category.slug"
-              :node="{
-                ...category,
-                name: category.displayName,
-              }"
-              :image-loading="'lazy'"
-              class="transform hover:scale-105 transition-transform duration-200" />
-          </div>
-          <div class="text-center mt-6">
-            <NuxtLink
-              to="/categories"
-              class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-              View All Categories
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </NuxtLink>
-          </div>
-        </div>
-
-        <!-- Related Posts -->
-        <div v-if="relatedPosts && relatedPosts.length" class="mt-16">
-          <h3 class="text-2xl font-bold text-white mb-8">Related Articles</h3>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <NuxtLink
-              v-for="relatedPost in relatedPosts"
-              :key="relatedPost._path"
-              :to="relatedPost._path"
-              class="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors">
-              <div v-if="relatedPost.image" class="h-48 overflow-hidden">
-                <img :src="relatedPost.image" :alt="relatedPost.title" class="w-full h-full object-cover" width="400" height="200" />
-              </div>
-              <div class="p-6">
-                <h4 class="text-white font-semibold mb-2 line-clamp-2">
-                  {{ relatedPost.title }}
-                </h4>
-                <p v-if="relatedPost.description" class="text-gray-400 text-sm line-clamp-3">
-                  {{ relatedPost.description }}
-                </p>
-                <div class="mt-4 text-blue-400 text-sm">Read more →</div>
-              </div>
-            </NuxtLink>
-          </div>
-        </div>
-
-        <!-- Back to Blog -->
-        <div class="mt-12 text-center">
-          <NuxtLink to="/blog" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"> ← Back to Blog </NuxtLink>
-        </div>
+        </aside>
       </div>
     </div>
+
+    <!-- Related Posts -->
+    <section v-if="relatedPosts && relatedPosts.length > 1" class="py-16">
+      <div class="max-w-7xl mx-auto px-4 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">More Related Articles</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <NuxtLink
+            v-for="relatedPost in relatedPosts.slice(1)"
+            :key="relatedPost._path"
+            :to="relatedPost._path.replace('/blog/', '/')"
+            class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="aspect-video bg-gray-100 overflow-hidden">
+              <NuxtImg
+                v-if="relatedPost.image"
+                :src="relatedPost.image"
+                :alt="relatedPost.title"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy" />
+              <div v-else class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <Icon name="ion:image-outline" class="text-gray-400 text-2xl" />
+              </div>
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                {{ relatedPost.title }}
+              </h3>
+              <p v-if="relatedPost.description" class="text-gray-600 text-sm mt-2 line-clamp-2">
+                {{ relatedPost.description }}
+              </p>
+            </div>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-gray-900 text-white py-16">
+      <div class="container mx-auto px-4 text-center max-w-3xl">
+        <h2 class="text-3xl font-bold mb-4">Ready to Get Skating?</h2>
+        <p class="text-gray-300 text-lg mb-8">Browse our selection of premium inline skates, roller skates, and accessories.</p>
+        <NuxtLink to="/categories" class="inline-block px-8 py-4 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+          Shop Now
+        </NuxtLink>
+      </div>
+    </section>
   </div>
 </template>
 
-<style>
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6 {
-  @apply text-white;
+<style scoped>
+/* Mobile Responsive Overrides */
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  h1 {
+    text-align: left !important;
+  }
+
+  header {
+    text-align: left !important;
+    margin-bottom: 32px !important;
+  }
+
+  .aspect-ratio-16-9 {
+    aspect-ratio: 4/3 !important;
+  }
 }
 
-.prose p,
-.prose li {
-  @apply text-gray-300;
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.prose a {
-  @apply text-blue-400 hover:text-blue-300;
+/* Article Content Styling */
+.article-content {
+  max-width: 72ch;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
 }
 
-.prose strong {
-  @apply text-white;
+.article-content :where(h1, h2, h3, h4):not(:where([class~='not-prose'] *)) {
+  color: #000000;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
-.prose code {
-  @apply bg-gray-800 text-gray-200 px-1 py-0.5 rounded;
+.article-content :where(h2):not(:where([class~='not-prose'] *)) {
+  font-size: 1.875rem;
+  margin-top: 48px;
+  margin-bottom: 24px;
 }
 
-.prose pre {
-  @apply bg-gray-900 border border-gray-700;
+.article-content :where(h3):not(:where([class~='not-prose'] *)) {
+  font-size: 1.25rem;
+  margin-top: 32px;
+  margin-bottom: 16px;
 }
 
-.prose blockquote {
-  @apply border-l-blue-500 text-gray-300;
+.article-content :where(p):not(:where([class~='not-prose'] *)) {
+  margin-bottom: 24px;
+  color: #000000;
+}
+
+.article-content :where(ul, ol):not(:where([class~='not-prose'] *)) {
+  margin-bottom: 24px;
+  padding-left: 20px;
+}
+
+.article-content :where(img):not(:where([class~='not-prose'] *)) {
+  border-radius: 8px;
+  margin: 32px 0;
+}
+
+.article-content :where(blockquote):not(:where([class~='not-prose'] *)) {
+  border-left: 4px solid #2563eb;
+  padding: 12px 24px;
+  margin: 32px 0;
+  font-style: italic;
+  color: #4b5563;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.article-content :where(code):not(:where([class~='not-prose'] *)) {
+  background-color: #f9fafb;
+  font-family: SFMono-Regular, monospace;
+  font-size: 0.9375rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.article-content :where(pre):not(:where([class~='not-prose'] *)) {
+  background-color: #f9fafb;
+  font-family: SFMono-Regular, monospace;
+  font-size: 0.9375rem;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 24px 0;
+}
+
+.article-content :where(a):not(:where([class~='not-prose'] *)) {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.article-content :where(a):not(:where([class~='not-prose'] *)):hover {
+  text-decoration: underline;
 }
 </style>

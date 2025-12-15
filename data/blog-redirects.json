@@ -46,5 +46,11 @@
       "to": "/blog/skate-maintenance-winter",
       "statusCode": 301
     }
+  },
+  "/where-to-buy-roller-skates-near-me-canada": {
+    "redirect": {
+      "to": "/blog/where-to-buy-roller-skates-near-me-canada",
+      "statusCode": 301
+    }
   }
 }

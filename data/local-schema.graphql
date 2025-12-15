@@ -1,0 +1,14 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"Minimal schema used only for local dev startup."
+type Query {
+  _empty: String
+}
+
+"Minimal schema used only for local dev startup."
+type Mutation {
+  _empty: String
+}

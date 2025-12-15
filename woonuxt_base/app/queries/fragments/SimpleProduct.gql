@@ -19,6 +19,15 @@ fragment SimpleProduct on SimpleProduct {
   reviewCount
   onSale
   virtual
+  attributes {
+    nodes {
+      ... on GlobalProductAttribute {
+        name
+        slug
+        options
+      }
+    }
+  }
   image {
     ...Image
     cartSourceUrl: sourceUrl(size: THUMBNAIL)

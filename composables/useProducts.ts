@@ -40,28 +40,22 @@ export function useProducts() {
       return;
     }
 
-    if (searchQuery.value) {
-      products.value = searchResults.value;
-      return;
-    }
+    // IMPORTANT:
+    // Do not short-circuit on `searchQuery` here.
+    // The full-page search (`/search?q=...`) sets products via `setProducts(results)` and relies on
+    // this pipeline to apply sorting & filters reactively.
+    // The global header search uses `searchQuery/searchResults`, but that should not bypass sorting.
 
     // otherwise, apply filter, search and sorting in that order
     try {
       let newProducts = [...allProducts];
       if (isFiltersActive.value) newProducts = filterProducts(newProducts);
 
-      // If we reach here and search is active, we need to filter by search
-      if (isSearchActive.value) {
-        // Make sure searchProducts is defined or use a fallback
-        if (typeof searchProducts === 'function') {
-          newProducts = searchProducts(newProducts);
-        } else {
-          // Simple fallback search function if searchProducts is not defined
-          const searchTerm = searchQuery.value.toLowerCase();
-          newProducts = newProducts.filter(
-            (product) => product.name?.toLowerCase().includes(searchTerm) || product.description?.toLowerCase().includes(searchTerm),
-          );
-        }
+      // If the mini-search is active (header search), use its results as the base list,
+      // then apply sorting/filters on top so UX stays consistent.
+      if (isSearchActive.value && searchResults.value?.length) {
+        newProducts = [...(searchResults.value as any)];
+        if (isFiltersActive.value) newProducts = filterProducts(newProducts);
       }
 
       if (isSortingActive.value) newProducts = sortProducts(newProducts);

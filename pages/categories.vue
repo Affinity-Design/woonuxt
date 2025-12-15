@@ -87,12 +87,23 @@ const categoryMapping = [
   },
 ];
 
+const pillCategories = [
+  {name: 'New Arrivals', slug: 'new-arrivals'},
+  {name: 'Frames', slug: 'inline-frames'},
+  {name: 'Inline Skate Wheels', slug: 'inline-skate-wheels'},
+  {name: 'Winter Sports', slug: 'winter-sports'},
+  {name: 'Clearance', slug: 'clearance-items'},
+  {name: 'Accessories', slug: 'accessories'},
+];
+
 // Computed property to process and prepare categories for the template
+const allNodes = computed(() => data.value?.productCategories?.nodes || []);
+
 const productCategories = computed((): ProductCategoryProcessed[] => {
   console.log('[DEBUG V3] Computing productCategories...');
 
   // Use category data from GraphQL/CMS if available, otherwise expect it to be handled by mapping alone
-  const nodesFromDataSource: ProductCategoryFromGraphQL[] = data.value?.productCategories?.nodes || [];
+  const nodesFromDataSource: ProductCategoryFromGraphQL[] = allNodes.value;
 
   if (!nodesFromDataSource.length && data.value) {
     // data.value exists but nodes are empty or not found
@@ -145,11 +156,20 @@ const productCategories = computed((): ProductCategoryProcessed[] => {
         console.warn('[DEBUG V3] Filtering out an invalid category object:', category);
         return false;
       }
+      // Filter out empty categories if data is available
+      if (category.count !== undefined && category.count === 0) {
+        return false;
+      }
       return true;
     });
 
   console.log('[DEBUG V3] Final processed productCategories for template:', JSON.parse(JSON.stringify(result)));
   return result;
+});
+
+const otherCategories = computed(() => {
+  const highlightedSlugs = categoryMapping.map((c) => c.slug);
+  return allNodes.value.filter((n: any) => !highlightedSlugs.includes(n.slug) && n.count > 0).sort((a: any, b: any) => a.name.localeCompare(b.name));
 });
 
 // Canadian SEO Optimization
@@ -245,11 +265,23 @@ onMounted(() => {
     <div class="mx-auto" style="max-width: 1320px; padding: clamp(24px, 5vw, 64px)">
       <!-- Header Section -->
       <header class="mb-12">
-        <div class="flex items-end justify-between mb-12">
+        <div class="flex items-end justify-between mb-8">
           <h1 class="text-white font-bold tracking-tight" style="font-size: clamp(48px, 6vw, 88px); letter-spacing: -0.02em; line-height: 1.1">
-            Shop All Categories
+            Featured Categories
           </h1>
-          <NuxtLink to="/" class="text-white hover:underline font-medium" style="font-size: 0.875rem"> Back to Shop </NuxtLink>
+          <a href="#all-categories" class="text-white hover:underline font-medium" style="font-size: 0.875rem"> All Categories </a>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <NuxtLink
+            v-for="pill in pillCategories"
+            :key="pill.slug"
+            :to="`/product-category/${pill.slug}`"
+            class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 bg-gray-800 text-white border border-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
+            style="border-radius: 24px; padding: 4px 12px">
+            {{ pill.name }}
+          </NuxtLink>
         </div>
       </header>
 
@@ -317,6 +349,21 @@ onMounted(() => {
             <h3 class="text-xl font-semibold text-white mb-2">Fast Shipping</h3>
             <p class="text-gray-300">Free shipping on orders $99+ across Canada with fast delivery</p>
           </div>
+        </div>
+      </div>
+
+      <!-- More Categories Section -->
+      <div v-if="otherCategories.length" id="all-categories" class="mt-16">
+        <h2 class="text-2xl font-bold text-white mb-6">More Categories</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <NuxtLink
+            v-for="cat in otherCategories"
+            :key="cat.slug"
+            :to="`/product-category/${cat.slug}`"
+            class="bg-gray-800 p-4 rounded hover:bg-gray-700 transition-colors flex flex-col justify-between h-full">
+            <div class="font-semibold text-white mb-2">{{ cat.name }}</div>
+            <div class="text-sm text-gray-400">{{ cat.count }} products</div>
+          </NuxtLink>
         </div>
       </div>
 

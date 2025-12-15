@@ -1,0 +1,8 @@
+{
+  "_instructions": "Options for bannerType: 'green', 'red', 'orange'. Set enabled to true to show the banner.",
+  "enabled": true,
+  "message": "Boxing day sale is live! Get 25% off sitewide with code BOXING25.",
+  "link": "/catagories",
+  "linkText": "Shop Now",
+  "bannerType": "green"
+}
