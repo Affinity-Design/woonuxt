@@ -202,7 +202,7 @@ export default defineEventHandler(async (event) => {
             subtotal: parseCADPrice(item.subtotal),
           };
 
-          console.log('� Line item pricing:', {
+          console.log('💵 Line item pricing:', {
             name: item.name,
             originalTotal: item.total,
             parsedTotal: lineItem.total,
@@ -248,7 +248,7 @@ export default defineEventHandler(async (event) => {
               {
                 methodId: shippingMethod?.id || shippingMethod || 'flat_rate',
                 methodTitle: shippingMethod?.title || shippingMethod?.label || 'Shipping',
-                total: cartTotals.shippingTotal,
+                total: parseCADPrice(cartTotals.shippingTotal),
               },
             ]
           : [],
@@ -371,7 +371,6 @@ export default defineEventHandler(async (event) => {
       // Prepare the coupon update payload
       const couponPayload: any = {
         currency: currency,
-        recalculate: true, // Force recalculation of totals/taxes
         meta_data: [
           {
             key: '_email_fix_applied',
@@ -385,9 +384,6 @@ export default defineEventHandler(async (event) => {
         console.log(`🎫 Adding ${coupons.length} coupons to payload...`);
         couponPayload.coupon_lines = coupons.map((c: any) => ({
           code: c.code,
-          // Pass explicit amounts to override backend defaults (since we use CAD frontend values)
-          discount: c.discountAmount || '0',
-          discount_tax: c.discountTax || '0',
         }));
       }
 

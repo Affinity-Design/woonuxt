@@ -181,17 +181,11 @@ export function useCheckout() {
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
-                // Calculate tax-exclusive totals to prevent double taxation in WooCommerce
-                // WooCommerce createOrder expects exclusive prices, but cart items might be inclusive
+                // IMPORTANT: Do NOT subtract `item.tax` here.
+                // In WPGraphQL/Woo cart objects, `item.total`/`item.subtotal` are already tax-exclusive,
+                // while `item.tax` often represents the *pre-discount* tax amount. Subtracting it scrambles totals.
                 const itemTotal = parsePrice(item.total);
-                const itemTax = parsePrice(item.tax);
                 const itemSubtotal = parsePrice(item.subtotal);
-                const itemSubtotalTax = parsePrice(item.subtotalTax); // Assuming this exists or we approximate
-
-                // If we have tax, subtract it to get exclusive amount
-                // If tax is 0, we assume it's already exclusive or tax wasn't calculated
-                const exclusiveTotal = itemTotal > itemTax ? itemTotal - itemTax : itemTotal;
-                const exclusiveSubtotal = itemSubtotal > (itemSubtotalTax || 0) ? itemSubtotal - (itemSubtotalTax || 0) : itemSubtotal;
 
                 return {
                   productId: item.product?.node?.databaseId,
@@ -199,9 +193,9 @@ export function useCheckout() {
                   quantity: item.quantity,
                   name: item.product?.node?.name,
                   sku: item.product?.node?.sku || item.variation?.node?.sku,
-                  // Pass the calculated tax-exclusive totals
-                  total: exclusiveTotal.toFixed(2),
-                  subtotal: exclusiveSubtotal.toFixed(2),
+                  // Pass the cart snapshot totals as-is (already tax-exclusive)
+                  total: itemTotal.toFixed(2),
+                  subtotal: itemSubtotal.toFixed(2),
                   // Pass variation attributes (size, color, etc.)
                   variation: item.variation?.node
                     ? {
