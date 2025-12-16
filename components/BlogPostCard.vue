@@ -1,7 +1,5 @@
 <template>
-  <NuxtLink
-    :to="`/${post._path?.split('/').pop()}`"
-    class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+  <NuxtLink :to="postUrl" class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
     <div class="aspect-video bg-gray-100 overflow-hidden">
       <img
         :src="post.image || '/images/inline-skates.jpg'"
@@ -24,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from 'vue';
+
 interface BlogPost {
   _path?: string;
   title: string;
@@ -33,9 +33,23 @@ interface BlogPost {
   date?: string;
 }
 
-defineProps<{
+const props = defineProps<{
   post: BlogPost;
 }>();
+
+const postUrl = computed(() => {
+  const rawPath = props.post?._path;
+  if (!rawPath) return '/blog';
+
+  // Nuxt Content typically provides `_path` like `/blog/my-post`.
+  // If it ever comes through as `blog/my-post`, normalize it.
+  const normalized = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+  if (normalized.startsWith('/blog/')) return normalized;
+
+  // Fallback: if something upstream strips the `/blog` prefix, rebuild it.
+  const slug = normalized.split('/').filter(Boolean).pop();
+  return slug ? `/blog/${slug}` : '/blog';
+});
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);

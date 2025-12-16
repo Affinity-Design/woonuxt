@@ -28,6 +28,40 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
 
+    // Idempotency guard: prevents accidental repeat submissions from spamming WC REST updates.
+    // This endpoint is only used for Helcim payments; `transactionId` should be stable per payment.
+    if (!transactionId) {
+      throw new Error('Missing transactionId for admin order creation');
+    }
+
+    const idempotencyStorage = useStorage('cache');
+    const idempotencyKey = `idempotency:admin-order:${transactionId}`;
+    const existingIdempotency = await idempotencyStorage.getItem<any>(idempotencyKey);
+
+    if (existingIdempotency?.status === 'completed' && existingIdempotency?.order) {
+      console.log('🔁 Idempotency hit: returning previously created order for transactionId', transactionId);
+      return {
+        success: true,
+        idempotent: true,
+        order: existingIdempotency.order,
+      };
+    }
+
+    if (existingIdempotency?.status === 'in_progress') {
+      console.warn('⏳ Idempotency in-progress: ignoring duplicate request for transactionId', transactionId);
+      return {
+        success: false,
+        idempotent: true,
+        error: 'Order creation already in progress. Please wait and refresh.',
+      };
+    }
+
+    await idempotencyStorage.setItem(idempotencyKey, {
+      status: 'in_progress',
+      transactionId,
+      startedAt: new Date().toISOString(),
+    });
+
     // Log line items for debugging variation issues and pricing
     if (lineItems && lineItems.length > 0) {
       console.log(
@@ -446,7 +480,7 @@ export default defineEventHandler(async (event) => {
       console.warn('⚠️ Failed to finalize order:', finalError.message);
     }
 
-    return {
+    const responsePayload = {
       success: true,
       message: '🎉 GraphQL admin authentication test SUCCESSFUL!',
       order: {
@@ -472,8 +506,33 @@ export default defineEventHandler(async (event) => {
         '🔗 Redirect to order confirmation page',
       ],
     };
+
+    await idempotencyStorage.setItem(idempotencyKey, {
+      status: 'completed',
+      transactionId,
+      completedAt: new Date().toISOString(),
+      order: responsePayload.order,
+    });
+
+    return responsePayload;
   } catch (error: any) {
     console.error('❌ Admin order creation failed:', error);
+
+    // Best-effort mark idempotency key as failed (if we had a transactionId)
+    try {
+      if (body?.transactionId) {
+        const idempotencyStorage = useStorage('cache');
+        const idempotencyKey = `idempotency:admin-order:${body.transactionId}`;
+        await idempotencyStorage.setItem(idempotencyKey, {
+          status: 'failed',
+          transactionId: body.transactionId,
+          failedAt: new Date().toISOString(),
+          error: error?.message || 'Unknown error',
+        });
+      }
+    } catch {
+      // ignore
+    }
 
     return {
       success: false,
