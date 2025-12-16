@@ -17,3 +17,5 @@ A: Add the data type in WordPress, expose it via WPGraphQL, then create a new Gr
 
 **Q: Where do I configure the GraphQL endpoint?**
 A: In your environment variables (e.g., `.env` file) and referenced in Nuxt's runtime config.
+
+HEY
