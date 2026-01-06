@@ -188,7 +188,10 @@ export function useCheckout() {
                 // createOrder mutation expects tax-exclusive amounts to avoid double taxation
                 const itemTotal = parsePrice(item.total);
                 const itemTax = parsePrice(item.tax) || 0;
+
                 // Ensure we don't get negative values due to floating point math
+                // For Coupon items: itemTotal is already discounted.
+                // We MUST subtract tax to get the Net Discounted Price.
                 const netTotal = Math.max(0, itemTotal - itemTax);
 
                 const itemSubtotal = parsePrice(item.subtotal);
