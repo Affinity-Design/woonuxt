@@ -248,7 +248,12 @@ export default defineEventHandler(async (event) => {
               {
                 methodId: shippingMethod?.id || shippingMethod || 'flat_rate',
                 methodTitle: shippingMethod?.title || shippingMethod?.label || 'Shipping',
-                total: parseCADPrice(cartTotals.shippingTotal),
+                // Ensure shipping total is tax-exclusive by subtracting shipping tax
+                total: (() => {
+                  const sTotal = parseFloat(parseCADPrice(cartTotals.shippingTotal) || '0');
+                  const sTax = parseFloat(parseCADPrice(cartTotals.shippingTax) || '0');
+                  return Math.max(0, sTotal - sTax).toFixed(2);
+                })(),
               },
             ]
           : [],

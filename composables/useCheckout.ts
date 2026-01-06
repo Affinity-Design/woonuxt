@@ -181,11 +181,29 @@ export function useCheckout() {
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
-                // IMPORTANT: Do NOT subtract `item.tax` here.
-                // In WPGraphQL/Woo cart objects, `item.total`/`item.subtotal` are already tax-exclusive,
-                // while `item.tax` often represents the *pre-discount* tax amount. Subtracting it scrambles totals.
+                const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
+
+                // Calculate tax-exclusive totals
+                // item.total and item.subtotal from WPGraphQL are typically tax-inclusive if store settings are "Entered with tax"
+                // createOrder mutation expects tax-exclusive amounts to avoid double taxation
                 const itemTotal = parsePrice(item.total);
+                const itemTax = parsePrice(item.tax) || 0;
+                // Ensure we don't get negative values due to floating point math
+                const netTotal = Math.max(0, itemTotal - itemTax);
+
                 const itemSubtotal = parsePrice(item.subtotal);
+                const itemSubtotalTax = parsePrice(item.subtotalTax) || 0;
+                const netSubtotal = Math.max(0, itemSubtotal - itemSubtotalTax);
+
+                console.log('[processCheckout] Line item tax calculation:', {
+                  name: item.product?.node?.name,
+                  totalInclusive: itemTotal,
+                  tax: itemTax,
+                  netTotal: netTotal.toFixed(2),
+                  subtotalInclusive: itemSubtotal,
+                  subtotalTax: itemSubtotalTax,
+                  netSubtotal: netSubtotal.toFixed(2),
+                });
 
                 return {
                   productId: item.product?.node?.databaseId,
@@ -193,9 +211,9 @@ export function useCheckout() {
                   quantity: item.quantity,
                   name: item.product?.node?.name,
                   sku: item.product?.node?.sku || item.variation?.node?.sku,
-                  // Pass the cart snapshot totals as-is (already tax-exclusive)
-                  total: itemTotal.toFixed(2),
-                  subtotal: itemSubtotal.toFixed(2),
+                  // Pass tax-exclusive totals
+                  total: netTotal.toFixed(2),
+                  subtotal: netSubtotal.toFixed(2),
                   // Pass variation attributes (size, color, etc.)
                   variation: item.variation?.node
                     ? {
