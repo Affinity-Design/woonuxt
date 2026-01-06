@@ -185,18 +185,20 @@ export function useCheckout() {
 
                 // Calculate tax-exclusive totals
                 // item.total and item.subtotal from WPGraphQL are typically tax-inclusive if store settings are "Entered with tax"
-                // createOrder mutation expects tax-exclusive amounts to avoid double taxation
+                // However, detailed testing shows that for this specific store configuration (Prices Entered with Tax),
+                // sending the NET price causes issues (stripping tax twice or double taxation depending on context).
+                // The user explicitly requested to send the Inclusive totals to resolve the discrepancy.
+                
                 const itemTotal = parsePrice(item.total);
                 const itemTax = parsePrice(item.tax) || 0;
-
-                // Ensure we don't get negative values due to floating point math
-                // For Coupon items: itemTotal is already discounted.
-                // We MUST subtract tax to get the Net Discounted Price.
-                const netTotal = Math.max(0, itemTotal - itemTax);
+                
+                // Reverting to sending the total as-is (Inclusive) based on user logs and request
+                // e.g. If Total is 0.96 (Inclusive), we send 0.96.
+                const netTotal = itemTotal;
 
                 const itemSubtotal = parsePrice(item.subtotal);
                 const itemSubtotalTax = parsePrice(item.subtotalTax) || 0;
-                const netSubtotal = Math.max(0, itemSubtotal - itemSubtotalTax);
+                const netSubtotal = itemSubtotal;
 
                 console.log('[processCheckout] Line item tax calculation:', {
                   name: item.product?.node?.name,
