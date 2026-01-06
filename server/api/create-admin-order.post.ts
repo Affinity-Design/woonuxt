@@ -367,10 +367,13 @@ export default defineEventHandler(async (event) => {
     // No need to update them separately to avoid duplicates
     console.log('✅ Order created with complete line items via GraphQL');
 
-    // Split into two steps to ensure totals are correct BEFORE triggering the email
-    // Step 1: Apply coupons and recalculate totals
-    // Step 2: Update status to 'processing' (which triggers the email)
+    // Step 1: SKIP Applying coupons to avoid double-discounting logic
+    // Since we already calculated the discounted totals in the line items, applying coupons again via API
+    // triggers a re-calculation that corrupts the totals (e.g. 0.85 -> 0.74).
+    // We will just update status.
+
     try {
+      /*
       console.log('🔄 Step 1: Applying coupons and recalculating...');
 
       // Prepare the coupon update payload
@@ -398,9 +401,9 @@ export default defineEventHandler(async (event) => {
       const couponResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
         },
         body: JSON.stringify(couponPayload),
       });
@@ -408,11 +411,12 @@ export default defineEventHandler(async (event) => {
       if (!couponResponse.ok) {
         const errorText = await couponResponse.text();
         console.warn('⚠️ Failed to apply coupons:', errorText);
-        // Continue anyway to try and set status, or throw?
-        // If coupons fail, the total will be wrong. Better to log and proceed so the order at least exists.
       } else {
         console.log('✅ Coupons applied and totals recalculated');
       }
+      */
+
+      console.log('🔄 Skipped coupon application to preserve manual line totals.');
 
       // Step 2: Update status to processing
       console.log('🔄 Step 2: Updating status to processing...');

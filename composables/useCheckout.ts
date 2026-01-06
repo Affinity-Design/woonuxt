@@ -184,29 +184,27 @@ export function useCheckout() {
                 const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
 
                 // Calculate tax-exclusive totals
-                // item.total and item.subtotal from WPGraphQL are typically tax-inclusive if store settings are "Entered with tax"
-                // However, detailed testing shows that for this specific store configuration (Prices Entered with Tax),
-                // sending the NET price causes issues (stripping tax twice or double taxation depending on context).
-                // The user explicitly requested to send the Inclusive totals to resolve the discrepancy.
-                
+                // We MUST send Tax-Exclusive (Net) prices to createOrder to avoid double-taxation.
+                // Log analysis proved that sending Net Price (0.85) resulted in correct Total (0.96) initially.
+                // The later corruption is due to re-applying coupons in step 2.
+
                 const itemTotal = parsePrice(item.total);
                 const itemTax = parsePrice(item.tax) || 0;
-                
-                // Reverting to sending the total as-is (Inclusive) based on user logs and request
-                // e.g. If Total is 0.96 (Inclusive), we send 0.96.
-                const netTotal = itemTotal;
+
+                // Subtract tax to get Net Total
+                // Ensure non-negative
+                const netTotal = Math.max(0, itemTotal - itemTax);
 
                 const itemSubtotal = parsePrice(item.subtotal);
-                const itemSubtotalTax = parsePrice(item.subtotalTax) || 0;
+                // Item subtotal is already tax-exclusive in the cart response
+                // Do NOT subtract tax again, or we get a double-tax-strip
                 const netSubtotal = itemSubtotal;
-
                 console.log('[processCheckout] Line item tax calculation:', {
                   name: item.product?.node?.name,
                   totalInclusive: itemTotal,
                   tax: itemTax,
                   netTotal: netTotal.toFixed(2),
-                  subtotalInclusive: itemSubtotal,
-                  subtotalTax: itemSubtotalTax,
+                  subtotalRecursive: itemSubtotal,
                   netSubtotal: netSubtotal.toFixed(2),
                 });
 
