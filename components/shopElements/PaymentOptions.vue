@@ -48,11 +48,20 @@ const restorePaymentMethod = () => {
   return null;
 };
 
+// Fallback Helcim gateway - ensures Helcim is ALWAYS available
+const fallbackHelcimGateway = {
+  id: 'cod',
+  title: 'Helcim Payment',
+  description: 'Secure payment processing via Helcim',
+};
+
 onMounted(() => {
+  console.log('[PaymentOptions] Mounted with paymentGateways:', props.paymentGateways?.nodes?.length || 0, 'gateways');
+
   // Try to restore previously selected payment method first
   const storedPaymentMethod = restorePaymentMethod();
 
-  if (storedPaymentMethod && props.paymentGateways?.nodes.length) {
+  if (storedPaymentMethod && props.paymentGateways?.nodes?.length) {
     // Check if the stored payment method is still available
     const allGateways = props.paymentGateways.nodes;
     const matchingGateway = allGateways.find(
@@ -67,8 +76,8 @@ onMounted(() => {
     }
   }
 
-  // Only auto-select if no stored method or stored method not available
-  if (props.paymentGateways?.nodes.length) {
+  // Auto-select payment method
+  if (props.paymentGateways?.nodes?.length) {
     const filteredGateways = filterPaymentGateways(props.paymentGateways.nodes);
 
     if (filteredGateways.length) {
@@ -76,9 +85,14 @@ onMounted(() => {
       console.log('[PaymentOptions] Auto-selecting first available payment method');
       updatePaymentMethod(filteredGateways[0]);
     } else {
-      // Fallback to helcimjs if no gateways remain after filtering
-      updatePaymentMethod('helcimjs');
+      // Fallback to Helcim if no gateways remain after filtering
+      console.log('[PaymentOptions] No filtered gateways found, using fallback Helcim');
+      updatePaymentMethod(fallbackHelcimGateway);
     }
+  } else {
+    // CRITICAL: If paymentGateways is empty/null, still select Helcim!
+    console.log('[PaymentOptions] No payment gateways loaded, using fallback Helcim');
+    updatePaymentMethod(fallbackHelcimGateway);
   }
 });
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, computed, onUnmounted, watch, nextTick} from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
 
 const {t} = useI18n();
@@ -33,6 +33,56 @@ const helcimTransactionData = ref<any>(null);
 const isCreatingOrder = ref<boolean>(false);
 const orderCreationMessage = ref<string>('');
 const helcimModalClosed = ref<boolean>(false); // Track if user closed modal
+
+// Fallback Helcim payment gateway - used when paymentGateways doesn't load properly
+const fallbackHelcimGateway = {
+  id: 'cod',
+  title: 'Helcim Payment',
+  description: 'Secure payment processing via Helcim',
+};
+
+// Effective payment gateways - ensures Helcim is always available
+const effectivePaymentGateways = computed(() => {
+  // If paymentGateways has nodes with Helcim, use them
+  if (paymentGateways.value?.nodes?.length) {
+    const helcimGateway = paymentGateways.value.nodes.find((g: any) => g.id === 'cod' && g.title?.includes('Helcim'));
+    if (helcimGateway) {
+      return paymentGateways.value;
+    }
+  }
+  // Otherwise, return fallback with Helcim only
+  console.log('[Checkout] Using fallback payment gateways (Helcim only)');
+  return {
+    nodes: [fallbackHelcimGateway],
+  };
+});
+
+// Ensure Helcim is always selected - this is the ONLY payment method we support
+const ensureHelcimSelected = () => {
+  if (!orderInput.value.paymentMethod?.id || !orderInput.value.paymentMethod?.title?.includes('Helcim')) {
+    console.log('[Checkout] Ensuring Helcim payment method is selected');
+    orderInput.value.paymentMethod = fallbackHelcimGateway;
+  }
+};
+
+// Auto-select Helcim on component mount
+onMounted(() => {
+  // Ensure Helcim is selected immediately
+  ensureHelcimSelected();
+
+  // Also set up a watcher to ensure it stays selected
+  watch(
+    () => paymentGateways.value,
+    (newGateways) => {
+      console.log('[Checkout] paymentGateways changed:', newGateways?.nodes?.length || 0, 'gateways');
+      // Even if gateways load, ensure Helcim stays selected
+      nextTick(() => {
+        ensureHelcimSelected();
+      });
+    },
+    {immediate: true},
+  );
+});
 
 // Auto-fill customer details from viewer if available
 watchEffect(() => {
@@ -383,9 +433,13 @@ const helcimAmount = computed(() => {
   return totalInDollars;
 });
 
-// Computed to show Helcim card even during cart updates when payment method might be temporarily cleared
+// Computed to show Helcim card - ALWAYS show since Helcim is our ONLY payment method
 const shouldShowHelcimCard = computed(() => {
-  // Show if currently selected method is Helcim
+  // ALWAYS show Helcim card when we have a cart with items
+  // This ensures Helcim loads regardless of paymentGateways state
+  const hasCart = cart.value && !cart.value.isEmpty;
+
+  // Also check if currently selected method is Helcim (backup check)
   const isCurrentlyHelcim = orderInput.value.paymentMethod?.id === 'cod' && orderInput.value.paymentMethod?.title?.includes('Helcim');
 
   // Also show if we have a completed Helcim payment (prevents disappearing during cart updates)
@@ -394,7 +448,11 @@ const shouldShowHelcimCard = computed(() => {
   // Keep showing if user just closed modal (so they can try again)
   const userClosedModal = helcimModalClosed.value && !helcimPaymentComplete.value;
 
+  // ALWAYS show when cart has items - Helcim is the only payment method
+  const shouldShow = hasCart || isCurrentlyHelcim || hasHelcimPayment || userClosedModal;
+
   console.log('[shouldShowHelcimCard] Evaluation:', {
+    hasCart,
     isCurrentlyHelcim,
     hasHelcimPayment,
     userClosedModal,
@@ -402,10 +460,10 @@ const shouldShowHelcimCard = computed(() => {
     paymentMethodTitle: orderInput.value.paymentMethod?.title,
     helcimModalClosed: helcimModalClosed.value,
     helcimPaymentComplete: helcimPaymentComplete.value,
-    result: isCurrentlyHelcim || hasHelcimPayment || userClosedModal,
+    result: shouldShow,
   });
 
-  return isCurrentlyHelcim || hasHelcimPayment || userClosedModal;
+  return shouldShow;
 });
 useSeoMeta({
   title: t('messages.shop.checkout'),
@@ -534,12 +592,12 @@ useSeoMeta({
               @shipping-changed="refreshCart" />
           </div>
 
-          <!-- Payment methods section -->
-          <div v-if="paymentGateways?.nodes.length" class="mt-2 col-span-full">
+          <!-- Payment methods section - ALWAYS show since Helcim is required -->
+          <div class="mt-2 col-span-full">
             <h2 class="mb-4 text-xl font-semibold">
               {{ $t('messages.billing.paymentOptions') }}
             </h2>
-            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways />
+            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways="effectivePaymentGateways" />
 
             <!-- Other payment methods info -->
             <div
