@@ -28,6 +28,7 @@ export function useCheckout() {
       username: '',
       password: '',
       transactionId: '',
+      cardToken: '', // Helcim card token required for native refunds via WP admin
       createAccount: false,
     };
   });
@@ -140,7 +141,7 @@ export function useCheckout() {
       const enhancedMetaData = [...orderInput.value.metaData];
       if (isHelcimPayment) {
         enhancedMetaData.push(
-          {key: '_actual_payment_method', value: 'helcim'},
+          {key: '_actual_payment_method', value: 'helcimjs'}, // Match WooCommerce Helcim plugin ID
           {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
           {key: '_helcim_payment_processed', value: 'yes'},
           {key: '_paid_date', value: new Date().toISOString()},
@@ -250,6 +251,8 @@ export function useCheckout() {
             customerNote: orderInput.value.customerNote,
             metaData: enhancedMetaData,
             createAccount: orderInput.value.createAccount,
+            // Include cardToken for Helcim native refund support in WooCommerce
+            cardToken: orderInput.value.cardToken,
           };
 
           console.log('[processCheckout] Calling admin order creation API...');

@@ -229,6 +229,11 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     console.log('[HelcimCard] Transaction validated successfully:', validation);
     transactionData.value = extractedTransactionData;
 
+    // Extract cardToken from Helcim response for refund support
+    // Helcim returns cardToken in the transaction data which is required for processing refunds
+    const cardToken = extractedTransactionData?.cardToken || extractedTransactionData?.data?.cardToken || responseData?.cardToken;
+    console.log('[HelcimCard] Extracted cardToken for refund support:', cardToken ? 'present' : 'missing');
+
     paymentComplete.value = true;
     paymentError.value = null;
 
@@ -237,6 +242,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       success: true,
       transactionData: extractedTransactionData,
       secretToken: secretToken.value,
+      cardToken: cardToken, // Include cardToken for WooCommerce refund support
       isValidated: true,
       validationResult: validation,
     });

@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
       createAccount = false,
       currency = 'CAD',
       customerId,
+      cardToken, // Helcim card token for native refund support
     } = body;
 
     // Validate required configuration
@@ -155,7 +156,9 @@ export default defineEventHandler(async (event) => {
     const variables = {
       input: {
         clientMutationId: `admin-order-${transactionId}-${Date.now()}`,
-        paymentMethod: 'helcim',
+        // CRITICAL: Use 'helcimjs' to match the Helcim Commerce for WooCommerce plugin
+        // This enables native refunds via the WP admin dashboard
+        paymentMethod: 'helcimjs',
         paymentMethodTitle: 'Helcim Credit Card Payment',
         transactionId: transactionId,
         status: 'PENDING', // Start as PENDING to prevent premature emails
@@ -263,8 +266,12 @@ export default defineEventHandler(async (event) => {
         metaData: [
           {key: '_created_via', value: 'woonuxt_admin_api'},
           {key: '_helcim_transaction_id', value: transactionId},
-          {key: '_payment_method', value: 'helcim'},
+          // CRITICAL: Use 'helcimjs' to match the Helcim WooCommerce plugin for native refunds
+          {key: '_payment_method', value: 'helcimjs'},
           {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
+          // CRITICAL: Store card token for native refund support via WP admin
+          // The Helcim WooCommerce plugin checks for 'helcim-card-token' meta
+          ...(cardToken ? [{key: 'helcim-card-token', value: cardToken}] : []),
           {key: '_paid_date', value: new Date().toISOString()},
           {key: '_transaction_paid', value: '1'},
           {key: '_order_source', value: 'proskatersplace.ca'},
@@ -418,22 +425,45 @@ export default defineEventHandler(async (event) => {
 
       console.log('🔄 Skipped coupon application to preserve manual line totals.');
 
-      // Step 2: Update status to processing
+      // Step 2: Update status to processing and ensure transaction_id is stored correctly
       console.log('🔄 Step 2: Updating status to processing...');
 
       // Delay to ensure DB write completes and totals are stable
       // User requested longer wait to guarantee correctness
       await new Promise((resolve) => setTimeout(resolve, 4000));
 
+      // Build meta_data array for the REST API update
+      // This ensures WooCommerce stores these in the standard format for the Helcim plugin
+      const statusMetaData: Array<{key: string; value: string}> = [
+        {
+          key: '_order_completed_processing',
+          value: 'true',
+        },
+        // Ensure transaction_id is stored in WooCommerce standard location
+        {
+          key: '_transaction_id',
+          value: transactionId,
+        },
+      ];
+
+      // Add cardToken for Helcim native refund support if available
+      if (cardToken) {
+        statusMetaData.push({
+          key: 'helcim-card-token',
+          value: cardToken,
+        });
+        console.log('✅ Including cardToken in status update for refund support');
+      }
+
       const statusPayload = {
         status: 'processing',
         set_paid: true,
-        meta_data: [
-          {
-            key: '_order_completed_processing',
-            value: 'true',
-          },
-        ],
+        // Set transaction_id at the order level (required by WooCommerce for refunds)
+        transaction_id: transactionId,
+        // Set payment_method to match Helcim plugin
+        payment_method: 'helcimjs',
+        payment_method_title: 'Helcim Credit Card Payment',
+        meta_data: statusMetaData,
       };
       const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
         method: 'PUT',

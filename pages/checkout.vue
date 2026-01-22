@@ -30,6 +30,7 @@ const isTurnstileEnabled = computed(() => {
 // Helcim payment state
 const helcimPaymentComplete = ref<boolean>(false);
 const helcimTransactionData = ref<any>(null);
+const helcimCardToken = ref<string>(''); // Card token required for refunds via WP admin
 const isCreatingOrder = ref<boolean>(false);
 const orderCreationMessage = ref<string>('');
 const helcimModalClosed = ref<boolean>(false); // Track if user closed modal
@@ -365,6 +366,21 @@ const handleHelcimSuccess = async (transactionData: any) => {
     console.log('[Checkout] Set transaction ID:', actualTransactionId);
   }
 
+  // Extract and store cardToken for refund support
+  // The Helcim WooCommerce plugin requires 'helcim-card-token' meta for native refunds
+  const cardToken = transactionData?.cardToken || transactionData?.data?.cardToken || transactionData?.data?.data?.cardToken;
+  if (cardToken) {
+    helcimCardToken.value = cardToken;
+    orderInput.value.cardToken = cardToken; // Store in orderInput for admin order creation
+    orderInput.value.metaData.push({
+      key: 'helcim-card-token',
+      value: cardToken,
+    });
+    console.log('[Checkout] Set cardToken for refund support:', cardToken ? 'present' : 'missing');
+  } else {
+    console.warn('[Checkout] No cardToken in Helcim response - refunds may need to be processed manually');
+  }
+
   // Set payment as completed
   isPaid.value = true;
   paymentError.value = null;
@@ -400,7 +416,12 @@ const handleHelcimComplete = (result: any) => {
   console.log('[Checkout] Helcim payment completed:', result);
 
   if (result.success) {
-    handleHelcimSuccess(result.transactionData);
+    // Include cardToken in the transactionData if present in result
+    const enrichedTransactionData = {
+      ...result.transactionData,
+      cardToken: result.cardToken || result.transactionData?.cardToken,
+    };
+    handleHelcimSuccess(enrichedTransactionData);
   } else {
     handleHelcimFailed(result.error);
   }
