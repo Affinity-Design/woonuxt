@@ -211,6 +211,47 @@ const payNow = async () => {
       throw new Error(paymentError.value);
     }
 
+    // CRITICAL: Validate stock BEFORE payment processing to prevent overselling
+    console.log('[payNow] Validating stock availability before payment...');
+    const lineItemsForValidation = cart.value.contents?.nodes?.map((item: any) => ({
+      productId: item.product?.node?.databaseId,
+      variationId: item.variation?.node?.databaseId || null,
+      quantity: item.quantity,
+      name: item.product?.node?.name || item.variation?.node?.name,
+    })) || [];
+
+    try {
+      const stockValidation = await $fetch('/api/validate-stock', {
+        method: 'POST',
+        body: { lineItems: lineItemsForValidation },
+      }) as { success: boolean; error?: string; warning?: string; outOfStockItems: Array<{ name: string; availableQuantity: number | null }> };
+
+      if (!stockValidation.success) {
+        const outOfStockNames = stockValidation.outOfStockItems.map((item) => {
+          if (item.availableQuantity !== null && item.availableQuantity > 0) {
+            return `${item.name} (only ${item.availableQuantity} available)`;
+          }
+          return `${item.name} (out of stock)`;
+        }).join(', ');
+        
+        console.error('[payNow] ❌ Stock validation failed:', stockValidation.outOfStockItems);
+        throw new Error(`Some items are no longer available: ${outOfStockNames}. Please update your cart and try again.`);
+      }
+
+      if (stockValidation.warning) {
+        console.warn('[payNow] Stock validation warning:', stockValidation.warning);
+      }
+
+      console.log('[payNow] ✅ Stock validation passed');
+    } catch (stockError: any) {
+      // If it's our own thrown error (stock issue), re-throw it
+      if (stockError.message?.includes('no longer available')) {
+        throw stockError;
+      }
+      // Otherwise log the API error but allow checkout to proceed (fail open)
+      console.warn('[payNow] Stock validation API error, proceeding with checkout:', stockError);
+    }
+
     console.log('[payNow] Starting checkout process. Cart items:', cart.value.contents?.nodes?.length);
 
     // Process payment based on method
@@ -228,6 +269,18 @@ const payNow = async () => {
       } else {
         // Reset modal closed flag at start of payment
         helcimModalClosed.value = false;
+
+        // Refresh cart to get latest stock status from WooCommerce before payment
+        console.log('[payNow] Refreshing cart before payment to check for stock changes...');
+        try {
+          await refreshCart();
+          // Re-check if cart is still valid after refresh
+          if (!cart.value || cart.value.isEmpty) {
+            throw new Error('Your cart is empty. Items may have been removed due to stock changes.');
+          }
+        } catch (refreshError) {
+          console.warn('[payNow] Cart refresh failed, proceeding with cached cart:', refreshError);
+        }
 
         // Trigger Helcim payment process
         if (helcimCardRef.value?.processPayment) {
