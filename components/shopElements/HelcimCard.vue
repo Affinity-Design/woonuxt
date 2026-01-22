@@ -230,9 +230,33 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     transactionData.value = extractedTransactionData;
 
     // Extract cardToken from Helcim response for refund support
-    // Helcim returns cardToken in the transaction data which is required for processing refunds
-    const cardToken = extractedTransactionData?.cardToken || extractedTransactionData?.data?.cardToken || responseData?.cardToken;
-    console.log('[HelcimCard] Extracted cardToken for refund support:', cardToken ? 'present' : 'missing');
+    // Helcim may return cardToken at various levels depending on the response structure
+    // Log all possible locations to debug
+    console.log('[HelcimCard] Looking for cardToken in response:', {
+      'extractedTransactionData.cardToken': extractedTransactionData?.cardToken,
+      'extractedTransactionData.data?.cardToken': extractedTransactionData?.data?.cardToken,
+      'responseData.cardToken': responseData?.cardToken,
+      'responseData.data?.cardToken': responseData?.data?.cardToken,
+      'extractedTransactionData.card?.cardToken': extractedTransactionData?.card?.cardToken,
+      'responseData.card?.cardToken': responseData?.card?.cardToken,
+      // Full structure for debugging
+      'extractedTransactionData keys': Object.keys(extractedTransactionData || {}),
+      'responseData keys': Object.keys(responseData || {}),
+    });
+
+    // Try all possible locations for cardToken
+    const cardToken = 
+      extractedTransactionData?.cardToken || 
+      extractedTransactionData?.data?.cardToken ||
+      extractedTransactionData?.card?.cardToken ||
+      responseData?.cardToken || 
+      responseData?.data?.cardToken ||
+      responseData?.card?.cardToken ||
+      // Sometimes it's nested under the transaction object
+      extractedTransactionData?.transaction?.cardToken ||
+      responseData?.transaction?.cardToken;
+      
+    console.log('[HelcimCard] Extracted cardToken for refund support:', cardToken ? `present (${cardToken.substring(0, 8)}...)` : 'MISSING - refunds will fail!');
 
     paymentComplete.value = true;
     paymentError.value = null;

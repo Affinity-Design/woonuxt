@@ -424,7 +424,19 @@ const handleHelcimSuccess = async (transactionData: any) => {
 
   // Extract and store cardToken for refund support
   // The Helcim WooCommerce plugin requires 'helcim-card-token' meta for native refunds
-  const cardToken = transactionData?.cardToken || transactionData?.data?.cardToken || transactionData?.data?.data?.cardToken;
+  // Log full structure to find where cardToken lives
+  console.log('[Checkout] Full transactionData for cardToken search:', JSON.stringify(transactionData, null, 2));
+  
+  const cardToken = 
+    transactionData?.cardToken || 
+    transactionData?.data?.cardToken || 
+    transactionData?.data?.data?.cardToken ||
+    transactionData?.card?.cardToken ||
+    transactionData?.data?.card?.cardToken ||
+    transactionData?.transaction?.cardToken;
+    
+  console.log('[Checkout] CardToken extraction result:', cardToken ? `Found: ${cardToken.substring(0, 10)}...` : 'NOT FOUND');
+  
   if (cardToken) {
     helcimCardToken.value = cardToken;
     orderInput.value.cardToken = cardToken; // Store in orderInput for admin order creation
@@ -432,9 +444,13 @@ const handleHelcimSuccess = async (transactionData: any) => {
       key: 'helcim-card-token',
       value: cardToken,
     });
-    console.log('[Checkout] Set cardToken for refund support:', cardToken ? 'present' : 'missing');
+    console.log('[Checkout] ✅ Set cardToken for refund support');
   } else {
-    console.warn('[Checkout] No cardToken in Helcim response - refunds may need to be processed manually');
+    console.error('[Checkout] ❌ NO cardToken in Helcim response - REFUNDS WILL FAIL!');
+    console.error('[Checkout] Available keys in transactionData:', Object.keys(transactionData || {}));
+    if (transactionData?.data) {
+      console.error('[Checkout] Available keys in transactionData.data:', Object.keys(transactionData.data || {}));
+    }
   }
 
   // Set payment as completed

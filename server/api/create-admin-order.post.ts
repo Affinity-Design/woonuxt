@@ -274,10 +274,12 @@ export default defineEventHandler(async (event) => {
           {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
           // CRITICAL: Store card token for native refund support via WP admin
           // Store in multiple formats to ensure Helcim plugin can find it
-          ...(cardToken ? [
-            {key: 'helcim-card-token', value: cardToken},
-            {key: '_helcim_card_token', value: cardToken},
-          ] : []),
+          ...(cardToken
+            ? [
+                {key: 'helcim-card-token', value: cardToken},
+                {key: '_helcim_card_token', value: cardToken},
+              ]
+            : []),
           {key: '_paid_date', value: new Date().toISOString()},
           {key: '_transaction_paid', value: '1'},
           {key: '_order_source', value: 'proskatersplace.ca'},
@@ -455,10 +457,7 @@ export default defineEventHandler(async (event) => {
       // Add cardToken for Helcim native refund support if available
       // Store in multiple formats to ensure Helcim plugin can find it
       if (cardToken) {
-        statusMetaData.push(
-          {key: 'helcim-card-token', value: cardToken},
-          {key: '_helcim_card_token', value: cardToken}
-        );
+        statusMetaData.push({key: 'helcim-card-token', value: cardToken}, {key: '_helcim_card_token', value: cardToken});
         console.log('✅ Including cardToken in status update for refund support');
       }
 
