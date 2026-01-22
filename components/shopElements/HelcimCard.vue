@@ -245,18 +245,21 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     });
 
     // Try all possible locations for cardToken
-    const cardToken = 
-      extractedTransactionData?.cardToken || 
+    const cardToken =
+      extractedTransactionData?.cardToken ||
       extractedTransactionData?.data?.cardToken ||
       extractedTransactionData?.card?.cardToken ||
-      responseData?.cardToken || 
+      responseData?.cardToken ||
       responseData?.data?.cardToken ||
       responseData?.card?.cardToken ||
       // Sometimes it's nested under the transaction object
       extractedTransactionData?.transaction?.cardToken ||
       responseData?.transaction?.cardToken;
-      
-    console.log('[HelcimCard] Extracted cardToken for refund support:', cardToken ? `present (${cardToken.substring(0, 8)}...)` : 'MISSING - refunds will fail!');
+
+    console.log(
+      '[HelcimCard] Extracted cardToken for refund support:',
+      cardToken ? `present (${cardToken.substring(0, 8)}...)` : 'MISSING - refunds will fail!',
+    );
 
     paymentComplete.value = true;
     paymentError.value = null;

@@ -130,13 +130,28 @@ function helcim_debug_meta_box($post) {
     $order = wc_get_order($post->ID);
     if (!$order) return;
     
+    $digital_wallet = $order->get_meta('_helcim_digital_wallet');
+    
+    // Show digital wallet warning prominently
+    if ($digital_wallet) {
+        echo '<div style="background:#fff3cd; border:1px solid #ffc107; padding:10px; margin-bottom:10px; border-radius:4px;">';
+        echo '<strong>⚠️ ' . esc_html(ucfirst($digital_wallet)) . ' Payment</strong><br>';
+        echo '<span style="font-size:11px;">Digital wallet payments cannot be refunded from WooCommerce.<br>';
+        echo '<strong>Refund in Helcim dashboard instead.</strong></span>';
+        echo '</div>';
+    }
+    
     $fields = [
         'Payment Method' => $order->get_payment_method(),
         'Transaction ID' => $order->get_transaction_id() ?: '❌ Not set',
         '_transaction_id' => $order->get_meta('_transaction_id') ?: '❌ Not set',
         '_helcim_transaction_id' => $order->get_meta('_helcim_transaction_id') ?: '❌ Not set',
-        'Card Token' => $order->get_meta('helcim-card-token') ? '✅ Present' : '❌ Not set',
+        'Card Token' => $order->get_meta('helcim-card-token') ? '✅ Present' : ($digital_wallet ? '➖ N/A (wallet)' : '❌ Not set'),
     ];
+    
+    if ($digital_wallet) {
+        $fields['Wallet Type'] = '💳 ' . ucfirst($digital_wallet);
+    }
     
     echo '<table style="width:100%; font-size:12px;">';
     foreach ($fields as $label => $value) {
@@ -154,5 +169,8 @@ function helcim_debug_meta_box($post) {
     echo '<p style="font-size:11px; color:#666;">';
     echo '<strong>Refund:</strong> After batch closes<br>';
     echo '<strong>Reverse:</strong> Same day, open batch';
+    if ($digital_wallet) {
+        echo '<br><strong>Wallet:</strong> Must use Helcim dashboard';
+    }
     echo '</p>';
 }

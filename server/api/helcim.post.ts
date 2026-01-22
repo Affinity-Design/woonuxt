@@ -54,6 +54,10 @@ export default defineEventHandler(async (event) => {
             paymentType: paymentType,
             amount: amountInDollars, // Amount in dollars
             currency: currency,
+            // Disable digital wallets (Google Pay, Apple Pay) to ensure we get cardToken for refunds
+            // Digital wallet payments don't return cardToken, making WooCommerce refunds impossible
+            allowGooglePay: false,
+            allowApplePay: false,
           }),
         });
 

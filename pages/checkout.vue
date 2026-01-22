@@ -422,21 +422,36 @@ const handleHelcimSuccess = async (transactionData: any) => {
     console.log('[Checkout] Set transaction ID:', actualTransactionId);
   }
 
+  // Check if this is a digital wallet payment (Google Pay, Apple Pay)
+  // Digital wallet payments do NOT return a cardToken - refunds must be done in Helcim dashboard
+  const digitalWalletType = transactionData?.data?.digitalWalletType || transactionData?.digitalWalletType;
+  if (digitalWalletType) {
+    console.log('[Checkout] 💳 Digital wallet payment detected:', digitalWalletType);
+    orderInput.value.metaData.push({
+      key: '_helcim_digital_wallet',
+      value: digitalWalletType,
+    });
+    orderInput.value.metaData.push({
+      key: '_refund_note',
+      value: `Digital wallet payment (${digitalWalletType}) - Refund via Helcim dashboard`,
+    });
+  }
+
   // Extract and store cardToken for refund support
   // The Helcim WooCommerce plugin requires 'helcim-card-token' meta for native refunds
-  // Log full structure to find where cardToken lives
+  // NOTE: Digital wallet payments (Google Pay, Apple Pay) do NOT return cardToken
   console.log('[Checkout] Full transactionData for cardToken search:', JSON.stringify(transactionData, null, 2));
-  
-  const cardToken = 
-    transactionData?.cardToken || 
-    transactionData?.data?.cardToken || 
+
+  const cardToken =
+    transactionData?.cardToken ||
+    transactionData?.data?.cardToken ||
     transactionData?.data?.data?.cardToken ||
     transactionData?.card?.cardToken ||
     transactionData?.data?.card?.cardToken ||
     transactionData?.transaction?.cardToken;
-    
+
   console.log('[Checkout] CardToken extraction result:', cardToken ? `Found: ${cardToken.substring(0, 10)}...` : 'NOT FOUND');
-  
+
   if (cardToken) {
     helcimCardToken.value = cardToken;
     orderInput.value.cardToken = cardToken; // Store in orderInput for admin order creation
@@ -445,7 +460,12 @@ const handleHelcimSuccess = async (transactionData: any) => {
       value: cardToken,
     });
     console.log('[Checkout] ✅ Set cardToken for refund support');
+  } else if (digitalWalletType) {
+    // Digital wallet - no cardToken expected, this is normal
+    console.log('[Checkout] ℹ️ No cardToken for digital wallet payment - this is expected');
+    console.log('[Checkout] ℹ️ Refunds for', digitalWalletType, 'must be processed in Helcim dashboard');
   } else {
+    // Regular card payment without token - this is unexpected
     console.error('[Checkout] ❌ NO cardToken in Helcim response - REFUNDS WILL FAIL!');
     console.error('[Checkout] Available keys in transactionData:', Object.keys(transactionData || {}));
     if (transactionData?.data) {
