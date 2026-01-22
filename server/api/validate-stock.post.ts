@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
 
   try {
-    const { lineItems } = body;
+    const {lineItems} = body;
 
     if (!lineItems || !Array.isArray(lineItems) || lineItems.length === 0) {
       return {
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     `;
 
     const graphqlUrl = `${config.public.wpBaseUrl}/graphql`;
-    
+
     const response = await fetch(graphqlUrl, {
       method: 'POST',
       headers: {

@@ -59,7 +59,7 @@ export function useCart() {
   }
 
   // add an item to the cart
-  async function addToCart(input: AddToCartInput): Promise<void> {
+  async function addToCart(input: AddToCartInput): Promise<{success: boolean; message?: string}> {
     isUpdatingCart.value = true;
 
     try {
@@ -68,8 +68,37 @@ export function useCart() {
       // Auto open the cart when an item is added to the cart if the setting is enabled
       const {storeSettings} = useAppConfig();
       if (storeSettings.autoOpenCart && !isShowingCart.value) toggleCart(true);
+      return {success: true};
     } catch (error: any) {
       logGQLError(error);
+      
+      // Extract user-friendly error message from GraphQL error
+      let errorMessage = 'Unable to add item to cart. Please try again.';
+      
+      // Check for stock-related errors in the GraphQL response
+      const gqlMessage = error?.gqlErrors?.[0]?.message || error?.message || '';
+      
+      if (gqlMessage) {
+        // WooCommerce stock error patterns - use the message directly as it's usually descriptive
+        // Common patterns: "You cannot add that amount", "not enough stock", "only X left in stock"
+        if (gqlMessage.toLowerCase().includes('stock') || 
+            gqlMessage.toLowerCase().includes('quantity') ||
+            gqlMessage.toLowerCase().includes('cannot') ||
+            gqlMessage.toLowerCase().includes('not enough') ||
+            gqlMessage.toLowerCase().includes('only') ||
+            gqlMessage.toLowerCase().includes('available') ||
+            gqlMessage.toLowerCase().includes('add that amount')) {
+          errorMessage = gqlMessage;
+        }
+      }
+      
+      // Show alert to user with the error message
+      alert(errorMessage);
+      
+      return {success: false, message: errorMessage};
+    } finally {
+      // Always reset loading state, even on error
+      isUpdatingCart.value = false;
     }
   }
 

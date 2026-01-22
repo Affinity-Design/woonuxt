@@ -213,27 +213,30 @@ const payNow = async () => {
 
     // CRITICAL: Validate stock BEFORE payment processing to prevent overselling
     console.log('[payNow] Validating stock availability before payment...');
-    const lineItemsForValidation = cart.value.contents?.nodes?.map((item: any) => ({
-      productId: item.product?.node?.databaseId,
-      variationId: item.variation?.node?.databaseId || null,
-      quantity: item.quantity,
-      name: item.product?.node?.name || item.variation?.node?.name,
-    })) || [];
+    const lineItemsForValidation =
+      cart.value.contents?.nodes?.map((item: any) => ({
+        productId: item.product?.node?.databaseId,
+        variationId: item.variation?.node?.databaseId || null,
+        quantity: item.quantity,
+        name: item.product?.node?.name || item.variation?.node?.name,
+      })) || [];
 
     try {
-      const stockValidation = await $fetch('/api/validate-stock', {
+      const stockValidation = (await $fetch('/api/validate-stock', {
         method: 'POST',
-        body: { lineItems: lineItemsForValidation },
-      }) as { success: boolean; error?: string; warning?: string; outOfStockItems: Array<{ name: string; availableQuantity: number | null }> };
+        body: {lineItems: lineItemsForValidation},
+      })) as {success: boolean; error?: string; warning?: string; outOfStockItems: Array<{name: string; availableQuantity: number | null}>};
 
       if (!stockValidation.success) {
-        const outOfStockNames = stockValidation.outOfStockItems.map((item) => {
-          if (item.availableQuantity !== null && item.availableQuantity > 0) {
-            return `${item.name} (only ${item.availableQuantity} available)`;
-          }
-          return `${item.name} (out of stock)`;
-        }).join(', ');
-        
+        const outOfStockNames = stockValidation.outOfStockItems
+          .map((item) => {
+            if (item.availableQuantity !== null && item.availableQuantity > 0) {
+              return `${item.name} (only ${item.availableQuantity} available)`;
+            }
+            return `${item.name} (out of stock)`;
+          })
+          .join(', ');
+
         console.error('[payNow] ❌ Stock validation failed:', stockValidation.outOfStockItems);
         throw new Error(`Some items are no longer available: ${outOfStockNames}. Please update your cart and try again.`);
       }
