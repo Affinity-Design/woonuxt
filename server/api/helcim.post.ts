@@ -54,9 +54,8 @@ export default defineEventHandler(async (event) => {
             paymentType: paymentType,
             amount: amountInDollars, // Amount in dollars
             currency: currency,
-            // Disable digital wallets - they don't return cardToken needed for refunds
-            // Helcim docs say digitalWallet must be a string with format "googlePay:0,applePay:0"
-            digitalWallet: 'googlePay:0,applePay:0',
+            // Digital wallets (Google Pay, Apple Pay) are disabled by default per Helcim docs
+            // DO NOT include digitalWallet parameter - if they still show, disable in Helcim dashboard
           }),
         });
 
