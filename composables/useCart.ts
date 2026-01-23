@@ -119,21 +119,59 @@ export function useCart() {
     }
   }
 
-  // remove an item from the cart
+  // remove an item from the cart (uses server-side API to avoid 403 errors)
   async function removeItem(key: string) {
     isUpdatingCart.value = true;
-    const {updateItemQuantities} = await GqlUpDateCartQuantity({key, quantity: 0});
-    updateCart(updateItemQuantities?.cart);
+    try {
+      // Get session token from cookie
+      const sessionToken = useCookie('woocommerce-session').value;
+
+      const response = await $fetch('/api/update-cart-quantity', {
+        method: 'POST',
+        body: {
+          key,
+          quantity: 0,
+          sessionToken,
+        },
+      });
+
+      if (response.success && response.cart) {
+        updateCart(response.cart);
+      }
+    } catch (error: any) {
+      console.error('[removeItem] Error:', error);
+      const toast = useToast();
+      toast.error(error.data?.message || error.message || 'Failed to remove item');
+    } finally {
+      isUpdatingCart.value = false;
+    }
   }
 
-  // update the quantity of an item in the cart
+  // update the quantity of an item in the cart (uses server-side API to avoid 403 errors)
   async function updateItemQuantity(key: string, quantity: number): Promise<void> {
     isUpdatingCart.value = true;
     try {
-      const {updateItemQuantities} = await GqlUpDateCartQuantity({key, quantity});
-      updateCart(updateItemQuantities?.cart);
+      // Get session token from cookie
+      const sessionToken = useCookie('woocommerce-session').value;
+
+      const response = await $fetch('/api/update-cart-quantity', {
+        method: 'POST',
+        body: {
+          key,
+          quantity,
+          sessionToken,
+        },
+      });
+
+      if (response.success && response.cart) {
+        updateCart(response.cart);
+      }
     } catch (error: any) {
-      logGQLError(error);
+      console.error('[updateItemQuantity] Error:', error);
+      const toast = useToast();
+      toast.error(error.data?.message || error.message || 'Failed to update quantity');
+    } finally {
+      isUpdatingCart.value = false;
     }
   }
 
