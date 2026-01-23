@@ -56,8 +56,12 @@ export default defineEventHandler(async (event) => {
             currency: currency,
             // Disable digital wallets (Google Pay, Apple Pay) to ensure we get cardToken for refunds
             // Digital wallet payments don't return cardToken, making WooCommerce refunds impossible
-            allowGooglePay: false,
-            allowApplePay: false,
+            // Per Helcim docs: digitalWallet is an object with googlePay/applePay set to 0 or 1
+            // By default no digital wallets are enabled, but we explicitly disable to be safe
+            digitalWallet: {
+              googlePay: 0,
+              applePay: 0,
+            },
           }),
         });
 

@@ -1,27 +1,46 @@
 import type {CreateAccountInput} from '#gql';
 
+// Detect device type from user agent
+function detectDeviceType(): string {
+  if (typeof navigator === 'undefined') return 'Desktop';
+  const ua = navigator.userAgent.toLowerCase();
+  if (/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) {
+    return 'Mobile';
+  }
+  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+    return 'Tablet';
+  }
+  return 'Desktop';
+}
+
 export function useCheckout() {
   const orderInput = useState<any>('orderInput', () => {
+    // Get current timestamp for session tracking
+    const sessionStartTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Nuxt SSR';
+    const deviceType = detectDeviceType();
+
     return {
       customerNote: '',
       paymentMethod: '',
       shipToDifferentAddress: false,
       metaData: [
         {key: 'order_via', value: 'WooNuxt'},
-        // Order attribution metadata to track source
-        {key: '_wc_order_attribution_source_type', value: 'direct'},
-        {key: '_wc_order_attribution_referrer', value: 'proskatersplace.ca'},
-        {
-          key: '_wc_order_attribution_utm_source',
-          value: 'proskatersplace.ca',
-        },
+        // Order attribution metadata - using WooCommerce's expected values
+        // 'typein' = direct visit (WooCommerce's term), shows "Direct" as origin when utm_source is empty
+        // Using 'utm' source_type with utm_source set shows "Source: {utm_source}" as origin
+        {key: '_wc_order_attribution_source_type', value: 'utm'},
+        {key: '_wc_order_attribution_referrer', value: 'https://proskatersplace.ca'},
+        {key: '_wc_order_attribution_utm_source', value: 'proskatersplace.ca'},
         {key: '_wc_order_attribution_utm_medium', value: 'headless'},
-        {key: '_wc_order_attribution_utm_content', value: 'nuxt-frontend'},
-        {
-          key: '_wc_order_attribution_session_entry',
-          value: 'proskatersplace.ca',
-        },
-        {key: '_wc_order_attribution_device_type', value: 'Web'},
+        {key: '_wc_order_attribution_utm_campaign', value: 'nuxt-frontend'},
+        {key: '_wc_order_attribution_utm_content', value: '/'},
+        {key: '_wc_order_attribution_session_entry', value: 'https://proskatersplace.ca'},
+        {key: '_wc_order_attribution_session_start_time', value: sessionStartTime},
+        {key: '_wc_order_attribution_session_pages', value: '1'},
+        {key: '_wc_order_attribution_session_count', value: '1'},
+        {key: '_wc_order_attribution_user_agent', value: userAgent},
+        {key: '_wc_order_attribution_device_type', value: deviceType},
         {key: 'order_source', value: 'proskatersplace.ca'},
         {key: 'frontend_origin', value: 'proskatersplace.ca'},
       ],
