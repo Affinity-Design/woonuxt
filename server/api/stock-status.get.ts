@@ -1,6 +1,6 @@
 /**
  * Stock Status API Endpoint
- * 
+ *
  * Proxies stock status requests through the server to avoid 403 errors
  * from WordPress/Cloudflare security blocking client-side GraphQL calls.
  */
@@ -32,18 +32,14 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json',
-        'Origin': config.public.siteUrl || 'https://proskatersplace.ca',
-        'Referer': config.public.siteUrl || 'https://proskatersplace.ca',
+        Accept: 'application/json',
+        Origin: config.public.siteUrl || 'https://proskatersplace.ca',
+        Referer: config.public.siteUrl || 'https://proskatersplace.ca',
       },
       body: {
         query: `
           query getStockStatus($slug: ID!) {
             product(id: $slug, idType: SLUG) {
-              id
-              databaseId
-              stockStatus
-              stockQuantity
               ... on SimpleProduct {
                 stockStatus
                 stockQuantity
@@ -69,7 +65,7 @@ export default defineEventHandler(async (event) => {
             }
           }
         `,
-        variables: { slug },
+        variables: {slug},
       },
     });
 
@@ -87,7 +83,7 @@ export default defineEventHandler(async (event) => {
     return response?.data?.product || null;
   } catch (error: any) {
     console.error('[stock-status] Error fetching stock status:', error);
-    
+
     // Return null instead of throwing - allow page to continue without live stock
     return null;
   }

@@ -428,7 +428,7 @@ onMounted(async () => {
     // Fetch live stock status via server-side API to avoid 403 errors
     try {
       const stockProduct = await $fetch('/api/stock-status', {
-        query: { slug },
+        query: {slug},
       });
       if (stockProduct) {
         // console.log('[[slug].vue] onMounted: Live stock status fetched:', stockProduct);

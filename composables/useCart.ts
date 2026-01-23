@@ -58,44 +58,59 @@ export function useCart() {
     isShowingCart.value = state ?? !isShowingCart.value;
   }
 
-  // add an item to the cart
+  // add an item to the cart - uses server-side API to avoid 403 errors from WordPress
   async function addToCart(input: AddToCartInput): Promise<{success: boolean; message?: string}> {
     isUpdatingCart.value = true;
+    const toast = useToast();
 
     try {
-      const {addToCart} = await GqlAddToCart({input});
-      if (addToCart?.cart) cart.value = addToCart.cart;
+      // Use server-side API to bypass CORS/security blocks on client-side GraphQL
+      const response = await $fetch<{success: boolean; cart?: Cart; message?: string}>('/api/add-to-cart', {
+        method: 'POST',
+        body: {
+          productId: input.productId,
+          quantity: input.quantity || 1,
+          variationId: input.variationId,
+          extraData: input.extraData,
+        },
+      });
+
+      if (response?.cart) {
+        cart.value = response.cart;
+      }
+
       // Auto open the cart when an item is added to the cart if the setting is enabled
       const {storeSettings} = useAppConfig();
       if (storeSettings.autoOpenCart && !isShowingCart.value) toggleCart(true);
+
       return {success: true};
     } catch (error: any) {
       logGQLError(error);
 
-      // Extract user-friendly error message from GraphQL error
+      // Extract user-friendly error message from the API error
       let errorMessage = 'Unable to add item to cart. Please try again.';
 
-      // Check for stock-related errors in the GraphQL response
-      const gqlMessage = error?.gqlErrors?.[0]?.message || error?.message || '';
+      // Check for error message in response data
+      const apiMessage = error?.data?.message || error?.message || '';
 
-      if (gqlMessage) {
+      if (apiMessage) {
         // WooCommerce stock error patterns - use the message directly as it's usually descriptive
         // Common patterns: "You cannot add that amount", "not enough stock", "only X left in stock"
         if (
-          gqlMessage.toLowerCase().includes('stock') ||
-          gqlMessage.toLowerCase().includes('quantity') ||
-          gqlMessage.toLowerCase().includes('cannot') ||
-          gqlMessage.toLowerCase().includes('not enough') ||
-          gqlMessage.toLowerCase().includes('only') ||
-          gqlMessage.toLowerCase().includes('available') ||
-          gqlMessage.toLowerCase().includes('add that amount')
+          apiMessage.toLowerCase().includes('stock') ||
+          apiMessage.toLowerCase().includes('quantity') ||
+          apiMessage.toLowerCase().includes('cannot') ||
+          apiMessage.toLowerCase().includes('not enough') ||
+          apiMessage.toLowerCase().includes('only') ||
+          apiMessage.toLowerCase().includes('available') ||
+          apiMessage.toLowerCase().includes('add that amount')
         ) {
-          errorMessage = gqlMessage;
+          errorMessage = apiMessage;
         }
       }
 
-      // Show alert to user with the error message
-      alert(errorMessage);
+      // Show toast notification with error message (HTML entities decoded automatically)
+      toast.error(errorMessage);
 
       return {success: false, message: errorMessage};
     } finally {

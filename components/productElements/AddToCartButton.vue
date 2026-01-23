@@ -1,27 +1,23 @@
 <script setup>
-const { cart } = useCart();
+const {cart, isUpdatingCart} = useCart();
 const props = defineProps({
-  disabled: { type: Boolean, default: false },
+  disabled: {type: Boolean, default: false},
 });
-const isLoading = ref(false);
-const { t } = useI18n();
-const addToCartButtonText = computed(() => (isLoading.value ? t('messages.shop.adding') : t('messages.shop.addToCart')));
+const {t} = useI18n();
 
-// stop loading when cart is updated
-watch(cart, (val) => {
-  isLoading.value = false;
-});
+// Use the global isUpdatingCart state from useCart
+// This properly resets on both success AND error
+const addToCartButtonText = computed(() => (isUpdatingCart.value ? t('messages.shop.adding') : t('messages.shop.addToCart')));
 </script>
 
 <template>
   <button
     type="submit"
     class="rounded-lg flex font-bold bg-gray-800 text-white text-center min-w-[150px] p-2.5 gap-4 items-center justify-center focus:outline-none"
-    :class="{ disabled: disabled }"
-    :disabled="disabled"
-    @click="isLoading = true">
+    :class="{disabled: disabled}"
+    :disabled="disabled || isUpdatingCart">
     <span>{{ addToCartButtonText }}</span>
-    <LoadingIcon v-if="isLoading" stroke="4" size="12" color="#fff" />
+    <LoadingIcon v-if="isUpdatingCart" stroke="4" size="12" color="#fff" />
   </button>
 </template>
 
