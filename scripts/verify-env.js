@@ -4,7 +4,14 @@
 require('dotenv').config();
 
 const REQUIRED_VARS = {
-  'Build & Deploy': ['GQL_HOST', 'CF_ACCOUNT_ID', 'CF_API_TOKEN', 'CF_KV_NAMESPACE_ID_SCRIPT_DATA', 'NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE'],
+  'Build & Deploy': [
+    'GQL_HOST',
+    'CF_ACCOUNT_ID',
+    'CF_API_TOKEN',
+    'CF_KV_NAMESPACE_ID_SCRIPT_DATA',
+    'CF_KV_NAMESPACE_ID_CACHE',
+    'NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE',
+  ],
   'Runtime (Cloudflare Bindings)': ['NUXT_CACHE', 'NUXT_SCRIPT_DATA'],
   'Optional (Clear Cache Script)': [
     'CF_KV_NAMESPACE_ID_CACHE_TEST',
