@@ -31,6 +31,16 @@ const SKIP_PURGE = process.env.SKIP_KV_PURGE === 'true';
 const PURGE_PAGE_CACHE = process.env.PURGE_PAGE_CACHE !== 'false'; // Default: true
 const PURGE_SCRIPT_DATA = process.env.PURGE_SCRIPT_DATA !== 'false'; // Default: true
 
+/**
+ * Validate UUID format (32 hex chars, with or without hyphens)
+ */
+function isValidUUID(str) {
+  if (!str) return false;
+  // Remove hyphens and check if it's 32 hex characters
+  const cleaned = str.replace(/-/g, '');
+  return /^[0-9a-f]{32}$/i.test(cleaned);
+}
+
 console.log('🧹 Pre-build KV Cache Purge');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -44,6 +54,19 @@ if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
   console.error('❌ Missing Cloudflare credentials (CF_ACCOUNT_ID, CF_API_TOKEN)');
   console.log('⏭️  Skipping cache purge (build will continue)');
   process.exit(0);
+}
+
+// Validate namespace IDs upfront
+if (CF_KV_NAMESPACE_ID_CACHE && !isValidUUID(CF_KV_NAMESPACE_ID_CACHE)) {
+  console.error(`❌ CF_KV_NAMESPACE_ID_CACHE is invalid UUID: "${CF_KV_NAMESPACE_ID_CACHE}" (length: ${CF_KV_NAMESPACE_ID_CACHE.length})`);
+  console.error('   Expected: 32 hex characters (e.g., e342d11a4ddf421485846a1086ad3523)');
+  console.log('⚠️  Skipping PAGE_CACHE purge due to invalid UUID');
+}
+
+if (CF_KV_NAMESPACE_ID_SCRIPT_DATA && !isValidUUID(CF_KV_NAMESPACE_ID_SCRIPT_DATA)) {
+  console.error(`❌ CF_KV_NAMESPACE_ID_SCRIPT_DATA is invalid UUID: "${CF_KV_NAMESPACE_ID_SCRIPT_DATA}" (length: ${CF_KV_NAMESPACE_ID_SCRIPT_DATA.length})`);
+  console.error('   Expected: 32 hex characters (e.g., abc123def456789012345678901234ab)');
+  console.log('⚠️  Skipping SCRIPT_DATA purge due to invalid UUID');
 }
 
 /**
@@ -131,6 +154,12 @@ async function purgeNamespace(namespaceId, namespaceName) {
   if (!namespaceId) {
     console.log(`⏭️  ${namespaceName}: Not configured (skipping)`);
     return {success: true, count: 0, skipped: true};
+  }
+
+  // Validate UUID format before making API calls
+  if (!isValidUUID(namespaceId)) {
+    console.log(`❌ ${namespaceName}: Invalid UUID format (length: ${namespaceId.length}, expected: 32)`);
+    return {success: false, error: `Invalid UUID: ${namespaceId}`};
   }
 
   try {

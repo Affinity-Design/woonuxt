@@ -189,6 +189,9 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'cloudflare-pages',
+    // Enable Node.js compatibility for Cloudflare Workers
+    // Required for Node.js built-in modules (Buffer, events, util, etc.)
+    compatibilityFlags: ['nodejs_compat'],
     storage: {
       cache: {driver: 'cloudflare-kv-binding', binding: 'NUXT_CACHE'},
       script_data: {

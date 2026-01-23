@@ -169,13 +169,14 @@ export function useHelpers() {
     // Check if parsing was successful and it's a valid number
     if (isNaN(number)) {
       // Fallback for safety, though ideally numericString should be parseable
-      return (0).toLocaleString('en-US', {
+      return (0).toLocaleString('en-CA', {
         style: 'currency',
         currency: 'CAD',
       });
     }
 
-    return number.toLocaleString('en-US', {
+    // Use en-CA locale to display "$" instead of "US$" for Canadian dollars
+    return number.toLocaleString('en-CA', {
       style: 'currency',
       currency: 'CAD',
     });
