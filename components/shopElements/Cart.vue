@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { cart, toggleCart, isUpdatingCart } = useCart();
+const {cart, toggleCart, isUpdatingCart} = useCart();
 
 // Helper function to sanitize price strings and fix formatting issues
 const formatPrice = (priceString: string | null | undefined): string => {
