@@ -26,11 +26,17 @@ interface HelcimCustomerRequest {
   };
 }
 
+// Types for Helcim Level 3 processing tax object
+interface HelcimTax {
+  amount: number;
+  details?: string; // e.g., "GST 5%", "HST 13%"
+}
+
 interface HelcimInvoiceRequest {
   invoiceNumber?: string;
   lineItems?: HelcimLineItem[];
   shipping?: number;
-  tax?: number;
+  tax?: HelcimTax; // Level 3 requires tax as object with amount and details
   discount?: number;
 }
 
@@ -118,9 +124,13 @@ export default defineEventHandler(async (event) => {
             invoiceRequest.shipping = Number(shippingAmount);
           }
 
-          // Add tax amount if provided (for level 2 processing)
+          // Add tax as object for Level 3 processing (not just a number)
+          // Helcim docs: tax: { amount: 5, details: "GST" }
           if (taxAmount && Number(taxAmount) > 0) {
-            invoiceRequest.tax = Number(taxAmount);
+            invoiceRequest.tax = {
+              amount: Number(taxAmount),
+              details: 'Tax', // Could be enhanced to specify HST/GST based on province
+            };
           }
 
           // Add discount if provided
@@ -139,56 +149,59 @@ export default defineEventHandler(async (event) => {
           });
         }
 
-        // Add customer information if provided
-        // NOTE: Helcim API REQUIRES contactName and billingAddress fields if customerRequest is sent
+        // Add customer information ONLY if user has filled in required details
+        // Don't send empty/placeholder data - causes Helcim API errors
+        // Customer info will be sent when user actually has filled in their billing details
         if (customerInfo) {
-          const customerRequest: HelcimCustomerRequest = {};
-
-          // contactName is REQUIRED by Helcim API - use email as fallback if name is empty
-          const contactName = customerInfo.name?.trim() || customerInfo.email || 'Customer';
-          customerRequest.contactName = contactName;
-
-          if (customerInfo.email) {
-            customerRequest.customerCode = customerInfo.email; // Use email as unique customer code
-          }
-          if (customerInfo.phone) {
-            customerRequest.cellPhone = customerInfo.phone;
-          }
-
-          // Helcim REQUIRES billingAddress.name, street1, and postalCode to be non-empty
-          // Only include billingAddress if we have the required fields
+          const contactName = customerInfo.name?.trim();
+          const email = customerInfo.email?.trim();
           const billingAddr = customerInfo.billingAddress;
-          if (billingAddr) {
-            const street1 = billingAddr.address1?.trim();
-            const postalCode = billingAddr.postcode?.trim();
+          const street1 = billingAddr?.address1?.trim();
+          const postalCode = billingAddr?.postcode?.trim();
 
-            // Only add billingAddress if required fields are present
-            if (street1 && postalCode) {
-              customerRequest.billingAddress = {
-                name: contactName, // Required by Helcim - use contactName
-                street1: street1,
-                street2: billingAddr.address2 || '',
-                city: billingAddr.city || '',
-                province: billingAddr.state || '',
-                country: billingAddr.country || 'CA',
-                postalCode: postalCode,
-              };
-            } else {
-              console.log('[Helcim API] Skipping billingAddress - missing required fields (street1 or postalCode)');
+          // Only include customerRequest if we have REAL data (not empty form fields)
+          // Required: contactName OR email, AND street1 AND postalCode
+          const hasName = contactName && contactName.length > 0;
+          const hasEmail = email && email.length > 0;
+          const hasAddress = street1 && street1.length > 0 && postalCode && postalCode.length > 0;
+
+          if ((hasName || hasEmail) && hasAddress) {
+            const customerRequest: HelcimCustomerRequest = {};
+
+            // Use name if available, otherwise email
+            customerRequest.contactName = hasName ? contactName : email;
+
+            if (hasEmail) {
+              customerRequest.customerCode = email;
             }
-          }
+            if (customerInfo.phone?.trim()) {
+              customerRequest.cellPhone = customerInfo.phone.trim();
+            }
 
-          // Only add customerRequest if contactName is present (which it always will be now)
-          if (customerRequest.contactName) {
+            // Add billing address (we know required fields are present)
+            customerRequest.billingAddress = {
+              name: customerRequest.contactName!,
+              street1: street1!,
+              street2: billingAddr?.address2 || '',
+              city: billingAddr?.city || '',
+              province: billingAddr?.state || '',
+              country: billingAddr?.country || 'CA',
+              postalCode: postalCode!,
+            };
+
             helcimRequestBody.customerRequest = customerRequest;
-            console.log('[Helcim API] Including customer info:', customerRequest);
+            console.log('[Helcim API] Including customer info (user has filled in details):', customerRequest);
+          } else {
+            console.log('[Helcim API] Skipping customerRequest - user has not filled in required details yet', {
+              hasName,
+              hasEmail,
+              hasAddress,
+            });
           }
         }
 
-        // Also add taxAmount at top level for level 2 processing rates
-        if (taxAmount && Number(taxAmount) > 0) {
-          helcimRequestBody.taxAmount = Number(taxAmount);
-        }
+        // Note: Tax is now included in invoiceRequest.tax for Level 3 processing
+        // No need for separate top-level taxAmount
 
         const response = await fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
           method: 'POST',
