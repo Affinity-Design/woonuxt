@@ -625,7 +625,7 @@ const helcimShippingAmount = computed(() => {
 const helcimShippingMethod = computed(() => {
   const chosenMethodId = cart.value?.chosenShippingMethods?.[0];
   if (!chosenMethodId) return '';
-  
+
   // Find the label from available shipping methods
   const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
   const selectedRate = rates.find((rate: any) => rate.id === chosenMethodId);

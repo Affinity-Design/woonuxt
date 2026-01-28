@@ -29,20 +29,32 @@ interface HelcimCustomerRequest {
 // Types for Helcim Level 3 processing tax object (optional)
 interface HelcimTax {
   amount: number;
-  details?: string; // e.g., "GST 5%", "HST 13%"
+  details?: string; // e.g., "GST 5%", "HST 13%", "Canadian Sales Tax"
+}
+
+// Helcim shipping address object
+interface HelcimShippingAddress {
+  street1: string;
+  street2?: string;
+  city?: string;
+  province?: string;
+  country: string; // 3-letter ISO code (CAN, USA, etc.)
+  postalCode: string;
 }
 
 // Helcim shipping object per API docs
+// When using object format, address is REQUIRED
 interface HelcimShipping {
   amount: number;
-  details?: string; // Shipping method name (e.g., "Flat Rate", "Free Shipping")
+  details: string; // Shipping method name - REQUIRED when using object format
+  address: HelcimShippingAddress; // REQUIRED when using object format
 }
 
 interface HelcimInvoiceRequest {
   invoiceNumber?: string;
   lineItems?: HelcimLineItem[];
-  shipping?: HelcimShipping; // Changed from number to object per Helcim API docs
-  tax?: HelcimTax; // Tax object with amount and details
+  shipping?: number | HelcimShipping; // Simple number OR full object with address
+  tax?: number | HelcimTax; // Simple number OR object with details
   discount?: number;
 }
 
@@ -59,7 +71,19 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const {action, amount, currency = 'CAD', paymentType = 'purchase', lineItems, shippingAmount, shippingMethod, taxAmount, discountAmount, customerInfo, invoiceNumber} = body;
+  const {
+    action,
+    amount,
+    currency = 'CAD',
+    paymentType = 'purchase',
+    lineItems,
+    shippingAmount,
+    shippingMethod,
+    taxAmount,
+    discountAmount,
+    customerInfo,
+    invoiceNumber,
+  } = body;
 
   try {
     // Handle different Helcim actions
@@ -90,6 +114,40 @@ export default defineEventHandler(async (event) => {
           receivedDollars: amount,
           finalAmountInDollars: amountInDollars,
         });
+
+        // Convert 2-letter country code to 3-letter (Helcim requires ISO alpha-3)
+        // Defined early so it can be used in both shipping and customer sections
+        const countryTo3Letter = (code: string | undefined): string => {
+          const map: Record<string, string> = {
+            CA: 'CAN',
+            US: 'USA',
+            MX: 'MEX',
+            GB: 'GBR',
+            UK: 'GBR',
+            AU: 'AUS',
+            FR: 'FRA',
+            DE: 'DEU',
+            IT: 'ITA',
+            ES: 'ESP',
+            NL: 'NLD',
+            BE: 'BEL',
+            CH: 'CHE',
+            AT: 'AUT',
+            SE: 'SWE',
+            NO: 'NOR',
+            DK: 'DNK',
+            FI: 'FIN',
+            IE: 'IRL',
+            NZ: 'NZL',
+            JP: 'JPN',
+            CN: 'CHN',
+            IN: 'IND',
+            BR: 'BRA',
+            AR: 'ARG',
+          };
+          const upper = (code || 'CA').toUpperCase();
+          return map[upper] || (upper.length === 3 ? upper : 'CAN');
+        };
 
         // Build the request body for Helcim
         const helcimRequestBody: any = {
@@ -126,23 +184,55 @@ export default defineEventHandler(async (event) => {
             invoiceRequest.invoiceNumber = invoiceNumber;
           }
 
-          // Add shipping as an object with amount and details (method name)
-          // Per Helcim API docs: shipping.amount + shipping.details
+          // Add shipping - use full object with address if available (for Level 2/3 processing)
+          // Otherwise fall back to simple number
           const shippingAmountNum = Number(shippingAmount) || 0;
+          const billingAddr = customerInfo?.billingAddress;
+          const hasShippingAddress = billingAddr?.address1?.trim() && billingAddr?.postcode?.trim();
+
           if (shippingAmountNum > 0 || shippingMethod) {
-            invoiceRequest.shipping = {
-              amount: shippingAmountNum,
-              ...(shippingMethod && {details: shippingMethod}),
-            };
+            if (hasShippingAddress) {
+              // Use full shipping object with address for Level 2/3 processing benefits
+              invoiceRequest.shipping = {
+                amount: shippingAmountNum,
+                details: shippingMethod || 'Standard Shipping',
+                address: {
+                  street1: billingAddr.address1.trim(),
+                  street2: billingAddr.address2 || '',
+                  city: billingAddr.city || '',
+                  province: billingAddr.state || '',
+                  country: countryTo3Letter(billingAddr.country),
+                  postalCode: billingAddr.postcode.trim(),
+                },
+              };
+              console.log('[Helcim API] Using full shipping object with address for Level 2/3 processing');
+            } else if (shippingAmountNum > 0) {
+              // Fall back to simple number if no address available
+              invoiceRequest.shipping = shippingAmountNum;
+              // Add shipping method as a comment line item for visibility
+              if (shippingMethod) {
+                formattedLineItems.push({
+                  description: `Shipping Method: ${shippingMethod}`,
+                  quantity: 1,
+                  price: 0,
+                  total: 0,
+                });
+              }
+              console.log('[Helcim API] Using simple shipping amount (no address available yet)');
+            }
           }
 
-          // Add tax as an object with amount and details
-          // Per Helcim API docs: tax.amount + tax.details (enables Level 2/3 processing)
+          // Add tax - use full object with details if we have address (Level 2/3 processing)
+          // Otherwise use simple number
           if (taxAmount && Number(taxAmount) > 0) {
-            invoiceRequest.tax = {
-              amount: Number(taxAmount),
-              details: 'Canadian Sales Tax', // Generic description - could be enhanced
-            };
+            if (hasShippingAddress) {
+              invoiceRequest.tax = {
+                amount: Number(taxAmount),
+                details: 'Canadian Sales Tax',
+              };
+            } else {
+              invoiceRequest.tax = Number(taxAmount);
+            }
           }
 
           // Add discount if provided
@@ -163,40 +253,6 @@ export default defineEventHandler(async (event) => {
 
         // Add customer information ONLY if user has filled in required details
         // Don't send empty/placeholder data - causes Helcim API errors
-        // Customer info will be sent when user actually has filled in their billing details
-        // Convert 2-letter country code to 3-letter (Helcim requires ISO alpha-3)
-        const countryTo3Letter = (code: string | undefined): string => {
-          const map: Record<string, string> = {
-            CA: 'CAN',
-            US: 'USA',
-            MX: 'MEX',
-            GB: 'GBR',
-            UK: 'GBR',
-            AU: 'AUS',
-            FR: 'FRA',
-            DE: 'DEU',
-            IT: 'ITA',
-            ES: 'ESP',
-            NL: 'NLD',
-            BE: 'BEL',
-            CH: 'CHE',
-            AT: 'AUT',
-            SE: 'SWE',
-            NO: 'NOR',
-            DK: 'DNK',
-            FI: 'FIN',
-            IE: 'IRL',
-            NZ: 'NZL',
-            JP: 'JPN',
-            CN: 'CHN',
-            IN: 'IND',
-            BR: 'BRA',
-            AR: 'ARG',
-          };
-          const upper = (code || 'CA').toUpperCase();
-          return map[upper] || (upper.length === 3 ? upper : 'CAN');
-        };
-
         if (customerInfo) {
           const contactName = customerInfo.name?.trim();
           const email = customerInfo.email?.trim();
