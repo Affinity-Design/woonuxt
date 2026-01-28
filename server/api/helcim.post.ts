@@ -272,9 +272,11 @@ export default defineEventHandler(async (event) => {
             // Use name if available, otherwise email
             customerRequest.contactName = hasName ? contactName : email;
 
-            if (hasEmail) {
-              customerRequest.customerCode = email;
-            }
+            // NOTE: Do NOT send customerCode - it causes "customer already exists" errors
+            // for returning customers. Helcim will match customers by email automatically
+            // or create new ones without requiring a unique customerCode.
+            // The email is included in contactName as fallback if no name provided.
+            
             if (customerInfo.phone?.trim()) {
               customerRequest.cellPhone = customerInfo.phone.trim();
             }
