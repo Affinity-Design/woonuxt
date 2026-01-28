@@ -152,6 +152,39 @@ export default defineEventHandler(async (event) => {
         // Add customer information ONLY if user has filled in required details
         // Don't send empty/placeholder data - causes Helcim API errors
         // Customer info will be sent when user actually has filled in their billing details
+        // Convert 2-letter country code to 3-letter (Helcim requires ISO alpha-3)
+        const countryTo3Letter = (code: string | undefined): string => {
+          const map: Record<string, string> = {
+            CA: 'CAN',
+            US: 'USA',
+            MX: 'MEX',
+            GB: 'GBR',
+            UK: 'GBR',
+            AU: 'AUS',
+            FR: 'FRA',
+            DE: 'DEU',
+            IT: 'ITA',
+            ES: 'ESP',
+            NL: 'NLD',
+            BE: 'BEL',
+            CH: 'CHE',
+            AT: 'AUT',
+            SE: 'SWE',
+            NO: 'NOR',
+            DK: 'DNK',
+            FI: 'FIN',
+            IE: 'IRL',
+            NZ: 'NZL',
+            JP: 'JPN',
+            CN: 'CHN',
+            IN: 'IND',
+            BR: 'BRA',
+            AR: 'ARG',
+          };
+          const upper = (code || 'CA').toUpperCase();
+          return map[upper] || (upper.length === 3 ? upper : 'CAN');
+        };
+
         if (customerInfo) {
           const contactName = customerInfo.name?.trim();
           const email = customerInfo.email?.trim();
@@ -179,13 +212,14 @@ export default defineEventHandler(async (event) => {
             }
 
             // Add billing address (we know required fields are present)
+            // Convert country to 3-letter code (Helcim requirement)
             customerRequest.billingAddress = {
               name: customerRequest.contactName!,
               street1: street1!,
               street2: billingAddr?.address2 || '',
               city: billingAddr?.city || '',
               province: billingAddr?.state || '',
-              country: billingAddr?.country || 'CA',
+              country: countryTo3Letter(billingAddr?.country),
               postalCode: postalCode!,
             };
 
