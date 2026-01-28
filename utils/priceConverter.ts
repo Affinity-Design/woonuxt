@@ -55,17 +55,23 @@ export const cleanAndExtractPriceInfo = (
 
 /**
  * Converts a single raw price string to a CAD numeric string (e.g., "75.99").
+ * IMPORTANT: Assumes prices are USD unless explicitly marked as CAD
  */
 const convertSinglePriceToCADNumericString = (rawPrice: string | null | undefined, exchangeRate: number): string => {
-  const {numericString, isUSD} = cleanAndExtractPriceInfo(rawPrice);
+  const {numericString, isUSD, isCAD} = cleanAndExtractPriceInfo(rawPrice);
   if (numericString === '') return '';
   const numericValue = parseFloat(numericString);
-  if (isUSD) {
-    const convertedValue = numericValue * exchangeRate;
-    const dollars = Math.floor(convertedValue);
-    return (dollars + 0.99).toFixed(2);
+
+  // If explicitly marked as CAD, return as-is (no conversion needed)
+  if (isCAD) {
+    return numericValue.toFixed(2);
   }
-  return numericValue.toFixed(2);
+
+  // Convert to CAD - assume USD if no currency specified or if explicitly USD
+  // This handles WooCommerce cart values that come without currency suffix
+  const convertedValue = numericValue * exchangeRate;
+  // Round to nearest cent (proper rounding, not the .99 trick for cart totals)
+  return convertedValue.toFixed(2);
 };
 
 /**

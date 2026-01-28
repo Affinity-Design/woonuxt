@@ -16,6 +16,7 @@ interface HelcimCustomerRequest {
   businessName?: string;
   cellPhone?: string;
   billingAddress?: {
+    name?: string;
     street1?: string;
     street2?: string;
     city?: string;
@@ -139,7 +140,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // Add customer information if provided
-        // NOTE: Helcim API REQUIRES contactName if customerRequest is sent
+        // NOTE: Helcim API REQUIRES contactName and billingAddress fields if customerRequest is sent
         if (customerInfo) {
           const customerRequest: HelcimCustomerRequest = {};
 
@@ -153,15 +154,28 @@ export default defineEventHandler(async (event) => {
           if (customerInfo.phone) {
             customerRequest.cellPhone = customerInfo.phone;
           }
-          if (customerInfo.billingAddress) {
-            customerRequest.billingAddress = {
-              street1: customerInfo.billingAddress.address1,
-              street2: customerInfo.billingAddress.address2,
-              city: customerInfo.billingAddress.city,
-              province: customerInfo.billingAddress.state,
-              country: customerInfo.billingAddress.country,
-              postalCode: customerInfo.billingAddress.postcode,
-            };
+
+          // Helcim REQUIRES billingAddress.name, street1, and postalCode to be non-empty
+          // Only include billingAddress if we have the required fields
+          const billingAddr = customerInfo.billingAddress;
+          if (billingAddr) {
+            const street1 = billingAddr.address1?.trim();
+            const postalCode = billingAddr.postcode?.trim();
+
+            // Only add billingAddress if required fields are present
+            if (street1 && postalCode) {
+              customerRequest.billingAddress = {
+                name: contactName, // Required by Helcim - use contactName
+                street1: street1,
+                street2: billingAddr.address2 || '',
+                city: billingAddr.city || '',
+                province: billingAddr.state || '',
+                country: billingAddr.country || 'CA',
+                postalCode: postalCode,
+              };
+            } else {
+              console.log('[Helcim API] Skipping billingAddress - missing required fields (street1 or postalCode)');
+            }
           }
 
           // Only add customerRequest if contactName is present (which it always will be now)
