@@ -6,6 +6,7 @@ interface HelcimLineItem {
   description: string;
   quantity: number;
   price: number;
+  total: number; // Required by Helcim API - price * quantity
   sku?: string;
 }
 
@@ -88,12 +89,18 @@ export default defineEventHandler(async (event) => {
         // Add invoiceRequest with line items if provided
         // This creates an invoice in Helcim with order details
         if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
-          const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => ({
-            description: item.description || item.name || 'Product',
-            quantity: Number(item.quantity) || 1,
-            price: Number(item.price) || 0,
-            ...(item.sku && {sku: item.sku}),
-          }));
+          const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => {
+            const qty = Number(item.quantity) || 1;
+            const unitPrice = Number(item.price) || 0;
+            const lineTotal = Number(item.total) || (qty * unitPrice);
+            return {
+              description: item.description || item.name || 'Product',
+              quantity: qty,
+              price: unitPrice,
+              total: parseFloat(lineTotal.toFixed(2)), // Required by Helcim
+              ...(item.sku && {sku: item.sku}),
+            };
+          });
 
           // Build invoice request
           const invoiceRequest: HelcimInvoiceRequest = {

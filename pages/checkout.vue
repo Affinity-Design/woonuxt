@@ -571,6 +571,7 @@ const helcimLineItems = computed(() => {
       description: name,
       quantity: quantity,
       price: parseFloat(unitPrice.toFixed(2)), // Round to 2 decimal places
+      total: parseFloat(lineTotal.toFixed(2)), // Required by Helcim API
       ...(sku && {sku: sku}),
     };
   });
