@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
+import {convertToCAD} from '~/utils/priceConverter';
 
 const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
+const {exchangeRate} = useExchangeRate();
 const config = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -522,6 +524,7 @@ const handleHelcimComplete = (result: any) => {
 const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
 
 // Computed property for Helcim amount that includes tax and is reactive
+// Converts USD cart total to CAD using the exchange rate
 const helcimAmount = computed(() => {
   if (!cart.value?.total) return 0;
 
@@ -530,30 +533,58 @@ const helcimAmount = computed(() => {
     cartRawTotal: cart.value.rawTotal,
     cartSubtotal: cart.value.subtotal,
     cartTotalTax: cart.value.totalTax,
+    exchangeRate: exchangeRate.value,
   });
 
-  // Parse the total amount string (e.g., "$2.24 CAD" -> 2.24)
+  // Convert USD to CAD using exchange rate
+  if (exchangeRate.value) {
+    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value);
+    if (cadNumericString) {
+      const cadAmount = parseFloat(cadNumericString) || 0;
+      console.log(`[DEBUG Checkout] Helcim amount (CAD converted):`, {
+        originalString: cart.value.total,
+        cadNumericString: cadNumericString,
+        cadAmount: cadAmount,
+      });
+      return cadAmount;
+    }
+  }
+
+  // Fallback: parse the total amount string directly (e.g., "$2.24 CAD" -> 2.24)
   const totalStr = cart.value.total.replace(/[^\d.-]/g, '');
   const totalInDollars = parseFloat(totalStr) || 0;
 
-  console.log(`[DEBUG Checkout] Helcim amount calculation:`, {
+  console.log(`[DEBUG Checkout] Helcim amount (fallback - no conversion):`, {
     originalString: cart.value.total,
     cleanedString: totalStr,
     parsedDollars: totalInDollars,
-    sendingToHelcimComponent: totalInDollars,
   });
 
   return totalInDollars;
 });
 
-// Helper to parse price strings to numbers
+// Helper to parse price strings to numbers (USD values)
 const parsePrice = (priceStr: string | null | undefined): number => {
   if (!priceStr) return 0;
   const cleaned = priceStr.replace(/[^0-9.-]/g, '');
   return parseFloat(cleaned) || 0;
 };
 
+// Helper to convert a price string to CAD numeric value
+const convertPriceToCAD = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  if (exchangeRate.value) {
+    const cadNumericString = convertToCAD(priceStr, exchangeRate.value);
+    if (cadNumericString) {
+      return parseFloat(cadNumericString) || 0;
+    }
+  }
+  // Fallback to parsing without conversion
+  return parsePrice(priceStr);
+};
+
 // Computed property for Helcim line items - provides order backup in Helcim if WP fails
+// Converts USD prices to CAD
 const helcimLineItems = computed(() => {
   if (!cart.value?.contents?.nodes) return [];
 
@@ -562,8 +593,8 @@ const helcimLineItems = computed(() => {
     const name = productNode?.name || 'Product';
     const sku = productNode?.sku || '';
 
-    // Get line item total and calculate unit price
-    const lineTotal = parsePrice(item.total);
+    // Get line item total and convert to CAD
+    const lineTotal = convertPriceToCAD(item.total);
     const quantity = item.quantity || 1;
     const unitPrice = quantity > 0 ? lineTotal / quantity : lineTotal;
 
@@ -577,22 +608,22 @@ const helcimLineItems = computed(() => {
   });
 });
 
-// Computed property for shipping amount
+// Computed property for shipping amount - converted to CAD
 const helcimShippingAmount = computed(() => {
   if (!cart.value?.shippingTotal) return 0;
-  return parsePrice(cart.value.shippingTotal);
+  return convertPriceToCAD(cart.value.shippingTotal);
 });
 
-// Computed property for tax amount
+// Computed property for tax amount - converted to CAD
 const helcimTaxAmount = computed(() => {
   if (!cart.value?.totalTax) return 0;
-  return parsePrice(cart.value.totalTax);
+  return convertPriceToCAD(cart.value.totalTax);
 });
 
-// Computed property for discount amount
+// Computed property for discount amount - converted to CAD
 const helcimDiscountAmount = computed(() => {
   if (!cart.value?.discountTotal) return 0;
-  return parsePrice(cart.value.discountTotal);
+  return convertPriceToCAD(cart.value.discountTotal);
 });
 
 // Computed property for customer info to pass to Helcim

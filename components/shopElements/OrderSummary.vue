@@ -1,23 +1,34 @@
 <script setup>
-const {cart, isUpdatingCart} = useCart();
+import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
-// Helper function to sanitize price strings and fix formatting issues
+const {cart, isUpdatingCart} = useCart();
+const {exchangeRate} = useExchangeRate();
+
+// Helper function to properly convert USD prices to CAD using the exchange rate
 const formatPrice = (priceString) => {
   if (!priceString) return '$0.00 CAD';
 
-  // First, check if it's a zero amount with &nbsp;
-  if (priceString.includes('$0.00&nbsp;CAD') || priceString.includes('$0.00')) {
+  // Check for zero amounts first
+  const numericCheck = parseFloat(String(priceString).replace(/[^0-9.-]/g, ''));
+  if (numericCheck === 0 || isNaN(numericCheck)) {
     return '$0.00 CAD';
   }
 
-  // Remove any "US" prefix and &nbsp; entities
-  let cleaned = priceString
-    .replace(/US\$/gi, '$') // Replace "US$" with "$"
-    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-    .replace(/\s+/g, ' ') // Normalize whitespace
+  // Use exchange rate to convert USD to CAD
+  if (exchangeRate.value) {
+    const cadNumericString = convertToCAD(priceString, exchangeRate.value);
+    if (cadNumericString) {
+      return '$' + formatPriceWithCAD(cadNumericString);
+    }
+  }
+
+  // Fallback: just fix the label if no exchange rate available
+  let cleaned = String(priceString)
+    .replace(/US\$/gi, '$')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 
-  // Ensure CAD suffix is present
   if (!cleaned.includes('CAD')) {
     cleaned = cleaned + ' CAD';
   }
@@ -30,11 +41,12 @@ const formatShipping = (priceString) => {
   if (!priceString) return '$0.00 CAD';
 
   // Check if it's a zero amount
-  if (priceString.includes('$0.00')) {
+  const numericCheck = parseFloat(String(priceString).replace(/[^0-9.-]/g, ''));
+  if (numericCheck === 0 || isNaN(numericCheck)) {
     return '$0.00 CAD';
   }
 
-  const isPositive = !priceString.includes('-') && parseFloat(priceString.replace(/[^0-9.-]/g, '')) > 0;
+  const isPositive = !String(priceString).includes('-') && numericCheck > 0;
   const formattedPrice = formatPrice(priceString);
 
   return isPositive ? '+' + formattedPrice : formattedPrice;

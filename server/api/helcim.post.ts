@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
           const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => {
             const qty = Number(item.quantity) || 1;
             const unitPrice = Number(item.price) || 0;
-            const lineTotal = Number(item.total) || (qty * unitPrice);
+            const lineTotal = Number(item.total) || qty * unitPrice;
             return {
               description: item.description || item.name || 'Product',
               quantity: qty,
@@ -139,12 +139,14 @@ export default defineEventHandler(async (event) => {
         }
 
         // Add customer information if provided
+        // NOTE: Helcim API REQUIRES contactName if customerRequest is sent
         if (customerInfo) {
           const customerRequest: HelcimCustomerRequest = {};
 
-          if (customerInfo.name) {
-            customerRequest.contactName = customerInfo.name;
-          }
+          // contactName is REQUIRED by Helcim API - use email as fallback if name is empty
+          const contactName = customerInfo.name?.trim() || customerInfo.email || 'Customer';
+          customerRequest.contactName = contactName;
+
           if (customerInfo.email) {
             customerRequest.customerCode = customerInfo.email; // Use email as unique customer code
           }
@@ -162,7 +164,8 @@ export default defineEventHandler(async (event) => {
             };
           }
 
-          if (Object.keys(customerRequest).length > 0) {
+          // Only add customerRequest if contactName is present (which it always will be now)
+          if (customerRequest.contactName) {
             helcimRequestBody.customerRequest = customerRequest;
             console.log('[Helcim API] Including customer info:', customerRequest);
           }
