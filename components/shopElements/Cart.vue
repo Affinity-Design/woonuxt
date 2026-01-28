@@ -1,30 +1,36 @@
 <script setup lang="ts">
+import {computed} from 'vue';
+import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
+
 const {cart, toggleCart, isUpdatingCart} = useCart();
+const {exchangeRate} = useExchangeRate();
 
-// Helper function to sanitize price strings and fix formatting issues
-const formatPrice = (priceString: string | null | undefined): string => {
-  if (!priceString) return '$0.00 CAD';
+// Convert cart total from USD to CAD using the exchange rate
+const formattedCartTotal = computed(() => {
+  const rawTotal = cart.value?.total;
+  if (!rawTotal) return '$0.00 CAD';
 
-  // First, check if it's a zero amount with &nbsp;
-  if (priceString.includes('$0.00&nbsp;CAD') || priceString.includes('$0.00')) {
+  // Check for zero amount
+  if (rawTotal.includes('$0.00')) {
     return '$0.00 CAD';
   }
 
-  // Remove any "US" prefix and &nbsp; entities
-  let cleaned = priceString
-    .replace(/US\$/gi, '$') // Replace "US$" with "$"
-    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .replace(/USD/gi, 'CAD') // Replace USD with CAD
-    .trim();
-
-  // Ensure CAD suffix is present
-  if (!cleaned.includes('CAD')) {
-    cleaned = cleaned + ' CAD';
+  // If exchange rate is not available, show raw price cleaned up
+  if (exchangeRate.value === null) {
+    const {numericString} = cleanAndExtractPriceInfo(rawTotal);
+    return numericString ? `$${numericString} CAD` : '$0.00 CAD';
   }
 
-  return cleaned;
-};
+  // Convert using exchange rate
+  const cadNumericString = convertToCAD(rawTotal, exchangeRate.value);
+  if (!cadNumericString) {
+    const {numericString} = cleanAndExtractPriceInfo(rawTotal);
+    return numericString ? `$${numericString} CAD` : '$0.00 CAD';
+  }
+
+  // Format with $ prefix and CAD suffix
+  return `$${formatPriceWithCAD(cadNumericString)}`;
+});
 </script>
 
 <template>
@@ -48,7 +54,7 @@ const formatPrice = (priceString: string | null | undefined): string => {
             to="/checkout"
             @click.prevent="toggleCart()">
             <span class="mx-2">{{ $t('messages.shop.checkout') }}</span>
-            <span>{{ formatPrice(cart.total) }}</span>
+            <span>{{ formattedCartTotal }}</span>
           </NuxtLink>
         </div>
       </template>
