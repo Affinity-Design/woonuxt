@@ -1,9 +1,50 @@
 // Admin Order Creation API - Creates orders directly via WPGraphQL with Application Password authentication
 // Bypasses all session-based GraphQL issues by using admin-level authentication
+// Enhanced with retry logic and better error handling for reliability
+
+// Helper function for retry with exponential backoff
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Add timeout using AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // If we get a response (even an error response), return it
+      // Let the caller handle HTTP errors
+      return response;
+    } catch (error: any) {
+      lastError = error;
+      console.warn(`⚠️ Fetch attempt ${attempt}/${maxRetries} failed:`, error.message);
+
+      if (attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        console.log(`⏳ Retrying in ${delay / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError || new Error('All retry attempts failed');
+}
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const config = useRuntimeConfig();
+
+  // Generate a unique request ID for tracing
+  const requestId = `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`🆔 Request ID: ${requestId}`);
 
   try {
     console.log('🛠️ Creating order via WPGraphQL with Application Password authentication...');
@@ -22,12 +63,29 @@ export default defineEventHandler(async (event) => {
       currency = 'CAD',
       customerId,
       cardToken, // Helcim card token for native refund support
+      helcimInvoiceData, // Backup data if order fails - can be used to recover
     } = body;
 
     // Validate required configuration
     if (!config.wpAdminUsername || !config.wpAdminAppPassword || !config.public.wpBaseUrl) {
       throw new Error('Missing WordPress Application Password credentials in configuration');
     }
+
+    // Validate required transaction ID
+    if (!transactionId) {
+      console.error('❌ Missing transaction ID - cannot create order without payment reference');
+      throw new Error('Transaction ID is required for order creation');
+    }
+
+    // Log the request data for debugging/recovery purposes
+    console.log(`📝 Order Request [${requestId}]:`, {
+      transactionId,
+      email: billing?.email,
+      total: cartTotals?.total,
+      lineItemCount: lineItems?.length || 0,
+      hasCardToken: !!cardToken,
+      timestamp: new Date().toISOString(),
+    });
 
     // Log line items for debugging variation issues and pricing
     if (lineItems && lineItems.length > 0) {
@@ -304,21 +362,24 @@ export default defineEventHandler(async (event) => {
       email: variables.input.billing.email,
       lineItemCount: variables.input.lineItems.length,
       appliedCoupons: coupons?.length || 0,
+      requestId: requestId,
     });
 
     // Make GraphQL request with Application Password authentication
+    // Uses retry logic for better reliability
     const graphqlUrl = `${config.public.wpBaseUrl}/graphql`;
-    console.log('🌐 Making test GraphQL request to:', graphqlUrl);
+    console.log('🌐 Making GraphQL request to:', graphqlUrl);
 
-    const response = await fetch(graphqlUrl, {
+    const response = await fetchWithRetry(graphqlUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${auth}`,
-        'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+        'User-Agent': 'WooNuxt-Admin-Order-Creator/1.0',
         Origin: config.public.wpBaseUrl, // Match the WordPress origin
         Referer: config.public.wpBaseUrl, // Set referrer to WordPress site
         'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request
+        'X-Request-ID': requestId, // Include request ID for tracing
       },
       body: JSON.stringify({
         query: mutation,
@@ -328,7 +389,7 @@ export default defineEventHandler(async (event) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ GraphQL HTTP Error:', {
+      console.error(`❌ GraphQL HTTP Error [${requestId}]:`, {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
@@ -471,15 +532,22 @@ export default defineEventHandler(async (event) => {
         payment_method_title: 'Helcim Credit Card Payment',
         meta_data: statusMetaData,
       };
-      const statusResponse = await fetch(`${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'WooNuxt-Test-GraphQL-Creator/1.0',
+
+      // Use retry for status update to ensure it completes
+      const statusResponse = await fetchWithRetry(
+        `${config.public.wpBaseUrl}/wp-json/wc/v3/orders/${orderData.databaseId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'WooNuxt-Admin-Order-Creator/1.0',
+            'X-Request-ID': requestId,
+          },
+          body: JSON.stringify(statusPayload),
         },
-        body: JSON.stringify(statusPayload),
-      });
+        2, // Fewer retries for status update
+      );
 
       if (statusResponse.ok) {
         console.log('✅ Order status updated to processing (Email triggered)');
@@ -493,7 +561,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: '🎉 GraphQL admin authentication test SUCCESSFUL!',
+      message: '🎉 Order created successfully!',
+      requestId: requestId,
       order: {
         id: orderData.databaseId,
         databaseId: orderData.databaseId,
@@ -518,11 +587,30 @@ export default defineEventHandler(async (event) => {
       ],
     };
   } catch (error: any) {
-    console.error('❌ Admin order creation failed:', error);
+    console.error(`❌ Admin order creation failed [${requestId}]:`, {
+      message: error.message,
+      transactionId: body.transactionId,
+      email: body.billing?.email,
+      stack: error.stack,
+    });
 
+    // Return detailed error info for debugging
+    // The transaction was successful in Helcim, but WP order failed
+    // Include enough info to manually recover the order if needed
     return {
       success: false,
       error: error.message || 'Admin order creation failed',
+      requestId: requestId,
+      transactionId: body.transactionId,
+      recoveryInfo: {
+        helcimTransactionId: body.transactionId,
+        customerEmail: body.billing?.email,
+        customerName: `${body.billing?.firstName || ''} ${body.billing?.lastName || ''}`.trim(),
+        cartTotal: body.cartTotals?.total,
+        timestamp: new Date().toISOString(),
+        // If Helcim has the invoice data, it can be used to recover
+        helcimHasInvoice: !!body.helcimInvoiceData,
+      },
       details: error.stack || 'No additional details available',
     };
   }

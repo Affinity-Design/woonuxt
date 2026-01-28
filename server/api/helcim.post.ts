@@ -1,6 +1,37 @@
 // server/api/helcim.post.ts
 import {defineEventHandler, createError, readBody} from 'h3';
 
+// Types for Helcim line items
+interface HelcimLineItem {
+  description: string;
+  quantity: number;
+  price: number;
+  sku?: string;
+}
+
+interface HelcimCustomerRequest {
+  customerCode?: string;
+  contactName?: string;
+  businessName?: string;
+  cellPhone?: string;
+  billingAddress?: {
+    street1?: string;
+    street2?: string;
+    city?: string;
+    province?: string;
+    country?: string;
+    postalCode?: string;
+  };
+}
+
+interface HelcimInvoiceRequest {
+  invoiceNumber?: string;
+  lineItems?: HelcimLineItem[];
+  shipping?: number;
+  tax?: number;
+  discount?: number;
+}
+
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();
   const helcimApiToken = runtimeConfig.helcimApiToken;
@@ -14,7 +45,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const {action, amount, currency = 'CAD', paymentType = 'purchase'} = body;
+  const {action, amount, currency = 'CAD', paymentType = 'purchase', lineItems, shippingAmount, taxAmount, discountAmount, customerInfo, invoiceNumber} = body;
 
   try {
     // Handle different Helcim actions
@@ -33,6 +64,8 @@ export default defineEventHandler(async (event) => {
           convertedAmount: Number(amount),
           currency: currency,
           paymentType: paymentType,
+          hasLineItems: !!lineItems,
+          lineItemCount: lineItems?.length || 0,
         });
 
         // HelcimCard now sends dollars directly, so use as-is
@@ -43,6 +76,96 @@ export default defineEventHandler(async (event) => {
           finalAmountInDollars: amountInDollars,
         });
 
+        // Build the request body for Helcim
+        const helcimRequestBody: any = {
+          paymentType: paymentType,
+          amount: amountInDollars, // Amount in dollars
+          currency: currency,
+          // Digital wallets (Google Pay, Apple Pay) are disabled by default per Helcim docs
+          // DO NOT include digitalWallet parameter - if they still show, disable in Helcim dashboard
+        };
+
+        // Add invoiceRequest with line items if provided
+        // This creates an invoice in Helcim with order details
+        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+          const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => ({
+            description: item.description || item.name || 'Product',
+            quantity: Number(item.quantity) || 1,
+            price: Number(item.price) || 0,
+            ...(item.sku && {sku: item.sku}),
+          }));
+
+          // Build invoice request
+          const invoiceRequest: HelcimInvoiceRequest = {
+            lineItems: formattedLineItems,
+          };
+
+          // Add invoice number if provided
+          if (invoiceNumber) {
+            invoiceRequest.invoiceNumber = invoiceNumber;
+          }
+
+          // Add shipping as a separate amount if provided
+          if (shippingAmount && Number(shippingAmount) > 0) {
+            invoiceRequest.shipping = Number(shippingAmount);
+          }
+
+          // Add tax amount if provided (for level 2 processing)
+          if (taxAmount && Number(taxAmount) > 0) {
+            invoiceRequest.tax = Number(taxAmount);
+          }
+
+          // Add discount if provided
+          if (discountAmount && Number(discountAmount) > 0) {
+            invoiceRequest.discount = Number(discountAmount);
+          }
+
+          helcimRequestBody.invoiceRequest = invoiceRequest;
+
+          console.log('[Helcim API] Including invoice with line items:', {
+            lineItemCount: formattedLineItems.length,
+            lineItems: formattedLineItems,
+            shipping: invoiceRequest.shipping,
+            tax: invoiceRequest.tax,
+            discount: invoiceRequest.discount,
+          });
+        }
+
+        // Add customer information if provided
+        if (customerInfo) {
+          const customerRequest: HelcimCustomerRequest = {};
+
+          if (customerInfo.name) {
+            customerRequest.contactName = customerInfo.name;
+          }
+          if (customerInfo.email) {
+            customerRequest.customerCode = customerInfo.email; // Use email as unique customer code
+          }
+          if (customerInfo.phone) {
+            customerRequest.cellPhone = customerInfo.phone;
+          }
+          if (customerInfo.billingAddress) {
+            customerRequest.billingAddress = {
+              street1: customerInfo.billingAddress.address1,
+              street2: customerInfo.billingAddress.address2,
+              city: customerInfo.billingAddress.city,
+              province: customerInfo.billingAddress.state,
+              country: customerInfo.billingAddress.country,
+              postalCode: customerInfo.billingAddress.postcode,
+            };
+          }
+
+          if (Object.keys(customerRequest).length > 0) {
+            helcimRequestBody.customerRequest = customerRequest;
+            console.log('[Helcim API] Including customer info:', customerRequest);
+          }
+        }
+
+        // Also add taxAmount at top level for level 2 processing rates
+        if (taxAmount && Number(taxAmount) > 0) {
+          helcimRequestBody.taxAmount = Number(taxAmount);
+        }
+
         const response = await fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
           method: 'POST',
           headers: {
@@ -50,13 +173,7 @@ export default defineEventHandler(async (event) => {
             'api-token': helcimApiToken as string,
             'content-type': 'application/json',
           },
-          body: JSON.stringify({
-            paymentType: paymentType,
-            amount: amountInDollars, // Amount in dollars
-            currency: currency,
-            // Digital wallets (Google Pay, Apple Pay) are disabled by default per Helcim docs
-            // DO NOT include digitalWallet parameter - if they still show, disable in Helcim dashboard
-          }),
+          body: JSON.stringify(helcimRequestBody),
         });
 
         if (!response.ok) {
@@ -71,6 +188,7 @@ export default defineEventHandler(async (event) => {
           hasCheckoutToken: !!data.checkoutToken,
           hasSecretToken: !!data.secretToken,
           sentAmount: amountInDollars,
+          hadLineItems: !!lineItems,
         });
 
         return {

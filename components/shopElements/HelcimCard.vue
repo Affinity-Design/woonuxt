@@ -11,6 +11,29 @@ const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
 const transactionData = ref<any>(null);
 
+// Type for line items passed to Helcim
+interface HelcimLineItem {
+  description: string;
+  quantity: number;
+  price: number;
+  sku?: string;
+}
+
+// Type for customer info
+interface CustomerInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+  billingAddress?: {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postcode?: string;
+  };
+}
+
 const props = defineProps({
   amount: {
     type: Number,
@@ -20,6 +43,36 @@ const props = defineProps({
   currency: {
     type: String,
     default: 'CAD',
+  },
+  // Line items for Helcim invoice (backup for failed WP orders)
+  lineItems: {
+    type: Array as () => HelcimLineItem[],
+    default: () => [],
+  },
+  // Shipping amount (separate from line items)
+  shippingAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Tax amount for level 2 processing
+  taxAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Discount amount if any coupons applied
+  discountAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Customer information
+  customerInfo: {
+    type: Object as () => CustomerInfo,
+    default: null,
+  },
+  // Invoice number (optional, will be order ID after creation)
+  invoiceNumber: {
+    type: String,
+    default: '',
   },
 });
 
@@ -55,15 +108,46 @@ const initializePayment = async () => {
     console.log(`[HelcimCard] Initializing payment for ${props.currency} $${displayAmount.value}`);
     console.log(`[HelcimCard] Props amount:`, props.amount);
     console.log(`[HelcimCard] Display amount:`, displayAmount.value);
-    console.log(`[HelcimCard] API amount (cents):`, apiAmount.value);
+    console.log(`[HelcimCard] API amount:`, apiAmount.value);
+    console.log(`[HelcimCard] Line items:`, props.lineItems?.length || 0);
+
+    // Build request body with line items
+    const requestBody: any = {
+      action: 'initialize',
+      amount: apiAmount.value,
+      currency: props.currency,
+    };
+
+    // Add line items if provided (creates invoice in Helcim as backup)
+    if (props.lineItems && props.lineItems.length > 0) {
+      requestBody.lineItems = props.lineItems;
+      console.log('[HelcimCard] Including line items in Helcim request:', props.lineItems);
+    }
+
+    // Add shipping, tax, discount if provided
+    if (props.shippingAmount > 0) {
+      requestBody.shippingAmount = props.shippingAmount;
+    }
+    if (props.taxAmount > 0) {
+      requestBody.taxAmount = props.taxAmount;
+    }
+    if (props.discountAmount > 0) {
+      requestBody.discountAmount = props.discountAmount;
+    }
+
+    // Add customer info if provided
+    if (props.customerInfo) {
+      requestBody.customerInfo = props.customerInfo;
+    }
+
+    // Add invoice number if provided
+    if (props.invoiceNumber) {
+      requestBody.invoiceNumber = props.invoiceNumber;
+    }
 
     const response = (await $fetch('/api/helcim', {
       method: 'POST',
-      body: {
-        action: 'initialize',
-        amount: apiAmount.value, // Use computed property that ensures cents
-        currency: props.currency,
-      },
+      body: requestBody,
     })) as {
       success: boolean;
       checkoutToken?: string;

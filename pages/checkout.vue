@@ -546,6 +546,74 @@ const helcimAmount = computed(() => {
   return totalInDollars;
 });
 
+// Helper to parse price strings to numbers
+const parsePrice = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  const cleaned = priceStr.replace(/[^0-9.-]/g, '');
+  return parseFloat(cleaned) || 0;
+};
+
+// Computed property for Helcim line items - provides order backup in Helcim if WP fails
+const helcimLineItems = computed(() => {
+  if (!cart.value?.contents?.nodes) return [];
+
+  return cart.value.contents.nodes.map((item: any) => {
+    const productNode = item.variation?.node || item.product?.node;
+    const name = productNode?.name || 'Product';
+    const sku = productNode?.sku || '';
+
+    // Get line item total and calculate unit price
+    const lineTotal = parsePrice(item.total);
+    const quantity = item.quantity || 1;
+    const unitPrice = quantity > 0 ? lineTotal / quantity : lineTotal;
+
+    return {
+      description: name,
+      quantity: quantity,
+      price: parseFloat(unitPrice.toFixed(2)), // Round to 2 decimal places
+      ...(sku && {sku: sku}),
+    };
+  });
+});
+
+// Computed property for shipping amount
+const helcimShippingAmount = computed(() => {
+  if (!cart.value?.shippingTotal) return 0;
+  return parsePrice(cart.value.shippingTotal);
+});
+
+// Computed property for tax amount
+const helcimTaxAmount = computed(() => {
+  if (!cart.value?.totalTax) return 0;
+  return parsePrice(cart.value.totalTax);
+});
+
+// Computed property for discount amount
+const helcimDiscountAmount = computed(() => {
+  if (!cart.value?.discountTotal) return 0;
+  return parsePrice(cart.value.discountTotal);
+});
+
+// Computed property for customer info to pass to Helcim
+const helcimCustomerInfo = computed(() => {
+  if (!customer.value?.billing) return null;
+
+  const billing = customer.value.billing;
+  return {
+    name: `${billing.firstName || ''} ${billing.lastName || ''}`.trim(),
+    email: billing.email || '',
+    phone: billing.phone || '',
+    billingAddress: {
+      address1: billing.address1 || '',
+      address2: billing.address2 || '',
+      city: billing.city || '',
+      state: billing.state || '',
+      country: billing.country || 'CA',
+      postcode: billing.postcode || '',
+    },
+  };
+});
+
 // Computed to show Helcim card - ALWAYS show since Helcim is our ONLY payment method
 const shouldShowHelcimCard = computed(() => {
   // ALWAYS show Helcim card when we have a cart with items
@@ -755,6 +823,11 @@ useSeoMeta({
               ref="helcimCardRef"
               :amount="helcimAmount"
               currency="CAD"
+              :line-items="helcimLineItems"
+              :shipping-amount="helcimShippingAmount"
+              :tax-amount="helcimTaxAmount"
+              :discount-amount="helcimDiscountAmount"
+              :customer-info="helcimCustomerInfo"
               @ready="handleHelcimReady"
               @error="handleHelcimError"
               @payment-success="handleHelcimSuccess"
