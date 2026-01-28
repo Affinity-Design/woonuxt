@@ -32,11 +32,17 @@ interface HelcimTax {
   details?: string; // e.g., "GST 5%", "HST 13%"
 }
 
+// Helcim shipping object per API docs
+interface HelcimShipping {
+  amount: number;
+  details?: string; // Shipping method name (e.g., "Flat Rate", "Free Shipping")
+}
+
 interface HelcimInvoiceRequest {
   invoiceNumber?: string;
   lineItems?: HelcimLineItem[];
-  shipping?: number;
-  tax?: number | HelcimTax; // Can be simple number or object for Level 3
+  shipping?: HelcimShipping; // Changed from number to object per Helcim API docs
+  tax?: HelcimTax; // Tax object with amount and details
   discount?: number;
 }
 
@@ -110,17 +116,6 @@ export default defineEventHandler(async (event) => {
             };
           });
 
-          // Add shipping method as a $0 line item comment if specified
-          // This ensures the shipping method is visible in Helcim invoice even if shipping is free
-          if (shippingMethod) {
-            formattedLineItems.push({
-              description: `Shipping: ${shippingMethod}`,
-              quantity: 1,
-              price: 0,
-              total: 0,
-            });
-          }
-
           // Build invoice request
           const invoiceRequest: HelcimInvoiceRequest = {
             lineItems: formattedLineItems,
@@ -131,15 +126,23 @@ export default defineEventHandler(async (event) => {
             invoiceRequest.invoiceNumber = invoiceNumber;
           }
 
-          // Add shipping as a separate amount if provided
-          if (shippingAmount && Number(shippingAmount) > 0) {
-            invoiceRequest.shipping = Number(shippingAmount);
+          // Add shipping as an object with amount and details (method name)
+          // Per Helcim API docs: shipping.amount + shipping.details
+          const shippingAmountNum = Number(shippingAmount) || 0;
+          if (shippingAmountNum > 0 || shippingMethod) {
+            invoiceRequest.shipping = {
+              amount: shippingAmountNum,
+              ...(shippingMethod && {details: shippingMethod}),
+            };
           }
 
-          // Add tax amount to invoice (as a simple number, not object)
-          // The tax object format was causing issues
+          // Add tax as an object with amount and details
+          // Per Helcim API docs: tax.amount + tax.details (enables Level 2/3 processing)
           if (taxAmount && Number(taxAmount) > 0) {
-            invoiceRequest.tax = Number(taxAmount) as any; // Simple number format
+            invoiceRequest.tax = {
+              amount: Number(taxAmount),
+              details: 'Canadian Sales Tax', // Generic description - could be enhanced
+            };
           }
 
           // Add discount if provided
