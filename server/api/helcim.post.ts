@@ -26,7 +26,7 @@ interface HelcimCustomerRequest {
   };
 }
 
-// Types for Helcim Level 3 processing tax object
+// Types for Helcim Level 3 processing tax object (optional)
 interface HelcimTax {
   amount: number;
   details?: string; // e.g., "GST 5%", "HST 13%"
@@ -36,7 +36,7 @@ interface HelcimInvoiceRequest {
   invoiceNumber?: string;
   lineItems?: HelcimLineItem[];
   shipping?: number;
-  tax?: HelcimTax; // Level 3 requires tax as object with amount and details
+  tax?: number | HelcimTax; // Can be simple number or object for Level 3
   discount?: number;
 }
 
@@ -124,13 +124,10 @@ export default defineEventHandler(async (event) => {
             invoiceRequest.shipping = Number(shippingAmount);
           }
 
-          // Add tax as object for Level 3 processing (not just a number)
-          // Helcim docs: tax: { amount: 5, details: "GST" }
+          // Add tax amount to invoice (as a simple number, not object)
+          // The tax object format was causing issues
           if (taxAmount && Number(taxAmount) > 0) {
-            invoiceRequest.tax = {
-              amount: Number(taxAmount),
-              details: 'Tax', // Could be enhanced to specify HST/GST based on province
-            };
+            invoiceRequest.tax = Number(taxAmount) as any; // Simple number format
           }
 
           // Add discount if provided
@@ -234,8 +231,14 @@ export default defineEventHandler(async (event) => {
           }
         }
 
-        // Note: Tax is now included in invoiceRequest.tax for Level 3 processing
-        // No need for separate top-level taxAmount
+        // Note: For Level 2 processing, use top-level taxAmount
+        // The invoiceRequest.tax object is for Level 3 and may cause issues
+        if (taxAmount && Number(taxAmount) > 0) {
+          helcimRequestBody.taxAmount = Number(taxAmount);
+        }
+
+        // Log the FULL request body for debugging
+        console.log('[Helcim API] Full request body being sent:', JSON.stringify(helcimRequestBody, null, 2));
 
         const response = await fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
           method: 'POST',
