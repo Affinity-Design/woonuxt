@@ -6,6 +6,7 @@ const {cart, toggleCart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
 
 // Convert cart total from USD to CAD using the exchange rate
+// Uses .99 rounding to match product price display (client preference)
 const formattedCartTotal = computed(() => {
   const rawTotal = cart.value?.total;
   if (!rawTotal) return '$0.00 CAD';
@@ -21,8 +22,8 @@ const formattedCartTotal = computed(() => {
     return numericString ? `$${numericString} CAD` : '$0.00 CAD';
   }
 
-  // Convert using exchange rate
-  const cadNumericString = convertToCAD(rawTotal, exchangeRate.value);
+  // Convert using exchange rate with .99 rounding (matches product price display)
+  const cadNumericString = convertToCAD(rawTotal, exchangeRate.value, true);
   if (!cadNumericString) {
     const {numericString} = cleanAndExtractPriceInfo(rawTotal);
     return numericString ? `$${numericString} CAD` : '$0.00 CAD';

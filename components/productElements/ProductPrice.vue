@@ -58,7 +58,8 @@ const priceValueForTemplate = computed(() => {
 
   // --- Exchange Rate IS Available ---
   // Pass the core price (without "From ") to convertToCAD
-  const cadNumericString = convertToCAD(corePrice, exchangeRate.value); // Returns "70.99" or ""
+  // Use roundTo99=true for product display prices (client wants $12.32 -> $12.99)
+  const cadNumericString = convertToCAD(corePrice, exchangeRate.value, true); // Returns "70.99" or ""
   if (cadNumericString === '') {
     const {numericString: cleanedOriginalNumeric} = cleanAndExtractPriceInfo(corePrice);
     // Return JUST the numeric string fallback
@@ -100,7 +101,8 @@ const regularPriceValueForTemplate = computed(() => {
   }
 
   // --- Exchange Rate IS Available ---
-  const cadNumericString = convertToCAD(coreRegularPrice, exchangeRate.value); // Returns "XX.YY" or ""
+  // Use roundTo99=true for product display prices (client wants $12.32 -> $12.99)
+  const cadNumericString = convertToCAD(coreRegularPrice, exchangeRate.value, true); // Returns "XX.YY" or ""
   if (cadNumericString === '') {
     const {numericString: cleanedOriginalNumeric} = cleanAndExtractPriceInfo(coreRegularPrice);
     // Return JUST the numeric string fallback

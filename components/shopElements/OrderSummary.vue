@@ -5,6 +5,7 @@ const {cart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
 
 // Helper function to properly convert USD prices to CAD using the exchange rate
+// Uses .99 rounding to match product price display (client preference)
 const formatPrice = (priceString) => {
   if (!priceString) return '$0.00 CAD';
 
@@ -14,9 +15,9 @@ const formatPrice = (priceString) => {
     return '$0.00 CAD';
   }
 
-  // Use exchange rate to convert USD to CAD
+  // Use exchange rate to convert USD to CAD with .99 rounding
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(priceString, exchangeRate.value);
+    const cadNumericString = convertToCAD(priceString, exchangeRate.value, true);
     if (cadNumericString) {
       return '$' + formatPriceWithCAD(cadNumericString);
     }

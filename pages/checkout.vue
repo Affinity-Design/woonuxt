@@ -538,10 +538,11 @@ const helcimAmount = computed(() => {
 
   // Convert USD to CAD using exchange rate
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value);
+    // Use .99 rounding to match displayed product prices (client preference)
+    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value, true);
     if (cadNumericString) {
       const cadAmount = parseFloat(cadNumericString) || 0;
-      console.log(`[DEBUG Checkout] Helcim amount (CAD converted):`, {
+      console.log(`[DEBUG Checkout] Helcim amount (CAD converted with .99 rounding):`, {
         originalString: cart.value.total,
         cadNumericString: cadNumericString,
         cadAmount: cadAmount,
@@ -570,11 +571,12 @@ const parsePrice = (priceStr: string | null | undefined): number => {
   return parseFloat(cleaned) || 0;
 };
 
-// Helper to convert a price string to CAD numeric value
+// Helper to convert a price string to CAD numeric value with .99 rounding
 const convertPriceToCAD = (priceStr: string | null | undefined): number => {
   if (!priceStr) return 0;
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(priceStr, exchangeRate.value);
+    // Use .99 rounding to match displayed product prices
+    const cadNumericString = convertToCAD(priceStr, exchangeRate.value, true);
     if (cadNumericString) {
       return parseFloat(cadNumericString) || 0;
     }
@@ -584,7 +586,7 @@ const convertPriceToCAD = (priceStr: string | null | undefined): number => {
 };
 
 // Computed property for Helcim line items - provides order backup in Helcim if WP fails
-// Converts USD prices to CAD
+// Converts USD prices to CAD with .99 rounding to match product display
 const helcimLineItems = computed(() => {
   if (!cart.value?.contents?.nodes) return [];
 
