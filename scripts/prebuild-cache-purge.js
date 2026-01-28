@@ -26,10 +26,18 @@ const CF_API_TOKEN = process.env.CF_API_TOKEN;
 const CF_KV_NAMESPACE_ID_CACHE = process.env.CF_KV_NAMESPACE_ID_CACHE;
 const CF_KV_NAMESPACE_ID_SCRIPT_DATA = process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA;
 
+// Test environment cache namespace (proskatersplace-test-cache)
+const CF_KV_NAMESPACE_ID_TEST_CACHE = process.env.CF_KV_NAMESPACE_ID_TEST_CACHE || '2c8dcc19b1e1448e935542c3438db362';
+
+// Detect test environment from Cloudflare Pages branch or explicit env var
+const CF_PAGES_BRANCH = process.env.CF_PAGES_BRANCH || '';
+const IS_TEST_ENV = process.env.IS_TEST_ENV === 'true' || CF_PAGES_BRANCH === 'test' || CF_PAGES_BRANCH.startsWith('test-') || CF_PAGES_BRANCH.includes('test');
+
 // Skip purge in CI/CD unless explicitly enabled
 const SKIP_PURGE = process.env.SKIP_KV_PURGE === 'true';
 const PURGE_PAGE_CACHE = process.env.PURGE_PAGE_CACHE !== 'false'; // Default: true
 const PURGE_SCRIPT_DATA = process.env.PURGE_SCRIPT_DATA !== 'false'; // Default: true
+const PURGE_TEST_CACHE = IS_TEST_ENV && process.env.PURGE_TEST_CACHE !== 'false'; // Default: true if test env
 
 /**
  * Validate UUID format (32 hex chars, with or without hyphens)
@@ -43,6 +51,14 @@ function isValidUUID(str) {
 
 console.log('🧹 Pre-build KV Cache Purge');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+// Show environment detection
+if (CF_PAGES_BRANCH) {
+  console.log(`🌿 Branch: ${CF_PAGES_BRANCH}`);
+}
+if (IS_TEST_ENV) {
+  console.log('🧪 TEST ENVIRONMENT DETECTED - Will purge test cache namespace');
+}
 
 if (SKIP_PURGE) {
   console.log('⏭️  SKIP_KV_PURGE=true - Skipping cache purge');
@@ -232,6 +248,15 @@ async function main() {
     results.push({name: 'SCRIPT_DATA', ...scriptResult});
   } else {
     console.log('\n⏭️  SCRIPT_DATA: Skipped (PURGE_SCRIPT_DATA=false)');
+  }
+
+  // Purge test cache (proskatersplace-test-cache) - ONLY in test environment
+  if (PURGE_TEST_CACHE) {
+    console.log('\n🧪 Purging TEST Cache (proskatersplace-test-cache)...');
+    const testCacheResult = await purgeNamespace(CF_KV_NAMESPACE_ID_TEST_CACHE, 'TEST_CACHE');
+    results.push({name: 'TEST_CACHE', ...testCacheResult});
+  } else if (IS_TEST_ENV) {
+    console.log('\n⏭️  TEST_CACHE: Skipped (PURGE_TEST_CACHE=false)');
   }
 
   // Summary
