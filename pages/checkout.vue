@@ -587,33 +587,49 @@ const convertPriceToCAD = (priceStr: string | null | undefined): number => {
 
 // Computed property for Helcim line items - provides order backup in Helcim if WP fails
 // Converts USD prices to CAD with .99 rounding to match product display
+// IMPORTANT: Uses subtotal (price WITHOUT tax) - tax is passed separately via taxAmount prop
 const helcimLineItems = computed(() => {
   if (!cart.value?.contents?.nodes) return [];
 
-  return cart.value.contents.nodes.map((item: any) => {
+  const items = cart.value.contents.nodes.map((item: any) => {
     const productNode = item.variation?.node || item.product?.node;
     const name = productNode?.name || 'Product';
     const sku = productNode?.sku || '';
 
-    // Get line item total and convert to CAD
-    const lineTotal = convertPriceToCAD(item.total);
+    // Use SUBTOTAL (without tax) - tax is passed separately to Helcim
+    // item.subtotal = price without tax, item.total = price with tax
+    const lineSubtotal = convertPriceToCAD(item.subtotal || item.total);
     const quantity = item.quantity || 1;
-    const unitPrice = quantity > 0 ? lineTotal / quantity : lineTotal;
+    const unitPrice = quantity > 0 ? lineSubtotal / quantity : lineSubtotal;
 
     return {
       description: name,
       quantity: quantity,
       price: parseFloat(unitPrice.toFixed(2)), // Round to 2 decimal places
-      total: parseFloat(lineTotal.toFixed(2)), // Required by Helcim API
+      total: parseFloat(lineSubtotal.toFixed(2)), // Required by Helcim API
       ...(sku && {sku: sku}),
     };
   });
+
+  return items;
 });
 
 // Computed property for shipping amount - converted to CAD
 const helcimShippingAmount = computed(() => {
   if (!cart.value?.shippingTotal) return 0;
   return convertPriceToCAD(cart.value.shippingTotal);
+});
+
+// Computed property for selected shipping method name
+// Returns the label of the selected shipping method, or empty string if none
+const helcimShippingMethod = computed(() => {
+  const chosenMethodId = cart.value?.chosenShippingMethods?.[0];
+  if (!chosenMethodId) return '';
+  
+  // Find the label from available shipping methods
+  const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
+  const selectedRate = rates.find((rate: any) => rate.id === chosenMethodId);
+  return selectedRate?.label || chosenMethodId; // Fallback to ID if label not found
 });
 
 // Computed property for tax amount - converted to CAD
@@ -859,6 +875,7 @@ useSeoMeta({
               currency="CAD"
               :line-items="helcimLineItems"
               :shipping-amount="helcimShippingAmount"
+              :shipping-method="helcimShippingMethod"
               :tax-amount="helcimTaxAmount"
               :discount-amount="helcimDiscountAmount"
               :customer-info="helcimCustomerInfo"

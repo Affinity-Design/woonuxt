@@ -54,6 +54,12 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  // Shipping method name (e.g., "Flat Rate", "Free Shipping")
+  // Added to invoice comments for reference
+  shippingMethod: {
+    type: String,
+    default: '',
+  },
   // Tax amount for level 2 processing
   taxAmount: {
     type: Number,
@@ -133,6 +139,11 @@ const initializePayment = async () => {
     }
     if (props.discountAmount > 0) {
       requestBody.discountAmount = props.discountAmount;
+    }
+
+    // Add shipping method name for invoice comments
+    if (props.shippingMethod) {
+      requestBody.shippingMethod = props.shippingMethod;
     }
 
     // Add customer info if provided

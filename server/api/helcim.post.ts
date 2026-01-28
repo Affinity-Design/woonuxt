@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const {action, amount, currency = 'CAD', paymentType = 'purchase', lineItems, shippingAmount, taxAmount, discountAmount, customerInfo, invoiceNumber} = body;
+  const {action, amount, currency = 'CAD', paymentType = 'purchase', lineItems, shippingAmount, shippingMethod, taxAmount, discountAmount, customerInfo, invoiceNumber} = body;
 
   try {
     // Handle different Helcim actions
@@ -74,6 +74,7 @@ export default defineEventHandler(async (event) => {
           paymentType: paymentType,
           hasLineItems: !!lineItems,
           lineItemCount: lineItems?.length || 0,
+          shippingMethod: shippingMethod || 'Not selected',
         });
 
         // HelcimCard now sends dollars directly, so use as-is
@@ -108,6 +109,17 @@ export default defineEventHandler(async (event) => {
               ...(item.sku && {sku: item.sku}),
             };
           });
+
+          // Add shipping method as a $0 line item comment if specified
+          // This ensures the shipping method is visible in Helcim invoice even if shipping is free
+          if (shippingMethod) {
+            formattedLineItems.push({
+              description: `Shipping: ${shippingMethod}`,
+              quantity: 1,
+              price: 0,
+              total: 0,
+            });
+          }
 
           // Build invoice request
           const invoiceRequest: HelcimInvoiceRequest = {

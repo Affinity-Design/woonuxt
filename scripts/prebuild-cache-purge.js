@@ -53,12 +53,10 @@ console.log('🧹 Pre-build KV Cache Purge');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
 // Show environment detection
-if (CF_PAGES_BRANCH) {
-  console.log(`🌿 Branch: ${CF_PAGES_BRANCH}`);
-}
-if (IS_TEST_ENV) {
-  console.log('🧪 TEST ENVIRONMENT DETECTED - Will purge test cache namespace');
-}
+console.log(`🌿 CF_PAGES_BRANCH: "${CF_PAGES_BRANCH}"`);
+console.log(`🧪 IS_TEST_ENV: ${IS_TEST_ENV}`);
+console.log(`📦 CF_KV_NAMESPACE_ID_CACHE: ${CF_KV_NAMESPACE_ID_CACHE ? 'SET' : 'NOT SET'}`);
+console.log(`📦 CF_KV_NAMESPACE_ID_TEST_CACHE: ${CF_KV_NAMESPACE_ID_TEST_CACHE}`);
 
 if (SKIP_PURGE) {
   console.log('⏭️  SKIP_KV_PURGE=true - Skipping cache purge');
@@ -197,25 +195,50 @@ async function purgeNamespace(namespaceId, namespaceName) {
       // Try bulk delete first
       for (let i = 0; i < keyNames.length; i += batchSize) {
         const batch = keyNames.slice(i, i + batchSize);
+        console.log(`🗑️  ${namespaceName}: Bulk deleting batch of ${batch.length} keys...`);
         await bulkDeleteKeys(namespaceId, batch);
         console.log(`🗑️  ${namespaceName}: Deleted ${Math.min(i + batchSize, keyNames.length)}/${keyNames.length}`);
       }
     } catch (bulkError) {
-      // Fallback to individual deletes
-      console.log(`⚠️  ${namespaceName}: Bulk delete failed, trying individual deletes...`);
-      let deleted = 0;
-      for (const keyName of keyNames) {
+      // Log the actual error to understand why bulk delete failed
+      console.error(`⚠️  ${namespaceName}: Bulk delete failed: ${bulkError.message}`);
+
+      // If it's a rate limit or transient error, try smaller batches before falling back to individual
+      console.log(`🔄 ${namespaceName}: Retrying with smaller batches (500 keys)...`);
+      const smallBatchSize = 500;
+      let totalDeleted = 0;
+      let batchFailed = false;
+
+      for (let i = 0; i < keyNames.length; i += smallBatchSize) {
+        const batch = keyNames.slice(i, i + smallBatchSize);
         try {
-          await deleteKey(namespaceId, keyName);
-          deleted++;
-          if (deleted % 10 === 0 || deleted === keyNames.length) {
-            process.stdout.write(`\r🗑️  ${namespaceName}: Deleted ${deleted}/${keyNames.length}`);
-          }
-        } catch (err) {
-          // Continue on individual key failures
+          await bulkDeleteKeys(namespaceId, batch);
+          totalDeleted += batch.length;
+          console.log(`🗑️  ${namespaceName}: Deleted ${totalDeleted}/${keyNames.length}`);
+        } catch (smallBatchError) {
+          console.error(`❌ ${namespaceName}: Small batch failed: ${smallBatchError.message}`);
+          batchFailed = true;
+          break;
         }
       }
-      console.log('');
+
+      if (batchFailed) {
+        // Only fall back to individual if batches completely fail
+        console.log(`⚠️  ${namespaceName}: Batch delete failed, trying individual deletes...`);
+        let deleted = 0;
+        for (const keyName of keyNames) {
+          try {
+            await deleteKey(namespaceId, keyName);
+            deleted++;
+            if (deleted % 10 === 0 || deleted === keyNames.length) {
+              process.stdout.write(`\r🗑️  ${namespaceName}: Deleted ${deleted}/${keyNames.length}`);
+            }
+          } catch (err) {
+            // Continue on individual key failures
+          }
+        }
+        console.log('');
+      }
     }
 
     console.log(`✅ ${namespaceName}: Purged ${keys.length} keys`);
