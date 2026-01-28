@@ -7,6 +7,16 @@ const isBuildMode = process.argv.includes('--build-mode') || process.env.LIMIT_P
 
 const maxProducts = isBuildMode ? parseInt(process.env.MAX_PRODUCTS || '2000', 10) : null;
 
+// --- Store Currency Configuration ---
+// If WooCommerce store is already set to CAD, skip conversion to avoid double conversion
+// Set WOOCOMMERCE_CURRENCY=CAD in environment to skip USD->CAD conversion
+const STORE_CURRENCY = (process.env.WOOCOMMERCE_CURRENCY || 'USD').toUpperCase();
+const SKIP_CONVERSION = STORE_CURRENCY === 'CAD';
+
+if (SKIP_CONVERSION) {
+  console.log('📢 WOOCOMMERCE_CURRENCY=CAD detected - Skipping USD to CAD conversion (prices already in CAD)');
+}
+
 // --- Get Build-Time Exchange Rate ---
 let BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD = parseFloat(process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE);
 if (isNaN(BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD) || BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD <= 0) {
@@ -85,24 +95,48 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function convertUsdToCadWithRounding(usdPriceString, exchangeRate) {
-  if (usdPriceString === null || usdPriceString === undefined || typeof usdPriceString !== 'string' || usdPriceString.trim() === '') {
+/**
+ * Converts USD price to CAD with .99 rounding.
+ * IMPORTANT: Skips conversion if price is already marked as CAD.
+ * This matches the logic in utils/priceConverter.ts
+ */
+function convertUsdToCadWithRounding(priceString, exchangeRate) {
+  if (priceString === null || priceString === undefined || typeof priceString !== 'string' || priceString.trim() === '') {
     return null;
   }
-  let priceToConvert = usdPriceString;
+
+  let priceToConvert = priceString.trim();
+
+  // Check if price is already marked as CAD - if so, skip conversion
+  const isCAD = priceToConvert.toUpperCase().includes('CAD') || priceToConvert.toUpperCase().startsWith('CA$');
+
+  // Clean the price string for numeric extraction
   if (priceToConvert.includes(',')) {
     priceToConvert = priceToConvert.split(',')[0].trim();
   }
   priceToConvert = priceToConvert.replace(/[^0-9.-]+/g, '');
-  const numericUsdPrice = parseFloat(priceToConvert);
-  if (isNaN(numericUsdPrice)) {
+  const numericPrice = parseFloat(priceToConvert);
+
+  if (isNaN(numericPrice)) {
     return null;
   }
-  // If exchangeRate is invalid (e.g., 0 or NaN passed from above), return original price string
-  if (isNaN(exchangeRate) || exchangeRate <= 0) {
-    return numericUsdPrice.toFixed(2);
+
+  // If price is already CAD, return as-is (no conversion needed)
+  // This prevents double-conversion when WooCommerce sends CAD prices
+  if (isCAD) {
+    console.log(`[Build] Price already CAD, skipping conversion: ${priceString} -> ${numericPrice.toFixed(2)}`);
+    // Still apply .99 rounding for consistency
+    const dollars = Math.floor(numericPrice);
+    return (dollars + 0.99).toFixed(2);
   }
-  const convertedValue = numericUsdPrice * exchangeRate;
+
+  // If exchangeRate is invalid (e.g., 0 or NaN), return original price
+  if (isNaN(exchangeRate) || exchangeRate <= 0) {
+    return numericPrice.toFixed(2);
+  }
+
+  // Convert USD to CAD with .99 rounding
+  const convertedValue = numericPrice * exchangeRate;
   const dollars = Math.floor(convertedValue);
   const finalCadValue = dollars + 0.99;
   return finalCadValue.toFixed(2);
@@ -190,18 +224,47 @@ async function fetchAndProcessProducts() {
 
       const productsWithCadPrices = fetchedNodes.map((product) => {
         const convertedProduct = {...product};
-        // Only convert if the rate is valid (positive number)
-        if (BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD > 0) {
-          if (convertedProduct.price !== undefined) {
-            convertedProduct.price = convertUsdToCadWithRounding(convertedProduct.price, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+
+        // If WooCommerce store currency is CAD, prices are already in CAD - just format with marker
+        if (SKIP_CONVERSION) {
+          // Store currency is CAD - just add the CAD marker for ProductPrice component, apply .99 rounding
+          if (convertedProduct.price !== undefined && convertedProduct.price !== null) {
+            const numPrice = parseFloat(String(convertedProduct.price).replace(/[^0-9.-]/g, ''));
+            if (!isNaN(numPrice)) {
+              const dollars = Math.floor(numPrice);
+              convertedProduct.price = `${(dollars + 0.99).toFixed(2)} CAD`;
+            }
           }
-          if (convertedProduct.regularPrice !== undefined) {
-            convertedProduct.regularPrice = convertUsdToCadWithRounding(convertedProduct.regularPrice, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+          if (convertedProduct.regularPrice !== undefined && convertedProduct.regularPrice !== null) {
+            const numPrice = parseFloat(String(convertedProduct.regularPrice).replace(/[^0-9.-]/g, ''));
+            if (!isNaN(numPrice)) {
+              const dollars = Math.floor(numPrice);
+              convertedProduct.regularPrice = `${(dollars + 0.99).toFixed(2)} CAD`;
+            }
           }
-          if (convertedProduct.salePrice !== undefined) {
-            convertedProduct.salePrice = convertUsdToCadWithRounding(convertedProduct.salePrice, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+          if (convertedProduct.salePrice !== undefined && convertedProduct.salePrice !== null) {
+            const numPrice = parseFloat(String(convertedProduct.salePrice).replace(/[^0-9.-]/g, ''));
+            if (!isNaN(numPrice)) {
+              const dollars = Math.floor(numPrice);
+              convertedProduct.salePrice = `${(dollars + 0.99).toFixed(2)} CAD`;
+            }
+          }
+        } else if (BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD > 0) {
+          // Store currency is USD - convert to CAD and add marker
+          if (convertedProduct.price !== undefined && convertedProduct.price !== null) {
+            const converted = convertUsdToCadWithRounding(convertedProduct.price, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+            convertedProduct.price = converted ? `${converted} CAD` : null;
+          }
+          if (convertedProduct.regularPrice !== undefined && convertedProduct.regularPrice !== null) {
+            const converted = convertUsdToCadWithRounding(convertedProduct.regularPrice, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+            convertedProduct.regularPrice = converted ? `${converted} CAD` : null;
+          }
+          if (convertedProduct.salePrice !== undefined && convertedProduct.salePrice !== null) {
+            const converted = convertUsdToCadWithRounding(convertedProduct.salePrice, BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD);
+            convertedProduct.salePrice = converted ? `${converted} CAD` : null;
           }
         }
+
         convertedProduct.price = convertedProduct.price === undefined ? null : convertedProduct.price;
         convertedProduct.regularPrice = convertedProduct.regularPrice === undefined ? null : convertedProduct.regularPrice;
         convertedProduct.salePrice = convertedProduct.salePrice === undefined ? null : convertedProduct.salePrice;
