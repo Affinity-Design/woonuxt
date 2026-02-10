@@ -75,14 +75,16 @@ export const useCategorySEO = () => {
 
   /**
    * Generate SEO-optimized category title with Canadian terms
-   * Pattern: "Category Name | Shop 150+ Products | Canada | ProSkaters Place"
+   * Pattern: "Shop Category Name Canada | 150+ Products | ProSkaters Place"
    */
   const generateCategoryTitle = (name: string, totalProducts: number, locale: 'en-CA' | 'fr-CA' = 'en-CA'): string => {
     const shopText = locale === 'fr-CA' ? 'Magasiner' : 'Shop';
     const productsText = locale === 'fr-CA' ? 'Produits' : 'Products';
-    const inCanadaText = locale === 'fr-CA' ? 'Canada' : 'Canada';
+    const inCanadaText = locale === 'fr-CA' ? 'au Canada' : 'Canada';
 
-    return `${name} | ${shopText} ${totalProducts}+ ${productsText} | ${inCanadaText} | ProSkaters Place`;
+    // Special case for certain categories to ensure grammatical correctness
+    // e.g. "Shop Inline Skates Canada" vs "Shop Roller Skates Canada"
+    return `${shopText} ${name} ${inCanadaText} | ${totalProducts}+ ${productsText} | ProSkaters Place`;
   };
 
   /**
@@ -97,7 +99,7 @@ export const useCategorySEO = () => {
       'wheels-bearings': `Upgrade your ride with ${totalProducts}+ wheels and bearings available in Canada. Premium skate wheels and ABEC/ILQ bearings from top brands. Fast shipping across Ontario and nationwide. Find the perfect setup for indoor, outdoor, or speed skating. Expert advice available.`,
       accessories: `Complete your skating setup with ${totalProducts}+ accessories in Canada. Bags, tools, laces, and maintenance supplies. Fast Canadian shipping on all orders. Best prices in CAD from Toronto's trusted skate shop. Everything you need to maintain and customize your skates.`,
       'clearance-items': `Save big on ${totalProducts}+ clearance items! Discounted inline skates, roller skates, and accessories in Canada. Limited quantities, best prices in CAD. Free shipping on $99+. Fast delivery from Toronto. Shop now before they're gone!`,
-      'kids-skates': `Shop ${totalProducts}+ kids' skates in Canada. Adjustable inline and roller skates for growing feet. Safe, quality skates for children and teens. Best prices in CAD with fast Canadian shipping. Expert sizing advice from ProSkaters Place Toronto. Free shipping on $99+.`,
+      'children-products': `Shop ${totalProducts}+ kids' skates in Canada. Adjustable inline and roller skates for growing feet. Safe, quality skates for children and teens. Best prices in CAD with fast Canadian shipping. Expert sizing advice from ProSkaters Place Toronto. Free shipping on $99+.`,
     };
 
     // Return custom description if available, otherwise generate generic one

@@ -12,6 +12,8 @@ tags: ['inline skates', 'reviews', 'buying guide', '2025']
 
 # Best Inline Skates for 2025: Expert Reviews & Buying Guide
 
+> **Ready to buy?** Check out our full collection of **[150+ Inline Skates & Rollerblades](/product-category/inline-skates)** shipping from Toronto.
+
 When it comes to choosing the perfect inline skates in Canada, there's never been a better time to get rolling. The 2025 lineup brings incredible innovations in comfort, performance, and style that will have you gliding through Toronto's streets with confidence. Whether you're skating Ontario's scenic trails or navigating downtown Toronto, we've curated the best inline skates available at ProSkaters Place Canada.
 
 ## Why Inline Skating is Booming in Toronto, Ontario

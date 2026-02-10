@@ -77,6 +77,18 @@ export default defineEventHandler(async (event) => {
       throw new Error('Transaction ID is required for order creation');
     }
 
+    // Validate required billing fields
+    const missingBillingFields: string[] = [];
+    if (!billing?.firstName?.trim()) missingBillingFields.push('First Name');
+    if (!billing?.lastName?.trim()) missingBillingFields.push('Last Name');
+    if (!billing?.email?.trim()) missingBillingFields.push('Email');
+    if (!billing?.phone?.trim()) missingBillingFields.push('Phone');
+
+    if (missingBillingFields.length > 0) {
+      console.error(`❌ Missing required billing fields: ${missingBillingFields.join(', ')}`);
+      throw new Error(`Missing required billing fields: ${missingBillingFields.join(', ')}`);
+    }
+
     // Log the request data for debugging/recovery purposes
     console.log(`📝 Order Request [${requestId}]:`, {
       transactionId,

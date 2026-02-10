@@ -44,12 +44,12 @@ export interface CategoryContentData {
 
 export const categoryContentData: Record<string, CategoryContentData> = {
   'inline-skates': {
-    topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Premium Inline Skates in Canada</h2>
+    topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Premium Inline Skates & Rollerblades in Canada</h2>
       <p>
         Welcome to ProSkaters Place, <strong>Canada's premier destination for inline skates</strong>. Based in Toronto, we ship nationwide with <strong>free delivery on orders over $99 CAD</strong>. Whether you're a beginner looking for your first pair of recreational skates or a professional speed skater, we have the perfect inline skates for you. Browse our extensive collection of <strong>150+ inline skate models</strong> from top brands including Rollerblade, K2, Powerslide, FR Skates, and Seba. All prices in CAD with expert sizing advice available. Shop with confidence knowing you're getting authentic products backed by manufacturer warranties and our Toronto-based customer service team.
       </p>`,
 
-    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Buy Inline Skates from ProSkaters Place Canada?</h2>
+    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Buy Inline Skates from ProSkaters Place Canada & Toronto?</h2>
       <p class="mb-4">
         <strong>🇨🇦 Canadian-Owned & Operated</strong> - We understand the unique needs of Canadian skaters, from weather considerations to sizing for winter socks. Our Toronto warehouse ensures fast shipping across Ontario, Quebec, BC, Alberta, and all provinces.
       </p>
@@ -130,7 +130,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
     buyingGuide: {
       title: 'Not Sure Which Inline Skates to Choose?',
       description: 'Read our comprehensive inline skate buying guide with sizing tips, brand comparisons, and recommendations for every skill level.',
-      link: '/blog/best-inline-skates-2025',
+      link: '/blog/best-inline-skates-canada-2025',
       linkText: 'Read Buying Guide',
     },
 
@@ -156,18 +156,38 @@ export const categoryContentData: Record<string, CategoryContentData> = {
   },
 
   'roller-skates': {
-    topDescription: `<h2 class="text-2xl font-bold mb-4">Premium Roller Skates Canada | Quad Skates</h2>
+    topDescription: `<h2 class="text-2xl font-bold mb-4">Premium Roller Skates Canada & Toronto | Quad Skates Shop</h2>
       <p>
-        Shop <strong>Canada's best selection of roller skates</strong> at ProSkaters Place Toronto. From classic quad skates to modern artistic skates, we carry <strong>100+ roller skate models</strong> for all skill levels. Free shipping on orders over $99 CAD nationwide. Browse roller skates from top brands including Moxi, Sure-Grip, Riedell, Chaya, and Impala. Perfect for roller rinks, outdoor skating, artistic skating, and roller derby. All prices in Canadian dollars with expert advice available.
-      </p>`,
-
-    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">The Best Roller Skates in Canada</h2>
-      <p class="mb-4">
-        Whether you're <strong>roller skating in Toronto</strong>, Vancouver, or anywhere across Canada, ProSkaters Place has the perfect quad skates for you. Our selection includes indoor roller skates for rink skating, outdoor roller skates for parks and trails, and artistic skates for advanced moves.
+        Shop <strong>Canada's largest selection of roller skates</strong> at ProSkaters Place. Based in Toronto with nationwide shipping, we are your #1 source for <strong>pro-quality quad skates</strong>, artistic skates, and retro roller skates. Browse over <strong>100+ exclusive models</strong> from world-leading brands like Moxi, Riedell, Sure-Grip, Chaya, and Impala.
       </p>
       <p>
-        <strong>Why Choose Our Roller Skates?</strong> Every pair ships from Toronto with tracking, arrives within 2-5 business days, and includes full manufacturer warranty. Need help choosing? Our team can recommend the best roller skates for your skill level, skating surface, and budget.
+        Whether you are cruising the smooth paths of the Toronto Waterfront, hitting the local skate park, or dancing at the roller rink, we have the perfect pair for you. <strong>Free shipping on orders over $99 CAD</strong>. Expert sizing help available from our Canadian team.
       </p>`,
+
+    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why We Are Canada's Top Roller Skate Shop</h2>
+      <p class="mb-4">
+        At ProSkaters Place, we don't just sell skates; we live the lifestyle. As a <strong>Canadian-owned specialized skate shop</strong>, we curate our collection to ensure high performance and durability. Unlike general sporting goods stores, we carry specialized parts, custom boots, and professional-grade components.
+      </p>
+      <p class="mb-4">
+        <strong>We Stock The Best Brands:</strong>
+        <ul class="list-disc list-inside mb-4 ml-4">
+            <li><strong>Moxi Skates:</strong> Famous for their style and high-quality suede boots.</li>
+            <li><strong>Riedell:</strong> The gold standard for artistic and rhythm skating.</li>
+            <li><strong>Sure-Grip:</strong> Durable, reliable skates perfect for wide feet.</li>
+            <li><strong>Chaya:</strong> Modern, high-performance skates for park and derby.</li>
+        </ul>
+      </p>
+      <p class="mb-4">
+        <strong>Expert Fitting Advice:</strong> Buying roller skates online can be tricky. That's why we offer personalized fitting advice. Contact our Toronto team, or visit our showroom to get the perfect fit guaranteed.
+      </p>
+      <h3 class="text-xl font-semibold mb-3">Types of Roller Skates We Carry:</h3>
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li><strong>Outdoor Roller Skates:</strong> Softer wheels (78A) for absorbing bumps on Canadian roads.</li>
+        <li><strong>Indoor/Rink Skates:</strong> Harder wheels for smooth gliding on wood or concrete floors.</li>
+        <li><strong>Park & Aggressive Skates:</strong> Reinforced for jumps, stalls, and grinding.</li>
+        <li><strong>Derby Skates:</strong> Low-cut boots for maximum agility and speed.</li>
+        <li><strong>Kids' Roller Skates:</strong> Adjustable and safe options for young beginners.</li>
+      </ul>`,
 
     benefits: [
       {
@@ -292,6 +312,89 @@ export const categoryContentData: Record<string, CategoryContentData> = {
     keywords: ['protective gear Canada', 'skate helmet', 'knee pads', 'wrist guards', 'safety gear', 'skating protection'],
 
     h2Headings: ['Protective Gear for Skating', 'Choosing the Right Safety Equipment'],
+  },
+
+  'children-products': {
+    topDescription: `<h2 class="text-2xl font-bold mb-4">Kids' Roller Skates & Inline Skates | Adjustable Skates Canada</h2>
+      <p>
+        Shop <strong>Canada's best selection of kids' roller skates</strong>. We specialize in high-quality <strong>adjustable inline skates</strong> that grow 4 full sizes, saving you money while keeping your child safe. Avoid cheap plastic toy skates – our collection features professional-grade skates from trusted brands like Rollerblade, Micro, Powerslide, and K2. Perfect for learning to skate on Ontario trails or in the rink.
+      </p>
+      <p>
+        <strong>Why Choose Adjustable Skates?</strong> Kids grow fast! Our adjustable skates feature a simple push-button mechanism to expand the toe cap, ensuring a perfect fit for 2-3 years. All skates ship from Toronto with <strong>free delivery on orders over $99 CAD</strong>.
+      </p>`,
+
+    bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">How to Choose Skates for Kids</h2>
+      <p class="mb-4">
+        <strong>Inline Skates (Rollerblades) vs. Quad Skates</strong><br>
+        For outdoor skating on pavement, <strong>inline skates</strong> are usually better as the wheels handle bumps and cracks easily. For indoor rink skating or artistic dancing, classic <strong>quad roller skates</strong> offer a stable platform for beginners.
+      </p>
+      <h3 class="text-xl font-semibold mb-3">Sizing Tips for Parents:</h3>
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li><strong>Don't Buy Too Big:</strong> Dangerous blisters occur if skates are loose. Buy their current size in an adjustable model (e.g., if they are size 2, buy size 2-5).</li>
+        <li><strong>Measure in CM:</strong> Trace their foot and match the CM measurement to the size chart for accuracy.</li>
+        <li><strong>Safety Gear is Mandatory:</strong> Always pair skates with a certified helmet and pad set.</li>
+      </ul>`,
+
+    benefits: [
+      {
+        icon: 'mdi:resize',
+        title: 'Adjustable Sizes',
+        description: 'Expands 4 full sizes',
+      },
+      {
+        icon: 'mdi:shield-check',
+        title: 'Safety First',
+        description: 'Quality support & brakes',
+      },
+      {
+        icon: 'mdi:truck-fast',
+        title: 'Free Shipping',
+        description: 'On orders over $99 CAD',
+      },
+      {
+        icon: 'mdi:star',
+        title: 'Top Brands',
+        description: 'Rollerblade, K2, Micro',
+      },
+    ],
+
+    faqs: [
+      {
+        question: 'What age can a child start skating?',
+        answer:
+          'Most children can start learning to skate around age 3-4, as soon as they can comfortably run and jump. Our smallest adjustable skates start at size 6-9 Junior (approx age 3). We recommend starting on a carpet or grass to build balance before moving to pavement.',
+      },
+      {
+        question: 'Are adjustable skates durable?',
+        answer:
+          'Yes! The adjustable skates we sell from Rollerblade and Micro are built with the same materials as adult skates. The adjustment mechanism is metal-reinforced and designed to withstand years of use. They are not "toys" but real sporting equipment.',
+      },
+      {
+        question: 'Do kids really need pads?',
+        answer:
+          'Absolutely. We have a "No Helmet, No Skate" rule. Wrist guards are especially important for kids as their first instinct when falling is to put their hands out. A full 3-pack of pads (knees, elbows, wrists) plus a helmet is the standard safety setup in Canada.',
+      },
+    ],
+
+    buyingGuide: {
+      title: "Parent's Guide to Kids Skates",
+      description: 'Confused about sizing or types? Read our complete 2026 guide to choosing the best skates for your child.',
+      link: '/blog/best-kids-roller-skates-2026',
+      linkText: "Read Parent's Guide",
+    },
+
+    keywords: [
+      'kids roller skates canada',
+      'adjustable inline skates',
+      'kids rollerblades',
+      'junior skates toronto',
+      'Rollerblade Microblade',
+      'toddler skates',
+      'girls roller skates',
+      'boys inline skates',
+    ],
+
+    h2Headings: ['Kids Inline Skates & Roller Skates Canada', 'How to Choose Kids Skates', 'Parents FAQ'],
   },
 
   'clearance-items': {

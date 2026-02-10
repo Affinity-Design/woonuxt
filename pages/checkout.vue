@@ -206,10 +206,23 @@ const payNow = async () => {
       throw new Error(t('messages.shop.cartEmpty'));
     }
 
-    // Check if billing phone number is present - REQUIRED FOR ALL PAYMENT METHODS
-    if (!customer.value?.billing?.phone) {
-      paymentError.value = 'Billing phone number is required.';
-      console.error('[payNow] Billing phone number is missing.');
+    // Validate required billing fields - REQUIRED FOR ALL PAYMENT METHODS
+    const missingFields: string[] = [];
+    if (!customer.value?.billing?.firstName?.trim()) missingFields.push('First Name');
+    if (!customer.value?.billing?.lastName?.trim()) missingFields.push('Last Name');
+    if (!customer.value?.billing?.email?.trim()) missingFields.push('Email Address');
+    if (!customer.value?.billing?.phone?.trim()) missingFields.push('Phone Number');
+
+    if (missingFields.length > 0) {
+      paymentError.value = `Please fill in the following required fields: ${missingFields.join(', ')}`;
+      console.error('[payNow] Missing required billing fields:', missingFields);
+      throw new Error(paymentError.value);
+    }
+
+    // Validate email format
+    if (!emailRegex.test(customer.value.billing.email.trim())) {
+      paymentError.value = 'Please enter a valid email address.';
+      console.error('[payNow] Invalid email format.');
       throw new Error(paymentError.value);
     }
 
@@ -750,7 +763,7 @@ useSeoMeta({
               <a href="/my-account" class="text-primary text-semibold">Log in</a>.
             </p>
             <div class="w-full mt-4">
-              <label for="email">{{ $t('messages.billing.email') }}</label>
+              <label for="email">{{ $t('messages.billing.email') }} <span class="text-red-500">*</span></label>
               <input
                 v-model="customer.billing.email"
                 placeholder="johndoe@email.com"

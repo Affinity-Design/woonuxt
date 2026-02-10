@@ -15,12 +15,12 @@ const {wishlistLink} = useAuth();
       </div>
       <!-- info -->
       <div class="w-3/7 lg:w-auto">
-        <div class="mb-1 font-semibold">Categories</div>
+        <div class="mb-1 font-semibold">Summer Sports</div>
         <div class="text-sm">
           <NuxtLink to="/product-category/inline-skates" class="py-1.5 block">{{ 'Inline Skates' }}</NuxtLink>
           <NuxtLink to="/product-category/roller-skates" class="py-1.5 block">{{ 'Roller Skates' }}</NuxtLink>
           <NuxtLink to="/product-category/replacement-parts" class="py-1.5 block">{{ 'Skate Parts' }}</NuxtLink>
-          <NuxtLink to="/product-category/clearance-items" class="py-1.5 block">{{ 'Clearance' }}</NuxtLink>
+          <NuxtLink to="/categories" class="py-1.5 block">All Categories</NuxtLink>
         </div>
       </div>
       <!-- TODO products -->
@@ -47,12 +47,12 @@ const {wishlistLink} = useAuth();
       </div> -->
       <!-- quick links -->
       <div class="w-3/7 lg:w-auto">
-        <div class="mb-1 font-semibold">Quick Links</div>
+        <div class="mb-1 font-semibold">Winter Sports</div>
         <div class="text-sm">
-          <!-- <NuxtLink to="/inline-skates-size-calculator" class="py-1.5 block">Size Calculator</NuxtLink> -->
-          <NuxtLink to="/blog" class="py-1.5 block">Blog</NuxtLink>
-          <NuxtLink to="/categories" class="py-1.5 block">All Categories</NuxtLink>
-          <!-- <NuxtLink to="/products" class="py-1.5 block">All Products</NuxtLink> -->
+          <NuxtLink to="/product-category/alpine-skis" class="py-1.5 block">Alpine Skis</NuxtLink>
+          <NuxtLink to="/product-category/alpine-poles" class="py-1.5 block">Alpine Poles</NuxtLink>
+          <NuxtLink to="/product-category/cross-country-skis" class="py-1.5 block">Cross Country Skis</NuxtLink>
+          <NuxtLink to="/product-category/cross-country-poles" class="py-1.5 block">Cross Country Poles</NuxtLink>
         </div>
       </div>
       <!-- contact -->

@@ -15,6 +15,8 @@ featured: true
 
 # Best Inline Skates in Canada 2025: Expert Reviews & Buyer's Guide
 
+> **Looking to buy inline skates?** Skip the reading and browse our full collection of **[150+ Inline Skates & Rollerblades](/product-category/inline-skates)** shipping from Toronto.
+
 Finding the perfect inline skates in Canada can feel overwhelming with hundreds of options, confusing specifications, and prices in USD that don't reflect Canadian reality. As Canada's most trusted skate shop since 2003, we've tested every major inline skate on Canadian pavement, trails, and in our harsh weather conditions. This comprehensive 2025 guide breaks down the absolute best inline skates for Canadian skaters, with honest reviews, CAD pricing, and real-world performance data.
 
 ## Quick Picks: Best Inline Skates Canada 2025
@@ -29,7 +31,7 @@ Finding the perfect inline skates in Canada can feel overwhelming with hundreds 
 | **Best for Women**        | [Rollerblade Spark 80 W](#rollerblade-spark-80-w)               | $249.99     | Women-specific fit, excellent performance-to-price ratio                         |
 | **Best Budget**           | [Powerslide Phuzion Radon 90](#powerslide-phuzion-radon-90)     | $259.99     | Impressive quality at entry-level price                                          |
 
-_All prices current as of October 2025 at ProSkaters Place Canada_
+_All prices current as of October 2025 at ProSkaters Place Canada. [View all 150+ models in stock](/product-category/inline-skates)._
 
 ## How We Test: Canadian Conditions Matter
 

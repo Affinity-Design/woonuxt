@@ -1,14 +1,24 @@
 ---
-title: 'Roller Skates: Ultimate Buying Guide for Canadians 2025'
-description: 'Find the perfect roller skates with our expert guide. Compare quad vs inline, top brands, sizing tips, and where to buy in Canada.'
+title: 'Best Roller Skates Buying Guide Canada (2026 Edition)'
+description: 'Find the perfect roller skates with our 2026 expert guide. Compare quad vs inline, top brands, sizing tips, and where to buy in Canada.'
 category: 'Buying Guides'
-date: 2025-12-15
+date: 2026-02-10
 author: 'ProSkaters Place Team'
 authorBio: 'Canadian skating experts helping skaters find the perfect gear since 2010'
 image: '/images/blog/posted/roller-skates.png'
 ogImage: '/images/blog/posted/roller-skates.png'
 tags: ['roller skates', 'buying guide', 'canada', 'quad skates', 'beginner skates']
 ---
+
+# Best Roller Skates Buying Guide Canada (2026 Edition)
+
+<div class="bg-gray-100 p-6 rounded-lg border-l-4 border-yellow-500 my-8">
+  <h3 class="text-xl font-bold text-gray-900 mt-0">Ready to roll?</h3>
+  <p class="text-gray-700 mb-4">Skip the research and shop Canada's top-rated roller skates. <strong>Free shipping over $99 CAD!</strong></p>
+  <a href="/product-category/roller-skates" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 no-underline">
+    Shop 100+ Roller Skates &rarr;
+  </a>
+</div>
 
 Shopping for **roller skates** can feel overwhelming with so many options available. Whether you want classic quad skates for the rink or aggressive skates for the park, this guide covers everything you need to make the right choice. We'll break down the types, features, and best brands to help you find roller skates that match your skating goals.
 
