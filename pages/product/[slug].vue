@@ -425,21 +425,19 @@ const mergeLiveStockStatus = (payload: {stockStatus?: string | null; variations?
 onMounted(async () => {
   // console.log('[[slug].vue] Component mounted.');
   if (product.value) {
-    // console.log('[[slug].vue] onMounted: Product data exists. Attempting to fetch live stock status.');
-    // @ts-ignore
+    // Fetch live stock status via server-side API to avoid 403 errors
     try {
-      const {product: sp} = await GqlGetStockStatus({slug});
-      if (sp) {
-        // console.log('[[slug].vue] onMounted: Live stock status fetched:', sp);
-        mergeLiveStockStatus(sp);
-      } else {
-        // console.log('[[slug].vue] onMounted: No live stock status data returned from GqlGetStockStatus.');
+      const stockProduct = await $fetch('/api/stock-status', {
+        query: {slug},
+      });
+      if (stockProduct) {
+        // console.log('[[slug].vue] onMounted: Live stock status fetched:', stockProduct);
+        mergeLiveStockStatus(stockProduct);
       }
     } catch (e: any) {
-      console.error(`[[slug].vue] onMounted: Error GqlGetStockStatus:`, e?.gqlErrors?.[0]?.message || e);
+      // Silently fail - cached stock data is still valid
+      console.warn(`[${slug}] Stock status refresh failed:`, e?.message || e);
     }
-  } else {
-    // console.log('[[slug].vue] onMounted: No product data available yet for live stock status fetch.');
   }
   if (exchangeRate.value === null) {
     // console.log('[[slug].vue] onMounted: Exchange rate is null, refreshing.');

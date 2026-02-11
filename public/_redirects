@@ -1,7 +1,8 @@
 # Cloudflare Pages Redirects Configuration
 # CRITICAL: This file controls how Cloudflare Pages handles routing
-
-# SPA fallback for client-side routing
-# This MUST be last - it catches all requests that don't match static files
-# Cloudflare Pages automatically serves files from _nuxt/ before this rule
-/* /index.html 200
+#
+# NOTE: The /* /index.html 200 SPA fallback is NOT needed for Nuxt 3.
+# Nitro handles server-side routing via the Cloudflare Pages _worker.js
+# Adding it causes an infinite loop warning from Cloudflare.
+#
+# Add specific redirects below as needed:

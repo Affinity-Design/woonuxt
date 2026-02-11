@@ -1,33 +1,53 @@
 import type {CreateAccountInput} from '#gql';
 
+// Detect device type from user agent
+function detectDeviceType(): string {
+  if (typeof navigator === 'undefined') return 'Desktop';
+  const ua = navigator.userAgent.toLowerCase();
+  if (/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) {
+    return 'Mobile';
+  }
+  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+    return 'Tablet';
+  }
+  return 'Desktop';
+}
+
 export function useCheckout() {
   const orderInput = useState<any>('orderInput', () => {
+    // Get current timestamp for session tracking
+    const sessionStartTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Nuxt SSR';
+    const deviceType = detectDeviceType();
+
     return {
       customerNote: '',
       paymentMethod: '',
       shipToDifferentAddress: false,
       metaData: [
         {key: 'order_via', value: 'WooNuxt'},
-        // Order attribution metadata to track source
-        {key: '_wc_order_attribution_source_type', value: 'direct'},
-        {key: '_wc_order_attribution_referrer', value: 'proskatersplace.ca'},
-        {
-          key: '_wc_order_attribution_utm_source',
-          value: 'proskatersplace.ca',
-        },
+        // Order attribution metadata - using WooCommerce's expected values
+        // 'typein' = direct visit (WooCommerce's term), shows "Direct" as origin when utm_source is empty
+        // Using 'utm' source_type with utm_source set shows "Source: {utm_source}" as origin
+        {key: '_wc_order_attribution_source_type', value: 'utm'},
+        {key: '_wc_order_attribution_referrer', value: 'https://proskatersplace.ca'},
+        {key: '_wc_order_attribution_utm_source', value: 'proskatersplace.ca'},
         {key: '_wc_order_attribution_utm_medium', value: 'headless'},
-        {key: '_wc_order_attribution_utm_content', value: 'nuxt-frontend'},
-        {
-          key: '_wc_order_attribution_session_entry',
-          value: 'proskatersplace.ca',
-        },
-        {key: '_wc_order_attribution_device_type', value: 'Web'},
+        {key: '_wc_order_attribution_utm_campaign', value: 'nuxt-frontend'},
+        {key: '_wc_order_attribution_utm_content', value: '/'},
+        {key: '_wc_order_attribution_session_entry', value: 'https://proskatersplace.ca'},
+        {key: '_wc_order_attribution_session_start_time', value: sessionStartTime},
+        {key: '_wc_order_attribution_session_pages', value: '1'},
+        {key: '_wc_order_attribution_session_count', value: '1'},
+        {key: '_wc_order_attribution_user_agent', value: userAgent},
+        {key: '_wc_order_attribution_device_type', value: deviceType},
         {key: 'order_source', value: 'proskatersplace.ca'},
         {key: 'frontend_origin', value: 'proskatersplace.ca'},
       ],
       username: '',
       password: '',
       transactionId: '',
+      cardToken: '', // Helcim card token required for native refunds via WP admin
       createAccount: false,
     };
   });
@@ -140,7 +160,7 @@ export function useCheckout() {
       const enhancedMetaData = [...orderInput.value.metaData];
       if (isHelcimPayment) {
         enhancedMetaData.push(
-          {key: '_actual_payment_method', value: 'helcim'},
+          {key: '_actual_payment_method', value: 'helcimjs'}, // Match WooCommerce Helcim plugin ID
           {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
           {key: '_helcim_payment_processed', value: 'yes'},
           {key: '_paid_date', value: new Date().toISOString()},
@@ -181,11 +201,32 @@ export function useCheckout() {
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
-                // IMPORTANT: Do NOT subtract `item.tax` here.
-                // In WPGraphQL/Woo cart objects, `item.total`/`item.subtotal` are already tax-exclusive,
-                // while `item.tax` often represents the *pre-discount* tax amount. Subtracting it scrambles totals.
+                const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
+
+                // Calculate tax-exclusive totals
+                // We MUST send Tax-Exclusive (Net) prices to createOrder to avoid double-taxation.
+                // Log analysis proved that sending Net Price (0.85) resulted in correct Total (0.96) initially.
+                // The later corruption is due to re-applying coupons in step 2.
+
                 const itemTotal = parsePrice(item.total);
+                const itemTax = parsePrice(item.tax) || 0;
+
+                // Subtract tax to get Net Total
+                // Ensure non-negative
+                const netTotal = Math.max(0, itemTotal - itemTax);
+
                 const itemSubtotal = parsePrice(item.subtotal);
+                // Item subtotal is already tax-exclusive in the cart response
+                // Do NOT subtract tax again, or we get a double-tax-strip
+                const netSubtotal = itemSubtotal;
+                console.log('[processCheckout] Line item tax calculation:', {
+                  name: item.product?.node?.name,
+                  totalInclusive: itemTotal,
+                  tax: itemTax,
+                  netTotal: netTotal.toFixed(2),
+                  subtotalRecursive: itemSubtotal,
+                  netSubtotal: netSubtotal.toFixed(2),
+                });
 
                 return {
                   productId: item.product?.node?.databaseId,
@@ -193,9 +234,9 @@ export function useCheckout() {
                   quantity: item.quantity,
                   name: item.product?.node?.name,
                   sku: item.product?.node?.sku || item.variation?.node?.sku,
-                  // Pass the cart snapshot totals as-is (already tax-exclusive)
-                  total: itemTotal.toFixed(2),
-                  subtotal: itemSubtotal.toFixed(2),
+                  // Pass tax-exclusive totals
+                  total: netTotal.toFixed(2),
+                  subtotal: netSubtotal.toFixed(2),
                   // Pass variation attributes (size, color, etc.)
                   variation: item.variation?.node
                     ? {
@@ -229,6 +270,8 @@ export function useCheckout() {
             customerNote: orderInput.value.customerNote,
             metaData: enhancedMetaData,
             createAccount: orderInput.value.createAccount,
+            // Include cardToken for Helcim native refund support in WooCommerce
+            cardToken: orderInput.value.cardToken,
           };
 
           console.log('[processCheckout] Calling admin order creation API...');

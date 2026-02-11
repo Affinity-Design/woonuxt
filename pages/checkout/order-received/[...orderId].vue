@@ -25,10 +25,12 @@ const getPaymentMethodDisplay = computed(() => {
   if (!order.value) return 'N/A';
 
   // Check if this was a Helcim payment via metadata or payment method
+  // Support both 'helcim' (legacy) and 'helcimjs' (current - matches WooCommerce plugin)
   const isHelcimPayment =
     order.value.paymentMethod === 'helcim' ||
+    order.value.paymentMethod === 'helcimjs' ||
     order.value.paymentMethodTitle?.includes('Helcim') ||
-    order.value.metaData?.some((meta: any) => meta.key === '_payment_method' && meta.value === 'helcim');
+    order.value.metaData?.some((meta: any) => meta.key === '_payment_method' && (meta.value === 'helcim' || meta.value === 'helcimjs'));
 
   if (isHelcimPayment) {
     return 'Helcim Credit Card';

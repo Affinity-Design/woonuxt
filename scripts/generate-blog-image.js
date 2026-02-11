@@ -18,19 +18,26 @@ const path = require('path');
 
 // Load environment variables from .env.local
 function loadEnv() {
-  const envPath = path.join(__dirname, '..', '.env.local');
-  if (fs.existsSync(envPath)) {
-    const envFile = fs.readFileSync(envPath, 'utf8');
-    envFile.split('\n').forEach((line) => {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith('#')) {
-        const [key, ...valueParts] = trimmed.split('=');
-        if (key && valueParts.length > 0) {
-          process.env[key.trim()] = valueParts.join('=').trim();
+  const envFiles = ['.env.local', '.env'];
+
+  envFiles.forEach((file) => {
+    const envPath = path.join(__dirname, '..', file);
+    if (fs.existsSync(envPath)) {
+      const envFile = fs.readFileSync(envPath, 'utf8');
+      envFile.split('\n').forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          const [key, ...valueParts] = trimmed.split('=');
+          if (key && valueParts.length > 0) {
+            // Don't overwrite existing variables
+            if (!process.env[key.trim()]) {
+              process.env[key.trim()] = valueParts.join('=').trim();
+            }
+          }
         }
-      }
-    });
-  }
+      });
+    }
+  });
 }
 
 loadEnv();

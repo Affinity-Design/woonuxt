@@ -8,6 +8,8 @@ module.exports = {
     "/complete-beginners-guide-inline-quad-skating": { redirect: { to: "/blog/complete-beginners-guide-inline-quad-skating", statusCode: 301 } },
     "/how-to-skate-backwards-tutorial": { redirect: { to: "/blog/how-to-skate-backwards-tutorial", statusCode: 301 } },
     "/inline-skates-vs-roller-skates": { redirect: { to: "/blog/inline-skates-vs-roller-skates", statusCode: 301 } },
+    "/pro-skates-professional-guide": { redirect: { to: "/blog/pro-skates-professional-guide", statusCode: 301 } },
+    "/roller-skates-complete-guide-2025": { redirect: { to: "/blog/roller-skates-complete-guide-2025", statusCode: 301 } },
     "/roller-skates-toronto": { redirect: { to: "/blog/roller-skates-toronto", statusCode: 301 } },
     "/roller-skating-toronto-guide": { redirect: { to: "/blog/roller-skating-toronto-guide", statusCode: 301 } },
     "/skate-maintenance-winter": { redirect: { to: "/blog/skate-maintenance-winter", statusCode: 301 } },

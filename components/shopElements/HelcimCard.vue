@@ -11,6 +11,29 @@ const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
 const transactionData = ref<any>(null);
 
+// Type for line items passed to Helcim
+interface HelcimLineItem {
+  description: string;
+  quantity: number;
+  price: number;
+  sku?: string;
+}
+
+// Type for customer info
+interface CustomerInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+  billingAddress?: {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postcode?: string;
+  };
+}
+
 const props = defineProps({
   amount: {
     type: Number,
@@ -20,6 +43,42 @@ const props = defineProps({
   currency: {
     type: String,
     default: 'CAD',
+  },
+  // Line items for Helcim invoice (backup for failed WP orders)
+  lineItems: {
+    type: Array as () => HelcimLineItem[],
+    default: () => [],
+  },
+  // Shipping amount (separate from line items)
+  shippingAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Shipping method name (e.g., "Flat Rate", "Free Shipping")
+  // Added to invoice comments for reference
+  shippingMethod: {
+    type: String,
+    default: '',
+  },
+  // Tax amount for level 2 processing
+  taxAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Discount amount if any coupons applied
+  discountAmount: {
+    type: Number,
+    default: 0,
+  },
+  // Customer information
+  customerInfo: {
+    type: Object as () => CustomerInfo,
+    default: null,
+  },
+  // Invoice number (optional, will be order ID after creation)
+  invoiceNumber: {
+    type: String,
+    default: '',
   },
 });
 
@@ -55,15 +114,51 @@ const initializePayment = async () => {
     console.log(`[HelcimCard] Initializing payment for ${props.currency} $${displayAmount.value}`);
     console.log(`[HelcimCard] Props amount:`, props.amount);
     console.log(`[HelcimCard] Display amount:`, displayAmount.value);
-    console.log(`[HelcimCard] API amount (cents):`, apiAmount.value);
+    console.log(`[HelcimCard] API amount:`, apiAmount.value);
+    console.log(`[HelcimCard] Line items:`, props.lineItems?.length || 0);
+
+    // Build request body with line items
+    const requestBody: any = {
+      action: 'initialize',
+      amount: apiAmount.value,
+      currency: props.currency,
+    };
+
+    // Add line items if provided (creates invoice in Helcim as backup)
+    if (props.lineItems && props.lineItems.length > 0) {
+      requestBody.lineItems = props.lineItems;
+      console.log('[HelcimCard] Including line items in Helcim request:', props.lineItems);
+    }
+
+    // Add shipping, tax, discount if provided
+    if (props.shippingAmount > 0) {
+      requestBody.shippingAmount = props.shippingAmount;
+    }
+    if (props.taxAmount > 0) {
+      requestBody.taxAmount = props.taxAmount;
+    }
+    if (props.discountAmount > 0) {
+      requestBody.discountAmount = props.discountAmount;
+    }
+
+    // Add shipping method name for invoice comments
+    if (props.shippingMethod) {
+      requestBody.shippingMethod = props.shippingMethod;
+    }
+
+    // Add customer info if provided
+    if (props.customerInfo) {
+      requestBody.customerInfo = props.customerInfo;
+    }
+
+    // Add invoice number if provided
+    if (props.invoiceNumber) {
+      requestBody.invoiceNumber = props.invoiceNumber;
+    }
 
     const response = (await $fetch('/api/helcim', {
       method: 'POST',
-      body: {
-        action: 'initialize',
-        amount: apiAmount.value, // Use computed property that ensures cents
-        currency: props.currency,
-      },
+      body: requestBody,
     })) as {
       success: boolean;
       checkoutToken?: string;
@@ -229,6 +324,38 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     console.log('[HelcimCard] Transaction validated successfully:', validation);
     transactionData.value = extractedTransactionData;
 
+    // Extract cardToken from Helcim response for refund support
+    // Helcim may return cardToken at various levels depending on the response structure
+    // Log all possible locations to debug
+    console.log('[HelcimCard] Looking for cardToken in response:', {
+      'extractedTransactionData.cardToken': extractedTransactionData?.cardToken,
+      'extractedTransactionData.data?.cardToken': extractedTransactionData?.data?.cardToken,
+      'responseData.cardToken': responseData?.cardToken,
+      'responseData.data?.cardToken': responseData?.data?.cardToken,
+      'extractedTransactionData.card?.cardToken': extractedTransactionData?.card?.cardToken,
+      'responseData.card?.cardToken': responseData?.card?.cardToken,
+      // Full structure for debugging
+      'extractedTransactionData keys': Object.keys(extractedTransactionData || {}),
+      'responseData keys': Object.keys(responseData || {}),
+    });
+
+    // Try all possible locations for cardToken
+    const cardToken =
+      extractedTransactionData?.cardToken ||
+      extractedTransactionData?.data?.cardToken ||
+      extractedTransactionData?.card?.cardToken ||
+      responseData?.cardToken ||
+      responseData?.data?.cardToken ||
+      responseData?.card?.cardToken ||
+      // Sometimes it's nested under the transaction object
+      extractedTransactionData?.transaction?.cardToken ||
+      responseData?.transaction?.cardToken;
+
+    console.log(
+      '[HelcimCard] Extracted cardToken for refund support:',
+      cardToken ? `present (${cardToken.substring(0, 8)}...)` : 'MISSING - refunds will fail!',
+    );
+
     paymentComplete.value = true;
     paymentError.value = null;
 
@@ -237,6 +364,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       success: true,
       transactionData: extractedTransactionData,
       secretToken: secretToken.value,
+      cardToken: cardToken, // Include cardToken for WooCommerce refund support
       isValidated: true,
       validationResult: validation,
     });

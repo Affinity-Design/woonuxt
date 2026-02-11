@@ -69,12 +69,13 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Status: Available
   - Note: We have `/blog/roller-skating-toronto-guide` - check for overlap
 
-- [ ] **pro skates** (2400 sv, 10 kd, $0.84 cpc)
+- [x] **pro skates** (2400 sv, 10 kd, $0.84 cpc)
 
   - Intent: Commercial/Transactional
   - Difficulty: Easy
   - Suggested Post: "Professional Skates: What the Pros Use"
-  - Status: Available
+  - Status: ✅ Live
+  - Post: `/blog/pro-skates-professional-guide`
 
 - [ ] **childrens roller skates** (1900 sv, 42 kd, $0.48 cpc)
   - Intent: Commercial/Transactional

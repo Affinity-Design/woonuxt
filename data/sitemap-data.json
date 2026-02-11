@@ -1,495 +1,507 @@
 {
-  "lastGenerated": "2025-12-12T18:48:43.243Z",
+  "lastGenerated": "2026-01-22T21:57:47.898Z",
   "routes": [
     {
       "url": "/",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "daily",
       "priority": "1.0"
     },
     {
       "url": "/blog",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/categories",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/contact",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/terms",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/privacy",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/blog/best-inline-skates-2025",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/best-inline-skates-canada-2025",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/complete-beginners-guide-inline-quad-skating",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/how-to-skate-backwards-tutorial",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/inline-skates-vs-roller-skates",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
+      "changefreq": "monthly",
+      "priority": "0.8"
+    },
+    {
+      "url": "/blog/pro-skates-professional-guide",
+      "lastmod": "2026-01-22",
+      "changefreq": "monthly",
+      "priority": "0.8"
+    },
+    {
+      "url": "/blog/roller-skates-complete-guide-2025",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/roller-skates-toronto",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/roller-skating-toronto-guide",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/skate-maintenance-winter",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/blog/where-to-buy-roller-skates-near-me-canada",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "monthly",
       "priority": "0.8"
     },
     {
       "url": "/product-category/2023-products",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/accessories",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-accessories",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-clothing",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-poles",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-protection",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-ski-boots",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/alpine-skis",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/backpacks-bags-carriers",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/bindings-and-parts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/board-components-parts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/board-wheels",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/clearance-items",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/color-kits-laces",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/cross-country-skis",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/discount-products",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/e-boards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/electric",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/complete-frame-sets",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-frames",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/gloves-wrist-protection",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/skate-heel-brakes",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/protective-helmets",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/ice-skates",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-skate-bearings",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-skate-liners",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-skates",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-skate-wheels",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-skating",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/knee-and-elbow-pads",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/longboards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/new-arrivals",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/nordic-accessories",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/nordic-clothing",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/cross-country-poles",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/nordic-ski-boots",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/off-road-skates",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/penny-boards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/children-products",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/protection-gear-and-apparel",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/protection-packs",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-derby",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skate-bearings",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skate-parts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skate-tool",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skate-wheels",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skates",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skating",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/roller-skis",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/inline-boots",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/rollerski-parts-accessoires",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/scooter-parts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/scooters",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/shortboard-skateboards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/replacement-parts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/skate-tools",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/board-tools",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/skateboards-and-longboards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/protective-shorts",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/ski-wax",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/skiboards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/socks-foot-care",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/race-clothing",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/trick-scooters",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/uncategorized",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/vinylboards",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     },
     {
       "url": "/product-category/winter-sports",
-      "lastmod": "2025-12-12",
+      "lastmod": "2026-01-22",
       "changefreq": "weekly",
       "priority": "0.7"
     }

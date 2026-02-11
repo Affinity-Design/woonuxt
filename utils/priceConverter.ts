@@ -55,32 +55,52 @@ export const cleanAndExtractPriceInfo = (
 
 /**
  * Converts a single raw price string to a CAD numeric string (e.g., "75.99").
+ * IMPORTANT: Assumes prices are USD unless explicitly marked as CAD
+ * @param roundTo99 - If true, rounds up to nearest .99 (for product display). If false, uses exact conversion (for cart totals).
  */
-const convertSinglePriceToCADNumericString = (rawPrice: string | null | undefined, exchangeRate: number): string => {
-  const {numericString, isUSD} = cleanAndExtractPriceInfo(rawPrice);
+const convertSinglePriceToCADNumericString = (rawPrice: string | null | undefined, exchangeRate: number, roundTo99: boolean = false): string => {
+  const {numericString, isUSD, isCAD} = cleanAndExtractPriceInfo(rawPrice);
   if (numericString === '') return '';
   const numericValue = parseFloat(numericString);
-  if (isUSD) {
-    const convertedValue = numericValue * exchangeRate;
+
+  // If explicitly marked as CAD, return as-is (no conversion needed)
+  if (isCAD) {
+    return numericValue.toFixed(2);
+  }
+
+  // Convert to CAD - assume USD if no currency specified or if explicitly USD
+  const convertedValue = numericValue * exchangeRate;
+
+  if (roundTo99) {
+    // Round UP to nearest .99 for product price display
+    // e.g., $12.01 -> $12.99, $12.99 -> $12.99, $13.00 -> $13.99
     const dollars = Math.floor(convertedValue);
+    const cents = convertedValue - dollars;
+    // If cents are already .99 or very close, keep as is. Otherwise round up to .99
+    if (cents > 0.99 - 0.001) {
+      return (dollars + 0.99).toFixed(2);
+    }
     return (dollars + 0.99).toFixed(2);
   }
-  return numericValue.toFixed(2);
+
+  // Exact conversion for cart totals
+  return convertedValue.toFixed(2);
 };
 
 /**
  * Main function to convert a price (single or range) to a CAD numeric string or range string.
+ * @param roundTo99 - If true, rounds up to nearest .99 (for product display). Default false for cart totals.
  */
-export const convertToCAD = (price: string | null | undefined, exchangeRate: number | null): string => {
+export const convertToCAD = (price: string | null | undefined, exchangeRate: number | null, roundTo99: boolean = false): string => {
   if (price === null || price === undefined || exchangeRate === null) return '';
   const priceStr = String(price);
   if (priceStr.includes(' - ')) {
     const [minRawPrice, maxRawPrice] = priceStr.split(' - ');
-    const convertedMinNumeric = convertSinglePriceToCADNumericString(minRawPrice, exchangeRate);
-    const convertedMaxNumeric = convertSinglePriceToCADNumericString(maxRawPrice, exchangeRate);
+    const convertedMinNumeric = convertSinglePriceToCADNumericString(minRawPrice, exchangeRate, roundTo99);
+    const convertedMaxNumeric = convertSinglePriceToCADNumericString(maxRawPrice, exchangeRate, roundTo99);
     return convertedMinNumeric && convertedMaxNumeric ? `${convertedMinNumeric} - ${convertedMaxNumeric}` : '';
   }
-  return convertSinglePriceToCADNumericString(priceStr, exchangeRate);
+  return convertSinglePriceToCADNumericString(priceStr, exchangeRate, roundTo99);
 };
 
 /**

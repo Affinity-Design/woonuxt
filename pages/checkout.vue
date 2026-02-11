@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import {ref, computed, onUnmounted, watch, nextTick} from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
+import {convertToCAD} from '~/utils/priceConverter';
 
 const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
+const {exchangeRate} = useExchangeRate();
 const config = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -30,9 +32,60 @@ const isTurnstileEnabled = computed(() => {
 // Helcim payment state
 const helcimPaymentComplete = ref<boolean>(false);
 const helcimTransactionData = ref<any>(null);
+const helcimCardToken = ref<string>(''); // Card token required for refunds via WP admin
 const isCreatingOrder = ref<boolean>(false);
 const orderCreationMessage = ref<string>('');
 const helcimModalClosed = ref<boolean>(false); // Track if user closed modal
+
+// Fallback Helcim payment gateway - used when paymentGateways doesn't load properly
+const fallbackHelcimGateway = {
+  id: 'cod',
+  title: 'Helcim Payment',
+  description: 'Secure payment processing via Helcim',
+};
+
+// Effective payment gateways - ensures Helcim is always available
+const effectivePaymentGateways = computed(() => {
+  // If paymentGateways has nodes with Helcim, use them
+  if (paymentGateways.value?.nodes?.length) {
+    const helcimGateway = paymentGateways.value.nodes.find((g: any) => g.id === 'cod' && g.title?.includes('Helcim'));
+    if (helcimGateway) {
+      return paymentGateways.value;
+    }
+  }
+  // Otherwise, return fallback with Helcim only
+  console.log('[Checkout] Using fallback payment gateways (Helcim only)');
+  return {
+    nodes: [fallbackHelcimGateway],
+  };
+});
+
+// Ensure Helcim is always selected - this is the ONLY payment method we support
+const ensureHelcimSelected = () => {
+  if (!orderInput.value.paymentMethod?.id || !orderInput.value.paymentMethod?.title?.includes('Helcim')) {
+    console.log('[Checkout] Ensuring Helcim payment method is selected');
+    orderInput.value.paymentMethod = fallbackHelcimGateway;
+  }
+};
+
+// Auto-select Helcim on component mount
+onMounted(() => {
+  // Ensure Helcim is selected immediately
+  ensureHelcimSelected();
+
+  // Also set up a watcher to ensure it stays selected
+  watch(
+    () => paymentGateways.value,
+    (newGateways) => {
+      console.log('[Checkout] paymentGateways changed:', newGateways?.nodes?.length || 0, 'gateways');
+      // Even if gateways load, ensure Helcim stays selected
+      nextTick(() => {
+        ensureHelcimSelected();
+      });
+    },
+    {immediate: true},
+  );
+});
 
 // Auto-fill customer details from viewer if available
 watchEffect(() => {
@@ -160,6 +213,50 @@ const payNow = async () => {
       throw new Error(paymentError.value);
     }
 
+    // CRITICAL: Validate stock BEFORE payment processing to prevent overselling
+    console.log('[payNow] Validating stock availability before payment...');
+    const lineItemsForValidation =
+      cart.value.contents?.nodes?.map((item: any) => ({
+        productId: item.product?.node?.databaseId,
+        variationId: item.variation?.node?.databaseId || null,
+        quantity: item.quantity,
+        name: item.product?.node?.name || item.variation?.node?.name,
+      })) || [];
+
+    try {
+      const stockValidation = (await $fetch('/api/validate-stock', {
+        method: 'POST',
+        body: {lineItems: lineItemsForValidation},
+      })) as {success: boolean; error?: string; warning?: string; outOfStockItems: Array<{name: string; availableQuantity: number | null}>};
+
+      if (!stockValidation.success) {
+        const outOfStockNames = stockValidation.outOfStockItems
+          .map((item) => {
+            if (item.availableQuantity !== null && item.availableQuantity > 0) {
+              return `${item.name} (only ${item.availableQuantity} available)`;
+            }
+            return `${item.name} (out of stock)`;
+          })
+          .join(', ');
+
+        console.error('[payNow] ❌ Stock validation failed:', stockValidation.outOfStockItems);
+        throw new Error(`Some items are no longer available: ${outOfStockNames}. Please update your cart and try again.`);
+      }
+
+      if (stockValidation.warning) {
+        console.warn('[payNow] Stock validation warning:', stockValidation.warning);
+      }
+
+      console.log('[payNow] ✅ Stock validation passed');
+    } catch (stockError: any) {
+      // If it's our own thrown error (stock issue), re-throw it
+      if (stockError.message?.includes('no longer available')) {
+        throw stockError;
+      }
+      // Otherwise log the API error but allow checkout to proceed (fail open)
+      console.warn('[payNow] Stock validation API error, proceeding with checkout:', stockError);
+    }
+
     console.log('[payNow] Starting checkout process. Cart items:', cart.value.contents?.nodes?.length);
 
     // Process payment based on method
@@ -177,6 +274,18 @@ const payNow = async () => {
       } else {
         // Reset modal closed flag at start of payment
         helcimModalClosed.value = false;
+
+        // Refresh cart to get latest stock status from WooCommerce before payment
+        console.log('[payNow] Refreshing cart before payment to check for stock changes...');
+        try {
+          await refreshCart();
+          // Re-check if cart is still valid after refresh
+          if (!cart.value || cart.value.isEmpty) {
+            throw new Error('Your cart is empty. Items may have been removed due to stock changes.');
+          }
+        } catch (refreshError) {
+          console.warn('[payNow] Cart refresh failed, proceeding with cached cart:', refreshError);
+        }
 
         // Trigger Helcim payment process
         if (helcimCardRef.value?.processPayment) {
@@ -315,6 +424,57 @@ const handleHelcimSuccess = async (transactionData: any) => {
     console.log('[Checkout] Set transaction ID:', actualTransactionId);
   }
 
+  // Check if this is a digital wallet payment (Google Pay, Apple Pay)
+  // Digital wallet payments do NOT return a cardToken - refunds must be done in Helcim dashboard
+  const digitalWalletType = transactionData?.data?.digitalWalletType || transactionData?.digitalWalletType;
+  if (digitalWalletType) {
+    console.log('[Checkout] 💳 Digital wallet payment detected:', digitalWalletType);
+    orderInput.value.metaData.push({
+      key: '_helcim_digital_wallet',
+      value: digitalWalletType,
+    });
+    orderInput.value.metaData.push({
+      key: '_refund_note',
+      value: `Digital wallet payment (${digitalWalletType}) - Refund via Helcim dashboard`,
+    });
+  }
+
+  // Extract and store cardToken for refund support
+  // The Helcim WooCommerce plugin requires 'helcim-card-token' meta for native refunds
+  // NOTE: Digital wallet payments (Google Pay, Apple Pay) do NOT return cardToken
+  console.log('[Checkout] Full transactionData for cardToken search:', JSON.stringify(transactionData, null, 2));
+
+  const cardToken =
+    transactionData?.cardToken ||
+    transactionData?.data?.cardToken ||
+    transactionData?.data?.data?.cardToken ||
+    transactionData?.card?.cardToken ||
+    transactionData?.data?.card?.cardToken ||
+    transactionData?.transaction?.cardToken;
+
+  console.log('[Checkout] CardToken extraction result:', cardToken ? `Found: ${cardToken.substring(0, 10)}...` : 'NOT FOUND');
+
+  if (cardToken) {
+    helcimCardToken.value = cardToken;
+    orderInput.value.cardToken = cardToken; // Store in orderInput for admin order creation
+    orderInput.value.metaData.push({
+      key: 'helcim-card-token',
+      value: cardToken,
+    });
+    console.log('[Checkout] ✅ Set cardToken for refund support');
+  } else if (digitalWalletType) {
+    // Digital wallet - no cardToken expected, this is normal
+    console.log('[Checkout] ℹ️ No cardToken for digital wallet payment - this is expected');
+    console.log('[Checkout] ℹ️ Refunds for', digitalWalletType, 'must be processed in Helcim dashboard');
+  } else {
+    // Regular card payment without token - this is unexpected
+    console.error('[Checkout] ❌ NO cardToken in Helcim response - REFUNDS WILL FAIL!');
+    console.error('[Checkout] Available keys in transactionData:', Object.keys(transactionData || {}));
+    if (transactionData?.data) {
+      console.error('[Checkout] Available keys in transactionData.data:', Object.keys(transactionData.data || {}));
+    }
+  }
+
   // Set payment as completed
   isPaid.value = true;
   paymentError.value = null;
@@ -350,7 +510,12 @@ const handleHelcimComplete = (result: any) => {
   console.log('[Checkout] Helcim payment completed:', result);
 
   if (result.success) {
-    handleHelcimSuccess(result.transactionData);
+    // Include cardToken in the transactionData if present in result
+    const enrichedTransactionData = {
+      ...result.transactionData,
+      cardToken: result.cardToken || result.transactionData?.cardToken,
+    };
+    handleHelcimSuccess(enrichedTransactionData);
   } else {
     handleHelcimFailed(result.error);
   }
@@ -359,6 +524,7 @@ const handleHelcimComplete = (result: any) => {
 const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
 
 // Computed property for Helcim amount that includes tax and is reactive
+// Converts USD cart total to CAD using the exchange rate
 const helcimAmount = computed(() => {
   if (!cart.value?.total) return 0;
 
@@ -367,25 +533,144 @@ const helcimAmount = computed(() => {
     cartRawTotal: cart.value.rawTotal,
     cartSubtotal: cart.value.subtotal,
     cartTotalTax: cart.value.totalTax,
+    exchangeRate: exchangeRate.value,
   });
 
-  // Parse the total amount string (e.g., "$2.24 CAD" -> 2.24)
+  // Convert USD to CAD using exchange rate
+  if (exchangeRate.value) {
+    // Use .99 rounding to match displayed product prices (client preference)
+    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value, true);
+    if (cadNumericString) {
+      const cadAmount = parseFloat(cadNumericString) || 0;
+      console.log(`[DEBUG Checkout] Helcim amount (CAD converted with .99 rounding):`, {
+        originalString: cart.value.total,
+        cadNumericString: cadNumericString,
+        cadAmount: cadAmount,
+      });
+      return cadAmount;
+    }
+  }
+
+  // Fallback: parse the total amount string directly (e.g., "$2.24 CAD" -> 2.24)
   const totalStr = cart.value.total.replace(/[^\d.-]/g, '');
   const totalInDollars = parseFloat(totalStr) || 0;
 
-  console.log(`[DEBUG Checkout] Helcim amount calculation:`, {
+  console.log(`[DEBUG Checkout] Helcim amount (fallback - no conversion):`, {
     originalString: cart.value.total,
     cleanedString: totalStr,
     parsedDollars: totalInDollars,
-    sendingToHelcimComponent: totalInDollars,
   });
 
   return totalInDollars;
 });
 
-// Computed to show Helcim card even during cart updates when payment method might be temporarily cleared
+// Helper to parse price strings to numbers (USD values)
+const parsePrice = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  const cleaned = priceStr.replace(/[^0-9.-]/g, '');
+  return parseFloat(cleaned) || 0;
+};
+
+// Helper to convert a price string to CAD numeric value with .99 rounding
+const convertPriceToCAD = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  if (exchangeRate.value) {
+    // Use .99 rounding to match displayed product prices
+    const cadNumericString = convertToCAD(priceStr, exchangeRate.value, true);
+    if (cadNumericString) {
+      return parseFloat(cadNumericString) || 0;
+    }
+  }
+  // Fallback to parsing without conversion
+  return parsePrice(priceStr);
+};
+
+// Computed property for Helcim line items - provides order backup in Helcim if WP fails
+// Converts USD prices to CAD with .99 rounding to match product display
+// IMPORTANT: Uses subtotal (price WITHOUT tax) - tax is passed separately via taxAmount prop
+const helcimLineItems = computed(() => {
+  if (!cart.value?.contents?.nodes) return [];
+
+  const items = cart.value.contents.nodes.map((item: any) => {
+    const productNode = item.variation?.node || item.product?.node;
+    const name = productNode?.name || 'Product';
+    const sku = productNode?.sku || '';
+
+    // Use SUBTOTAL (without tax) - tax is passed separately to Helcim
+    // item.subtotal = price without tax, item.total = price with tax
+    const lineSubtotal = convertPriceToCAD(item.subtotal || item.total);
+    const quantity = item.quantity || 1;
+    const unitPrice = quantity > 0 ? lineSubtotal / quantity : lineSubtotal;
+
+    return {
+      description: name,
+      quantity: quantity,
+      price: parseFloat(unitPrice.toFixed(2)), // Round to 2 decimal places
+      total: parseFloat(lineSubtotal.toFixed(2)), // Required by Helcim API
+      ...(sku && {sku: sku}),
+    };
+  });
+
+  return items;
+});
+
+// Computed property for shipping amount - converted to CAD
+const helcimShippingAmount = computed(() => {
+  if (!cart.value?.shippingTotal) return 0;
+  return convertPriceToCAD(cart.value.shippingTotal);
+});
+
+// Computed property for selected shipping method name
+// Returns the label of the selected shipping method, or empty string if none
+const helcimShippingMethod = computed(() => {
+  const chosenMethodId = cart.value?.chosenShippingMethods?.[0];
+  if (!chosenMethodId) return '';
+
+  // Find the label from available shipping methods
+  const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
+  const selectedRate = rates.find((rate: any) => rate.id === chosenMethodId);
+  return selectedRate?.label || chosenMethodId; // Fallback to ID if label not found
+});
+
+// Computed property for tax amount - converted to CAD
+const helcimTaxAmount = computed(() => {
+  if (!cart.value?.totalTax) return 0;
+  return convertPriceToCAD(cart.value.totalTax);
+});
+
+// Computed property for discount amount - converted to CAD
+const helcimDiscountAmount = computed(() => {
+  if (!cart.value?.discountTotal) return 0;
+  return convertPriceToCAD(cart.value.discountTotal);
+});
+
+// Computed property for customer info to pass to Helcim
+const helcimCustomerInfo = computed(() => {
+  if (!customer.value?.billing) return null;
+
+  const billing = customer.value.billing;
+  return {
+    name: `${billing.firstName || ''} ${billing.lastName || ''}`.trim(),
+    email: billing.email || '',
+    phone: billing.phone || '',
+    billingAddress: {
+      address1: billing.address1 || '',
+      address2: billing.address2 || '',
+      city: billing.city || '',
+      state: billing.state || '',
+      country: billing.country || 'CA',
+      postcode: billing.postcode || '',
+    },
+  };
+});
+
+// Computed to show Helcim card - ALWAYS show since Helcim is our ONLY payment method
 const shouldShowHelcimCard = computed(() => {
-  // Show if currently selected method is Helcim
+  // ALWAYS show Helcim card when we have a cart with items
+  // This ensures Helcim loads regardless of paymentGateways state
+  const hasCart = cart.value && !cart.value.isEmpty;
+
+  // Also check if currently selected method is Helcim (backup check)
   const isCurrentlyHelcim = orderInput.value.paymentMethod?.id === 'cod' && orderInput.value.paymentMethod?.title?.includes('Helcim');
 
   // Also show if we have a completed Helcim payment (prevents disappearing during cart updates)
@@ -394,7 +679,11 @@ const shouldShowHelcimCard = computed(() => {
   // Keep showing if user just closed modal (so they can try again)
   const userClosedModal = helcimModalClosed.value && !helcimPaymentComplete.value;
 
+  // ALWAYS show when cart has items - Helcim is the only payment method
+  const shouldShow = hasCart || isCurrentlyHelcim || hasHelcimPayment || userClosedModal;
+
   console.log('[shouldShowHelcimCard] Evaluation:', {
+    hasCart,
     isCurrentlyHelcim,
     hasHelcimPayment,
     userClosedModal,
@@ -402,10 +691,10 @@ const shouldShowHelcimCard = computed(() => {
     paymentMethodTitle: orderInput.value.paymentMethod?.title,
     helcimModalClosed: helcimModalClosed.value,
     helcimPaymentComplete: helcimPaymentComplete.value,
-    result: isCurrentlyHelcim || hasHelcimPayment || userClosedModal,
+    result: shouldShow,
   });
 
-  return isCurrentlyHelcim || hasHelcimPayment || userClosedModal;
+  return shouldShow;
 });
 useSeoMeta({
   title: t('messages.shop.checkout'),
@@ -534,12 +823,12 @@ useSeoMeta({
               @shipping-changed="refreshCart" />
           </div>
 
-          <!-- Payment methods section -->
-          <div v-if="paymentGateways?.nodes.length" class="mt-2 col-span-full">
+          <!-- Payment methods section - ALWAYS show since Helcim is required -->
+          <div class="mt-2 col-span-full">
             <h2 class="mb-4 text-xl font-semibold">
               {{ $t('messages.billing.paymentOptions') }}
             </h2>
-            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways />
+            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways="effectivePaymentGateways" />
 
             <!-- Other payment methods info -->
             <div
@@ -584,6 +873,12 @@ useSeoMeta({
               ref="helcimCardRef"
               :amount="helcimAmount"
               currency="CAD"
+              :line-items="helcimLineItems"
+              :shipping-amount="helcimShippingAmount"
+              :shipping-method="helcimShippingMethod"
+              :tax-amount="helcimTaxAmount"
+              :discount-amount="helcimDiscountAmount"
+              :customer-info="helcimCustomerInfo"
               @ready="handleHelcimReady"
               @error="handleHelcimError"
               @payment-success="handleHelcimSuccess"

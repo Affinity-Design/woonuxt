@@ -29,6 +29,18 @@
       "statusCode": 301
     }
   },
+  "/pro-skates-professional-guide": {
+    "redirect": {
+      "to": "/blog/pro-skates-professional-guide",
+      "statusCode": 301
+    }
+  },
+  "/roller-skates-complete-guide-2025": {
+    "redirect": {
+      "to": "/blog/roller-skates-complete-guide-2025",
+      "statusCode": 301
+    }
+  },
   "/roller-skates-toronto": {
     "redirect": {
       "to": "/blog/roller-skates-toronto",
