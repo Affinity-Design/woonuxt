@@ -339,7 +339,7 @@ const productCategories = [
             <div v-if="recommendedPost" class="mb-12">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">You Might Also Like</h3>
               <NuxtLink
-                :to="recommendedPost._path.replace('/blog/', '/')"
+                :to="recommendedPost._path"
                 class="group block transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-2xl overflow-hidden border border-gray-200"
                 style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)">
                 <div class="flex flex-col md:flex-row">
@@ -449,7 +449,7 @@ const productCategories = [
           <NuxtLink
             v-for="relatedPost in relatedPosts.slice(1)"
             :key="relatedPost._path"
-            :to="relatedPost._path.replace('/blog/', '/')"
+            :to="relatedPost._path"
             class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
             <div class="aspect-video bg-gray-100 overflow-hidden">
               <NuxtImg

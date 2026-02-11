@@ -5,6 +5,7 @@
 module.exports = {
     "/best-inline-skates-2025": { redirect: { to: "/blog/best-inline-skates-2025", statusCode: 301 } },
     "/best-inline-skates-canada-2025": { redirect: { to: "/blog/best-inline-skates-canada-2025", statusCode: 301 } },
+    "/best-kids-roller-skates-2026": { redirect: { to: "/blog/best-kids-roller-skates-2026", statusCode: 301 } },
     "/complete-beginners-guide-inline-quad-skating": { redirect: { to: "/blog/complete-beginners-guide-inline-quad-skating", statusCode: 301 } },
     "/how-to-skate-backwards-tutorial": { redirect: { to: "/blog/how-to-skate-backwards-tutorial", statusCode: 301 } },
     "/inline-skates-vs-roller-skates": { redirect: { to: "/blog/inline-skates-vs-roller-skates", statusCode: 301 } },

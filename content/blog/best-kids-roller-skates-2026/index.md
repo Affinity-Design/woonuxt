@@ -1,9 +1,9 @@
 ---
 title: "Best Kids Roller Skates for 2026: Canadian Parent's Guide"
 description: "Buying guide for the best kids inline skates and roller skates in Canada for 2026. Adjustable sizing reviews, safety tips, and expert recommendations from Toronto's skate shop."
-image: '/images/posted/girl-rollerskating-in-park.png'
+image: '/images/blog/posted/kids-roller-skating-outdoors.png'
 alt: 'Kids roller skating in Toronto park 2026'
-ogImage: '/images/posted/girl-rollerskating-in-park.png'
+ogImage: '/images/blog/posted/kids-roller-skating-outdoors.png'
 date: 2026-02-10
 categories: ['Reviews', 'Buying Guides', 'Kids Skates', 'Canada']
 tags: ['kids roller skates', 'kids inline skates', 'adjustable skates', 'rollerblade junior', 'micro skates canada']

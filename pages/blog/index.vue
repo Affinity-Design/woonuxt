@@ -101,7 +101,7 @@ const formatDate = (date: string) => {
         <NuxtLink
           v-for="post in filteredPosts"
           :key="post._path"
-          :to="post._path.replace('/blog/', '/')"
+          :to="post._path"
           class="group block transition-all duration-300 hover:-translate-y-1 hover:shadow-xl rounded-2xl overflow-hidden bg-white"
           style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)"
         >
