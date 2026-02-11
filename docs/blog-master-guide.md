@@ -19,7 +19,8 @@ The WooNuxt blog system is built using **Nuxt 3** with **@nuxt/content** for fil
 
 ### Key Features
 
-- **Clean URLs**: Posts accessible at `/post-slug` (no `/blog/` prefix).
+- **Canonical URLs**: Posts live at `/blog/post-slug` (always include the `/blog/` prefix).
+- **Safety Redirects**: `/post-slug` automatically redirects to `/blog/post-slug` (301) as a fallback.
 - **File-based Content**: Markdown files with frontmatter metadata.
 - **Automatic SEO**: Meta tags, Open Graph, Twitter Cards, and Schema.org.
 - **Responsive Design**: Mobile-first responsive layouts.
@@ -39,16 +40,25 @@ The WooNuxt blog system is built using **Nuxt 3** with **@nuxt/content** for fil
 ### Routing System
 
 - **Blog Archive**: `/blog` → `pages/blog/index.vue`
-- **Individual Posts**: `/post-slug` → `pages/[...slug].vue` → `BlogPost.vue`
-- **Clean URLs**: Posts are accessible without `/blog/` prefix.
+- **Individual Posts**: `/blog/post-slug` → `pages/blog/[slug].vue`
+- **Fallback Route**: `/post-slug` → `pages/[...slug].vue` → redirects or renders `BlogPost.vue`
+- **Redirects**: `/post-slug` → `/blog/post-slug` (301) via `data/blog-redirects.json` in `nuxt.config.ts`
 
 ### Post Rendering Flow
 
-1.  User visits `/post-slug`.
-2.  `[...slug].vue` catches the route.
-3.  Queries content using `queryContent("blog").where({ _path: { $contains: slug } })`.
-4.  If blog post found, renders `BlogPost.vue` component.
+1.  User visits `/blog/post-slug` (canonical) or `/post-slug` (redirected).
+2.  `pages/blog/[slug].vue` renders the post directly.
+3.  If visited without `/blog/` prefix, `nuxt.config.ts` routeRules redirect to `/blog/post-slug`.
+4.  Fallback: `[...slug].vue` catches unmatched routes, queries content, renders `BlogPost.vue`.
 5.  If not found, shows 404 error.
+
+### URL Rules (CRITICAL)
+
+- **All internal links to blog posts MUST use `/blog/post-slug`** — never link to `/post-slug` directly.
+- **NEVER** use `.replace('/blog/', '/')` to strip the prefix from `_path` in templates.
+- `BlogPostCard.vue` has built-in normalization to always ensure the `/blog/` prefix.
+- Redirects exist as a **safety net for external/typed URLs**, not as the primary link target.
+- After adding a new post, run `npm run build-all-routes` to generate the redirect entry.
 
 ---
 
@@ -172,7 +182,10 @@ If the AI tool is unavailable or you need a specific product photo:
 - ✅ **ALWAYS** generate the image before writing the post.
 - ✅ Use the exact path provided by the script.
 - ✅ Ensure images are under 200KB if adding manually.
+- ✅ **Every blog post MUST have a unique image** — never reuse an image from another post.
+- ✅ Check `public/images/blog/posted/` and `public/images/posted/` for existing filenames before saving.
 - ❌ Do not use generic stock photos if AI generation is available.
+- ❌ Do not copy another post's image path into your frontmatter.
 
 ---
 
