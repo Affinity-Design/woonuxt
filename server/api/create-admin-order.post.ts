@@ -77,6 +77,18 @@ export default defineEventHandler(async (event) => {
       throw new Error('Transaction ID is required for order creation');
     }
 
+    // Validate required billing fields
+    const missingBillingFields: string[] = [];
+    if (!billing?.firstName?.trim()) missingBillingFields.push('First Name');
+    if (!billing?.lastName?.trim()) missingBillingFields.push('Last Name');
+    if (!billing?.email?.trim()) missingBillingFields.push('Email');
+    if (!billing?.phone?.trim()) missingBillingFields.push('Phone');
+
+    if (missingBillingFields.length > 0) {
+      console.error(`❌ Missing required billing fields: ${missingBillingFields.join(', ')}`);
+      throw new Error(`Missing required billing fields: ${missingBillingFields.join(', ')}`);
+    }
+
     // Idempotency guard: prevents accidental repeat submissions from spamming WC REST updates.
     // This endpoint is only used for Helcim payments; `transactionId` should be stable per payment.
     const idempotencyStorage = useStorage('cache');
@@ -106,7 +118,6 @@ export default defineEventHandler(async (event) => {
       transactionId,
       startedAt: new Date().toISOString(),
     });
-
     // Log the request data for debugging/recovery purposes
     console.log(`📝 Order Request [${requestId}]:`, {
       transactionId,
@@ -573,6 +584,10 @@ export default defineEventHandler(async (event) => {
             'Content-Type': 'application/json',
             'User-Agent': 'WooNuxt-Admin-Order-Creator/1.0',
             'X-Request-ID': requestId,
+            // Cloudflare Workers may ignore/strip User-Agent; use a custom header for tracing.
+            'X-WooNuxt-Source': 'create-admin-order',
+            'X-WooNuxt-Step': 'set-processing',
+            'X-WooNuxt-Transaction-Id': String(transactionId),
           },
           body: JSON.stringify(statusPayload),
         },

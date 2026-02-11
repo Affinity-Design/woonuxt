@@ -28,7 +28,7 @@ Pro skates often use carbon fiber shells instead of plastic. This provides:
 
 ### 2. Frames and Wheels
 
-The frame is the chassis of the skate. Pro frames are typically made from extruded aluminum or carbon fiber. They are rigid and precise. Wheels on pro skates feature higher quality urethane with specific rebounds suited for different surfaces (indoor vs. outdoor).
+The [frame](/product-category/inline-frames) is the chassis of the skate. Pro frames are typically made from extruded aluminum or carbon fiber. They are rigid and precise. [Wheels](/product-category/inline-skate-wheels) on pro skates feature higher quality urethane with specific rebounds suited for different surfaces (indoor vs. outdoor).
 
 ## Types of Pro Skates
 
@@ -36,7 +36,7 @@ Different disciplines require different tools.
 
 ### Speed Skating
 
-Speed skates are the Formula 1 cars of the skating world. They feature:
+[Speed skates](/product-category/inline-skates) are the Formula 1 cars of the skating world. They feature:
 
 - Low-cut boots for maximum ankle mobility.
 - Long frames for stability at high speeds.

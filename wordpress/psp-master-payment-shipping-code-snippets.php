@@ -79,7 +79,7 @@ function psp_filter_shipping_methods_by_role($rates, $package) {
         error_log('PSP Shipping Filter - Is Staff: ' . ($is_staff ? 'YES' : 'NO'));
         error_log('PSP Shipping Filter - Available Rates: ' . print_r(array_keys($rates), true));
         foreach ($rates as $rate_id => $rate) {
-            error_log('PSP Rate: ' . $rate_id . ' | Label: ' . $rate->label . ' | Instance: ' . $rate->instance_id);
+            error_log('PSP Rate: ' . $rate_id . ' | Label: ' . $rate->label . ' | Instance: ' . $rate->instance_id . ' | Method: ' . $rate->method_id);
         }
     }
     
@@ -90,26 +90,51 @@ function psp_filter_shipping_methods_by_role($rates, $package) {
 
     // POS Shipping Instance ID to hide from non-staff
     $pos_instance_id = defined('PSP_POS_SHIPPING_INSTANCE_ID') ? PSP_POS_SHIPPING_INSTANCE_ID : 8;
+    
+    // POS method types that should be hidden (NOT table_rate, free_shipping, etc.)
+    // Only hide local_pickup and flat_rate methods that match the POS instance
+    $pos_method_types = array('local_pickup', 'flat_rate');
 
-    // For regular customers, HIDE POS methods
+    // For regular customers, HIDE POS methods only
     foreach ($rates as $rate_id => $rate) {
         $label = strtolower($rate->label);
         $instance_id = isset($rate->instance_id) ? (int) $rate->instance_id : 0;
+        $method_id = isset($rate->method_id) ? $rate->method_id : '';
         
-        // Hide by instance ID (most reliable)
-        if ($instance_id === $pos_instance_id) {
-            unset($rates[$rate_id]);
+        // Extract method type from rate_id (e.g., "local_pickup:8" -> "local_pickup")
+        $rate_method_type = '';
+        if (strpos($rate_id, ':') !== false) {
+            $rate_method_type = explode(':', $rate_id)[0];
+        }
+        
+        // IMPORTANT: Skip table_rate methods entirely - never hide them based on instance ID
+        // Table Rate Shipping uses its own instance IDs that may conflict with POS instance
+        if ($method_id === 'table_rate' || $rate_method_type === 'table_rate') {
+            // Only check label-based hiding for table rates (very specific POS keywords)
+            if (strpos($label, 'pos |') !== false || strpos($label, 'local store purchase') !== false) {
+                unset($rates[$rate_id]);
+            }
             continue;
         }
         
-        // Also hide by rate_id pattern (e.g., local_pickup:8, flat_rate:8)
-        if (strpos($rate_id, ':' . $pos_instance_id) !== false) {
-            unset($rates[$rate_id]);
-            continue;
+        // For non-table-rate methods, check if it's a POS method type with matching instance
+        if (in_array($rate_method_type, $pos_method_types) || in_array($method_id, $pos_method_types)) {
+            // Hide by instance ID (only for POS method types)
+            if ($instance_id === $pos_instance_id) {
+                unset($rates[$rate_id]);
+                continue;
+            }
+            
+            // Hide by rate_id pattern for POS methods (e.g., local_pickup:8, flat_rate:8)
+            if (strpos($rate_id, ':' . $pos_instance_id) !== false) {
+                unset($rates[$rate_id]);
+                continue;
+            }
         }
         
-        // Fallback: Check for keywords in label
-        if (strpos($label, 'pos') !== false || strpos($label, 'local store') !== false) {
+        // Fallback: Check for very specific POS keywords in label (applies to all methods)
+        // Using more specific patterns to avoid false positives
+        if (strpos($label, 'pos |') !== false || strpos($label, 'local store purchase') !== false) {
             unset($rates[$rate_id]);
         }
     }
@@ -531,10 +556,14 @@ function psp_force_pos_shipping_for_staff($rates, $package) {
     $pos_instance_id = defined('PSP_POS_SHIPPING_INSTANCE_ID') ? PSP_POS_SHIPPING_INSTANCE_ID : 8;
     
     // Check if POS method is already in the rates
+    // Only look for local_pickup or flat_rate methods, NOT table_rate
     $pos_exists = false;
     foreach ($rates as $rate_id => $rate) {
         $instance_id = isset($rate->instance_id) ? (int) $rate->instance_id : 0;
-        if ($instance_id === $pos_instance_id) {
+        $method_id = isset($rate->method_id) ? $rate->method_id : '';
+        
+        // Only consider it a POS method if it's local_pickup or flat_rate with matching instance
+        if ($instance_id === $pos_instance_id && in_array($method_id, array('local_pickup', 'flat_rate'))) {
             $pos_exists = true;
             break;
         }
@@ -551,6 +580,11 @@ function psp_force_pos_shipping_for_staff($rates, $package) {
             
             foreach ($shipping_methods as $method) {
                 if ((int) $method->instance_id === $pos_instance_id) {
+                    // Verify it's actually a POS-type method (local_pickup or flat_rate)
+                    if (!in_array($method->id, array('local_pickup', 'flat_rate'))) {
+                        continue;
+                    }
+                    
                     // Create a rate from this method
                     $rate = new WC_Shipping_Rate(
                         $method->id . ':' . $method->instance_id,

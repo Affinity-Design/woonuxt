@@ -34,6 +34,7 @@ interface HelcimTax {
 
 // Helcim shipping address object
 interface HelcimShippingAddress {
+  name: string; // Required by Helcim
   street1: string;
   street2?: string;
   city?: string;
@@ -188,6 +189,7 @@ export default defineEventHandler(async (event) => {
           // Otherwise fall back to simple number
           const shippingAmountNum = Number(shippingAmount) || 0;
           const billingAddr = customerInfo?.billingAddress;
+          const customerName = customerInfo?.name?.trim() || 'Customer';
           const hasShippingAddress = billingAddr?.address1?.trim() && billingAddr?.postcode?.trim();
 
           if (shippingAmountNum > 0 || shippingMethod) {
@@ -197,6 +199,7 @@ export default defineEventHandler(async (event) => {
                 amount: shippingAmountNum,
                 details: shippingMethod || 'Standard Shipping',
                 address: {
+                  name: customerName, // Required by Helcim
                   street1: billingAddr.address1.trim(),
                   street2: billingAddr.address2 || '',
                   city: billingAddr.city || '',
@@ -272,9 +275,11 @@ export default defineEventHandler(async (event) => {
             // Use name if available, otherwise email
             customerRequest.contactName = hasName ? contactName : email;
 
-            if (hasEmail) {
-              customerRequest.customerCode = email;
-            }
+            // NOTE: Do NOT send customerCode - it causes "customer already exists" errors
+            // for returning customers. Helcim will match customers by email automatically
+            // or create new ones without requiring a unique customerCode.
+            // The email is included in contactName as fallback if no name provided.
+
             if (customerInfo.phone?.trim()) {
               customerRequest.cellPhone = customerInfo.phone.trim();
             }
