@@ -91,33 +91,40 @@ export default defineEventHandler(async (event) => {
 
     // Idempotency guard: prevents accidental repeat submissions from spamming WC REST updates.
     // This endpoint is only used for Helcim payments; `transactionId` should be stable per payment.
-    const idempotencyStorage = useStorage('cache');
+    // Wrapped in try/catch so order creation still works if KV storage (NUXT_CACHE) isn't configured.
+    let idempotencyStorage: any = null;
     const idempotencyKey = `idempotency:admin-order:${transactionId}`;
-    const existingIdempotency = await idempotencyStorage.getItem<any>(idempotencyKey);
+    try {
+      idempotencyStorage = useStorage('cache');
+      const existingIdempotency = await idempotencyStorage.getItem<any>(idempotencyKey);
 
-    if (existingIdempotency?.status === 'completed' && existingIdempotency?.order) {
-      console.log('🔁 Idempotency hit: returning previously created order for transactionId', transactionId);
-      return {
-        success: true,
-        idempotent: true,
-        order: existingIdempotency.order,
-      };
+      if (existingIdempotency?.status === 'completed' && existingIdempotency?.order) {
+        console.log('🔁 Idempotency hit: returning previously created order for transactionId', transactionId);
+        return {
+          success: true,
+          idempotent: true,
+          order: existingIdempotency.order,
+        };
+      }
+
+      if (existingIdempotency?.status === 'in_progress') {
+        console.warn('⏳ Idempotency in-progress: ignoring duplicate request for transactionId', transactionId);
+        return {
+          success: false,
+          idempotent: true,
+          error: 'Order creation already in progress. Please wait and refresh.',
+        };
+      }
+
+      await idempotencyStorage.setItem(idempotencyKey, {
+        status: 'in_progress',
+        transactionId,
+        startedAt: new Date().toISOString(),
+      });
+    } catch (storageError) {
+      console.warn('⚠️ Idempotency storage unavailable (KV binding missing?), proceeding without duplicate protection:', storageError);
+      idempotencyStorage = null;
     }
-
-    if (existingIdempotency?.status === 'in_progress') {
-      console.warn('⏳ Idempotency in-progress: ignoring duplicate request for transactionId', transactionId);
-      return {
-        success: false,
-        idempotent: true,
-        error: 'Order creation already in progress. Please wait and refresh.',
-      };
-    }
-
-    await idempotencyStorage.setItem(idempotencyKey, {
-      status: 'in_progress',
-      transactionId,
-      startedAt: new Date().toISOString(),
-    });
     // Log the request data for debugging/recovery purposes
     console.log(`📝 Order Request [${requestId}]:`, {
       transactionId,
@@ -632,12 +639,18 @@ export default defineEventHandler(async (event) => {
       ],
     };
 
-    await idempotencyStorage.setItem(idempotencyKey, {
-      status: 'completed',
-      transactionId,
-      completedAt: new Date().toISOString(),
-      order: responsePayload.order,
-    });
+    if (idempotencyStorage) {
+      try {
+        await idempotencyStorage.setItem(idempotencyKey, {
+          status: 'completed',
+          transactionId,
+          completedAt: new Date().toISOString(),
+          order: responsePayload.order,
+        });
+      } catch (storageError) {
+        console.warn('⚠️ Failed to write idempotency completion:', storageError);
+      }
+    }
 
     return responsePayload;
   } catch (error: any) {
