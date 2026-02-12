@@ -558,8 +558,7 @@ const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value
 
 // Computed property for Helcim amount that includes tax and is reactive
 // Converts USD cart total to CAD using the exchange rate
-// CRITICAL: Uses exact conversion (no .99 rounding) for financial accuracy
-// The .99 rounding is for display prices only — payment amounts must be exact
+// Uses .99 rounding to match the prices customers see on the site
 const helcimAmount = computed(() => {
   if (!cart.value?.total) return 0;
 
@@ -571,12 +570,12 @@ const helcimAmount = computed(() => {
     exchangeRate: exchangeRate.value,
   });
 
-  // Convert USD to CAD using exchange rate — exact conversion for payment processing
+  // Convert USD to CAD using exchange rate with .99 rounding (matches displayed prices)
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value, false); // false = exact, no .99 rounding
+    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value, true); // true = .99 rounding to match display
     if (cadNumericString) {
       const cadAmount = parseFloat(cadNumericString) || 0;
-      console.log(`[DEBUG Checkout] Helcim amount (CAD converted, exact):`, {
+      console.log(`[DEBUG Checkout] Helcim amount (CAD converted, .99 rounded):`, {
         originalString: cart.value.total,
         cadNumericString: cadNumericString,
         cadAmount: cadAmount,
@@ -619,25 +618,12 @@ const convertPriceToCAD = (priceStr: string | null | undefined): number => {
   return parsePrice(priceStr);
 };
 
-// Helper to convert a price string to CAD numeric value WITHOUT .99 rounding (for Helcim financial amounts)
-// CRITICAL: .99 rounding must NOT be used for financial amounts sent to Helcim
-// because independent rounding of line items, tax, shipping, discount causes
-// the invoice total to mismatch the payment amount, triggering
-// "Could not complete CC transaction" errors.
-const convertPriceToCADExact = (priceStr: string | null | undefined): number => {
-  if (!priceStr) return 0;
-  if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(priceStr, exchangeRate.value, false); // false = exact, no .99 rounding
-    if (cadNumericString) {
-      return parseFloat(cadNumericString) || 0;
-    }
-  }
-  // Fallback to parsing without conversion
-  return parsePrice(priceStr);
-};
+// convertPriceToCADExact kept as alias for convertPriceToCAD
+// .99 rounding is correct — it matches the prices customers see and pay
+const convertPriceToCADExact = convertPriceToCAD;
 
 // Computed property for Helcim line items - provides order backup in Helcim if WP fails
-// Converts USD prices to CAD with EXACT conversion (no .99 rounding) for financial accuracy
+// Converts USD prices to CAD with .99 rounding to match displayed prices
 // IMPORTANT: Uses subtotal (price WITHOUT tax) - tax is passed separately via taxAmount prop
 const helcimLineItems = computed(() => {
   if (!cart.value?.contents?.nodes) return [];
@@ -648,8 +634,8 @@ const helcimLineItems = computed(() => {
     const sku = productNode?.sku || '';
 
     // Use SUBTOTAL (without tax) - tax is passed separately to Helcim
-    // Use exact CAD conversion (no .99 rounding) to match payment amount
-    const lineSubtotal = convertPriceToCADExact(item.subtotal || item.total);
+    // Use .99 rounding to match the prices customers see on the site
+    const lineSubtotal = convertPriceToCAD(item.subtotal || item.total);
     const quantity = item.quantity || 1;
     const unitPrice = quantity > 0 ? lineSubtotal / quantity : lineSubtotal;
 
@@ -665,10 +651,10 @@ const helcimLineItems = computed(() => {
   return items;
 });
 
-// Computed property for shipping amount - converted to CAD (exact, no .99 rounding)
+// Computed property for shipping amount - converted to CAD with .99 rounding
 const helcimShippingAmount = computed(() => {
   if (!cart.value?.shippingTotal) return 0;
-  return convertPriceToCADExact(cart.value.shippingTotal);
+  return convertPriceToCAD(cart.value.shippingTotal);
 });
 
 // Computed property for selected shipping method name
@@ -683,16 +669,16 @@ const helcimShippingMethod = computed(() => {
   return selectedRate?.label || chosenMethodId; // Fallback to ID if label not found
 });
 
-// Computed property for tax amount - converted to CAD (exact, no .99 rounding)
+// Computed property for tax amount - converted to CAD with .99 rounding
 const helcimTaxAmount = computed(() => {
   if (!cart.value?.totalTax) return 0;
-  return convertPriceToCADExact(cart.value.totalTax);
+  return convertPriceToCAD(cart.value.totalTax);
 });
 
-// Computed property for discount amount - converted to CAD (exact, no .99 rounding)
+// Computed property for discount amount - converted to CAD with .99 rounding
 const helcimDiscountAmount = computed(() => {
   if (!cart.value?.discountTotal) return 0;
-  return convertPriceToCADExact(cart.value.discountTotal);
+  return convertPriceToCAD(cart.value.discountTotal);
 });
 
 // Computed property for customer info to pass to Helcim
