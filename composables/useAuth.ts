@@ -139,6 +139,10 @@ export const useAuth = () => {
   };
 
   // Update the user state
+  // IMPORTANT: Merge billing/shipping to preserve locally-entered form data
+  // (e.g., phone, email) that hasn't been saved to WordPress yet.
+  // refreshCart() calls GqlGetCart() which returns WP-stored customer data,
+  // and WP may return null for fields the user typed but didn't persist.
   const updateCustomer = (payload: Customer): void => {
     const sessionToken = payload?.sessionToken;
     if (sessionToken) {
@@ -146,7 +150,34 @@ export const useAuth = () => {
       const newToken = useCookie('woocommerce-session');
       newToken.value = sessionToken;
     }
-    customer.value = payload;
+
+    // Preserve locally-entered billing/shipping fields that WP returns as null
+    const currentBilling = customer.value?.billing || {};
+    const currentShipping = customer.value?.shipping || {};
+    const incomingBilling = payload?.billing || {};
+    const incomingShipping = payload?.shipping || {};
+
+    // For each billing field: keep local value if WP returned null/empty
+    const mergedBilling: Record<string, any> = {...currentBilling};
+    for (const [key, value] of Object.entries(incomingBilling)) {
+      if (value !== null && value !== undefined && value !== '') {
+        mergedBilling[key] = value;
+      }
+      // If WP returns null but we have a local value, keep the local value
+    }
+
+    const mergedShipping: Record<string, any> = {...currentShipping};
+    for (const [key, value] of Object.entries(incomingShipping)) {
+      if (value !== null && value !== undefined && value !== '') {
+        mergedShipping[key] = value;
+      }
+    }
+
+    customer.value = {
+      ...payload,
+      billing: mergedBilling,
+      shipping: mergedShipping,
+    };
     isPending.value = false;
   };
 

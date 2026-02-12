@@ -289,7 +289,12 @@ const payNow = async () => {
         helcimModalClosed.value = false;
 
         // Refresh cart to get latest stock status from WooCommerce before payment
+        // IMPORTANT: Save billing/shipping data before refresh because refreshCart()
+        // calls updateCustomer() which can overwrite locally-entered form values
+        // (like phone) with null from WordPress if they haven't been persisted yet.
         console.log('[payNow] Refreshing cart before payment to check for stock changes...');
+        const savedBilling = customer.value?.billing ? {...customer.value.billing} : null;
+        const savedShipping = customer.value?.shipping ? {...customer.value.shipping} : null;
         try {
           await refreshCart();
           // Re-check if cart is still valid after refresh
@@ -298,6 +303,21 @@ const payNow = async () => {
           }
         } catch (refreshError) {
           console.warn('[payNow] Cart refresh failed, proceeding with cached cart:', refreshError);
+        }
+        // Restore any billing/shipping fields that were wiped by refreshCart
+        if (savedBilling && customer.value?.billing) {
+          for (const [key, value] of Object.entries(savedBilling)) {
+            if (value && !customer.value.billing[key as keyof typeof customer.value.billing]) {
+              (customer.value.billing as any)[key] = value;
+            }
+          }
+        }
+        if (savedShipping && customer.value?.shipping) {
+          for (const [key, value] of Object.entries(savedShipping)) {
+            if (value && !customer.value.shipping[key as keyof typeof customer.value.shipping]) {
+              (customer.value.shipping as any)[key] = value;
+            }
+          }
         }
 
         // Trigger Helcim payment process
