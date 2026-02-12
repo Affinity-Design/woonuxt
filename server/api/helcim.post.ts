@@ -245,12 +245,50 @@ export default defineEventHandler(async (event) => {
 
           helcimRequestBody.invoiceRequest = invoiceRequest;
 
+          // CRITICAL: Helcim requires payment amount === invoice total.
+          // "When you use the invoice request functionality to create a new record,
+          //  the payment amount and the total of your invoice line items must be the same."
+          // Ref: https://devdocs.helcim.com/docs/managing-customers-and-invoices-through-helcimpayjs
+          //
+          // Because each component (line items, tax, shipping, discount) is independently
+          // converted to CAD with rounding, the sum can differ from the independently-rounded
+          // cart total. We MUST reconcile them here.
+          const invoiceLineItemsTotal = formattedLineItems.reduce((sum: number, item: HelcimLineItem) => sum + item.total, 0);
+          const invoiceShippingAmount =
+            typeof invoiceRequest.shipping === 'number' ? invoiceRequest.shipping : (invoiceRequest.shipping as HelcimShipping)?.amount || 0;
+          const invoiceTaxAmount = typeof invoiceRequest.tax === 'number' ? invoiceRequest.tax : (invoiceRequest.tax as HelcimTax)?.amount || 0;
+          const invoiceDiscountAmount = invoiceRequest.discount || 0;
+
+          const computedInvoiceTotal = parseFloat((invoiceLineItemsTotal + invoiceShippingAmount + invoiceTaxAmount - invoiceDiscountAmount).toFixed(2));
+
+          console.log('[Helcim API] Invoice total reconciliation:', {
+            lineItemsTotal: invoiceLineItemsTotal,
+            shipping: invoiceShippingAmount,
+            tax: invoiceTaxAmount,
+            discount: invoiceDiscountAmount,
+            computedInvoiceTotal,
+            originalAmount: amountInDollars,
+            mismatch: Math.abs(computedInvoiceTotal - amountInDollars).toFixed(4),
+          });
+
+          // If there's a mismatch, use the computed invoice total as the payment amount
+          // so Helcim sees matching values. Log it loudly for debugging.
+          if (Math.abs(computedInvoiceTotal - amountInDollars) > 0.001) {
+            console.warn(
+              `[Helcim API] ⚠️ AMOUNT MISMATCH DETECTED! ` +
+                `Cart total (${amountInDollars}) ≠ Invoice total (${computedInvoiceTotal}). ` +
+                `Adjusting payment amount to match invoice to prevent "Could not complete CC transaction" error.`,
+            );
+            helcimRequestBody.amount = computedInvoiceTotal;
+          }
+
           console.log('[Helcim API] Including invoice with line items:', {
             lineItemCount: formattedLineItems.length,
             lineItems: formattedLineItems,
             shipping: invoiceRequest.shipping,
             tax: invoiceRequest.tax,
             discount: invoiceRequest.discount,
+            reconciledAmount: helcimRequestBody.amount,
           });
         }
 
@@ -308,9 +346,12 @@ export default defineEventHandler(async (event) => {
         }
 
         // Note: For Level 2 processing, use top-level taxAmount
-        // The invoiceRequest.tax object is for Level 3 and may cause issues
-        if (taxAmount && Number(taxAmount) > 0) {
+        // ONLY set top-level taxAmount if we did NOT include it in invoiceRequest
+        // Sending both can cause Helcim to double-count tax in its amount validation
+        if (taxAmount && Number(taxAmount) > 0 && !helcimRequestBody.invoiceRequest?.tax) {
           helcimRequestBody.taxAmount = Number(taxAmount);
+        } else if (taxAmount && Number(taxAmount) > 0 && helcimRequestBody.invoiceRequest?.tax) {
+          console.log('[Helcim API] Skipping top-level taxAmount - already included in invoiceRequest.tax to avoid double-counting');
         }
 
         // Log the FULL request body for debugging

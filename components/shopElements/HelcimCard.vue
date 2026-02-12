@@ -11,6 +11,22 @@ const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
 const transactionData = ref<any>(null);
 
+// Error classification
+const isCardDecline = ref(false); // True = card was declined by issuing bank
+const isTechnicalError = ref(false); // True = unexpected/integration error
+const rawErrorMessage = ref(''); // Unmodified error from Helcim for debug logs
+const debugLogsCopied = ref(false); // Tracks if user copied debug info
+
+// Collect console logs for debug support button
+const debugLogs = ref<string[]>([]);
+const captureLog = (level: string, ...args: any[]) => {
+  const timestamp = new Date().toISOString();
+  const msg = args.map((a) => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ');
+  debugLogs.value.push(`[${timestamp}] [${level}] ${msg}`);
+  // Cap at 200 entries to avoid memory issues
+  if (debugLogs.value.length > 200) debugLogs.value.shift();
+};
+
 // Type for line items passed to Helcim
 interface HelcimLineItem {
   description: string;
@@ -106,12 +122,17 @@ const initializePayment = async () => {
   try {
     isInitializing.value = true;
     paymentError.value = null;
+    isCardDecline.value = false;
+    isTechnicalError.value = false;
+    rawErrorMessage.value = '';
+    debugLogsCopied.value = false;
 
     // Reset payment completion state when re-initializing
     paymentComplete.value = false;
     transactionData.value = null;
 
     console.log(`[HelcimCard] Initializing payment for ${props.currency} $${displayAmount.value}`);
+    captureLog('INFO', `Initializing payment: ${props.currency} $${displayAmount.value}`);
     console.log(`[HelcimCard] Props amount:`, props.amount);
     console.log(`[HelcimCard] Display amount:`, displayAmount.value);
     console.log(`[HelcimCard] API amount:`, apiAmount.value);
@@ -171,6 +192,7 @@ const initializePayment = async () => {
       secretToken.value = response.secretToken || '';
 
       console.log('[HelcimCard] Payment initialized successfully');
+      captureLog('INFO', 'Payment initialized OK, token received');
 
       // Load Helcim script after successful initialization
       await loadHelcimScript();
@@ -183,7 +205,9 @@ const initializePayment = async () => {
     }
   } catch (error: any) {
     console.error('[HelcimCard] Initialization error:', error);
+    captureLog('ERROR', 'Initialization failed:', error.message);
     paymentError.value = error.message;
+    isTechnicalError.value = true;
     emit('error', error.message);
   } finally {
     isInitializing.value = false;
@@ -378,9 +402,58 @@ const handlePaymentSuccess = async (eventMessage: any) => {
 };
 
 const handlePaymentFailed = (eventMessage: any) => {
-  console.error('[HelcimCard] Payment failed:', eventMessage);
+  const rawError = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
+  rawErrorMessage.value = rawError;
+  debugLogsCopied.value = false;
 
-  paymentError.value = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
+  console.error('[HelcimCard] Payment failed - raw event message:', eventMessage);
+  captureLog('ERROR', 'Payment failed - raw:', rawError);
+  captureLog('INFO', 'checkoutToken present:', !!checkoutToken.value);
+  captureLog('INFO', 'amount:', props.amount, 'currency:', props.currency);
+  captureLog('INFO', 'lineItems:', props.lineItems?.length || 0);
+  captureLog('INFO', 'taxAmount:', props.taxAmount, 'shippingAmount:', props.shippingAmount, 'discountAmount:', props.discountAmount);
+  captureLog('INFO', 'customerInfo:', props.customerInfo);
+
+  // Classify the error
+  // Card declines: bank/issuer rejected the card (customer can fix)
+  const declinePatterns = [
+    'DECLINED',
+    'declined',
+    'Declined',
+    'insufficient funds',
+    'card expired',
+    'do not honor',
+    'lost card',
+    'stolen card',
+    'invalid card',
+    'pickup card',
+    'restricted card',
+    'security violation',
+    'exceed withdrawal',
+    'not permitted',
+  ];
+
+  const isDecline = declinePatterns.some((p) => rawError.includes(p));
+  // "Could not complete CC transaction" can be either a decline or a config issue.
+  // After our amount-mismatch fix, if this still appears it's most likely a genuine decline.
+  const isCCFailure = rawError.includes('Could not complete CC transaction');
+
+  if (isDecline || isCCFailure) {
+    isCardDecline.value = true;
+    isTechnicalError.value = false;
+    paymentError.value = isCCFailure
+      ? 'Your card was declined. Please check your card number, expiry date, and CVV, then try again. If the problem persists, contact your bank or try a different card.'
+      : `Your card was declined: ${rawError}. Please try a different card or contact your bank.`;
+  } else if (rawError.includes('Invalid card transaction request')) {
+    isCardDecline.value = false;
+    isTechnicalError.value = true;
+    paymentError.value = 'There was a technical issue processing your payment. Please try again.';
+  } else {
+    isCardDecline.value = false;
+    isTechnicalError.value = true;
+    paymentError.value = 'An unexpected error occurred during payment. Please try again.';
+  }
+
   paymentComplete.value = false;
 
   emit('payment-failed', eventMessage);
@@ -391,6 +464,35 @@ const handlePaymentFailed = (eventMessage: any) => {
 
   // Remove the iframe after failed payment
   removeHelcimIframe();
+};
+
+// Copy debug info to clipboard for customer support
+const copyDebugInfo = async () => {
+  try {
+    const info = [
+      '--- ProSkatersPlace Payment Debug Info ---',
+      `Date: ${new Date().toISOString()}`,
+      `Error: ${rawErrorMessage.value}`,
+      `Amount: ${props.amount} ${props.currency}`,
+      `Line Items: ${props.lineItems?.length || 0}`,
+      `Tax: ${props.taxAmount} | Shipping: ${props.shippingAmount} | Discount: ${props.discountAmount}`,
+      `Token Present: ${!!checkoutToken.value}`,
+      '',
+      '--- Logs ---',
+      ...debugLogs.value.slice(-50), // Last 50 log entries
+      '--- End ---',
+    ].join('\n');
+
+    await navigator.clipboard.writeText(info);
+    debugLogsCopied.value = true;
+    setTimeout(() => {
+      debugLogsCopied.value = false;
+    }, 3000);
+  } catch (err) {
+    console.error('[HelcimCard] Failed to copy debug info:', err);
+    // Fallback: select text in a textarea
+    alert('Could not copy automatically. Please contact support@proskatersplace.ca with details about this error.');
+  }
 };
 
 const processPayment = () => {
@@ -529,10 +631,42 @@ onUnmounted(() => {
 <template>
   <div class="helcim-payment-container">
     <!-- Error Display -->
-    <div v-if="paymentError" class="error-message mb-4">
-      <div class="flex items-center gap-2">
-        <Icon name="ion:alert-circle" size="20" class="text-red-600" />
-        <span>{{ paymentError }}</span>
+    <div v-if="paymentError" class="mb-4">
+      <!-- Card Decline - clear customer-facing message -->
+      <div v-if="isCardDecline" class="p-4 bg-red-50 rounded-lg border border-red-200">
+        <div class="flex items-start gap-3">
+          <Icon name="ion:card" size="24" class="text-red-500 mt-0.5 flex-shrink-0" />
+          <div>
+            <div class="font-medium text-red-800 mb-1">Card Declined</div>
+            <p class="text-sm text-red-700">{{ paymentError }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical / Unexpected Error - with copy debug button -->
+      <div v-else class="p-4 bg-orange-50 rounded-lg border border-orange-200">
+        <div class="flex items-start gap-3">
+          <Icon name="ion:warning" size="24" class="text-orange-500 mt-0.5 flex-shrink-0" />
+          <div class="flex-1">
+            <div class="font-medium text-orange-800 mb-1">Payment Error</div>
+            <p class="text-sm text-orange-700 mb-3">{{ paymentError }}</p>
+            <p class="text-xs text-orange-600 mb-2">
+              If this keeps happening, please copy the error details below and email them to
+              <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>
+            </p>
+            <button
+              @click="copyDebugInfo"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+              :class="
+                debugLogsCopied
+                  ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-white text-orange-700 border border-orange-300 hover:bg-orange-100'
+              ">
+              <Icon :name="debugLogsCopied ? 'ion:checkmark-circle' : 'ion:copy'" size="14" />
+              {{ debugLogsCopied ? 'Copied!' : 'Copy Error Details' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
