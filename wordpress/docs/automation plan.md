@@ -16,9 +16,10 @@ All scripts use credentials already in `.env` — no new auth setup:
 | WooCommerce REST API | `WC_CONSUMER_KEY` + `WC_CONSUMER_SECRET`      | `/wp-json/wc/v3/`   | Read/write products, categories, settings    |
 | WordPress REST API   | `WP_ADMIN_USERNAME` + `WP_ADMIN_APP_PASSWORD` | `/wp-json/wp/v2/`   | Read/write pages, posts, media, users, menus |
 | WPGraphQL (admin)    | `GQL_HOST` + same app password                | `GQL_HOST`          | Admin-authed mutations                       |
-| Claude API           | `CLAUDE_API_KEY` (add to .env)                | `api.anthropic.com` | Content generation, rewrites                 |
+| Gemini API           | `GEMINI_API_KEY` (= `GOOGLE_AI_API_KEY`)      | `generativelanguage.googleapis.com` | Content generation, rewrites |
 
 Script pattern: follow `scripts/build-products-cache.js` — `require('dotenv').config()`, `node-fetch`, paginated batches, exponential backoff, `--dry-run` flag on every script.  
+Tier 2 scripts `require('./lib/gemini')` for all LLM calls — shared rate-limiting + retry logic in `wordpress/scripts/lib/gemini.js`.  
 All new scripts live in `wordpress/scripts/` to separate from build scripts.
 
 **Standard run procedure for every script:**
@@ -41,11 +42,13 @@ All new scripts live in `wordpress/scripts/` to separate from build scripts.
 **Applied on test site Feb 27, 2026:** Fixed 1 homepage Elementor link + 1 blog post body copy. 0 menu items had the typo on test (live site menu is the main target).
 
 **Covers 3 layers:**
+
 1. WP nav menu items (all menus)
 2. Page + post `post_content` (Gutenberg / raw)
 3. **Elementor `_elementor_data` post meta** — homepage uses Elementor; typo was in JSON meta, not `post_content`
 
 **Run:**
+
 ```bash
 node wordpress/scripts/fix-footer-menu.js --dry-run   # preview all 3 layers
 node wordpress/scripts/fix-footer-menu.js              # apply
@@ -73,7 +76,7 @@ node wordpress/scripts/fix-footer-menu.js              # apply
 **Status:** ✅ Built — `wordpress/scripts/fix-shipping-threshold.js`  
 **Test site audit result:** Homepage body copy mentions $99 only. No WC zone-level free_shipping methods configured. No widgets mention either value.
 
-**⚠️  CONFIRM correct threshold before running --fix:**
+**⚠️ CONFIRM correct threshold before running --fix:**
 
 ```bash
 # Step 1 — Audit (read-only, safe to run now):
@@ -128,6 +131,7 @@ node wordpress/scripts/fix-media-alt-text.js
 **Note:** Issue is on live only (test site has 0 occurrences). Homepage is Elementor-built; raw block content is only 5,390 chars. Script searches `post_content` raw — if live uses Elementor too, the duplicate may be in `_elementor_data` meta instead. Script auto-detects Gutenberg block boundaries.
 
 **Run against live:**
+
 ```bash
 node wordpress/scripts/dedup-homepage-faq.js --dry-run
 node wordpress/scripts/dedup-homepage-faq.js
@@ -142,7 +146,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 
 ---
 
-### TIER 2 — Content at scale using Claude API (highest ROI)
+### TIER 2 — Content at scale using Gemini API (highest ROI)
 
 #### `scripts/wordpress/rewrite-product-descriptions.js`
 
@@ -151,7 +155,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 
 1. `GET /wp-json/wc/v3/products?per_page=100&page={n}` — paginate all products
 2. Heuristic: skip descriptions that already mention "ProSkaters" — these are already customized
-3. POST to Claude API:
+3. POST to Gemini API:
    > _"Rewrite this product description in the voice of ProSkaters Place Canada — a Toronto-based expert skate shop. Add: (1) a unique skating expertise angle, (2) a Canadian sizing/shipping note, (3) who this skate is best for. Keep under 200 words. Do not start with the product name. Original: {description}"_
 4. `PUT /wp-json/wc/v3/products/{id}` with `{ "description": rewrittenContent }`
 
@@ -161,7 +165,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 - View page source → confirm no manufacturer boilerplate remains on those pages
 
 **Flags:** `--dry-run`, `--limit=50`, `--force` (overwrite already-customized)  
-**Rate:** 1 req/sec to avoid Claude throttle  
+**Rate:** 1 call per 6s (10 RPM default) — configured in `lib/gemini.js`; raise via `GEMINI_RPM` env var on paid tier  
 **Effort:** 5-6 hours to build; ~2 hours to run across 500 products
 
 ---
@@ -172,7 +176,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 **API flow:**
 
 1. `GET /wp-json/wc/v3/products/categories` — list all categories
-2. For shallow categories (under 300 words), generate via Claude:
+2. For shallow categories (under 300 words), generate via Gemini:
    > _"Write a 400-word WooCommerce category description for '{name}' for ProSkaters Place Canada. Include: who it's for, 3-4 key specs to look for, ProSkaters expertise + Canadian delivery note, 2-3 FAQ Q&As. Plain HTML only — p and ul/li tags."_
 3. `PUT /wp-json/wc/v3/products/categories/{id}` with `{ "description": fullHTML }`
 
@@ -192,7 +196,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 **API flow:**
 
 1. `GET /wp-json/wc/v3/products?category=roller-skates&per_page=50` for product data to reference
-2. Generate 600+ word hub page via Claude with buying guide, FAQ, brand overview, internal links
+2. Generate 600+ word hub page via Gemini with buying guide, FAQ, brand overview, internal links
 3. `POST /wp-json/wp/v2/pages` with `{ slug: "roller-skates", title, content, status: "publish" }`
 4. Update Yoast/Rank Math meta via post meta fields: `_yoast_wpseo_title`, `_yoast_wpseo_metadesc`
 
@@ -212,14 +216,14 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 
 1. `GET /wp-json/wp/v2/posts?per_page=100&page={n}` — paginate all posts
 2. Skip posts with `<!-- wp:group {"className":"quick-answer"}` already present
-3. Claude prompt:
+3. Gemini prompt:
    > _"Write a 2-sentence direct answer to the implied question of this article. Lead with the most specific fact. Under 60 words. Never start with 'Yes', 'No', or 'In conclusion'."_
 4. Prepend this Gutenberg block to `post_content`:
    ```html
    <!-- wp:group {"className":"quick-answer","style":{"color":{"background":"#f0f7ff"}}} -->
    <div class="wp-block-group quick-answer" style="background-color:#f0f7ff;padding:1rem;border-radius:8px;margin-bottom:1.5rem">
      <!-- wp:paragraph -->
-     <p><strong>Quick Answer:</strong> {CLAUDE_OUTPUT}</p>
+     <p><strong>Quick Answer:</strong> {GEMINI_OUTPUT}</p>
      <!-- /wp:paragraph -->
    </div>
    <!-- /wp:group -->
@@ -303,7 +307,7 @@ node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
 
 1. Hub: "Complete Beginner's Guide to Rollerblading" — 1 hub + 5 spoke articles
 2. Spokes: stopping, turning, uphill skating, choosing first skates, safety gear
-3. Generate each via Claude (~1,200 words each, internal links to product categories)
+3. Generate each via Gemini (~1,200 words each, internal links to product categories)
 4. `POST /wp-json/wp/v2/posts` for each article
 5. Update hub to link all spokes
 
@@ -395,8 +399,8 @@ Later scripts build on work done by earlier ones:
 # GQL_HOST, WC_CONSUMER_KEY, WC_CONSUMER_SECRET
 # WP_ADMIN_USERNAME, WP_ADMIN_APP_PASSWORD
 
-# Add for Claude-powered scripts:
-CLAUDE_API_KEY=sk-ant-...
+# Add for Gemini-powered scripts (GOOGLE_AI_API_KEY already in .env serves as GEMINI_API_KEY):
+GEMINI_API_KEY=AIzaSy...   # or keep using GOOGLE_AI_API_KEY — lib/gemini.js accepts both
 
 # Confirm this exists (check nuxt.config.ts runtimeConfig.public):
 WP_BASE_URL=https://proskatersplace.com
@@ -408,7 +412,7 @@ WP_BASE_URL=https://proskatersplace.com
 
 | Original Recommended Tool               | Replaced By                                                  | Why Better                                                             |
 | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| Make → Claude → WooCommerce             | `rewrite-product-descriptions.js` direct script              | No subscription cost; git-tracked; dry-run mode; runs from this repo   |
+| Make → Claude → WooCommerce             | `rewrite-product-descriptions.js` + `lib/gemini.js`          | No subscription cost; git-tracked; dry-run mode; runs from this repo   |
 | n8n/Make ongoing triggers               | OS cron calling npm scripts                                  | Simpler; no external platform dependency                               |
 | PublishPress Authors plugin             | `create-author-profiles.js` via WP REST                      | Author creation + bulk post assignment fully scriptable without plugin |
 | Velvet Blues Update URLs plugin         | `fix-footer-menu.js` + `fix-shipping-threshold.js`           | Targeted REST API calls; no plugin; audits before writing              |
