@@ -37,8 +37,19 @@ All new scripts live in `wordpress/scripts/` to separate from build scripts.
 #### `scripts/wordpress/fix-footer-menu.js`
 
 **SEO task:** Broken footer link — `skaterboards-and-longboards` typo (bleeds PageRank, crawl errors)  
-**API:** `GET /wp-json/wp/v2/menu-items` → find items where `url` contains `skaterboards` → `PATCH` each with corrected slug. Also `GET /wp-json/wp/v2/pages?search=skaterboards` to patch any in-page body copies.  
-**Effort:** 2-3 hours
+**Status:** ✅ Built — `wordpress/scripts/fix-footer-menu.js`  
+**Applied on test site Feb 27, 2026:** Fixed 1 homepage Elementor link + 1 blog post body copy. 0 menu items had the typo on test (live site menu is the main target).
+
+**Covers 3 layers:**
+1. WP nav menu items (all menus)
+2. Page + post `post_content` (Gutenberg / raw)
+3. **Elementor `_elementor_data` post meta** — homepage uses Elementor; typo was in JSON meta, not `post_content`
+
+**Run:**
+```bash
+node wordpress/scripts/fix-footer-menu.js --dry-run   # preview all 3 layers
+node wordpress/scripts/fix-footer-menu.js              # apply
+```
 
 **✅ Safe for proskatersplace.ca — verified Feb 27, 2026:**
 
@@ -59,15 +70,22 @@ All new scripts live in `wordpress/scripts/` to separate from build scripts.
 #### `scripts/wordpress/fix-shipping-threshold.js`
 
 **SEO task:** $99 vs $150 free shipping inconsistency across site — trust destroyer, bounce signal  
-**API:**
+**Status:** ✅ Built — `wordpress/scripts/fix-shipping-threshold.js`  
+**Test site audit result:** Homepage body copy mentions $99 only. No WC zone-level free_shipping methods configured. No widgets mention either value.
 
-- `GET /wp-json/wc/v3/settings/general` to read WooCommerce free shipping floor
-- `GET /wp-json/wp/v2/widgets` to find and patch header/banner widgets
-- `GET /wp-json/wp/v2/pages` text-search both values, patch each page's content
-- `GET /wp-json/wc/v3/shipping/zones` for zone-level overrides  
-  **Prerequisite:** Confirm the correct threshold ($99 or $150) before running — hardcode in script config  
-  **Output:** Full audit of every instance found before writing anything  
-  **Effort:** 3-4 hours
+**⚠️  CONFIRM correct threshold before running --fix:**
+
+```bash
+# Step 1 — Audit (read-only, safe to run now):
+node wordpress/scripts/fix-shipping-threshold.js
+
+# Step 2 — After confirming correct value (default: --correct=150 --wrong=99):
+node wordpress/scripts/fix-shipping-threshold.js --fix --dry-run
+node wordpress/scripts/fix-shipping-threshold.js --fix
+
+# If $99 is actually correct:
+node wordpress/scripts/fix-shipping-threshold.js --fix --correct=99 --wrong=150
+```
 
 **Visual verification after running:**
 
@@ -87,6 +105,7 @@ All new scripts live in `wordpress/scripts/` to separate from build scripts.
 **Flags:** `--dry-run`, `--limit=N`, `--max-pages=N` (default 200 = 20,000 items)  
 **Brand mapping:** Hardcoded in `BRAND_MAP` at top of script — add entries for any brand it misnames  
 **Run against live:**
+
 ```bash
 # 1. Dry-run first — swap BASE_URL in .env to live, then:
 node wordpress/scripts/fix-media-alt-text.js --dry-run
@@ -104,9 +123,17 @@ node wordpress/scripts/fix-media-alt-text.js
 
 #### `scripts/wordpress/dedup-homepage-faq.js`
 
-**SEO task:** "Are roller skates better tight or loose?" appears twice on homepage — dilutes contentEffort signal  
-**API:** `GET /wp-json/wp/v2/pages?slug=home` → parse Gutenberg block serialized HTML → remove second occurrence of the duplicate FAQ block → `PUT` updated content  
-**Effort:** 2-3 hours
+**SEO task:** "Are roller skates better tight or loose?" appears twice on homepage — dilutes content signal  
+**Status:** ✅ Built — `wordpress/scripts/dedup-homepage-faq.js`  
+**Note:** Issue is on live only (test site has 0 occurrences). Homepage is Elementor-built; raw block content is only 5,390 chars. Script searches `post_content` raw — if live uses Elementor too, the duplicate may be in `_elementor_data` meta instead. Script auto-detects Gutenberg block boundaries.
+
+**Run against live:**
+```bash
+node wordpress/scripts/dedup-homepage-faq.js --dry-run
+node wordpress/scripts/dedup-homepage-faq.js
+# Custom search string if needed:
+node wordpress/scripts/dedup-homepage-faq.js --search="tight or loose"
+```
 
 **Visual verification after running:**
 
@@ -342,10 +369,10 @@ Later scripts build on work done by earlier ones:
 
 | Script                            | SEO Task from Audit                           | Priority       | Est. Hours | Plugin Required       |
 | --------------------------------- | --------------------------------------------- | -------------- | ---------- | --------------------- |
-| `fix-footer-menu.js`              | Broken `skaterboards` link                    | 🔴 Immediate   | 2          | No                    |
-| `fix-shipping-threshold.js`       | $99 vs $150 inconsistency                     | 🔴 Immediate   | 3          | No                    |
+| `fix-footer-menu.js`              | Broken `skaterboards` link                    | 🔴 Immediate   | ✅ Built   | No                    |
+| `fix-shipping-threshold.js`       | $99 vs $150 inconsistency                     | 🔴 Immediate   | ✅ Built   | No                    |
 | `fix-media-alt-text.js`           | Brand logo alt text                           | 🔴 Immediate   | ✅ Built   | No                    |
-| `dedup-homepage-faq.js`           | Duplicate FAQ entry                           | 🔴 Immediate   | 2          | No                    |
+| `dedup-homepage-faq.js`           | Duplicate FAQ entry                           | 🔴 Immediate   | ✅ Built   | No                    |
 | `rewrite-product-descriptions.js` | Manufacturer copy duplication (500+ products) | 🔴 Highest ROI | 6          | No                    |
 | `update-category-descriptions.js` | Shallow roller skates category pages          | 🔴 High        | 3          | No                    |
 | `build-roller-skates-hub.js`      | "Roller skates" at position #47               | 🔴 High        | 5          | No                    |
