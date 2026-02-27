@@ -19,7 +19,14 @@ All scripts use credentials already in `.env` — no new auth setup:
 | Claude API           | `CLAUDE_API_KEY` (add to .env)                | `api.anthropic.com` | Content generation, rewrites                 |
 
 Script pattern: follow `scripts/build-products-cache.js` — `require('dotenv').config()`, `node-fetch`, paginated batches, exponential backoff, `--dry-run` flag on every script.  
-All new scripts live in `scripts/wordpress/` to separate from build scripts.
+All new scripts live in `wordpress/scripts/` to separate from build scripts.
+
+**Standard run procedure for every script:**
+
+1. `--dry-run` first — review console output, confirm targets are correct
+2. Run live against **test site** (`BASE_URL=https://test.proskatersplace.com`)
+3. **Visually verify** 2-3 target pages on the test site in browser (specific URLs listed per script below)
+4. Only after test site confirms ✅ → swap `.env` to live block and re-run against production
 
 ---
 
@@ -32,6 +39,20 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 **SEO task:** Broken footer link — `skaterboards-and-longboards` typo (bleeds PageRank, crawl errors)  
 **API:** `GET /wp-json/wp/v2/menu-items` → find items where `url` contains `skaterboards` → `PATCH` each with corrected slug. Also `GET /wp-json/wp/v2/pages?search=skaterboards` to patch any in-page body copies.  
 **Effort:** 2-3 hours
+
+**✅ Safe for proskatersplace.ca — verified Feb 27, 2026:**
+
+- WooCommerce category slug is already `skateboards-and-longboards` (correct) — WP id: 2526
+- Nuxt routes, sitemap, `pages/categories.vue`, and `build-all-routes.js` all use the correct slug
+- Category images exist: `public/images/Skateboards-and-longboards.jpeg/.webp`
+- The typo **only lives in the WordPress menu link URL** — it points to a dead path that never existed
+- Script fixes only the menu item URL and any matching body copy typos — does NOT touch the category slug
+- No redirects needed, no .ca code changes needed
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com` → inspect footer nav → hover the Skateboards link → confirm URL shows `skateboards-and-longboards` (no typo)
+- `https://test.proskatersplace.com` → homepage body copy → confirm anchor text link resolves without 404
 
 ---
 
@@ -48,14 +69,36 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
   **Output:** Full audit of every instance found before writing anything  
   **Effort:** 3-4 hours
 
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com` → check header/banner — confirm single consistent threshold
+- `https://test.proskatersplace.com/shop/inline-skates/` → confirm category page shows matching threshold
+- `https://test.proskatersplace.com/shop/` → confirm shop page matches
+
 ---
 
 #### `scripts/wordpress/fix-media-alt-text.js`
 
 **SEO task:** Brand logos have alt text "Home 1", "Home 2" — misses brand entity association  
-**API:** `GET /wp-json/wp/v2/media?per_page=100&search=home` → filter alt text matching `/^Home \d+$/` → `POST /wp-json/wp/v2/media/{id}` with correct brand name  
-**Note:** Requires one manual mapping pass to confirm which file = which brand before running  
-**Effort:** 2 hours
+**API:** `GET /wp-json/wp/v2/media?per_page=100` → paginate full library → filter alt text matching `/^Home \d+$/i` → `POST /wp-json/wp/v2/media/{id}` with correct brand name  
+**Status:** ✅ Built — `wordpress/scripts/fix-media-alt-text.js`  
+**Note:** Test site has 0 matches (issue confirmed on live only). Run against live with BASE_URL swap.
+
+**Flags:** `--dry-run`, `--limit=N`, `--max-pages=N` (default 200 = 20,000 items)  
+**Brand mapping:** Hardcoded in `BRAND_MAP` at top of script — add entries for any brand it misnames  
+**Run against live:**
+```bash
+# 1. Dry-run first — swap BASE_URL in .env to live, then:
+node wordpress/scripts/fix-media-alt-text.js --dry-run
+# 2. Review output — confirm brand names are correct
+# 3. Apply:
+node wordpress/scripts/fix-media-alt-text.js
+```
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com` → scroll to "Brands We Carry" section → right-click each logo image → Inspect → confirm `alt` attribute shows brand name, not "Home 1" etc.
+- Check 3-4 logos to confirm the mapping applied correctly
 
 ---
 
@@ -64,6 +107,11 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 **SEO task:** "Are roller skates better tight or loose?" appears twice on homepage — dilutes contentEffort signal  
 **API:** `GET /wp-json/wp/v2/pages?slug=home` → parse Gutenberg block serialized HTML → remove second occurrence of the duplicate FAQ block → `PUT` updated content  
 **Effort:** 2-3 hours
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com` → scroll to FAQ section → Ctrl+F "Are roller skates better tight" → confirm it appears exactly once
+- Check page source to confirm no duplicate block markup remains
 
 ---
 
@@ -79,6 +127,11 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 3. POST to Claude API:
    > _"Rewrite this product description in the voice of ProSkaters Place Canada — a Toronto-based expert skate shop. Add: (1) a unique skating expertise angle, (2) a Canadian sizing/shipping note, (3) who this skate is best for. Keep under 200 words. Do not start with the product name. Original: {description}"_
 4. `PUT /wp-json/wc/v3/products/{id}` with `{ "description": rewrittenContent }`
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com/shop/` → open 3 random products → confirm description mentions "ProSkaters" or Canadian context, doesn't start with product name
+- View page source → confirm no manufacturer boilerplate remains on those pages
 
 **Flags:** `--dry-run`, `--limit=50`, `--force` (overwrite already-customized)  
 **Rate:** 1 req/sec to avoid Claude throttle  
@@ -96,6 +149,11 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
    > _"Write a 400-word WooCommerce category description for '{name}' for ProSkaters Place Canada. Include: who it's for, 3-4 key specs to look for, ProSkaters expertise + Canadian delivery note, 2-3 FAQ Q&As. Plain HTML only — p and ul/li tags."_
 3. `PUT /wp-json/wc/v3/products/categories/{id}` with `{ "description": fullHTML }`
 
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com/product-category/roller-skates/` → confirm descriptive buying guide content renders below products
+- `https://test.proskatersplace.com/product-category/roller-blades/` → same check
+
 **Priority categories:** `roller-skates`, `roller-blades`, `penny-boards`, `longboards`  
 **Effort:** 3-4 hours
 
@@ -109,8 +167,14 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 1. `GET /wp-json/wc/v3/products?category=roller-skates&per_page=50` for product data to reference
 2. Generate 600+ word hub page via Claude with buying guide, FAQ, brand overview, internal links
 3. `POST /wp-json/wp/v2/pages` with `{ slug: "roller-skates", title, content, status: "publish" }`
-4. Update Yoast/Rank Math meta via post meta fields: `_yoast_wpseo_title`, `_yoast_wpseo_metadesc`  
-   **Effort:** 4-5 hours
+4. Update Yoast/Rank Math meta via post meta fields: `_yoast_wpseo_title`, `_yoast_wpseo_metadesc`
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com/roller-skates/` (or wherever the slug resolves) → confirm page renders with buying guide content
+- View page source → check `<title>` and `<meta name="description">` contain target keyword
+
+**Effort:** 4-5 hours
 
 ---
 
@@ -133,8 +197,14 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
    </div>
    <!-- /wp:group -->
    ```
-5. `PUT /wp-json/wp/v2/posts/{id}` with updated `content`  
-   **Effort:** 4-5 hours; ~45 min run time for 50 posts
+5. `PUT /wp-json/wp/v2/posts/{id}` with updated `content`
+
+**Visual verification after running:**
+
+- Open 2-3 blog posts on `https://test.proskatersplace.com/` → confirm blue Quick Answer box appears at top of article above the intro
+- View page source → confirm `wp-block-group quick-answer` class is present
+
+**Effort:** 4-5 hours; ~45 min run time for 50 posts
 
 ---
 
@@ -146,9 +216,15 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 1. Define 2-3 author profiles in script config (name, bio, skating credentials)
 2. `POST /wp-json/wp/v2/users` for each new author (requires `create_users` capability on app password user)
 3. `GET /wp-json/wp/v2/posts?per_page=100` — assign author by topic/date rule
-4. `PUT /wp-json/wp/v2/posts/{id}` with `{ "author": authorId }`  
-   **Fallback:** If `create_users` not allowed, create authors manually in WP Admin first — script only handles the bulk post assignment  
-   **Effort:** 2-3 hours
+4. `PUT /wp-json/wp/v2/posts/{id}` with `{ "author": authorId }`
+
+**Visual verification after running:**
+
+- Open 2-3 blog posts → confirm author byline name is visible
+- `https://test.proskatersplace.com/author/{slug}/` → confirm author profile page renders
+
+**Fallback:** If `create_users` not allowed, create authors manually in WP Admin first — script only handles the bulk post assignment  
+ **Effort:** 2-3 hours
 
 ---
 
@@ -163,8 +239,13 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
    ```html
    <p><strong>✓ Authorized Retailer</strong> — ProSkaters Place is an official authorized dealer for {brand}.</p>
    ```
-4. `PUT /wp-json/wc/v3/products/{id}` with updated `short_description`  
-   **Effort:** 2 hours
+4. `PUT /wp-json/wc/v3/products/{id}` with updated `short_description`
+
+**Visual verification after running:**
+
+- Open a Powerslide and a Rollerblade product → confirm "✓ Authorized Retailer" badge appears in the short description above the Add to Cart button
+
+**Effort:** 2 hours
 
 ---
 
@@ -176,9 +257,15 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 1. `GET /wp-json/wp/v2/pages?slug=home` — parse Q&A content blocks
 2. Build `application/ld+json` FAQPage schema from detected Q&A pairs
 3. Append schema via inline `wp:html` block to post content
-4. Same logic applied to all blog posts with identifiable FAQ sections  
-   **Note:** If Rank Math Pro is already installed, script can also do `POST /wp-json/rankmath/v1/updateMeta` — detect active SEO plugin first with `GET /wp-json/` capability check  
-   **Effort:** 4 hours
+4. Same logic applied to all blog posts with identifiable FAQ sections
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com` → view source → search for `"@type":"FAQPage"` → confirm JSON-LD schema block is present
+- Paste homepage URL into [Google Rich Results Test](https://search.google.com/test/rich-results) → confirm FAQPage detected
+
+**Note:** If Rank Math Pro is already installed, script can also do `POST /wp-json/rankmath/v1/updateMeta` — detect active SEO plugin first with `GET /wp-json/` capability check  
+ **Effort:** 4 hours
 
 ---
 
@@ -191,8 +278,14 @@ All new scripts live in `scripts/wordpress/` to separate from build scripts.
 2. Spokes: stopping, turning, uphill skating, choosing first skates, safety gear
 3. Generate each via Claude (~1,200 words each, internal links to product categories)
 4. `POST /wp-json/wp/v2/posts` for each article
-5. Update hub to link all spokes  
-   **Effort:** 6-8 hours; creates 5-6 new posts
+5. Update hub to link all spokes
+
+**Visual verification after running:**
+
+- `https://test.proskatersplace.com/?p={id}` (use post ID from script output) → confirm all 5-6 articles render with correct content and internal links
+- Confirm hub article links to all spokes
+
+**Effort:** 6-8 hours; creates 5-6 new posts
 
 ---
 
@@ -251,7 +344,7 @@ Later scripts build on work done by earlier ones:
 | --------------------------------- | --------------------------------------------- | -------------- | ---------- | --------------------- |
 | `fix-footer-menu.js`              | Broken `skaterboards` link                    | 🔴 Immediate   | 2          | No                    |
 | `fix-shipping-threshold.js`       | $99 vs $150 inconsistency                     | 🔴 Immediate   | 3          | No                    |
-| `fix-media-alt-text.js`           | Brand logo alt text                           | 🔴 Immediate   | 2          | No                    |
+| `fix-media-alt-text.js`           | Brand logo alt text                           | 🔴 Immediate   | ✅ Built   | No                    |
 | `dedup-homepage-faq.js`           | Duplicate FAQ entry                           | 🔴 Immediate   | 2          | No                    |
 | `rewrite-product-descriptions.js` | Manufacturer copy duplication (500+ products) | 🔴 Highest ROI | 6          | No                    |
 | `update-category-descriptions.js` | Shallow roller skates category pages          | 🔴 High        | 3          | No                    |
