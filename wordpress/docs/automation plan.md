@@ -11,12 +11,12 @@
 
 All scripts use credentials already in `.env` — no new auth setup:
 
-| Connection           | Env Vars                                      | Endpoint            | Capability                                   |
-| -------------------- | --------------------------------------------- | ------------------- | -------------------------------------------- |
-| WooCommerce REST API | `WC_CONSUMER_KEY` + `WC_CONSUMER_SECRET`      | `/wp-json/wc/v3/`   | Read/write products, categories, settings    |
-| WordPress REST API   | `WP_ADMIN_USERNAME` + `WP_ADMIN_APP_PASSWORD` | `/wp-json/wp/v2/`   | Read/write pages, posts, media, users, menus |
-| WPGraphQL (admin)    | `GQL_HOST` + same app password                | `GQL_HOST`          | Admin-authed mutations                       |
-| Gemini API           | `GEMINI_API_KEY` (= `GOOGLE_AI_API_KEY`)      | `generativelanguage.googleapis.com` | Content generation, rewrites |
+| Connection           | Env Vars                                      | Endpoint                            | Capability                                   |
+| -------------------- | --------------------------------------------- | ----------------------------------- | -------------------------------------------- |
+| WooCommerce REST API | `WC_CONSUMER_KEY` + `WC_CONSUMER_SECRET`      | `/wp-json/wc/v3/`                   | Read/write products, categories, settings    |
+| WordPress REST API   | `WP_ADMIN_USERNAME` + `WP_ADMIN_APP_PASSWORD` | `/wp-json/wp/v2/`                   | Read/write pages, posts, media, users, menus |
+| WPGraphQL (admin)    | `GQL_HOST` + same app password                | `GQL_HOST`                          | Admin-authed mutations                       |
+| Gemini API           | `GEMINI_API_KEY` (= `GOOGLE_AI_API_KEY`)      | `generativelanguage.googleapis.com` | Content generation, rewrites                 |
 
 Script pattern: follow `scripts/build-products-cache.js` — `require('dotenv').config()`, `node-fetch`, paginated batches, exponential backoff, `--dry-run` flag on every script.  
 Tier 2 scripts `require('./lib/gemini')` for all LLM calls — shared rate-limiting + retry logic in `wordpress/scripts/lib/gemini.js`.  
@@ -40,6 +40,7 @@ All new scripts live in `wordpress/scripts/` to separate from build scripts.
 **SEO task:** Broken footer link — `skaterboards-and-longboards` typo (bleeds PageRank, crawl errors)  
 **Status:** ✅ Built — `wordpress/scripts/fix-footer-menu.js`  
 **Applied on test site Feb 27, 2026:** Fixed 1 homepage Elementor link + 1 blog post body copy. 0 menu items had the typo on test (live site menu is the main target).
+**Status on test site:** ✅ Clean — typo not present. Ready to run against live.
 
 **Covers 3 layers:**
 
@@ -76,6 +77,8 @@ node wordpress/scripts/fix-footer-menu.js              # apply
 **Status:** ✅ Built — `wordpress/scripts/fix-shipping-threshold.js`  
 **Test site audit result:** Homepage body copy mentions $99 only. No WC zone-level free_shipping methods configured. No widgets mention either value.
 
+**Test site audit result (Feb 28, 2026):** Homepage correctly shows `$150` in both `post_content` and `_elementor_data`. No WC zone free_shipping methods found. No widgets affected. Test site is clean — issue is live-only.
+
 **⚠️ CONFIRM correct threshold before running --fix:**
 
 ```bash
@@ -103,7 +106,7 @@ node wordpress/scripts/fix-shipping-threshold.js --fix --correct=99 --wrong=150
 **SEO task:** Brand logos have alt text "Home 1", "Home 2" — misses brand entity association  
 **API:** `GET /wp-json/wp/v2/media?per_page=100` → paginate full library → filter alt text matching `/^Home \d+$/i` → `POST /wp-json/wp/v2/media/{id}` with correct brand name  
 **Status:** ✅ Built — `wordpress/scripts/fix-media-alt-text.js`  
-**Note:** Test site has 0 matches (issue confirmed on live only). Run against live with BASE_URL swap.
+**Note:** Test site confirmed 0 matches (Feb 28, 2026 — scanned 10,100 items across 101 media pages). Issue confirmed on live only. Run against live with BASE_URL swap.
 
 **Flags:** `--dry-run`, `--limit=N`, `--max-pages=N` (default 200 = 20,000 items)  
 **Brand mapping:** Hardcoded in `BRAND_MAP` at top of script — add entries for any brand it misnames  
@@ -128,7 +131,7 @@ node wordpress/scripts/fix-media-alt-text.js
 
 **SEO task:** "Are roller skates better tight or loose?" appears twice on homepage — dilutes content signal  
 **Status:** ✅ Built — `wordpress/scripts/dedup-homepage-faq.js`  
-**Note:** Issue is on live only (test site has 0 occurrences). Homepage is Elementor-built; raw block content is only 5,390 chars. Script searches `post_content` raw — if live uses Elementor too, the duplicate may be in `_elementor_data` meta instead. Script auto-detects Gutenberg block boundaries.
+**Note:** Issue is on live only (test site has 0 occurrences — confirmed Feb 28, 2026). Homepage is Elementor-built; raw block content is only 5,390 chars. Script searches `post_content` raw — if live uses Elementor too, the duplicate may be in `_elementor_data` meta instead. Script auto-detects Gutenberg block boundaries.
 
 **Run against live:**
 
@@ -371,21 +374,24 @@ Later scripts build on work done by earlier ones:
 
 ## Scripts Build Checklist
 
-| Script                            | SEO Task from Audit                           | Priority       | Est. Hours | Plugin Required       |
-| --------------------------------- | --------------------------------------------- | -------------- | ---------- | --------------------- |
-| `fix-footer-menu.js`              | Broken `skaterboards` link                    | 🔴 Immediate   | ✅ Built   | No                    |
-| `fix-shipping-threshold.js`       | $99 vs $150 inconsistency                     | 🔴 Immediate   | ✅ Built   | No                    |
-| `fix-media-alt-text.js`           | Brand logo alt text                           | 🔴 Immediate   | ✅ Built   | No                    |
-| `dedup-homepage-faq.js`           | Duplicate FAQ entry                           | 🔴 Immediate   | ✅ Built   | No                    |
-| `rewrite-product-descriptions.js` | Manufacturer copy duplication (500+ products) | 🔴 Highest ROI | 6          | No                    |
-| `update-category-descriptions.js` | Shallow roller skates category pages          | 🔴 High        | 3          | No                    |
-| `build-roller-skates-hub.js`      | "Roller skates" at position #47               | 🔴 High        | 5          | No                    |
-| `add-quick-answer-boxes.js`       | AI Overview extractability (23% exposure)     | 🟡 Medium      | 4          | No                    |
-| `create-author-profiles.js`       | E-E-A-T author attribution gap                | 🟡 Medium      | 3          | No                    |
-| `add-authorized-retailer-tag.js`  | Trust signal on product pages                 | 🟡 Medium      | 2          | No                    |
-| `inject-faq-schema.js`            | FAQPage schema missing                        | 🟡 Medium      | 4          | Optional (Rank Math)  |
-| `create-redirects.js`             | Intent mismatch routing                       | 🟡 Medium      | 2          | **Yes — Redirection** |
-| `create-topical-cluster.js`       | Topical authority for "how to rollerblade"    | 🟢 Quarter     | 7          | No                    |
+| Script                            | SEO Task from Audit                | Priority       | Est. Hours        | Plugin Required                           |
+| --------------------------------- | ---------------------------------- | -------------- | ----------------- | ----------------------------------------- |
+| Script                            | SEO Task                           | Priority       | Status            | Live-ready?                               |
+| ---                               | ---                                | ---            | ---               | ---                                       |
+| `fix-footer-menu.js`              | Broken `skaterboards` link         | 🔴 Immediate   | ✅ Built          | ✅ **Run on live**                        |
+| `fix-shipping-threshold.js`       | $99 vs $150 inconsistency          | 🔴 Immediate   | ✅ Built          | ✅ **Run on live** (test clean)           |
+| `fix-media-alt-text.js`           | Brand logo alt text                | 🔴 Immediate   | ✅ Built          | ✅ **Run on live** (test clean)           |
+| `dedup-homepage-faq.js`           | Duplicate FAQ entry                | 🔴 Immediate   | ✅ Built          | ✅ **Run on live** (test clean)           |
+| `optimize-brand-page.js`          | Brand page SEO content (76 brands) | 🔴 Highest ROI | ✅ Built + tested | ✅ **6/76 done on test**, promote to live |
+| `rewrite-product-descriptions.js` | Manufacturer copy (500+ products)  | 🔴 Highest ROI | ❌ Not built      | —                                         |
+| `update-category-descriptions.js` | Shallow category pages             | 🔴 High        | ❌ Not built      | —                                         |
+| `build-roller-skates-hub.js`      | "Roller skates" at position #47    | 🔴 High        | ❌ Not built      | —                                         |
+| `add-quick-answer-boxes.js`       | AI Overview extractability         | 🟡 Medium      | ❌ Not built      | —                                         |
+| `create-author-profiles.js`       | E-E-A-T author attribution         | 🟡 Medium      | ❌ Not built      | —                                         |
+| `add-authorized-retailer-tag.js`  | Authorized retailer trust signals  | 🟡 Medium      | ❌ Not built      | —                                         |
+| `inject-faq-schema.js`            | FAQPage schema on blog posts       | 🟡 Medium      | ❌ Not built      | —                                         |
+| `create-redirects.js`             | Intent mismatch routing            | 🟡 Medium      | ❌ Not built      | **Needs Redirection plugin**              |
+| `create-topical-cluster.js`       | "How to rollerblade" cluster       | 🟢 Quarter     | ❌ Not built      | —                                         |
 
 **Total build time estimate:** ~45 hours  
 **Plugins to install first (one-time, 10 min total):** Redirection (free), optionally Rank Math Pro

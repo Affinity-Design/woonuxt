@@ -247,10 +247,9 @@ async function auditAndFixElementorPages() {
   let fixed = 0;
 
   while (true) {
-    const res = await fetch(
-      `${BASE}/wp-json/wp/v2/pages?per_page=50&page=${page}&context=edit&_fields=id,slug,title,meta`,
-      { headers: { Authorization: WP_AUTH } }
-    );
+    const res = await fetch(`${BASE}/wp-json/wp/v2/pages?per_page=50&page=${page}&context=edit&_fields=id,slug,title,meta`, {
+      headers: {Authorization: WP_AUTH},
+    });
     if (res.status === 400 || res.status === 404) break;
     if (!res.ok) break;
     const batch = await res.json();
@@ -261,14 +260,14 @@ async function auditAndFixElementorPages() {
       if (!el) continue;
 
       const hasCorrect = mentionsThreshold(el, CORRECT_THRESHOLD);
-      const hasWrong   = mentionsThreshold(el, WRONG_THRESHOLD);
+      const hasWrong = mentionsThreshold(el, WRONG_THRESHOLD);
       if (!hasCorrect && !hasWrong) continue;
 
       const title = post.title && post.title.rendered ? post.title.rendered : post.slug;
       found++;
       console.log(`  Page id:${post.id} "${title}" (Elementor meta)`);
       if (hasCorrect) console.log(`    ✅ mentions $${CORRECT_THRESHOLD}`);
-      if (hasWrong)   console.log(`    ⚠️  mentions $${WRONG_THRESHOLD} (WRONG)`);
+      if (hasWrong) console.log(`    ⚠️  mentions $${WRONG_THRESHOLD} (WRONG)`);
 
       if (FIX_MODE && hasWrong) {
         const fixedEl = el
@@ -282,8 +281,8 @@ async function auditAndFixElementorPages() {
         } else {
           const pRes = await fetch(`${BASE}/wp-json/wp/v2/pages/${post.id}`, {
             method: 'POST',
-            headers: { Authorization: WP_AUTH, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ meta: { '_elementor_data': fixedEl } }),
+            headers: {Authorization: WP_AUTH, 'Content-Type': 'application/json'},
+            body: JSON.stringify({meta: {_elementor_data: fixedEl}}),
           });
           if (!pRes.ok) {
             console.error(`    ✗ FAILED: ${pRes.status}`);

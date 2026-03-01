@@ -32,9 +32,9 @@ if (!BASE || !WP_USER || !WP_PASS) {
 const AUTH = 'Basic ' + Buffer.from(WP_USER + ':' + WP_PASS).toString('base64');
 
 const DRY_RUN = process.argv.includes('--dry-run');
-const LIMIT_ARG = process.argv.find(a => a.startsWith('--limit='));
+const LIMIT_ARG = process.argv.find((a) => a.startsWith('--limit='));
 const MAX_UPDATES = LIMIT_ARG ? parseInt(LIMIT_ARG.split('=')[1], 10) : Infinity;
-const MAX_PAGES_ARG = process.argv.find(a => a.startsWith('--max-pages='));
+const MAX_PAGES_ARG = process.argv.find((a) => a.startsWith('--max-pages='));
 const MAX_PAGES = MAX_PAGES_ARG ? parseInt(MAX_PAGES_ARG.split('=')[1], 10) : 200; // 200 pages = 20,000 items
 
 // ─────────────────────────────────────────────────────────────────
@@ -43,28 +43,28 @@ const MAX_PAGES = MAX_PAGES_ARG ? parseInt(MAX_PAGES_ARG.split('=')[1], 10) : 20
 // Keys are lowercase fragments that appear in the filename.
 // ─────────────────────────────────────────────────────────────────
 const BRAND_MAP = {
-  rollerblade:   'Rollerblade',
-  powerslide:    'Powerslide',
-  'k2-skates':   'K2 Skates',
-  'k2skates':    'K2 Skates',
-  seba:          'Seba Skates',
-  'fr-skates':   'FR Skates',
-  frskates:      'FR Skates',
-  usd:           'USD Skates',
-  salomon:       'Salomon',
-  bauer:         'Bauer',
-  roces:         'Roces',
-  oxelo:         'Oxelo',
-  chaya:         'Chaya',
-  playlife:      'PlayLife',
-  fila:          'FILA Skates',
-  bont:          'Bont Skates',
-  ennui:         'Ennui',
-  kizer:         'Kizer',
-  mindless:      'Mindless',
-  atom:          'Atom Skates',
-  vanilla:       'Vanilla',
-  tour:          'Tour Hockey',
+  rollerblade: 'Rollerblade',
+  powerslide: 'Powerslide',
+  'k2-skates': 'K2 Skates',
+  k2skates: 'K2 Skates',
+  seba: 'Seba Skates',
+  'fr-skates': 'FR Skates',
+  frskates: 'FR Skates',
+  usd: 'USD Skates',
+  salomon: 'Salomon',
+  bauer: 'Bauer',
+  roces: 'Roces',
+  oxelo: 'Oxelo',
+  chaya: 'Chaya',
+  playlife: 'PlayLife',
+  fila: 'FILA Skates',
+  bont: 'Bont Skates',
+  ennui: 'Ennui',
+  kizer: 'Kizer',
+  mindless: 'Mindless',
+  atom: 'Atom Skates',
+  vanilla: 'Vanilla',
+  tour: 'Tour Hockey',
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ const BRAND_MAP = {
 
 /** Pause execution for ms milliseconds */
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -90,7 +90,10 @@ function brandFromFilename(filename) {
   }
 
   // Generic: strip extension + numbers, title-case first word
-  const stem = filename.replace(/\.[a-z]+$/i, '').replace(/[-_]/g, ' ').trim();
+  const stem = filename
+    .replace(/\.[a-z]+$/i, '')
+    .replace(/[-_]/g, ' ')
+    .trim();
   const words = stem.split(' ').filter(Boolean);
   const firstWord = words[0] || 'Brand';
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
@@ -109,7 +112,7 @@ async function fetchAllMedia() {
     }
 
     const url = `${BASE}/wp-json/wp/v2/media?per_page=100&page=${page}&_fields=id,alt_text,title,source_url`;
-    const res = await fetch(url, { headers: { Authorization: AUTH } });
+    const res = await fetch(url, {headers: {Authorization: AUTH}});
 
     // WP returns 400 when page > total pages
     if (res.status === 400 || res.status === 404) break;
@@ -153,7 +156,7 @@ async function patchAlt(id, newAlt, attempt) {
         Authorization: AUTH,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ alt_text: newAlt }),
+      body: JSON.stringify({alt_text: newAlt}),
     });
 
     if (!res.ok) {
@@ -189,7 +192,7 @@ async function main() {
 
   // Filter: alt_text matches "Home N" pattern (case-insensitive)
   const homeAltPattern = /^home[\s-]?\d+$/i;
-  const targets = allMedia.filter(item => homeAltPattern.test(item.alt_text || ''));
+  const targets = allMedia.filter((item) => homeAltPattern.test(item.alt_text || ''));
 
   console.log(`\nItems with "Home N" alt text: ${targets.length}`);
 
@@ -200,7 +203,7 @@ async function main() {
   }
 
   console.log('\nTargets:');
-  targets.forEach(item => {
+  targets.forEach((item) => {
     const filename = item.source_url.split('/').pop();
     const brand = brandFromFilename(filename);
     const altText = `${brand} logo`;
@@ -249,7 +252,7 @@ async function main() {
   console.log('  2. Spot-check 3-4 logo images in the section');
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('\nFATAL:', err.message);
   process.exit(1);
 });

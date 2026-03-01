@@ -1,0 +1,77 @@
+Priority Rank,Brand,Slug,URL,Products,Content Words,Content Score,SEO Score,Top Keyword,Best Position,Total Volume,Est Traffic,Traffic Gap,Lost Keywords,Cannibal Keywords,Cannibal Volume,Avg KD,Rank Trend,Schema Present,Meta Description,Has FAQ
+1,Micro Skate,micro,https://test.proskatersplace.com/brand/micro/,15,31,very thin,88,micro skates,5,793810,0,794580,7,3104,793810,50,unknown,Y,Y,Y
+2,Rio Roller,rio-roller,https://test.proskatersplace.com/brand/rio-roller/,20,83,very thin,88,,,744360,0,744360,0,2301,744360,50,unknown,Y,Y,Y
+3,SEBA Skates,seba,https://test.proskatersplace.com/brand/seba/,32,46,very thin,88,seba skates,10,495510,0,496760,7,1620,495510,50,unknown,Y,Y,Y
+4,Chaya Skates,chaya-skates,https://test.proskatersplace.com/brand/chaya-skates/,102,103,thin,93,chaya,27,495490,0,517100,13,1620,495490,50,unknown,Y,Y,Y
+5,NN Skates,nn-skates,https://test.proskatersplace.com/brand/nn-skates/,17,78,very thin,88,top nn 100,34,496260,0,496790,3,1620,496260,50,unknown,Y,Y,Y
+6,SFR Skates,sfr-skates,https://test.proskatersplace.com/brand/sfr-skates/,8,24,very thin,78,,,496260,0,496260,0,1620,496260,50,unknown,Y,Y,Y
+7,FR Skates,fr-skates,https://test.proskatersplace.com/brand/fr-skates/,69,131,thin,73,frskates,9,496030,0,496310,4,1617,496030,50,unknown,Y,Y,Y
+8,Mesmer Skates,mesmer,https://test.proskatersplace.com/brand/mesmer/,3,120,thin,83,,,496260,0,496260,0,1620,496260,50,unknown,Y,Y,Y
+9,Luminous,luminous,https://test.proskatersplace.com/brand/luminous/,20,95,very thin,88,lighting wheels,90,0,0,5860,43,0,0,50,unknown,Y,Y,Y
+10,Rollerblade,rollerblade,https://test.proskatersplace.com/brand/rollerblade/,30,0,empty,75,rollar blade,14,138340,0,138370,1,547,138340,50,unknown,Y,Y,Y
+11,Swix,swix,https://test.proskatersplace.com/brand/swix/,85,64,very thin,78,swix,37,2320,0,6110,21,31,2320,50,unknown,Y,Y,Y
+12,USD,usd-skates,https://test.proskatersplace.com/brand/usd-skates/,18,36,very thin,78,usd skates,22,0,0,2130,19,0,0,50,unknown,Y,Y,Y
+13,Endless,endless-blading,https://test.proskatersplace.com/brand/endless-blading/,56,0,empty,65,endless blading,7,450,0,770,3,3,450,50,unknown,Y,Y,Y
+14,Powerslide,powerslide,https://test.proskatersplace.com/brand/powerslide/,376,89,very thin,78,powerslide,4,3700,0,10190,17,26,3700,50,unknown,Y,Y,Y
+15,Reign Hockey,reign-hockey,https://test.proskatersplace.com/brand/reign-hockey/,7,0,empty,75,,,17530,0,17530,0,79,17530,50,unknown,Y,Y,Y
+16,Rossignol,rossignol-ski,https://test.proskatersplace.com/brand/rossignol-ski/,60,87,very thin,88,rossignol rossignol,89,8070,0,22860,14,87,8070,50,unknown,Y,Y,Y
+17,Anarchy,anarchy-aggressive,https://test.proskatersplace.com/brand/anarchy-aggressive/,1,0,empty,65,wplace anarchy,41,0,0,480,1,0,0,50,unknown,Y,Y,Y
+18,Bones,bones,https://test.proskatersplace.com/brand/bones/,23,0,empty,65,,,170,0,170,0,3,170,50,unknown,Y,Y,Y
+19,Cats,catsbearing,https://test.proskatersplace.com/brand/catsbearing/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+20,Choke,choke,https://test.proskatersplace.com/brand/choke/,16,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+21,CITYBUG,citybug,https://test.proskatersplace.com/brand/citybug/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+22,Disroyal,disroyal,https://test.proskatersplace.com/brand/disroyal/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+23,DOOP,doop,https://test.proskatersplace.com/brand/doop/,3,0,empty,65,,,320,0,320,0,4,320,50,unknown,Y,Y,Y
+24,Fischer,fischer,https://test.proskatersplace.com/brand/fischer/,76,167,thin,93,fischer,19,8610,0,29120,24,68,8610,50,unknown,Y,Y,Y
+25,Flying Eagle,flying-eagle,https://test.proskatersplace.com/brand/flying-eagle/,63,92,very thin,88,how to fly in skate,71,1220,0,3990,14,11,1220,50,unknown,Y,Y,Y
+26,Gawds,gawds,https://test.proskatersplace.com/brand/gawds/,7,0,empty,75,gawds,35,320,0,460,1,1,320,50,unknown,Y,Y,Y
+27,HX,hx,https://test.proskatersplace.com/brand/hx/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+28,K2,k2,https://test.proskatersplace.com/brand/k2/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+29,Kizer,kizer,https://test.proskatersplace.com/brand/kizer/,27,0,empty,65,kizer wheels,94,140,0,170,1,2,140,50,unknown,Y,Y,Y
+30,Madd Gear,madd-gear,https://test.proskatersplace.com/brand/madd-gear/,1,0,empty,75,,,8190,0,8190,0,55,8190,50,unknown,Y,Y,Y
+31,Matter,matter,https://test.proskatersplace.com/brand/matter/,6,0,empty,75,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+32,Mini Logo,mini-logo,https://test.proskatersplace.com/brand/mini-logo/,2,0,empty,65,mini logo logo,54,340,0,1360,2,4,340,50,unknown,Y,Y,Y
+33,MPC,mpc,https://test.proskatersplace.com/brand/mpc/,5,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+34,Oysi,oysi,https://test.proskatersplace.com/brand/oysi/,1,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+35,PlayLife,playlife,https://test.proskatersplace.com/brand/playlife/,14,0,empty,65,playlife,5,110,0,320,1,1,110,50,unknown,Y,Y,Y
+36,Powell Peralta,powell-peralta,https://test.proskatersplace.com/brand/powell-peralta/,1,0,empty,75,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+37,ProSkaters,proskaters,https://test.proskatersplace.com/brand/proskaters/,5,0,empty,65,,,250,0,250,0,2,250,50,unknown,Y,Y,Y
+38,Rekd,rekd,https://test.proskatersplace.com/brand/rekd/,5,0,empty,65,rekd,5,0,0,70,1,0,0,50,unknown,Y,Y,Y
+39,Revision,revision-hockey,https://test.proskatersplace.com/brand/revision-hockey/,2,0,empty,75,revision hockey wheels,28,0,0,40,1,0,0,50,unknown,Y,Y,Y
+40,Rottefella,rottefella,https://test.proskatersplace.com/brand/rottefella/,1,0,empty,75,,,190,0,190,0,3,190,50,unknown,Y,Y,Y
+41,Slamm,slamm-scooters,https://test.proskatersplace.com/brand/slamm-scooters/,17,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+42,Snow White,snow-white,https://test.proskatersplace.com/brand/snow-white/,3,0,empty,65,,,4270,0,4270,0,45,4270,50,unknown,Y,Y,Y
+43,Sonic,sonic,https://test.proskatersplace.com/brand/sonic/,25,0,empty,65,,,270,0,270,0,3,270,50,unknown,Y,Y,Y
+44,Stanley,stanley,https://test.proskatersplace.com/brand/stanley/,12,0,empty,65,,,40,0,40,0,1,40,50,unknown,Y,Y,Y
+45,THERM-IC,therm-ic,https://test.proskatersplace.com/brand/therm-ic/,0,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+46,Transformer,transformer-ice-blades,https://test.proskatersplace.com/brand/transformer-ice-blades/,6,0,empty,75,,,180,0,180,0,2,180,50,unknown,Y,Y,Y
+47,TWINCAM,twincam,https://test.proskatersplace.com/brand/twincam/,9,0,empty,75,ilq 9 bearings,12,0,0,120,2,0,0,50,unknown,Y,Y,Y
+48,WICKED,wicked,https://test.proskatersplace.com/brand/wicked/,23,0,empty,75,,,40,0,40,0,1,40,50,unknown,Y,Y,Y
+49,Xsjado,xsjado,https://test.proskatersplace.com/brand/xsjado/,0,0,empty,65,,,260,0,260,0,2,260,50,unknown,Y,Y,Y
+50,ZETAZS,zetazs,https://test.proskatersplace.com/brand/zetazs/,3,0,empty,65,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+51,Undercover Wheels,undercover-wheels,https://test.proskatersplace.com/brand/undercover-wheels/,50,43,very thin,88,undercover wheels,4,54820,0,54910,1,392,54820,50,unknown,Y,Y,Y
+52,Daehlie,daehlie,https://test.proskatersplace.com/brand/daehlie/,21,75,very thin,88,daehlie,27,150,0,820,8,4,150,50,unknown,Y,Y,Y
+53,IQON,iqon,https://test.proskatersplace.com/brand/iqon/,33,67,very thin,88,iqon,29,370,0,1510,6,2,370,50,unknown,Y,Y,Y
+54,Adapt Brand,adapt-brand,https://test.proskatersplace.com/brand/adapt-brand/,24,51,very thin,88,,,10780,0,10780,0,84,10780,50,unknown,Y,Y,Y
+55,Dream Wheels,dream-wheels,https://test.proskatersplace.com/brand/dream-wheels/,5,123,thin,93,dream wheels,13,54700,0,55170,4,392,54700,50,unknown,Y,Y,Y
+56,Epic,epic-grindshoes,https://test.proskatersplace.com/brand/epic-grindshoes/,7,40,very thin,78,grindshoes,16,3920,0,4120,2,11,3920,50,unknown,Y,Y,Y
+57,King Song,king-song,https://test.proskatersplace.com/brand/king-song/,0,39,very thin,88,,,8110,0,8110,0,25,8110,50,unknown,Y,Y,Y
+58,Toko,toko,https://test.proskatersplace.com/brand/toko/,29,57,very thin,88,toko,15,0,0,6740,3,0,0,50,unknown,Y,Y,Y
+59,Adasmart,adasmart-scooters,https://test.proskatersplace.com/brand/adasmart-scooters/,0,10,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+60,CARV,carv-ski,https://test.proskatersplace.com/brand/carv-ski/,1,14,very thin,68,,,660,0,660,0,3,660,50,unknown,Y,Y,Y
+61,Enuff,enuff-skateboards,https://test.proskatersplace.com/brand/enuff-skateboards/,62,48,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+62,Gyro,gyro,https://test.proskatersplace.com/brand/gyro/,10,43,very thin,88,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+63,Lange,lange-boots,https://test.proskatersplace.com/brand/lange-boots/,4,96,very thin,88,ski lange,52,1310,0,1350,1,12,1310,50,unknown,Y,Y,Y
+64,Optiwax,optiwax,https://test.proskatersplace.com/brand/optiwax/,12,71,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+65,Pills,pills-wheels,https://test.proskatersplace.com/brand/pills-wheels/,3,2,very thin,68,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+66,SHRED,shred,https://test.proskatersplace.com/brand/shred/,7,40,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+67,SIDAS,sidas,https://test.proskatersplace.com/brand/sidas/,5,39,very thin,88,sidas,20,0,0,480,1,0,0,50,unknown,Y,Y,Y
+68,Sweet,sweet-protection,https://test.proskatersplace.com/brand/sweet-protection/,5,83,very thin,88,,,200,0,200,0,2,200,50,unknown,Y,Y,Y
+69,Swings,swings,https://test.proskatersplace.com/brand/swings/,3,91,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+70,Volten,volten,https://test.proskatersplace.com/brand/volten/,3,29,very thin,78,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+71,Yoko,yoko,https://test.proskatersplace.com/brand/yoko/,48,80,very thin,88,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+72,ENNUI,ennui,https://test.proskatersplace.com/brand/ennui/,32,112,thin,83,ennui wrist guards,23,300,0,640,5,4,300,50,unknown,Y,Y,Y
+73,Summit Skiboards,summit-skiboards,https://test.proskatersplace.com/brand/summit-skiboards/,18,126,thin,93,summit skiboards,4,1090,0,1470,4,5,1090,50,unknown,Y,Y,Y
+74,Dynastar,dynastar-ski,https://test.proskatersplace.com/brand/dynastar-ski/,5,148,thin,83,,,70,0,70,0,1,70,50,unknown,Y,Y,Y
+75,Mindless,mindless,https://test.proskatersplace.com/brand/mindless/,16,137,thin,73,,,0,0,0,0,0,0,50,unknown,Y,Y,Y
+76,Reusch,reusch,https://test.proskatersplace.com/brand/reusch/,6,129,thin,83,reusch,19,0,0,3200,2,0,0,50,unknown,Y,Y,Y

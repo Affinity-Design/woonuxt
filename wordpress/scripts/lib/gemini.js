@@ -15,7 +15,7 @@
  */
 
 require('dotenv').config();
-const { GoogleGenAI } = require('@google/genai');
+const {GoogleGenAI} = require('@google/genai');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -36,12 +36,10 @@ const BASE_BACKOFF_MS = 2000; // 2 s, doubles each retry → 2s, 4s, 8s, 16s
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
 
 if (!apiKey) {
-  throw new Error(
-    '[gemini.js] Missing API key — set GEMINI_API_KEY or GOOGLE_AI_API_KEY in .env',
-  );
+  throw new Error('[gemini.js] Missing API key — set GEMINI_API_KEY or GOOGLE_AI_API_KEY in .env');
 }
 
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({apiKey});
 
 // ─── Rate-limiting state ───────────────────────────────────────────────────────
 
@@ -98,7 +96,7 @@ async function generateContent(prompt, options = {}) {
       const response = await ai.models.generateContent({
         model,
         contents: prompt,
-        ...(Object.keys(config).length > 0 ? { config } : {}),
+        ...(Object.keys(config).length > 0 ? {config} : {}),
       });
 
       return response.text;
@@ -107,9 +105,7 @@ async function generateContent(prompt, options = {}) {
 
       if (isRetryable(err) && !isLast) {
         const backoff = BASE_BACKOFF_MS * Math.pow(2, attempt);
-        console.warn(
-          `  ⚠️  Gemini ${err?.status || 'error'} on attempt ${attempt + 1}/${MAX_RETRIES + 1} — retrying in ${backoff / 1000}s`,
-        );
+        console.warn(`  ⚠️  Gemini ${err?.status || 'error'} on attempt ${attempt + 1}/${MAX_RETRIES + 1} — retrying in ${backoff / 1000}s`);
         await sleep(backoff);
         continue;
       }
@@ -129,7 +125,7 @@ async function generateContent(prompt, options = {}) {
  * @returns {Promise<string>}
  */
 async function generateContentWithSystem(prompt, system, opts = {}) {
-  return generateContent(prompt, { ...opts, system });
+  return generateContent(prompt, {...opts, system});
 }
 
 /**

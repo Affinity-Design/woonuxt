@@ -15,6 +15,9 @@ const WC_SECRET = process.env.WC_CONSUMER_SECRET;
 const WP_USER = process.env.WP_ADMIN_USERNAME;
 const WP_PASS = process.env.WP_ADMIN_APP_PASSWORD;
 
+const DFS_LOGIN = process.env.DATAFORSEO_LOGIN;
+const DFS_PASSWORD = process.env.DATAFORSEO_PASSWORD;
+
 const PASS_B64 = Buffer.from(`${WP_USER}:${WP_PASS}`).toString('base64');
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -58,6 +61,12 @@ if (!WC_KEY) missing.push('WC_CONSUMER_KEY');
 if (!WC_SECRET) missing.push('WC_CONSUMER_SECRET');
 if (!WP_USER) missing.push('WP_ADMIN_USERNAME');
 if (!WP_PASS) missing.push('WP_ADMIN_APP_PASSWORD');
+
+// DataForSEO is optional — warn but don't block
+const dfsConfigured = DFS_LOGIN && DFS_PASSWORD;
+if (!dfsConfigured) {
+  info('DataForSEO: not configured (DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD missing — optional)');
+}
 
 if (missing.length) {
   missing.forEach((v) => fail(`Missing env var: ${v}`));
@@ -118,10 +127,27 @@ async function testGraphQL() {
   info(`  Site title from GraphQL: "${title}"`);
 }
 
+async function testDataForSEO() {
+  // GET /v3/appendix/user_data — lightest endpoint, returns account info + balance
+  const auth = 'Basic ' + Buffer.from(`${DFS_LOGIN}:${DFS_PASSWORD}`).toString('base64');
+  const res = await fetch('https://api.dataforseo.com/v3/appendix/user_data', {
+    method: 'GET',
+    headers: {Authorization: auth},
+  });
+  if (res.status === 401) throw new Error('401 Unauthorized — check DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD');
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const data = json.tasks?.[0]?.result?.[0];
+  if (!data) throw new Error('Unexpected response — no result data');
+  const balance = data.money?.balance ?? 'unknown';
+  info(`  Account: ${data.login ?? 'unknown'}, Balance: $${balance}`);
+}
+
 // ─── run ──────────────────────────────────────────────────────────────────────
 
 (async () => {
   let passed = 0;
+  let total = 4;
 
   console.log('\n1. WordPress REST API — reachability');
   if (await check('Site responds at /wp-json/', testWpRest)) passed++;
@@ -135,11 +161,17 @@ async function testGraphQL() {
   console.log('\n4. WPGraphQL — admin-authenticated query');
   if (await check('GraphQL endpoint returns data', testGraphQL)) passed++;
 
+  if (dfsConfigured) {
+    total = 5;
+    console.log('\n5. DataForSEO API — account verification');
+    if (await check('DATAFORSEO_LOGIN + DATAFORSEO_PASSWORD valid', testDataForSEO)) passed++;
+  }
+
   hr();
-  if (passed === 4) {
-    console.log(`✅  All 4 connections verified — ready to run scripts against ${BASE_URL}\n`);
+  if (passed === total) {
+    console.log(`✅  All ${total} connections verified — ready to run scripts against ${BASE_URL}\n`);
   } else {
-    console.log(`⚠️  ${passed}/4 checks passed — fix the failures above before running other scripts\n`);
+    console.log(`⚠️  ${passed}/${total} checks passed — fix the failures above before running other scripts\n`);
     process.exit(1);
   }
 })();

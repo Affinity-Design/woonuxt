@@ -38,11 +38,17 @@ if (!BASE || !WP_USER || !WP_PASS) {
 const AUTH = 'Basic ' + Buffer.from(WP_USER + ':' + WP_PASS).toString('base64');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const searchArg = process.argv.find(function(a) { return a.startsWith('--search='); });
+const searchArg = process.argv.find(function (a) {
+  return a.startsWith('--search=');
+});
 // Default: search for the duplicate FAQ question from the SEO audit
 const SEARCH_STRING = searchArg ? searchArg.split('=').slice(1).join('=') : 'roller skates better tight';
 
-function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+function sleep(ms) {
+  return new Promise(function (r) {
+    setTimeout(r, ms);
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────
 // Find homepage
@@ -51,10 +57,7 @@ async function findHomepage() {
   // Try common home slugs
   const slugs = ['home', 'home-2', 'homepage', 'front-page'];
   for (const slug of slugs) {
-    const res = await fetch(
-      `${BASE}/wp-json/wp/v2/pages?slug=${slug}&context=edit&_fields=id,slug,title,content,link`,
-      { headers: { Authorization: AUTH } }
-    );
+    const res = await fetch(`${BASE}/wp-json/wp/v2/pages?slug=${slug}&context=edit&_fields=id,slug,title,content,link`, {headers: {Authorization: AUTH}});
     if (!res.ok) continue;
     const pages = await res.json();
     if (pages.length) {
@@ -64,15 +67,12 @@ async function findHomepage() {
   }
 
   // Fall back: check WP reading settings for front page ID
-  const settingsRes = await fetch(`${BASE}/wp-json/wp/v2/settings`, { headers: { Authorization: AUTH } });
+  const settingsRes = await fetch(`${BASE}/wp-json/wp/v2/settings`, {headers: {Authorization: AUTH}});
   if (settingsRes.ok) {
     const settings = await settingsRes.json();
     const pageOnFront = settings.page_on_front;
     if (pageOnFront) {
-      const res = await fetch(
-        `${BASE}/wp-json/wp/v2/pages/${pageOnFront}?context=edit&_fields=id,slug,title,content,link`,
-        { headers: { Authorization: AUTH } }
-      );
+      const res = await fetch(`${BASE}/wp-json/wp/v2/pages/${pageOnFront}?context=edit&_fields=id,slug,title,content,link`, {headers: {Authorization: AUTH}});
       if (res.ok) {
         const page = await res.json();
         console.log(`  Found homepage via settings: id:${page.id} slug:"${page.slug}" url:${page.link}`);
@@ -214,8 +214,8 @@ async function main() {
   console.log('\nPatching homepage content...');
   const res = await fetch(`${BASE}/wp-json/wp/v2/pages/${homepage.id}`, {
     method: 'POST',
-    headers: { Authorization: AUTH, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: fixed }),
+    headers: {Authorization: AUTH, 'Content-Type': 'application/json'},
+    body: JSON.stringify({content: fixed}),
   });
 
   if (!res.ok) {
@@ -237,4 +237,7 @@ async function main() {
   console.log('  2. View page source → confirm no duplicate block markup');
 }
 
-main().catch(function(err) { console.error('\nFATAL:', err.message); process.exit(1); });
+main().catch(function (err) {
+  console.error('\nFATAL:', err.message);
+  process.exit(1);
+});

@@ -45,7 +45,9 @@ function fixUrl(url) {
 }
 
 function sleep(ms) {
-  return new Promise(function(r) { setTimeout(r, ms); });
+  return new Promise(function (r) {
+    setTimeout(r, ms);
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -58,7 +60,7 @@ async function fixMenuItems() {
   let allItems = [];
   while (true) {
     const res = await fetch(`${BASE}/wp-json/wp/v2/menu-items?per_page=100&page=${page}&_fields=id,url,title`, {
-      headers: { Authorization: AUTH },
+      headers: {Authorization: AUTH},
     });
     if (res.status === 400 || res.status === 404) break;
     if (!res.ok) throw new Error('menu-items fetch failed: ' + res.status);
@@ -72,7 +74,9 @@ async function fixMenuItems() {
   console.log(`  Total menu items fetched: ${allItems.length}`);
 
   const typoRegex = new RegExp(TYPO, 'i');
-  const targets = allItems.filter(function(item) { return typoRegex.test(item.url || ''); });
+  const targets = allItems.filter(function (item) {
+    return typoRegex.test(item.url || '');
+  });
 
   if (!targets.length) {
     console.log('  ✅ No menu items with typo found.');
@@ -80,7 +84,7 @@ async function fixMenuItems() {
   }
 
   console.log(`  Found ${targets.length} menu item(s) with typo:`);
-  targets.forEach(function(item) {
+  targets.forEach(function (item) {
     const fixed = fixUrl(item.url);
     const title = item.title && item.title.rendered ? item.title.rendered : '(no title)';
     console.log(`    id:${item.id} "${title}"`);
@@ -95,8 +99,8 @@ async function fixMenuItems() {
     const fixed = fixUrl(item.url);
     const res = await fetch(`${BASE}/wp-json/wp/v2/menu-items/${item.id}`, {
       method: 'POST',
-      headers: { Authorization: AUTH, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: fixed }),
+      headers: {Authorization: AUTH, 'Content-Type': 'application/json'},
+      body: JSON.stringify({url: fixed}),
     });
     if (!res.ok) {
       const body = await res.text();
@@ -123,10 +127,9 @@ async function fixPageContent(type) {
   const typoRegex = new RegExp(TYPO, 'gi');
 
   while (true) {
-    const res = await fetch(
-      `${BASE}/wp-json/wp/v2/${type}?per_page=50&page=${page}&context=edit&search=${TYPO}&_fields=id,slug,title,content`,
-      { headers: { Authorization: AUTH } }
-    );
+    const res = await fetch(`${BASE}/wp-json/wp/v2/${type}?per_page=50&page=${page}&context=edit&search=${TYPO}&_fields=id,slug,title,content`, {
+      headers: {Authorization: AUTH},
+    });
     if (res.status === 400 || res.status === 404) break;
     if (!res.ok) throw new Error(`${type} fetch failed: ${res.status}`);
     const batch = await res.json();
@@ -134,7 +137,10 @@ async function fixPageContent(type) {
 
     for (const post of batch) {
       const raw = post.content && post.content.raw ? post.content.raw : '';
-      if (!typoRegex.test(raw)) { typoRegex.lastIndex = 0; continue; }
+      if (!typoRegex.test(raw)) {
+        typoRegex.lastIndex = 0;
+        continue;
+      }
       typoRegex.lastIndex = 0;
 
       const fixedContent = raw.replace(new RegExp(TYPO, 'gi'), FIXED);
@@ -146,8 +152,8 @@ async function fixPageContent(type) {
       if (!DRY_RUN) {
         const pRes = await fetch(`${BASE}/wp-json/wp/v2/${type}/${post.id}`, {
           method: 'POST',
-          headers: { Authorization: AUTH, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: fixedContent }),
+          headers: {Authorization: AUTH, 'Content-Type': 'application/json'},
+          body: JSON.stringify({content: fixedContent}),
         });
         if (!pRes.ok) {
           const body = await pRes.text();
@@ -173,14 +179,11 @@ async function fixPageContent(type) {
 // ─────────────────────────────────────────────────────────────────
 async function fixElementorMeta(postId, type) {
   // Try to read _elementor_data post meta
-  const res = await fetch(
-    `${BASE}/wp-json/wp/v2/${type}/${postId}?context=edit&_fields=meta`,
-    { headers: { Authorization: AUTH } }
-  );
+  const res = await fetch(`${BASE}/wp-json/wp/v2/${type}/${postId}?context=edit&_fields=meta`, {headers: {Authorization: AUTH}});
   if (!res.ok) return false;
   const post = await res.json();
   const meta = post.meta || {};
-  
+
   // _elementor_data is a JSON string stored in post meta
   const elementorRaw = meta['_elementor_data'];
   if (!elementorRaw) return false;
@@ -202,8 +205,8 @@ async function fixElementorMeta(postId, type) {
   const fixedElementor = elementorRaw.replace(new RegExp(TYPO, 'gi'), FIXED);
   const pRes = await fetch(`${BASE}/wp-json/wp/v2/${type}/${postId}`, {
     method: 'POST',
-    headers: { Authorization: AUTH, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ meta: { '_elementor_data': fixedElementor } }),
+    headers: {Authorization: AUTH, 'Content-Type': 'application/json'},
+    body: JSON.stringify({meta: {_elementor_data: fixedElementor}}),
   });
   if (!pRes.ok) {
     const body = await pRes.text();
@@ -223,10 +226,7 @@ async function fixAllElementorPages() {
   let fixed = 0;
 
   while (true) {
-    const res = await fetch(
-      `${BASE}/wp-json/wp/v2/pages?per_page=50&page=${page}&context=edit&_fields=id,slug,title,meta`,
-      { headers: { Authorization: AUTH } }
-    );
+    const res = await fetch(`${BASE}/wp-json/wp/v2/pages?per_page=50&page=${page}&context=edit&_fields=id,slug,title,meta`, {headers: {Authorization: AUTH}});
     if (res.status === 400 || res.status === 404) break;
     if (!res.ok) throw new Error('pages meta fetch failed: ' + res.status);
     const batch = await res.json();
@@ -245,7 +245,6 @@ async function fixAllElementorPages() {
   if (!fixed) console.log('  ✅ No Elementor meta with typo found.');
   return fixed;
 }
-
 
 async function main() {
   console.log('='.repeat(60));
@@ -275,4 +274,7 @@ async function main() {
   console.log(`  2. ${BASE} → any page referencing Skateboards → confirm links resolve`);
 }
 
-main().catch(function(err) { console.error('\nFATAL:', err.message); process.exit(1); });
+main().catch(function (err) {
+  console.error('\nFATAL:', err.message);
+  process.exit(1);
+});

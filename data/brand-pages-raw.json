@@ -1,0 +1,3415 @@
+{
+  "meta": {
+    "generatedAt": "2026-02-27T23:28:44.227Z",
+    "baseUrl": "https://test.proskatersplace.com",
+    "taxonomyEndpoint": "https://test.proskatersplace.com/wp-json/wp/v2/pwb-brand",
+    "totalBrands": 76,
+    "dataForSeoUsed": false,
+    "estimatedApiCost": 0
+  },
+  "brands": [
+    {
+      "id": 2472,
+      "name": "Adapt Brand",
+      "slug": "adapt-brand",
+      "url": "https://test.proskatersplace.com/brand/adapt-brand/",
+      "taxonomy": {
+        "description": "<strong>We at <a href=\"/\">ProSkaters Place</a> are proud to be the only North American partner for this wonderful brand! </strong>\r\n<p style=\"text-align: justify\">The <a href=\"https://www.adaptbrand.com/\">Adapt Brand</a> is a Dutch boot company founded by Olga Bouwhuis and Pieter Wijnant. By creating a unique boot design with only the best materials, Adapt is putting its mark on the industry.</p>",
+        "count": 24,
+        "link": "https://test.proskatersplace.com/brand/adapt-brand/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/adapt-brand/",
+        "httpStatus": 200,
+        "title": "Adapt Brand Inline Skates - North American Retailer",
+        "metaDescription": "Elevate your skating game with Adapt Brand&#039;s high-quality gear. Discover innovative designs, superior craftsmanship, and a global skating community.",
+        "h1": "Adapt Brand",
+        "h2s": [],
+        "wordCount": 2352,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/adapt-brand/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 51,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 51 words"
+      ]
+    },
+    {
+      "id": 3285,
+      "name": "Adasmart",
+      "slug": "adasmart-scooters",
+      "url": "https://test.proskatersplace.com/brand/adasmart-scooters/",
+      "taxonomy": {
+        "description": "The e-Mobility products refined. Powerful e-scooters for the right price.",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/adasmart-scooters/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/adasmart-scooters/",
+        "httpStatus": 200,
+        "title": "Adasmart Electric Scooters - Mobility Refined",
+        "metaDescription": "Adasmart is advancing e-Mobility to a new level with their powerful and reliable e-scooters. An excellent solution for commuters and thrill seekers alike. Get from one point to another in style and safely.",
+        "h1": "Adasmart",
+        "h2s": [],
+        "wordCount": 1141,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 10,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 205 (ideal 120-155)",
+        "Very thin description: 10 words"
+      ]
+    },
+    {
+      "id": 2489,
+      "name": "Anarchy",
+      "slug": "anarchy-aggressive",
+      "url": "https://test.proskatersplace.com/brand/anarchy-aggressive/",
+      "taxonomy": {
+        "description": "",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/anarchy-aggressive/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/anarchy-aggressive/",
+        "httpStatus": 200,
+        "title": "Anarchy - ProSkaters Place",
+        "metaDescription": "Anarchy is a skate brand focused towards the more powerful styles of skating, including roller derby and aggressive inline.As well as great quality, entry to mid level skates.",
+        "h1": "Anarchy",
+        "h2s": [],
+        "wordCount": 1206,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/anarchy-aggressive/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 26 (ideal 30-60)",
+        "Meta desc length 175 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2456,
+      "name": "Bones",
+      "slug": "bones",
+      "url": "https://test.proskatersplace.com/brand/bones/",
+      "taxonomy": {
+        "description": "",
+        "count": 23,
+        "link": "https://test.proskatersplace.com/brand/bones/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/bones/",
+        "httpStatus": 200,
+        "title": "Bones - ProSkaters Place",
+        "metaDescription": "Bones is proud to sell and support products by Bones",
+        "h1": "Bones",
+        "h2s": [],
+        "wordCount": 1773,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/bones/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 52 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3270,
+      "name": "CARV",
+      "slug": "carv-ski",
+      "url": "https://test.proskatersplace.com/brand/carv-ski/",
+      "taxonomy": {
+        "description": "Your digital ski coach. Improve your technique with professional audio coaching as you ski.",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/carv-ski/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/carv-ski/",
+        "httpStatus": 200,
+        "title": "CARV at ProSkaters Place",
+        "metaDescription": "CARV is proud to sell and support products by CARV",
+        "h1": "CARV",
+        "h2s": [],
+        "wordCount": 1146,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/carv-ski/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 14,
+      "seoScore": 68,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 50 (ideal 120-155)",
+        "Very thin description: 14 words"
+      ]
+    },
+    {
+      "id": 2498,
+      "name": "Cats",
+      "slug": "catsbearing",
+      "url": "https://test.proskatersplace.com/brand/catsbearing/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/catsbearing/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/catsbearing/",
+        "httpStatus": 200,
+        "title": "Cats - ProSkaters Place",
+        "metaDescription": "Cats is proud to sell and support products by Cats",
+        "h1": "Cats",
+        "h2s": [],
+        "wordCount": 1131,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 23 (ideal 30-60)",
+        "Meta desc length 50 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2491,
+      "name": "Chaya Skates",
+      "slug": "chaya-skates",
+      "url": "https://test.proskatersplace.com/brand/chaya-skates/",
+      "taxonomy": {
+        "description": "<a href=\"https://www.instagram.com/chaya_skates\">Chaya Skates</a> (pronounced Kaya) comes with over 40 years of experience in roller skating knowledge. The free spirit and vibrant culture of roller skating are the cornerstones of Chaya Skates. The brand is deeply committed to honoring this rich heritage by delivering premium products across all roller skate segments, including ice skating.\r\n\r\nChaya Skates believes in the multifaceted lifestyle that roller skating offers—whether you are engaging in full-contact roller derby battles, showcasing creative tricks in bowls and skate parks, expressing yourself in dance and jam sessions, or simply cruising leisurely with friends, Chaya Skates ensures your experience is enriched with fun and passion.",
+        "count": 102,
+        "link": "https://test.proskatersplace.com/brand/chaya-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/chaya-skates/",
+        "httpStatus": 200,
+        "title": "Chaya Skates &amp; Gear: Experience Unmatched Quality",
+        "metaDescription": "Chaya Skates are high-quality performance products with trendy designs. Chaya roller skates are developed to pair excellence while rolling in style.",
+        "h1": "Chaya Skates",
+        "h2s": [
+          "ProSkaters Place: Your Trusted Retailer for Chaya Roller Skates Products in the USA and Canada"
+        ],
+        "wordCount": 2543,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/chaya-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 103,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 103 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2486,
+      "name": "Choke",
+      "slug": "choke",
+      "url": "https://test.proskatersplace.com/brand/choke/",
+      "taxonomy": {
+        "description": "",
+        "count": 16,
+        "link": "https://test.proskatersplace.com/brand/choke/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/choke/",
+        "httpStatus": 200,
+        "title": "Choke - ProSkaters Place",
+        "metaDescription": "Choke is proud to sell and support products by Choke",
+        "h1": "Choke",
+        "h2s": [],
+        "wordCount": 1694,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/choke/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 52 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2829,
+      "name": "CITYBUG",
+      "slug": "citybug",
+      "url": "https://test.proskatersplace.com/brand/citybug/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/citybug/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/citybug/",
+        "httpStatus": 200,
+        "title": "CITYBUG at ProSkaters Place",
+        "metaDescription": "CITYBUG is proud to sell and support products by CITYBUG",
+        "h1": "CITYBUG",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 27 (ideal 30-60)",
+        "Meta desc length 56 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3258,
+      "name": "Daehlie",
+      "slug": "daehlie",
+      "url": "https://test.proskatersplace.com/brand/daehlie/",
+      "taxonomy": {
+        "description": "<strong>Explore Daehlie, the leading brand in <a href=\"https://en.wikipedia.org/wiki/Nordic_skiing\">Nordic sports gear</a> below.</strong> Dive into a range of high-quality products designed for performance and style, exclusively at <a href=\"/\">ProSkaters Place</a>.\r\n\r\nCross-country legend Bjørn <a href=\"https://www.dahlie.com/us/en/\">Dæhlie</a> pushed the limits of his sport in the 1990s. He raked in Olympic medals and world championships. He established his eponymous brand in 1996, at the height of his career. For 20 years, we have developed innovative and optimized <a href=\"https://proskatersplace.com/products/winter-sports/nordic-clothing/\">clothing for cross-country skiers</a>.",
+        "count": 21,
+        "link": "https://test.proskatersplace.com/brand/daehlie/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/daehlie/",
+        "httpStatus": 200,
+        "title": "Daehlie: Premium Nordic Sports Gear | ProSkaters Place",
+        "metaDescription": "Cross-country legend Bjørn Dæhlie pushed the limits of his sport in the 1990s. For 20 years his company is developing innovative ski clothing.",
+        "h1": "Daehlie",
+        "h2s": [
+          "Daehlie: The Pinnacle of Nordic Sports Excellence"
+        ],
+        "wordCount": 2224,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/daehlie/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 75,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 75 words"
+      ]
+    },
+    {
+      "id": 3165,
+      "name": "Disroyal",
+      "slug": "disroyal",
+      "url": "https://test.proskatersplace.com/brand/disroyal/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/disroyal/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/disroyal/",
+        "httpStatus": 200,
+        "title": "Disroyal - ProSkaters Place",
+        "metaDescription": "Disroyal is proud to sell and support products by Disroyal",
+        "h1": "Disroyal",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 27 (ideal 30-60)",
+        "Meta desc length 58 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2459,
+      "name": "DOOP",
+      "slug": "doop",
+      "url": "https://test.proskatersplace.com/brand/doop/",
+      "taxonomy": {
+        "description": "",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/doop/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/doop/",
+        "httpStatus": 200,
+        "title": "DOOP - ProSkaters Place",
+        "metaDescription": "DOOP is proud to sell and support products by DOOP",
+        "h1": "DOOP",
+        "h2s": [],
+        "wordCount": 1334,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/doop/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 23 (ideal 30-60)",
+        "Meta desc length 50 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3461,
+      "name": "Dream Wheels",
+      "slug": "dream-wheels",
+      "url": "https://test.proskatersplace.com/brand/dream-wheels/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><a href=\"https://dreamurethane.com/\">Dream Wheels</a> is an inline skating brand created by Jan Welch with the artistic direction of Jeremy Beightol and Chris Peel. These talented individuals have worked on projects like 4×4, Vicious, Heat, Chroma, Ground Control, Big Wheel Blading, and Daily Bread Magazine.</p>\r\n<p style=\"text-align: justify\">The Dream Team includes Andrew Broom, Matty Schrock, B. Free, and Michael Kraft. The am team features Viktoria Lova Söderholm, Taylor Popham, Nay Mapalo, and Julia Komenda.</p>\r\n<p style=\"text-align: justify\">For their initial release: Broom 60/90, B. Free 60/92, Kraft 58/90, and Schrock 58/92. Jeremy Beightol designed these wheels. Additionally, Chris Piasick has designed an 80/87 wheel, and Chris Peel has created the unique Dream logo. In the future, they aim to expand wheel sizes to range between 45mm and 110mm, covering most sizes.</p>",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/dream-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/dream-wheels/",
+        "httpStatus": 200,
+        "title": "Dream Wheels at ProSkaters Place",
+        "metaDescription": "Dream Wheels is an inline skating brand created by Jan Welch with the artistic direction of Jeremy Beightol and Chris Peel. A spinoff of Big Wheel Blading.",
+        "h1": "Dream Wheels",
+        "h2s": [],
+        "wordCount": 1523,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/dream-wheels/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 123,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 123 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2840,
+      "name": "Dynastar",
+      "slug": "dynastar-ski",
+      "url": "https://test.proskatersplace.com/brand/dynastar-ski/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">It was back in 1963 that the brand with the slim \"mustache\" logo came into being close to the town of Sallanches, born from the inspired union of two manufacturing companies with strong ambitions. The partnership between Starflex skis, produced by Synthetic Plastics, and Dynamic resulted in the birth of a new high-performance skis called <a href=\"https://www.dynastar.com/\">Dynastar</a>.</p>\r\n<p style=\"text-align: justify\">This is how the Dynastar adventure began, built around legendary athletes and passionate men and women with the aim of introducing their unique skiability.</p>\r\n<p style=\"text-align: justify\">At Dynastar they are proud to the very core; their pride is an integral part of the character. Their pride in the victories, the feats of technology, and commitment to manufacturing in France. Their pride at working in the only factory on French soil that still makes skis. Their pride in human values that makes Dynastar a major international brand that feels like one big happy family.</p>",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/dynastar-ski/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/dynastar-ski/",
+        "httpStatus": 200,
+        "title": "Dynastar Alpine Skis",
+        "metaDescription": "At Dynastar they are proud to the very core. Their pride in the victories, the feats of technology, and commitment to manufacturing in France.",
+        "h1": "Dynastar",
+        "h2s": [],
+        "wordCount": 1542,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/dynastar-ski/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 148,
+      "seoScore": 83,
+      "seoIssues": [
+        "Title length 20 (ideal 30-60)",
+        "Thin description: 148 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2862,
+      "name": "Endless",
+      "slug": "endless-blading",
+      "url": "https://test.proskatersplace.com/brand/endless-blading/",
+      "taxonomy": {
+        "description": "",
+        "count": 56,
+        "link": "https://test.proskatersplace.com/brand/endless-blading/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/endless-blading/",
+        "httpStatus": 200,
+        "title": "Endless - ProSkaters Place",
+        "metaDescription": "Endless is proud to sell and support products by Endless",
+        "h1": "Endless",
+        "h2s": [],
+        "wordCount": 1776,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/endless-blading/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 26 (ideal 30-60)",
+        "Meta desc length 56 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2479,
+      "name": "ENNUI",
+      "slug": "ennui",
+      "url": "https://test.proskatersplace.com/brand/ennui/",
+      "taxonomy": {
+        "description": "ENNUI is a new concept of protective gear specifically designed for urban sports and all non-motorized wheeled sports. As skaters, their aim is to create protective gear that they would wear themselves. This is the gear that keeps everybody safe and protects bodies against all sorts of injuries while at the same time being unobtrusive, comfortable and looking good while wearing them on the streets.\r\n\r\nIt doesn’t matter if you are into rollerblading, roller skating, skateboarding, BMX, fixed bikes, Mtb, longboarding, streetboarding or scooter, ENNUI offers a wide range of specialized products to cover your safety needs.\r\n\r\nUrban sports are extremely fun, don’t ruin the experience with the wrong gear, choose ENNUI.",
+        "count": 32,
+        "link": "https://test.proskatersplace.com/brand/ennui/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/ennui/",
+        "httpStatus": 200,
+        "title": "Ennui Protective Gear: Your Trusted Partner for Urban Sports Safety",
+        "metaDescription": "Explore the revolutionary Ennui protective gear at ProSkaters Place. Designed specifically for urban and non-motorized wheeled sports enthusiasts.",
+        "h1": "ENNUI",
+        "h2s": [
+          "Buying Guide",
+          "Maintenance Tips",
+          "Benefits of Choosing Ennui",
+          "ProSkaters Place: Your Premier Destination for Ennui and More"
+        ],
+        "wordCount": 2402,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/ennui/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 112,
+      "seoScore": 83,
+      "seoIssues": [
+        "Title length 67 (ideal 30-60)",
+        "Thin description: 112 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2509,
+      "name": "Enuff",
+      "slug": "enuff-skateboards",
+      "url": "https://test.proskatersplace.com/brand/enuff-skateboards/",
+      "taxonomy": {
+        "description": "Established in 2006 with a vision to create a brand that wouldn't compromise quality but remain affordable to everyone. The Enuff team is fully aware that they are only here because of skateboarding and want to do everything possible to ensure that carries on for generations to come!",
+        "count": 62,
+        "link": "https://test.proskatersplace.com/brand/enuff-skateboards/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/enuff-skateboards/",
+        "httpStatus": 200,
+        "title": "Enuff - ProSkaters Place",
+        "metaDescription": "Enuff was established in 2006 with a vision to create a top-level UK skateboard brand that’s fun and affordable, without compromising quality.",
+        "h1": "Enuff",
+        "h2s": [],
+        "wordCount": 1898,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/enuff-skateboards/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 48,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Very thin description: 48 words"
+      ]
+    },
+    {
+      "id": 3326,
+      "name": "Epic",
+      "slug": "epic-grindshoes",
+      "url": "https://test.proskatersplace.com/brand/epic-grindshoes/",
+      "taxonomy": {
+        "description": "High-quality grind shoes that can grind ledges, rails, benches, or just about anything!\r\n\r\nYears of testing resulted in comfortable, smooth sliding shoes with perefectly shaped grindplates. Reminiscent of Soap Shoes, but 21st century ingenuity and style brings us Epic Shoes.",
+        "count": 7,
+        "link": "https://test.proskatersplace.com/brand/epic-grindshoes/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/epic-grindshoes/",
+        "httpStatus": 200,
+        "title": "EPIC Grindshoes ay ProSkaters Place",
+        "metaDescription": "Epic is proud to sell and support products by Epic",
+        "h1": "Epic",
+        "h2s": [],
+        "wordCount": 1444,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/epic-grindshoes/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 40,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 50 (ideal 120-155)",
+        "Very thin description: 40 words"
+      ]
+    },
+    {
+      "id": 2835,
+      "name": "Fischer",
+      "slug": "fischer",
+      "url": "https://test.proskatersplace.com/brand/fischer/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">Fischer Sports GmbH is the global leader in <a href=\"https://proskatersplace.com/products/winter-sports/cross-country-ski/\">Nordic skiing</a> and one of the world's leading brands in <a href=\"https://proskatersplace.com/products/winter-sports/alpine-skis/\">Alpine skiing</a>, known for innovation and cutting-edge technology. <a href=\"https://www.fischersports.com/us_en/\">Fischer</a> is also one of the biggest manufacturers of high-quality ice hockey sticks.</p>\r\n<p style=\"text-align: justify\">Fischer’s vision is to be the winter athlete’s brand of choice through outstanding products, created for everlasting moments and new levels of individual performance. The privately held company employs 1,500 individuals who all share a passion for and dedication to winter sports.</p>\r\n<p style=\"text-align: justify\">Fischer Sports GmbH was founded in 1924 in Ried im Innkreis, Austria, where the global headquarters is still located. Manufacturing takes place there and in Ukraine. ONE WAY, a world-famous brand with a special focus on poles for Nordic skiing, Alpine skiing, and Nordic walking has likewise been part of Fischer Sports GmbH since May 2018. Löffler, part of the Fischer group, is also headquartered in Ried im Innkreis.</p>\r\nThe products include <a href=\"https://proskatersplace.com/products/winter-sports/alpine-skis/\">Alpine Skis</a> and <a href=\"https://proskatersplace.com/products/winter-sports/alpine-ski-boots/\">Boots</a>, <a href=\"https://proskatersplace.com/products/winter-sports/cross-country-ski/\">Nordic Skis</a> and <a href=\"https://proskatersplace.com/products/winter-sports/nordic-ski-boots/\">Boots</a>, and various accessories.",
+        "count": 76,
+        "link": "https://test.proskatersplace.com/brand/fischer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/fischer/",
+        "httpStatus": 200,
+        "title": "Explore Fischer Products at ProSkaters Place",
+        "metaDescription": "Discover a wide range of Fischer sports equipment at ProSkaters Place. Fischer innovation offers high-quality Alpine and Nordic ski equipment.",
+        "h1": "Fischer",
+        "h2s": [],
+        "wordCount": 2869,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/fischer/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 167,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 167 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2474,
+      "name": "Flying Eagle",
+      "slug": "flying-eagle",
+      "url": "https://test.proskatersplace.com/brand/flying-eagle/",
+      "taxonomy": {
+        "description": "<strong>Discover the world-renowned Flying Eagle Skates at ProSkaters Place!</strong> Flying Eagle is a renowned brand in the skating industry, known for its high-quality inline skates and roller blades. Flying Eagle is celebrated for its competitive prices and innovative designs, making it a popular choice among skating enthusiasts.\r\n\r\n<a href=\"https://proskatersplace.com/\" target=\"_new\">ProSkaters Place</a> is the premier retailer in the USA and Canada for Flying Eagle products, offering an extensive range of high-quality skates to suit every skater’s needs. Explore our <a href=\"https://proskatersplace.com/brand/flying-eagle\" target=\"_new\">Flying Eagle collection</a> and find the perfect pair of skates to fuel your passion for skating!",
+        "count": 63,
+        "link": "https://test.proskatersplace.com/brand/flying-eagle/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/flying-eagle/",
+        "httpStatus": 200,
+        "title": "Flying Eagle Skates: Unmatched Quality &amp; Comfort",
+        "metaDescription": "Discover the world-renowned Flying Eagle Skates at ProSkaters Place! Known for outstanding hard-surface inline skates &amp; rollerblades. Free Shipping!",
+        "h1": "Flying Eagle",
+        "h2s": [],
+        "wordCount": 2915,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/flying-eagle/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 92,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 92 words"
+      ]
+    },
+    {
+      "id": 2521,
+      "name": "FR Skates",
+      "slug": "fr-skates",
+      "url": "https://test.proskatersplace.com/brand/fr-skates/",
+      "taxonomy": {
+        "description": "FR is a skater-owned brand with the philosophy to create high-quality products made by skaters, for skaters. The original concept was born in Paris, France back in 2006 by Sebastien Laffargue and Gregoire Pinto, who had a vision of what Freeride skates should be - high-performance hardshell boots providing comfort, versatility, and durability. With all of these elements combined, extreme attention to detail, and a little bit of French style, the FR boot was born and it has grown to become a worldwide success. Now is the time for the FR to become its own brand and keeping in line with its roots, these boots will guide you along the way of your skating journey. FR will continue to push the limits of skating and create new standards within our industry.",
+        "count": 69,
+        "link": "https://test.proskatersplace.com/brand/fr-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/fr-skates/",
+        "httpStatus": 200,
+        "title": "FR Skates at ProSkaters Place",
+        "metaDescription": "FR Skates is proud to sell and support products by FR Skates",
+        "h1": "FR Skates",
+        "h2s": [],
+        "wordCount": 2100,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/fr-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 131,
+      "seoScore": 73,
+      "seoIssues": [
+        "Title length 29 (ideal 30-60)",
+        "Meta desc length 60 (ideal 120-155)",
+        "Thin description: 131 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3167,
+      "name": "Gawds",
+      "slug": "gawds",
+      "url": "https://test.proskatersplace.com/brand/gawds/",
+      "taxonomy": {
+        "description": "",
+        "count": 7,
+        "link": "https://test.proskatersplace.com/brand/gawds/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/gawds/",
+        "httpStatus": 200,
+        "title": "Gawds Aggressive Inline Skating Brand",
+        "metaDescription": "Gawds Aggressive is one of the most recognized brands in aggressive inline skating",
+        "h1": "Gawds",
+        "h2s": [],
+        "wordCount": 1415,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/gawds/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 82 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2461,
+      "name": "Gyro",
+      "slug": "gyro",
+      "url": "https://test.proskatersplace.com/brand/gyro/",
+      "taxonomy": {
+        "description": "<strong>Explore our collection of Gyro wheels at ProSkaters Place!</strong> Gyro, a renowned Korean brand, specializes in producing high-performance wheels for inline skates, offering a variety of models designed for racing. Discover the precision and quality of Gyro wheels and elevate your skating experience",
+        "count": 10,
+        "link": "https://test.proskatersplace.com/brand/gyro/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/gyro/",
+        "httpStatus": 200,
+        "title": "Gyro Wheels: Premium Inline Skate Wheels for Racing",
+        "metaDescription": "Explore our collection of Gyro wheels. Gyro, a renowned Korean brand, specializes in producing high-performance wheels for inline skate for racing.",
+        "h1": "Gyro",
+        "h2s": [],
+        "wordCount": 2014,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/gyro/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 43,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 43 words"
+      ]
+    },
+    {
+      "id": 3089,
+      "name": "HX",
+      "slug": "hx",
+      "url": "https://test.proskatersplace.com/brand/hx/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/hx/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/hx/",
+        "httpStatus": 200,
+        "title": "HX at ProSkaters Place",
+        "metaDescription": "HX is proud to sell and support products by HX",
+        "h1": "HX",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 22 (ideal 30-60)",
+        "Meta desc length 46 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3169,
+      "name": "IQON",
+      "slug": "iqon",
+      "url": "https://test.proskatersplace.com/brand/iqon/",
+      "taxonomy": {
+        "description": "Freedom is a beautiful thing. The freedom to roll, the freedom to create - at IQON, they believe when you’re skating, nothing should hold you back.\r\n\r\nFocused on aggressive and urban skating, IQON’s unwavering goal is to offer innovative, high-quality options for the toughest inline skating segments.\r\n\r\nFeaturing only the best to skaters around the globe, IQON combines original concepts with proven innovations from the skating industry.",
+        "count": 33,
+        "link": "https://test.proskatersplace.com/brand/iqon/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/iqon/",
+        "httpStatus": 200,
+        "title": "IQON Aggressive and Urban skating",
+        "metaDescription": "Featuring only the best to skaters around the globe, IQON combines original concepts with proven innovations from the skating industry.",
+        "h1": "IQON",
+        "h2s": [],
+        "wordCount": 1971,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/iqon/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 67,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 67 words"
+      ]
+    },
+    {
+      "id": 2485,
+      "name": "K2",
+      "slug": "k2",
+      "url": "https://test.proskatersplace.com/brand/k2/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/k2/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/k2/",
+        "httpStatus": 200,
+        "title": "K2 - ProSkaters Place",
+        "metaDescription": "K2 is proud to sell and support products by K2",
+        "h1": "K2",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 21 (ideal 30-60)",
+        "Meta desc length 46 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3280,
+      "name": "King Song",
+      "slug": "king-song",
+      "url": "https://test.proskatersplace.com/brand/king-song/",
+      "taxonomy": {
+        "description": "<strong>King Song is the leader in the design and manufacturing of electric unicycles.</strong> The most versatile and convenient option in micro-mobility. King Song is a pioneering brand in the electric unicycle industry, renowned for its innovative and high-performance e-unicycles.",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/king-song/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/king-song/",
+        "httpStatus": 200,
+        "title": "King Song: Premier E-Unicycles | ProSkaters Place",
+        "metaDescription": "Explore King Song&#039;s innovative electric unicycles at ProSkaters Place! Discover high-performance e-unicycles designed for speed, stability, and range.",
+        "h1": "King Song",
+        "h2s": [],
+        "wordCount": 1773,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 39,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 39 words"
+      ]
+    },
+    {
+      "id": 2477,
+      "name": "Kizer",
+      "slug": "kizer",
+      "url": "https://test.proskatersplace.com/brand/kizer/",
+      "taxonomy": {
+        "description": "",
+        "count": 27,
+        "link": "https://test.proskatersplace.com/brand/kizer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/kizer/",
+        "httpStatus": 200,
+        "title": "Kizer - ProSkaters Place",
+        "metaDescription": "Kizer is proud to sell and support products by Kizer",
+        "h1": "Kizer",
+        "h2s": [],
+        "wordCount": 1763,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/kizer/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 52 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2841,
+      "name": "Lange",
+      "slug": "lange-boots",
+      "url": "https://test.proskatersplace.com/brand/lange-boots/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">Since the brand's creation back in 1948, every morning at <a href=\"https://www.lange-boots.com/\">LANGE</a>, they wake up inspired with the aim of developing unique products reinforced by their traditional expertise and continuously renewed innovative strength.</p>\r\n<p style=\"text-align: justify\">Their mission is to find the perfect balance between comfort and performance that makes every skier that much better. To develop a boot that transforms every experience on snow into an unforgettable moment.</p>\r\n<p style=\"text-align: justify\">Through its research into the perfect fit and performance, LANGE shares, supports, and boosts the determination and discipline that drives each skier. Because each foot, like each passion, is unique.</p>",
+        "count": 4,
+        "link": "https://test.proskatersplace.com/brand/lange-boots/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/lange-boots/",
+        "httpStatus": 200,
+        "title": "Lange advanced technology Downhill / Alpine boots",
+        "metaDescription": "Lange&#039;s mission is to find the perfect balance between comfort and performance that makes every skier that much better.",
+        "h1": "Lange",
+        "h2s": [],
+        "wordCount": 1462,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/lange-boots/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 96,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 96 words"
+      ]
+    },
+    {
+      "id": 2739,
+      "name": "Luminous",
+      "slug": "luminous",
+      "url": "https://test.proskatersplace.com/brand/luminous/",
+      "taxonomy": {
+        "description": "<strong>We at <a href=\"/\">ProSkaters Place</a> are proud to offer a great selection of Light Up LED wheels! </strong>\r\n<p style=\"text-align: justify\"><a href=\"https://usa.luminouswheels.com/\">Luminous</a> is the best brand of light-up wheels for quad skates, inline skates, longboards &amp; scooters.</p>\r\n<p style=\"text-align: justify\">Luminous is a perfect combination between the latest LED technology and a top quality, high performance polyurethane.</p>\r\n<p style=\"text-align: justify\">With Luminous wheels, skating at night is more fun and safer for everyone. Thanks to the high visibility, people can spot you from far away and look at you with a huge smile on their faces watching the bright colors under your feet as you skate.</p>",
+        "count": 20,
+        "link": "https://test.proskatersplace.com/brand/luminous/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/luminous/",
+        "httpStatus": 200,
+        "title": "Luminous LED Wheels - North American Retailer",
+        "metaDescription": "Luminous wheels are a perfect combination between the latest LED technology and a top quality, high performance polyurethane.",
+        "h1": "Luminous",
+        "h2s": [],
+        "wordCount": 1806,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/luminous/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 95,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 95 words"
+      ]
+    },
+    {
+      "id": 2488,
+      "name": "Madd Gear",
+      "slug": "madd-gear",
+      "url": "https://test.proskatersplace.com/brand/madd-gear/",
+      "taxonomy": {
+        "description": "",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/madd-gear/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/madd-gear/",
+        "httpStatus": 200,
+        "title": "Madd Gear Scooters - ProSkaters Place",
+        "metaDescription": "Madd Gear is proud to sell and support products by Madd Gear",
+        "h1": "Madd Gear",
+        "h2s": [],
+        "wordCount": 1229,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/madd-gear/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 60 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2473,
+      "name": "Matter",
+      "slug": "matter",
+      "url": "https://test.proskatersplace.com/brand/matter/",
+      "taxonomy": {
+        "description": "",
+        "count": 6,
+        "link": "https://test.proskatersplace.com/brand/matter/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/matter/",
+        "httpStatus": 200,
+        "title": "Matter Wheels - ProSkaters Place",
+        "metaDescription": "Matter is proud to sell and support products by Matter",
+        "h1": "Matter",
+        "h2s": [],
+        "wordCount": 1416,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/matter/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 54 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3510,
+      "name": "Mesmer Skates",
+      "slug": "mesmer",
+      "url": "https://test.proskatersplace.com/brand/mesmer/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">As skaters, the <a href=\"https://powerslide.com/pages/mesmer\">Mesmer Skates</a> team wanted to create a brand that focused on the wants and needs of the skating community. Their goal was simple: Produce high quality skate products, put out great content with an amazing team, and help to contribute to the growth of our culture.</p>\r\n<p style=\"text-align: justify\">When creating the original business model for the brand, it was really important for everyone involved to make sure the skaters on the team were properly compensated. We take pride in being able to offer some of the highest royalty payments in our industry to our pro riders, and will always continue to find ways to take care of our team, and the greater community. Mesmer Skates is for skaters first.</p>",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/mesmer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/mesmer/",
+        "httpStatus": 200,
+        "title": "Mesmer Skates",
+        "metaDescription": "Mesmer Skates. Their goal is high quality skate products, great content with an amazing team, and help to contribute to the growth of our culture.",
+        "h1": "Mesmer Skates",
+        "h2s": [],
+        "wordCount": 1429,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/mesmer/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 120,
+      "seoScore": 83,
+      "seoIssues": [
+        "Title length 13 (ideal 30-60)",
+        "Thin description: 120 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2514,
+      "name": "Micro Skate",
+      "slug": "micro",
+      "url": "https://test.proskatersplace.com/brand/micro/",
+      "taxonomy": {
+        "description": "<strong>Dive into the world of <a href=\"https://www.micro-skate.com/\">Micro Skate</a>, a brand synonymous with quality and innovation.</strong> From their groundbreaking designs to unmatched performance, explore the best of Micro Skate with ProSkaters Place.",
+        "count": 15,
+        "link": "https://test.proskatersplace.com/brand/micro/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/micro/",
+        "httpStatus": 200,
+        "title": "Discover Micro Skate: Leading the Way in Skating Innovation",
+        "metaDescription": "Dive into the world of Micro Skate, a brand synonymous with quality and innovation. From their groundbreaking designs to unmatched performance.",
+        "h1": "Micro Skate",
+        "h2s": [
+          "Explore More:",
+          "FAQs or Guides:",
+          "Customer Reviews:",
+          "Stay Connected:"
+        ],
+        "wordCount": 2122,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/micro/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 31,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 31 words"
+      ]
+    },
+    {
+      "id": 3158,
+      "name": "Mindless",
+      "slug": "mindless",
+      "url": "https://test.proskatersplace.com/brand/mindless/",
+      "taxonomy": {
+        "description": "Mindless Longboards specialize in cruiser boards, complete longboards and trucks. Blending quality with affordability, the British brand produces longboards and cruisers for all riding styles and levels. Their boards are designed similar to the original skateboards of the 70s and 80s, meaning that they have larger wheels, allowing you to perform faster turns and give you a smoother ride over bumpy surfaces.\r\n\r\nMindless is renowned for using state-of-the-art techniques during the board construction process, as well as for testing its designs with experienced skaters. Furthermore, Mindless’ surfskate and longboard trucks allow you to customize your board so that you can optimise your speed and performance.\r\n\r\nEstablished in 2005, Mindless is committed to environmental sustainability, sourcing maple wood from regenerative forests wherever possible. In addition to boards, the brand also produces a range of bushings and riser pads.",
+        "count": 16,
+        "link": "https://test.proskatersplace.com/brand/mindless/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/mindless/",
+        "httpStatus": 200,
+        "title": "Mindless at ProSkaters Place",
+        "metaDescription": "Mindless is proud to sell and support products by Mindless",
+        "h1": "Mindless",
+        "h2s": [],
+        "wordCount": 1615,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/mindless/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 137,
+      "seoScore": 73,
+      "seoIssues": [
+        "Title length 28 (ideal 30-60)",
+        "Meta desc length 58 (ideal 120-155)",
+        "Thin description: 137 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3328,
+      "name": "Mini Logo",
+      "slug": "mini-logo",
+      "url": "https://test.proskatersplace.com/brand/mini-logo/",
+      "taxonomy": {
+        "description": "",
+        "count": 2,
+        "link": "https://test.proskatersplace.com/brand/mini-logo/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/mini-logo/",
+        "httpStatus": 200,
+        "title": "Mini Logo - ProSkaters Place",
+        "metaDescription": "Mini Logo is proud to sell and support products by Mini Logo",
+        "h1": "Mini Logo",
+        "h2s": [],
+        "wordCount": 1254,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/mini-logo/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 28 (ideal 30-60)",
+        "Meta desc length 60 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2507,
+      "name": "MPC",
+      "slug": "mpc",
+      "url": "https://test.proskatersplace.com/brand/mpc/",
+      "taxonomy": {
+        "description": "",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/mpc/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/mpc/",
+        "httpStatus": 200,
+        "title": "MPC Wheels - ProSkaters Place",
+        "metaDescription": "MPC is proud to sell and support products by MPC",
+        "h1": "MPC",
+        "h2s": [],
+        "wordCount": 1327,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/mpc/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 29 (ideal 30-60)",
+        "Meta desc length 48 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3125,
+      "name": "NN Skates",
+      "slug": "nn-skates",
+      "url": "https://test.proskatersplace.com/brand/nn-skates/",
+      "taxonomy": {
+        "description": "<a href=\"https://nnskates.com/\">NN Skate Frames</a> - Freeskating Evolved!\r\n<p style=\"text-align: justify\">All of our frames are specially rockered to combine maneuverability with stability to provide the best experience for all level skaters in various environments</p>\r\n<p style=\"text-align: justify\">The “V” rockered setup featured on many NN Frames gives you the best of both worlds when it comes to skating. It’s much better at turning than a “flat” wheeled setup, and much more stable for going fast and down hills than a traditional “banana rockered” wheel setup</p>",
+        "count": 17,
+        "link": "https://test.proskatersplace.com/brand/nn-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/nn-skates/",
+        "httpStatus": 200,
+        "title": "NN Skates Freestyle Inline Skating Frames",
+        "metaDescription": "NN Skate - Freeskating Evolved! The &quot;V&quot; rockered frames for your freeskates - the perfect combination of maneuverability and stability!",
+        "h1": "NN Skates",
+        "h2s": [],
+        "wordCount": 1596,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/nn-skates/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 78,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 78 words"
+      ]
+    },
+    {
+      "id": 2513,
+      "name": "Optiwax",
+      "slug": "optiwax",
+      "url": "https://test.proskatersplace.com/brand/optiwax/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><strong>Glide tapes by <a href=\"https://www.optiwax.fi/?lang=en\">Optiwax</a> are an easy way to wax your <a href=\"https://proskatersplace.com/products/winter-sports/cross-country-skis/\">Cross Country Skis</a>, <a href=\"https://proskatersplace.com/products/winter-sports/alpine-skis/\">Alpine Skis</a>, and Snowboards!</strong></p>\r\n<p style=\"text-align: justify\">The perfect pleasure of skiing can be reached with an excellent glide. When the glide waxing is long-lasting, fast, and easy to use, you can get the best out of skiing every time. Explore Optiwax glide tapes below at <a href=\"/\">ProSkaters Place</a>. The 1# one choice for Optiwax, especially for beginners.</p>",
+        "count": 12,
+        "link": "https://test.proskatersplace.com/brand/optiwax/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/optiwax/",
+        "httpStatus": 200,
+        "title": "Optiwax Best Glide Tapes for Snowboards, Nordic &amp; Alpine Ski",
+        "metaDescription": "Optiwax - Glide tapes are an easy way to wax your Cross Country Skis, Alpine Skis, and Snowboards. Explore The Best Selection Online Here!",
+        "h1": "Optiwax",
+        "h2s": [
+          "Optiwax: The Future of Ski Waxing Technology"
+        ],
+        "wordCount": 2007,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/optiwax/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 71,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 64 (ideal 30-60)",
+        "Very thin description: 71 words"
+      ]
+    },
+    {
+      "id": 2519,
+      "name": "Oysi",
+      "slug": "oysi",
+      "url": "https://test.proskatersplace.com/brand/oysi/",
+      "taxonomy": {
+        "description": "",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/oysi/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/oysi/",
+        "httpStatus": 200,
+        "title": "Oysi - ProSkaters Place",
+        "metaDescription": "Oysi is proud to sell and support products by Oysi",
+        "h1": "Oysi",
+        "h2s": [],
+        "wordCount": 1212,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/oysi/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 23 (ideal 30-60)",
+        "Meta desc length 50 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2752,
+      "name": "Pills",
+      "slug": "pills-wheels",
+      "url": "https://test.proskatersplace.com/brand/pills-wheels/",
+      "taxonomy": {
+        "description": "Pills Wheels",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/pills-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/pills-wheels/",
+        "httpStatus": 200,
+        "title": "Pills at ProSkaters Place",
+        "metaDescription": "Pills is proud to sell and support products by Pills",
+        "h1": "Pills",
+        "h2s": [],
+        "wordCount": 1320,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/pills-wheels/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 2,
+      "seoScore": 68,
+      "seoIssues": [
+        "Title length 25 (ideal 30-60)",
+        "Meta desc length 52 (ideal 120-155)",
+        "Very thin description: 2 words"
+      ]
+    },
+    {
+      "id": 2482,
+      "name": "PlayLife",
+      "slug": "playlife",
+      "url": "https://test.proskatersplace.com/brand/playlife/",
+      "taxonomy": {
+        "description": "",
+        "count": 14,
+        "link": "https://test.proskatersplace.com/brand/playlife/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/playlife/",
+        "httpStatus": 200,
+        "title": "PlayLife - ProSkaters Place",
+        "metaDescription": "PlayLife is proud to sell and support products by PlayLife",
+        "h1": "PlayLife",
+        "h2s": [],
+        "wordCount": 1700,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/playlife/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 27 (ideal 30-60)",
+        "Meta desc length 58 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3046,
+      "name": "Powell Peralta",
+      "slug": "powell-peralta",
+      "url": "https://test.proskatersplace.com/brand/powell-peralta/",
+      "taxonomy": {
+        "description": "",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/powell-peralta/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/powell-peralta/",
+        "httpStatus": 200,
+        "title": "Powell Peralta at ProSkaters Place",
+        "metaDescription": "Powell Peralta is proud to sell and support products by Powell Peralta",
+        "h1": "Powell Peralta",
+        "h2s": [],
+        "wordCount": 1236,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/powell-peralta/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 70 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2460,
+      "name": "Powerslide",
+      "slug": "powerslide",
+      "url": "https://test.proskatersplace.com/brand/powerslide/",
+      "taxonomy": {
+        "description": "<h2><strong>#1 Retailer for <a href=\"https://powerslide.com/pages/inline-skates\">POWERSLIDE Skates</a> &amp; Products!</strong></h2>\r\nNowadays, this brand is the leading and most innovative force on the <a href=\"https://en.wikipedia.org/wiki/Inline_skating\">Inline Skating</a> scene with many sub-brands dedicated to various wheeled sports. With a passion for products and pure love for the sport, Powerslide skates is a driving force in the inline skates industry, always innovating and striving to make better products and make the impossible possible. And why do we do it? Simply put, WE LOVE POWERSLIDE SKATES. That's why we carry the best selection here at <a href=\"/\">ProSkaters Place</a>!",
+        "count": 376,
+        "link": "https://test.proskatersplace.com/brand/powerslide/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/powerslide/",
+        "httpStatus": 200,
+        "title": "Explore Powerslide: Premium Skates &amp; Gear | ProSkaters Place",
+        "metaDescription": "Discover Powerslide&#039;s high-quality skates and innovative gear at ProSkaters Place. Shop now for Powerslide Skates and ride in style!",
+        "h1": "Powerslide",
+        "h2s": [
+          "#1 Retailer for POWERSLIDE Skates &amp; Products!"
+        ],
+        "wordCount": 3010,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/powerslide/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 89,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 64 (ideal 30-60)",
+        "Very thin description: 89 words"
+      ]
+    },
+    {
+      "id": 2465,
+      "name": "ProSkaters",
+      "slug": "proskaters",
+      "url": "https://test.proskatersplace.com/brand/proskaters/",
+      "taxonomy": {
+        "description": "",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/proskaters/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/proskaters/",
+        "httpStatus": 200,
+        "title": "ProSkaters - ProSkaters Place",
+        "metaDescription": "ProSkaters is proud to sell and support products by ProSkaters",
+        "h1": "ProSkaters",
+        "h2s": [],
+        "wordCount": 1337,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/proskaters/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 29 (ideal 30-60)",
+        "Meta desc length 62 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2487,
+      "name": "Reign Hockey",
+      "slug": "reign-hockey",
+      "url": "https://test.proskatersplace.com/brand/reign-hockey/",
+      "taxonomy": {
+        "description": "",
+        "count": 7,
+        "link": "https://test.proskatersplace.com/brand/reign-hockey/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/reign-hockey/",
+        "httpStatus": 200,
+        "title": "Reign Hockey - ProSkaters Place",
+        "metaDescription": "Reign Hockey is proud to sell and support products by Reign Hockey",
+        "h1": "Reign Hockey",
+        "h2s": [],
+        "wordCount": 1491,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/reign-hockey/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 66 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2468,
+      "name": "Rekd",
+      "slug": "rekd",
+      "url": "https://test.proskatersplace.com/brand/rekd/",
+      "taxonomy": {
+        "description": "",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/rekd/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/rekd/",
+        "httpStatus": 200,
+        "title": "Rekd - ProSkaters Place",
+        "metaDescription": "REKD Protection creates distinctive, attractive products that provide optimum protection, support and comfort whilst giving the premium look and feel that modern riders demand.",
+        "h1": "Rekd",
+        "h2s": [],
+        "wordCount": 1392,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/rekd/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 23 (ideal 30-60)",
+        "Meta desc length 176 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3026,
+      "name": "Reusch",
+      "slug": "reusch",
+      "url": "https://test.proskatersplace.com/brand/reusch/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">The glove specialist <a href=\"https://www.reusch.com/\">Reusch</a> is a worldwide operating company with almost 90 years of experience in manufacturing high-quality sports gloves and equipment. Specialized in goalkeeper gloves and <a href=\"https://proskatersplace.com/products/winter-sports/alpine-clothing/\">winter sports gloves</a>, Reusch is one of the world’s leading traditional glove brands.</p>\r\n<p style=\"text-align: justify\">Founded in 1934, Reusch pursues a clear goal: the development of the best gloves, consisting of high-quality materials, innovative technologies, and an outstanding fit. The expertise of Reusch as a glove specialist is not only defined by knowledge and skills but also by tradition and experience. These core competencies guarantee that every Reusch glove delivers what it promises.</p>\r\n<p style=\"text-align: justify\">Extensive knowledge of materials, thorough quality control, trustful cooperation with professional athletes, and collaboration with reliable partners ensure that every Reusch collection is developed with the highest level of expertise.</p>",
+        "count": 6,
+        "link": "https://test.proskatersplace.com/brand/reusch/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/reusch/",
+        "httpStatus": 200,
+        "title": "Reusch Alpine Gloves",
+        "metaDescription": "Reusch has almost 90 years of experience in manufacturing high-quality winter sports gloves, Reusch is one of the world’s leading brands.",
+        "h1": "Reusch",
+        "h2s": [],
+        "wordCount": 1542,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/reusch/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 129,
+      "seoScore": 83,
+      "seoIssues": [
+        "Title length 20 (ideal 30-60)",
+        "Thin description: 129 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2508,
+      "name": "Revision",
+      "slug": "revision-hockey",
+      "url": "https://test.proskatersplace.com/brand/revision-hockey/",
+      "taxonomy": {
+        "description": "",
+        "count": 2,
+        "link": "https://test.proskatersplace.com/brand/revision-hockey/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/revision-hockey/",
+        "httpStatus": 200,
+        "title": "Revision Wheels- ProSkaters Place",
+        "metaDescription": "Revision is proud to sell and support products by Revision",
+        "h1": "Revision",
+        "h2s": [],
+        "wordCount": 1282,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/revision-hockey/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 58 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2503,
+      "name": "Rio Roller",
+      "slug": "rio-roller",
+      "url": "https://test.proskatersplace.com/brand/rio-roller/",
+      "taxonomy": {
+        "description": "Rio Roller is the original fashion quad skate brand since the 90's. Designed in the UK, Distributed worldwide.\r\n\r\nAs a brand, they are proud to be supporting the Vegan movement by using as many synthetic alternatives &amp; cruelty-free products as possible.\r\n\r\nThey believe it is important for all to continue our aim of bringing innovative designs, approaching new materials, and keeping up to date with the latest technologies that will allow Rio to bring improvements in their journey for you and our environment.",
+        "count": 20,
+        "link": "https://test.proskatersplace.com/brand/rio-roller/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/rio-roller/",
+        "httpStatus": 200,
+        "title": "Rio Roller - the quality quad skate brand from the UK",
+        "metaDescription": "All Rio Roller skates are designed to be fun and stylish while containing high-quality specs to provide the best in comfort, support and performance!",
+        "h1": "Rio Roller",
+        "h2s": [],
+        "wordCount": 1964,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/rio-roller/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 83,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 83 words"
+      ]
+    },
+    {
+      "id": 2483,
+      "name": "Rollerblade",
+      "slug": "rollerblade",
+      "url": "https://test.proskatersplace.com/brand/rollerblade/",
+      "taxonomy": {
+        "description": "",
+        "count": 30,
+        "link": "https://test.proskatersplace.com/brand/rollerblade/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/rollerblade/",
+        "httpStatus": 200,
+        "title": "Rollerblade - ProSkaters Place",
+        "metaDescription": "Rollerblade is proud to sell and support products by Rollerblade",
+        "h1": "Rollerblade",
+        "h2s": [],
+        "wordCount": 1996,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/rollerblade/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 64 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2839,
+      "name": "Rossignol",
+      "slug": "rossignol-ski",
+      "url": "https://test.proskatersplace.com/brand/rossignol-ski/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><a href=\"https://www.grouperossignol.com/en/\">Rossignol</a> is an iconic winter sports brand. Aimed at all enthusiasts, whether amateurs or experts, it offers products – equipment, clothing, accessories – for alpine skiing, Nordic skiing, and snowboarding.</p>\r\n<p style=\"text-align: justify\">Rossignol draws on over 100 years of innovation and expertise. The brand works closely with the greatest champions to develop products that are both high-tech and intuitive, offering each user a fulfilling and accessible experience on snow for sharing.</p>\r\nThe products include <a href=\"https://proskatersplace.com/products/winter-sports/alpine-skis/\">Alpine Skis</a> and <a href=\"https://proskatersplace.com/products/winter-sports/alpine-ski-boots/\">Boots</a>, <a href=\"https://proskatersplace.com/products/winter-sports/cross-country-ski/\">Nordic Skis</a> and <a href=\"https://proskatersplace.com/products/winter-sports/nordic-ski-boots/\">Boots</a>, <a href=\"https://proskatersplace.com/products/winter-sports/cross-country-poles/\">Poles</a>, and various accessories.",
+        "count": 60,
+        "link": "https://test.proskatersplace.com/brand/rossignol-ski/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/rossignol-ski/",
+        "httpStatus": 200,
+        "title": "Rossignol Alpine and Cross Country Skis, Boots, and Poles",
+        "metaDescription": "Rossignol develops products that are both high-tech and intuitive, offering each user a fulfilling and accessible experience on snow for sharing.",
+        "h1": "Rossignol",
+        "h2s": [],
+        "wordCount": 2352,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/rossignol-ski/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 87,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 87 words"
+      ]
+    },
+    {
+      "id": 2512,
+      "name": "Rottefella",
+      "slug": "rottefella",
+      "url": "https://test.proskatersplace.com/brand/rottefella/",
+      "taxonomy": {
+        "description": "",
+        "count": 1,
+        "link": "https://test.proskatersplace.com/brand/rottefella/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/rottefella/",
+        "httpStatus": 200,
+        "title": "Rottefella Bindings - ProSkaters Place",
+        "metaDescription": "Rottefella is proud to sell and support products by Rottefella",
+        "h1": "Rottefella",
+        "h2s": [],
+        "wordCount": 1232,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/rottefella/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 62 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2464,
+      "name": "SEBA Skates",
+      "slug": "seba",
+      "url": "https://test.proskatersplace.com/brand/seba/",
+      "taxonomy": {
+        "description": "<h3><strong>Seba Skates: A Synonym for Quality in Skating</strong></h3>\r\nSeba skates is a renowned brand in the skating world, known for its high-quality, durable, and precision-engineered skates. Whether you are a beginner or a professional, Seba offers a range of products designed to elevate your skating experience.",
+        "count": 32,
+        "link": "https://test.proskatersplace.com/brand/seba/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/seba/",
+        "httpStatus": 200,
+        "title": "Seba Skates: Quality &amp; Performance | ProSkaters Place",
+        "metaDescription": "Explore Seba Skates range of high-quality skates known for durability. Find the perfect Seba product to elevate your skating experience!",
+        "h1": "SEBA Skates",
+        "h2s": [
+          "Seba Skates"
+        ],
+        "wordCount": 2407,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/seba/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 46,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 46 words"
+      ]
+    },
+    {
+      "id": 3134,
+      "name": "SFR Skates",
+      "slug": "sfr-skates",
+      "url": "https://test.proskatersplace.com/brand/sfr-skates/",
+      "taxonomy": {
+        "description": "SFR was established in 2005, encompassing some iconic skates such as the original Rio Roller and high quality components including the renowned Slicks wheels.",
+        "count": 8,
+        "link": "https://test.proskatersplace.com/brand/sfr-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/sfr-skates/",
+        "httpStatus": 200,
+        "title": "SFR Skates at ProSkaters Place",
+        "metaDescription": "SFR Skates is proud to sell and support products by SFR Skates",
+        "h1": "SFR Skates",
+        "h2s": [],
+        "wordCount": 1571,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/sfr-skates/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 24,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 62 (ideal 120-155)",
+        "Very thin description: 24 words"
+      ]
+    },
+    {
+      "id": 3024,
+      "name": "SHRED",
+      "slug": "shred",
+      "url": "https://test.proskatersplace.com/brand/shred/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">Skiers, snowboarders, and mountain bikers are often intimidated by the challenges they face. <a href=\"https://shredoptics.com/\">SHRED's</a> unique <a href=\"https://proskatersplace.com/products/alpine-protection/\">eyewear and protection</a> design and technology boost performance to give you the confidence to reach the next level, feel like a pro, and have fun.</p>",
+        "count": 7,
+        "link": "https://test.proskatersplace.com/brand/shred/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/shred/",
+        "httpStatus": 200,
+        "title": "SHRED Alpine Goggles and Helmets",
+        "metaDescription": "SHRED&#039;s eyewear and protection design and technology boost performance to give you the confidence to reach the next level, feel like a pro, and have fun.",
+        "h1": "SHRED",
+        "h2s": [],
+        "wordCount": 1502,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/shred/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 40,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 40 words"
+      ]
+    },
+    {
+      "id": 3036,
+      "name": "SIDAS",
+      "slug": "sidas",
+      "url": "https://test.proskatersplace.com/brand/sidas/",
+      "taxonomy": {
+        "description": "Discover <a href=\"https://www.sidas.com/en/\">Sidas</a>, a leader in comfort and support for athletic footwear. Explore a range of high-quality Sidas products at <a href=\"/\">ProSkaters Place</a>. Experience unmatched comfort and enhanced performance with Sidas insoles, designed for athletes and professionals. Shop below!",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/sidas/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/sidas/",
+        "httpStatus": 200,
+        "title": "Sidas: Top Comfort and Performance | ProSkaters Place",
+        "metaDescription": "Discover Sidas, a leader in comfort and support for athletic footwear. Explore a range of high-quality Sidas products at ProSkaters Place.",
+        "h1": "SIDAS",
+        "h2s": [
+          "Sidas: Revolutionizing Comfort in Athletic Footwear",
+          "About Sidas: Innovation Meets Comfort",
+          "Featured Sidas Products at ProSkaters Place",
+          "The Sidas Difference: Why They&#8217;re a Step Ahead",
+          "What Our Customers Say About Sidas",
+          "Experience the Ultimate in Foot Comfort with Sidas"
+        ],
+        "wordCount": 1964,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/sidas/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 39,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 39 words"
+      ]
+    },
+    {
+      "id": 2467,
+      "name": "Slamm",
+      "slug": "slamm-scooters",
+      "url": "https://test.proskatersplace.com/brand/slamm-scooters/",
+      "taxonomy": {
+        "description": "",
+        "count": 17,
+        "link": "https://test.proskatersplace.com/brand/slamm-scooters/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/slamm-scooters/",
+        "httpStatus": 200,
+        "title": "Slamm - ProSkaters Place",
+        "metaDescription": "Slamm Scooters is a UK freestyle scooter brand that focuses on great componentry and bold graphics!",
+        "h1": "Slamm",
+        "h2s": [],
+        "wordCount": 1783,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/slamm-scooters/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 99 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2493,
+      "name": "Snow White",
+      "slug": "snow-white",
+      "url": "https://test.proskatersplace.com/brand/snow-white/",
+      "taxonomy": {
+        "description": "",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/snow-white/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/snow-white/",
+        "httpStatus": 200,
+        "title": "Snow White - ProSkaters Place",
+        "metaDescription": "Snow White is proud to sell and support products by Snow White",
+        "h1": "Snow White",
+        "h2s": [],
+        "wordCount": 1321,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/snow-white/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 29 (ideal 30-60)",
+        "Meta desc length 62 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2471,
+      "name": "Sonic",
+      "slug": "sonic",
+      "url": "https://test.proskatersplace.com/brand/sonic/",
+      "taxonomy": {
+        "description": "",
+        "count": 25,
+        "link": "https://test.proskatersplace.com/brand/sonic/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/sonic/",
+        "httpStatus": 200,
+        "title": "Sonic - ProSkaters Place",
+        "metaDescription": "Sonic is proud to sell and support products by Sonic",
+        "h1": "Sonic",
+        "h2s": [],
+        "wordCount": 1684,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/sonic/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 24 (ideal 30-60)",
+        "Meta desc length 52 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2499,
+      "name": "Stanley",
+      "slug": "stanley",
+      "url": "https://test.proskatersplace.com/brand/stanley/",
+      "taxonomy": {
+        "description": "",
+        "count": 12,
+        "link": "https://test.proskatersplace.com/brand/stanley/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/stanley/",
+        "httpStatus": 200,
+        "title": "Stanley - ProSkaters Place",
+        "metaDescription": "Stanley is proud to sell and support products by Stanley",
+        "h1": "Stanley",
+        "h2s": [],
+        "wordCount": 1727,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/stanley/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 26 (ideal 30-60)",
+        "Meta desc length 56 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3437,
+      "name": "Summit Skiboards",
+      "slug": "summit-skiboards",
+      "url": "https://test.proskatersplace.com/brand/summit-skiboards/",
+      "taxonomy": {
+        "description": "<h2><strong>Summit Skiboards, The best name in Alpine Skiboarding and best selection here at <a href=\"/\">Proskaters Place</a>! </strong></h2>\r\n<p style=\"text-align: justify\">Manufacturing alpine skiboards since 2002. <a href=\"https://summitskiboards.com/\">Summit Skiboards</a> saw the need to push the limits of the sport of alpine skiboarding and was created to produce truly high-performance skiboards. Their products are not only the most durable skiboards on the market but also made to ride in any condition and through any terrain while capturing the sheer thrill of snow riding. Skiboards make it easy to learn fast, turn quick, and ride with stability at speeds previously only experienced on skis or snowboards.</p>\r\n<p style=\"text-align: justify\">These skiboards use regular <a href=\"https://proskatersplace.com/products/winter-sports/bindings-and-parts/\">Alpine Bindings</a> and are fully compatible with standard <a href=\"https://proskatersplace.com/products/winter-sports/alpine-ski-boots/\">Alpine Ski Boots</a>. They even can be used with snowboard boots with a special adapter.</p>",
+        "count": 18,
+        "link": "https://test.proskatersplace.com/brand/summit-skiboards/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/summit-skiboards/",
+        "httpStatus": 200,
+        "title": "Summit Skiboards - Capture the sheer thrill of snow riding",
+        "metaDescription": "Summit Skiboards are not only the most durable skiboards on the market but also made to ride in any condition. Explore the best selection now!",
+        "h1": "Summit Skiboards",
+        "h2s": [
+          "Summit Skiboards, The best name in Alpine Skiboarding and best selection here at Proskaters Place !",
+          "Learn About Summit Skiboard Difference",
+          "Unmatched Agility and Control",
+          "Learn to Ski in Just One Day",
+          "Explore the Whole Mountain",
+          "Superior Performance and Comfort",
+          "Join the Skiboard Revolution"
+        ],
+        "wordCount": 2356,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/summit-skiboards/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 126,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 126 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3020,
+      "name": "Sweet",
+      "slug": "sweet-protection",
+      "url": "https://test.proskatersplace.com/brand/sweet-protection/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\">Sweet creates superior <a href=\"https://proskatersplace.com/products/alpine-protection/\">protection</a> inspiring people to push their boundaries.</p>\r\n<p style=\"text-align: justify\"><a href=\"https://www.sweetprotection.com/\">Sweet</a> Protection blends industry-leading innovation with the finest craftsmanship available to create the safest and most advanced helmets, eyewear, protective gear, and apparel.</p>\r\n<p style=\"text-align: justify\">Sweet strives to inspire every outdoor enthusiast – from World Cup ski racers to the weekend warriors out with their kids and everyone in between – to give them the confidence to go further and faster. If you aren’t able to push your own limits, we aren’t doing our job.</p>",
+        "count": 5,
+        "link": "https://test.proskatersplace.com/brand/sweet-protection/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/sweet-protection/",
+        "httpStatus": 200,
+        "title": "Sweet Alpine Helmets and Goggles",
+        "metaDescription": "Sweet blends industry-leading innovation with the finest craftsmanship available to create the safest and most advanced helmets and eyewear",
+        "h1": "Sweet",
+        "h2s": [],
+        "wordCount": 1462,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/sweet-protection/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 83,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 83 words"
+      ]
+    },
+    {
+      "id": 3511,
+      "name": "Swings",
+      "slug": "swings",
+      "url": "https://test.proskatersplace.com/brand/swings/",
+      "taxonomy": {
+        "description": "<h1 style=\"text-align: center\"><strong>Born from Legacy - Built for Victory</strong></h1>\r\n<em><strong><a href=\"https://powerslide.com/pages/swings-on-wings-homepage\">SWINGS</a> Speed Skating brand</strong></em>\r\n<p style=\"text-align: justify\">Bart’s connection with skating isn’t just professional; it’s his passion, his identity.</p>\r\n<p style=\"text-align: justify\">As a key member of the Powerslide racing team for over ten years, Bart has not just endorsed products; he has lived them. His journey from a passionate athlete to a world and Olympic champion has been fueled by an ongoing quest for perfection. This search for perfection and his will to transfer his passion to the next generation of champions has led to the creation of SWINGS.</p>",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/swings/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/swings/",
+        "httpStatus": 200,
+        "title": "Swings Speed Skating Brand",
+        "metaDescription": "Swings Speed Skating Brand was Born from Legacy - Built for Victory. Bart&#039;s journey has been fueled by an ongoing quest for perfection..",
+        "h1": "Swings",
+        "h2s": [],
+        "wordCount": 1372,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/swings/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 91,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 26 (ideal 30-60)",
+        "Very thin description: 91 words"
+      ]
+    },
+    {
+      "id": 2842,
+      "name": "Swix",
+      "slug": "swix",
+      "url": "https://test.proskatersplace.com/brand/swix/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><strong><a href=\"https://www.swixsport.com/en/\">Swix</a> stands as an emblem of innovation and precision in the realm of <a href=\"https://en.wikipedia.org/wiki/Winter_sports\">winter sports</a></strong>. With its roots deeply embedded in the snowy landscapes of Norway, the brand has become synonymous with excellence.\r\n\r\nAt <a href=\"https://proskatersplace.com/\" target=\"_new\">ProSkaters Place</a>, we're thrilled to showcase Swix, bringing their unparalleled products to our discerning clientele. Expand our Swix gear collection Below and enjoy it for yourself this winter.</p>",
+        "count": 85,
+        "link": "https://test.proskatersplace.com/brand/swix/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/swix/",
+        "httpStatus": 200,
+        "title": "#1 Retailer For Swix Ski Waxes, Brushes, Ski poles &amp; Apparel",
+        "metaDescription": "Swix - Everything to help you get the most out of your passion – by showing up, perfectly prepared, every time. Waxes, Brushes, Apparel, and more",
+        "h1": "Swix",
+        "h2s": [
+          "Swix: How Are They Elevating Winter Sports to New Heights"
+        ],
+        "wordCount": 2484,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/swix/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 64,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 64 (ideal 30-60)",
+        "Very thin description: 64 words"
+      ]
+    },
+    {
+      "id": 3049,
+      "name": "THERM-IC",
+      "slug": "therm-ic",
+      "url": "https://test.proskatersplace.com/brand/therm-ic/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/therm-ic/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/therm-ic/",
+        "httpStatus": 200,
+        "title": "THERM-IC at ProSkaters Place",
+        "metaDescription": "THERM-IC is proud to sell and support products by THERM-IC",
+        "h1": "THERM-IC",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 28 (ideal 30-60)",
+        "Meta desc length 58 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 3251,
+      "name": "Toko",
+      "slug": "toko",
+      "url": "https://test.proskatersplace.com/brand/toko/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><strong><a href=\"https://tokous.com/\">Toko</a>'s legacy in the <a href=\"https://en.wikipedia.org/wiki/Winter_sports\">winter sports</a> world-renowned brand for <a href=\"https://proskatersplace.com/products/winter-sports/ski-wax/?swcfpc=1\">Skiwax</a>, Tools, and Accessories.</strong> With a rich history spanning over a century, the brand has consistently delivered products that resonate with quality and innovation.</p>\r\nAt <a href=\"https://proskatersplace.com/\" target=\"_new\">ProSkaters Place</a>, we're honored to present Toko's exceptional range, ensuring our customers access the pinnacle of ski and snowboard care.",
+        "count": 29,
+        "link": "https://test.proskatersplace.com/brand/toko/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/toko/",
+        "httpStatus": 200,
+        "title": "Toko: Pioneers in Ski and Snowboard Care | ProSkaters Place",
+        "metaDescription": "Experience Toko, the trusted name in ski and snowboard care products. Explore the best selection and prices at ProSkaters Place. Free Shipping!",
+        "h1": "Toko",
+        "h2s": [
+          "Toko: Crafting Excellence in Ski and Snowboard Care"
+        ],
+        "wordCount": 2426,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/toko/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 57,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 57 words"
+      ]
+    },
+    {
+      "id": 2457,
+      "name": "Transformer",
+      "slug": "transformer-ice-blades",
+      "url": "https://test.proskatersplace.com/brand/transformer-ice-blades/",
+      "taxonomy": {
+        "description": "",
+        "count": 6,
+        "link": "https://test.proskatersplace.com/brand/transformer-ice-blades/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/transformer-ice-blades/",
+        "httpStatus": 200,
+        "title": "Transformer - ProSkaters Place",
+        "metaDescription": "Transformer is proud to sell and support products by Transformer",
+        "h1": "Transformer",
+        "h2s": [],
+        "wordCount": 1391,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/transformer-ice-blades/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 64 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2458,
+      "name": "TWINCAM",
+      "slug": "twincam",
+      "url": "https://test.proskatersplace.com/brand/twincam/",
+      "taxonomy": {
+        "description": "",
+        "count": 9,
+        "link": "https://test.proskatersplace.com/brand/twincam/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/twincam/",
+        "httpStatus": 200,
+        "title": "TWINCAM Bearings - ProSkaters Place",
+        "metaDescription": "TWINCAM is proud to sell and support products by TWINCAM",
+        "h1": "TWINCAM",
+        "h2s": [],
+        "wordCount": 1449,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/twincam/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 56 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2478,
+      "name": "Undercover Wheels",
+      "slug": "undercover-wheels",
+      "url": "https://test.proskatersplace.com/brand/undercover-wheels/",
+      "taxonomy": {
+        "description": "<strong>Undercover Wheels has established itself as a leading brand in the inline skating industry, specializing in the production of high-performance wheels.</strong> Known for their premium quality and durability, Undercover Wheels are the go-to choice for both professional and recreational skaters seeking unmatched performance.",
+        "count": 50,
+        "link": "https://test.proskatersplace.com/brand/undercover-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/undercover-wheels/",
+        "httpStatus": 200,
+        "title": "Premium Undercover Wheels | ProSkaters Place",
+        "metaDescription": "Explore high-quality Undercover Wheels! Unmatched performance &amp; durability for inline skating. Shop Now at Proskaters Place",
+        "h1": "Undercover Wheels",
+        "h2s": [
+          "Why Choose Undercover Wheels?",
+          "Range of Undercover Wheels",
+          "Buying Guide: Choosing the Right Undercover Wheels",
+          "Maintenance and Care Tips",
+          "Frequently Asked Questions",
+          "ProSkaters Place: Your Go-To Destination for Undercover Wheels",
+          "Conclusion"
+        ],
+        "wordCount": 2493,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/undercover-wheels/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 43,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 43 words"
+      ]
+    },
+    {
+      "id": 2494,
+      "name": "USD",
+      "slug": "usd-skates",
+      "url": "https://test.proskatersplace.com/brand/usd-skates/",
+      "taxonomy": {
+        "description": "<strong>Step into the world of elite skating with our premium collection of USD Skates and Aeon Skates.</strong> Known for groundbreaking features and unparalleled quality, these skates are the top choice for professional and recreational skaters alike.",
+        "count": 18,
+        "link": "https://test.proskatersplace.com/brand/usd-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/usd-skates/",
+        "httpStatus": 200,
+        "title": "Premium USD Skates &amp; Aeon Inline Skates | ProSkaters Place",
+        "metaDescription": "Discover top-tier USD Skates and Aeon Skates at ProSkaters Place. Unleash superior performance and comfort with our exclusive range.",
+        "h1": "USD",
+        "h2s": [
+          "Why Choose USD Skates?",
+          "The Aeon Advantage",
+          "ProSkaters Place: Your Ultimate Skate Destination",
+          "FAQs",
+          "Conclusion"
+        ],
+        "wordCount": 2316,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/usd-skates/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 36,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 62 (ideal 30-60)",
+        "Very thin description: 36 words"
+      ]
+    },
+    {
+      "id": 3120,
+      "name": "Volten",
+      "slug": "volten",
+      "url": "https://test.proskatersplace.com/brand/volten/",
+      "taxonomy": {
+        "description": "Volten Skateboards produces high-quality longboards, skateboards and cruiser boards with both cool old-school designs and colorful modern designs. Volten Skateboards produces boards for all levels and in different shapes.",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/volten/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/volten/",
+        "httpStatus": 200,
+        "title": "Volten Skateboards: High-Quality Longboards &amp; Cruiser Boards",
+        "metaDescription": "Discover Volten Skateboards at ProSkaters Place! Explore our collection of high-quality longboards, skateboards, and cruiser boards.",
+        "h1": "Volten",
+        "h2s": [],
+        "wordCount": 1833,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/volten/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 29,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 64 (ideal 30-60)",
+        "Very thin description: 29 words"
+      ]
+    },
+    {
+      "id": 2484,
+      "name": "WICKED",
+      "slug": "wicked",
+      "url": "https://test.proskatersplace.com/brand/wicked/",
+      "taxonomy": {
+        "description": "",
+        "count": 23,
+        "link": "https://test.proskatersplace.com/brand/wicked/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/wicked/",
+        "httpStatus": 200,
+        "title": "WICKED Bearings - ProSkaters Place",
+        "metaDescription": "WICKED is proud to sell and support products by WICKED",
+        "h1": "WICKED",
+        "h2s": [],
+        "wordCount": 1628,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/wicked/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 75,
+      "seoIssues": [
+        "Meta desc length 54 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2497,
+      "name": "Xsjado",
+      "slug": "xsjado",
+      "url": "https://test.proskatersplace.com/brand/xsjado/",
+      "taxonomy": {
+        "description": "",
+        "count": 0,
+        "link": "https://test.proskatersplace.com/brand/xsjado/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/xsjado/",
+        "httpStatus": 200,
+        "title": "Xsjado - ProSkaters Place",
+        "metaDescription": "Xsjado is proud to sell and support products by Xsjado",
+        "h1": "Xsjado",
+        "h2s": [],
+        "wordCount": 1125,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 25 (ideal 30-60)",
+        "Meta desc length 54 (ideal 120-155)",
+        "No description content"
+      ]
+    },
+    {
+      "id": 2511,
+      "name": "Yoko",
+      "slug": "yoko",
+      "url": "https://test.proskatersplace.com/brand/yoko/",
+      "taxonomy": {
+        "description": "<p style=\"text-align: justify\"><a href=\"https://yoko.fi/\">Yoko</a> has 40 years of experience and expertise in designing and manufacturing quality sportswear using first-rate materials. Designed in Finland, where the challenging climate calls for proper equipment, our products are intended to serve their user under any circumstances, from outdoor and leisure activities to the most demanding competition conditions, regardless of the season. It is their passion and duty to manufacture exactly the right products to fit your demands, whether you are a recreational exerciser or a professional athlete.</p>",
+        "count": 48,
+        "link": "https://test.proskatersplace.com/brand/yoko/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/yoko/",
+        "httpStatus": 200,
+        "title": "Yoko Nordic Skis, Boots, Poles, and Apparel from Finland",
+        "metaDescription": "Yoko - it is their passion and duty to manufacture exactly the right products to fit your demands, whether you are a recreational skier or an athlete.",
+        "h1": "Yoko",
+        "h2s": [],
+        "wordCount": 2090,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/yoko/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 80,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 80 words"
+      ]
+    },
+    {
+      "id": 3091,
+      "name": "ZETAZS",
+      "slug": "zetazs",
+      "url": "https://test.proskatersplace.com/brand/zetazs/",
+      "taxonomy": {
+        "description": "",
+        "count": 3,
+        "link": "https://test.proskatersplace.com/brand/zetazs/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "none",
+        "seoTitle": null,
+        "seoDescription": null
+      },
+      "pageAudit": {
+        "url": "https://test.proskatersplace.com/brand/zetazs/",
+        "httpStatus": 200,
+        "title": "ZETAZS at ProSkaters Place",
+        "metaDescription": "ZETAZS is proud to sell and support products by ZETAZS",
+        "h1": "ZETAZS",
+        "h2s": [],
+        "wordCount": 1305,
+        "schemas": [
+          "(unknown type)",
+          "BreadcrumbList"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://test.proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://test.proskatersplace.com/brand/zetazs/",
+        "noindex": false
+      },
+      "contentScore": "empty",
+      "contentWordCount": 0,
+      "seoScore": 65,
+      "seoIssues": [
+        "Title length 26 (ideal 30-60)",
+        "Meta desc length 54 (ideal 120-155)",
+        "No description content"
+      ]
+    }
+  ]
+}
