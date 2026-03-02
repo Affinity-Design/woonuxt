@@ -122,6 +122,24 @@
       "hasSchema": true,
       "durationSeconds": 124,
       "timestamp": "2026-03-01T00:32:03.112Z"
+    },
+    {
+      "brandName": "Micro Skate",
+      "priorityRank": 1,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 116,
+      "shortDescWordCount": 105,
+      "fullContentWordCount": 1032,
+      "primaryKeyword": "micro skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 99,
+      "timestamp": "2026-03-02T16:28:07.113Z"
     }
   ],
   "rio-roller": [
@@ -160,6 +178,24 @@
       "hasSchema": true,
       "durationSeconds": 98,
       "timestamp": "2026-03-01T00:33:43.495Z"
+    },
+    {
+      "brandName": "Rio Roller",
+      "priorityRank": 2,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 83,
+      "shortDescWordCount": 86,
+      "fullContentWordCount": 960,
+      "primaryKeyword": "rio roller skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 78,
+      "timestamp": "2026-03-02T16:29:27.041Z"
     }
   ],
   "seba": [
@@ -198,6 +234,24 @@
       "hasSchema": true,
       "durationSeconds": 113,
       "timestamp": "2026-03-01T00:35:38.414Z"
+    },
+    {
+      "brandName": "SEBA Skates",
+      "priorityRank": 5,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 128,
+      "shortDescWordCount": 95,
+      "fullContentWordCount": 990,
+      "primaryKeyword": "seba speed",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 70,
+      "timestamp": "2026-03-02T16:33:34.220Z"
     }
   ],
   "chaya-skates": [
@@ -236,6 +290,42 @@
       "hasSchema": true,
       "durationSeconds": 83,
       "timestamp": "2026-03-01T00:37:03.064Z"
+    },
+    {
+      "brandName": "Chaya Skates",
+      "priorityRank": 3,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 135,
+      "shortDescWordCount": 111,
+      "fullContentWordCount": 1005,
+      "primaryKeyword": "chaya melrose deluxe roller skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 94,
+      "timestamp": "2026-03-02T16:25:12.367Z"
+    },
+    {
+      "brandName": "Chaya Skates",
+      "priorityRank": 3,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 111,
+      "shortDescWordCount": 106,
+      "fullContentWordCount": 1053,
+      "primaryKeyword": "chaya melrose deluxe roller skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 79,
+      "timestamp": "2026-03-02T16:30:48.490Z"
     }
   ],
   "nn-skates": [
@@ -274,6 +364,24 @@
       "hasSchema": true,
       "durationSeconds": 118,
       "timestamp": "2026-03-01T00:39:03.486Z"
+    },
+    {
+      "brandName": "NN Skates",
+      "priorityRank": 7,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 119,
+      "shortDescWordCount": 120,
+      "fullContentWordCount": 1069,
+      "primaryKeyword": "inline skates mannen",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 90,
+      "timestamp": "2026-03-02T16:36:42.876Z"
     }
   ],
   "sfr-skates": [
@@ -312,6 +420,24 @@
       "hasSchema": true,
       "durationSeconds": 96,
       "timestamp": "2026-03-01T00:40:41.588Z"
+    },
+    {
+      "brandName": "SFR Skates",
+      "priorityRank": 8,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 109,
+      "shortDescWordCount": 77,
+      "fullContentWordCount": 1011,
+      "primaryKeyword": "sfr skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 86,
+      "timestamp": "2026-03-02T16:38:10.723Z"
     }
   ],
   "fr-skates": [
@@ -332,6 +458,24 @@
       "hasSchema": true,
       "durationSeconds": 88,
       "timestamp": "2026-03-01T00:42:11.411Z"
+    },
+    {
+      "brandName": "FR Skates",
+      "priorityRank": 6,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 105,
+      "shortDescWordCount": 103,
+      "fullContentWordCount": 991,
+      "primaryKeyword": "fr skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 94,
+      "timestamp": "2026-03-02T16:35:10.403Z"
     }
   ],
   "mesmer": [
@@ -352,6 +496,24 @@
       "hasSchema": true,
       "durationSeconds": 84,
       "timestamp": "2026-03-01T00:43:37.343Z"
+    },
+    {
+      "brandName": "Mesmer Skates",
+      "priorityRank": 4,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 85,
+      "shortDescWordCount": 82,
+      "fullContentWordCount": 1036,
+      "primaryKeyword": "mesmer skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 91,
+      "timestamp": "2026-03-02T16:32:21.944Z"
     }
   ],
   "luminous": [
@@ -372,6 +534,24 @@
       "hasSchema": true,
       "durationSeconds": 66,
       "timestamp": "2026-03-01T00:44:45.342Z"
+    },
+    {
+      "brandName": "Luminous",
+      "priorityRank": 9,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 111,
+      "shortDescWordCount": 98,
+      "fullContentWordCount": 960,
+      "primaryKeyword": "luminous skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 68,
+      "timestamp": "2026-03-02T16:39:20.494Z"
     }
   ],
   "rollerblade": [
@@ -392,6 +572,42 @@
       "hasSchema": true,
       "durationSeconds": 83,
       "timestamp": "2026-03-01T00:46:10.066Z"
+    },
+    {
+      "brandName": "Rollerblade",
+      "priorityRank": 11,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 121,
+      "shortDescWordCount": 113,
+      "fullContentWordCount": 1003,
+      "primaryKeyword": "rollerblades",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 118,
+      "timestamp": "2026-03-02T16:23:16.891Z"
+    },
+    {
+      "brandName": "Rollerblade",
+      "priorityRank": 11,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 113,
+      "shortDescWordCount": 95,
+      "fullContentWordCount": 913,
+      "primaryKeyword": "rollerblades",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 108,
+      "timestamp": "2026-03-02T16:42:36.164Z"
     }
   ],
   "swix": [
@@ -412,6 +628,24 @@
       "hasSchema": true,
       "durationSeconds": 93,
       "timestamp": "2026-03-01T00:47:44.623Z"
+    },
+    {
+      "brandName": "Swix",
+      "priorityRank": 12,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 123,
+      "shortDescWordCount": 98,
+      "fullContentWordCount": 968,
+      "primaryKeyword": "swix ski poles",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 95,
+      "timestamp": "2026-03-02T16:44:12.778Z"
     }
   ],
   "usd-skates": [
@@ -432,6 +666,24 @@
       "hasSchema": true,
       "durationSeconds": 88,
       "timestamp": "2026-03-01T00:49:14.783Z"
+    },
+    {
+      "brandName": "USD",
+      "priorityRank": 14,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 134,
+      "shortDescWordCount": 113,
+      "fullContentWordCount": 1039,
+      "primaryKeyword": "usd skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 80,
+      "timestamp": "2026-03-02T16:47:54.689Z"
     }
   ],
   "endless-blading": [
@@ -452,6 +704,24 @@
       "hasSchema": true,
       "durationSeconds": 86,
       "timestamp": "2026-03-01T00:50:42.789Z"
+    },
+    {
+      "brandName": "Endless",
+      "priorityRank": 55,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 114,
+      "shortDescWordCount": 122,
+      "fullContentWordCount": 964,
+      "primaryKeyword": "endless frame",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 112,
+      "timestamp": "2026-03-02T17:51:12.396Z"
     }
   ],
   "powerslide": [
@@ -472,6 +742,24 @@
       "hasSchema": true,
       "durationSeconds": 106,
       "timestamp": "2026-03-01T00:52:30.817Z"
+    },
+    {
+      "brandName": "Powerslide",
+      "priorityRank": 13,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 151,
+      "shortDescWordCount": 105,
+      "fullContentWordCount": 996,
+      "primaryKeyword": "skating powerslide",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 138,
+      "timestamp": "2026-03-02T16:46:32.953Z"
     }
   ],
   "reign-hockey": [
@@ -492,6 +780,24 @@
       "hasSchema": true,
       "durationSeconds": 165,
       "timestamp": "2026-03-01T00:55:17.369Z"
+    },
+    {
+      "brandName": "Reign Hockey",
+      "priorityRank": 19,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 86,
+      "shortDescWordCount": 74,
+      "fullContentWordCount": 1011,
+      "primaryKeyword": "reign hockey skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 103,
+      "timestamp": "2026-03-02T16:55:34.669Z"
     }
   ],
   "rossignol-ski": [
@@ -512,6 +818,24 @@
       "hasSchema": true,
       "durationSeconds": 177,
       "timestamp": "2026-03-01T00:58:16.523Z"
+    },
+    {
+      "brandName": "Rossignol",
+      "priorityRank": 21,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 117,
+      "shortDescWordCount": 119,
+      "fullContentWordCount": 1027,
+      "primaryKeyword": "rossignol ski bag",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 88,
+      "timestamp": "2026-03-02T16:58:12.572Z"
     }
   ],
   "anarchy-aggressive": [
@@ -532,6 +856,24 @@
       "hasSchema": true,
       "durationSeconds": 89,
       "timestamp": "2026-03-01T00:59:47.866Z"
+    },
+    {
+      "brandName": "Anarchy",
+      "priorityRank": 59,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 122,
+      "shortDescWordCount": 87,
+      "fullContentWordCount": 742,
+      "primaryKeyword": "anarchy skates",
+      "faqCount": 4,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 57,
+      "timestamp": "2026-03-02T17:56:33.601Z"
     }
   ],
   "bones": [
@@ -552,6 +894,24 @@
       "hasSchema": true,
       "durationSeconds": 97,
       "timestamp": "2026-03-01T01:01:27.368Z"
+    },
+    {
+      "brandName": "Bones",
+      "priorityRank": 23,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 77,
+      "shortDescWordCount": 70,
+      "fullContentWordCount": 927,
+      "primaryKeyword": "bones bearing cleaner",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 93,
+      "timestamp": "2026-03-02T17:01:51.764Z"
     }
   ],
   "catsbearing": [
@@ -572,6 +932,24 @@
       "hasSchema": true,
       "durationSeconds": 92,
       "timestamp": "2026-03-01T01:03:01.869Z"
+    },
+    {
+      "brandName": "Cats",
+      "priorityRank": 24,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 79,
+      "shortDescWordCount": 73,
+      "fullContentWordCount": 940,
+      "primaryKeyword": "cats skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 72,
+      "timestamp": "2026-03-02T17:03:06.163Z"
     }
   ],
   "choke": [
@@ -592,6 +970,24 @@
       "hasSchema": true,
       "durationSeconds": 98,
       "timestamp": "2026-03-01T01:04:42.263Z"
+    },
+    {
+      "brandName": "Choke",
+      "priorityRank": 25,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 82,
+      "shortDescWordCount": 75,
+      "fullContentWordCount": 971,
+      "primaryKeyword": "choke skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 65,
+      "timestamp": "2026-03-02T17:04:13.189Z"
     }
   ],
   "disroyal": [
@@ -612,6 +1008,24 @@
       "hasSchema": true,
       "durationSeconds": 100,
       "timestamp": "2026-03-01T01:06:26.801Z"
+    },
+    {
+      "brandName": "Disroyal",
+      "priorityRank": 26,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 89,
+      "shortDescWordCount": 90,
+      "fullContentWordCount": 1052,
+      "primaryKeyword": "disroyal skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 64,
+      "timestamp": "2026-03-02T17:05:19.395Z"
     }
   ],
   "doop": [
@@ -632,6 +1046,24 @@
       "hasSchema": true,
       "durationSeconds": 97,
       "timestamp": "2026-03-01T01:08:05.951Z"
+    },
+    {
+      "brandName": "DOOP",
+      "priorityRank": 60,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 101,
+      "shortDescWordCount": 84,
+      "fullContentWordCount": 875,
+      "primaryKeyword": "doop skates",
+      "faqCount": 4,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 87,
+      "timestamp": "2026-03-02T17:58:02.567Z"
     }
   ],
   "fischer": [
@@ -652,6 +1084,24 @@
       "hasSchema": true,
       "durationSeconds": 110,
       "timestamp": "2026-03-01T01:09:57.859Z"
+    },
+    {
+      "brandName": "Fischer",
+      "priorityRank": 10,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 122,
+      "shortDescWordCount": 109,
+      "fullContentWordCount": 959,
+      "primaryKeyword": "fischer ski boots",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 84,
+      "timestamp": "2026-03-02T16:40:46.524Z"
     }
   ],
   "flying-eagle": [
@@ -672,6 +1122,24 @@
       "hasSchema": true,
       "durationSeconds": 125,
       "timestamp": "2026-03-01T01:12:05.368Z"
+    },
+    {
+      "brandName": "Flying Eagle",
+      "priorityRank": 17,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 124,
+      "shortDescWordCount": 115,
+      "fullContentWordCount": 959,
+      "primaryKeyword": "flying eagle skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 95,
+      "timestamp": "2026-03-02T16:52:46.059Z"
     }
   ],
   "gawds": [
@@ -692,6 +1160,24 @@
       "hasSchema": true,
       "durationSeconds": 93,
       "timestamp": "2026-03-01T01:13:39.925Z"
+    },
+    {
+      "brandName": "Gawds",
+      "priorityRank": 62,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 137,
+      "shortDescWordCount": 114,
+      "fullContentWordCount": 1007,
+      "primaryKeyword": "gawds skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 72,
+      "timestamp": "2026-03-02T18:00:34.539Z"
     }
   ],
   "k2": [
@@ -712,6 +1198,24 @@
       "hasSchema": true,
       "durationSeconds": 77,
       "timestamp": "2026-03-01T01:15:01.946Z"
+    },
+    {
+      "brandName": "K2",
+      "priorityRank": 63,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 136,
+      "shortDescWordCount": 68,
+      "fullContentWordCount": 955,
+      "primaryKeyword": "k2 skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 103,
+      "timestamp": "2026-03-02T18:02:19.218Z"
     }
   ],
   "kizer": [
@@ -732,6 +1236,24 @@
       "hasSchema": true,
       "durationSeconds": 89,
       "timestamp": "2026-03-01T01:16:32.597Z"
+    },
+    {
+      "brandName": "Kizer",
+      "priorityRank": 64,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 105,
+      "shortDescWordCount": 99,
+      "fullContentWordCount": 930,
+      "primaryKeyword": "kizer frames",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 86,
+      "timestamp": "2026-03-02T18:03:46.920Z"
     }
   ],
   "madd-gear": [
@@ -752,6 +1274,24 @@
       "hasSchema": true,
       "durationSeconds": 78,
       "timestamp": "2026-03-01T01:17:52.949Z"
+    },
+    {
+      "brandName": "Madd Gear",
+      "priorityRank": 18,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 93,
+      "shortDescWordCount": 70,
+      "fullContentWordCount": 926,
+      "primaryKeyword": "madd gear skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 62,
+      "timestamp": "2026-03-02T16:53:49.993Z"
     }
   ],
   "matter": [
@@ -772,6 +1312,24 @@
       "hasSchema": true,
       "durationSeconds": 65,
       "timestamp": "2026-03-01T01:19:00.025Z"
+    },
+    {
+      "brandName": "Matter",
+      "priorityRank": 31,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 86,
+      "shortDescWordCount": 74,
+      "fullContentWordCount": 933,
+      "primaryKeyword": "matter skates",
+      "faqCount": 4,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 103,
+      "timestamp": "2026-03-02T17:13:03.042Z"
     }
   ],
   "mini-logo": [
@@ -792,6 +1350,24 @@
       "hasSchema": true,
       "durationSeconds": 62,
       "timestamp": "2026-03-01T01:20:03.985Z"
+    },
+    {
+      "brandName": "Mini Logo",
+      "priorityRank": 65,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 121,
+      "shortDescWordCount": 112,
+      "fullContentWordCount": 933,
+      "primaryKeyword": "mini logo skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 99,
+      "timestamp": "2026-03-02T18:05:27.621Z"
     }
   ],
   "mpc": [
@@ -812,6 +1388,24 @@
       "hasSchema": true,
       "durationSeconds": 80,
       "timestamp": "2026-03-01T01:21:25.846Z"
+    },
+    {
+      "brandName": "MPC",
+      "priorityRank": 33,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 94,
+      "shortDescWordCount": 80,
+      "fullContentWordCount": 932,
+      "primaryKeyword": "mpc skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 84,
+      "timestamp": "2026-03-02T17:16:00.905Z"
     }
   ],
   "oysi": [
@@ -832,6 +1426,24 @@
       "hasSchema": true,
       "durationSeconds": 122,
       "timestamp": "2026-03-01T01:23:30.344Z"
+    },
+    {
+      "brandName": "Oysi",
+      "priorityRank": 36,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 97,
+      "shortDescWordCount": 76,
+      "fullContentWordCount": 873,
+      "primaryKeyword": "oysi skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 84,
+      "timestamp": "2026-03-02T17:19:50.837Z"
     }
   ],
   "playlife": [
@@ -852,6 +1464,24 @@
       "hasSchema": true,
       "durationSeconds": 104,
       "timestamp": "2026-03-01T01:25:16.787Z"
+    },
+    {
+      "brandName": "PlayLife",
+      "priorityRank": 66,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 117,
+      "shortDescWordCount": 98,
+      "fullContentWordCount": 941,
+      "primaryKeyword": "playlife reactor",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 69,
+      "timestamp": "2026-03-02T18:06:38.244Z"
     }
   ],
   "proskaters": [
@@ -872,6 +1502,24 @@
       "hasSchema": true,
       "durationSeconds": 85,
       "timestamp": "2026-03-01T01:26:46.019Z"
+    },
+    {
+      "brandName": "ProSkaters",
+      "priorityRank": 38,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 91,
+      "shortDescWordCount": 77,
+      "fullContentWordCount": 949,
+      "primaryKeyword": "proskatersplace",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 87,
+      "timestamp": "2026-03-02T17:23:16.849Z"
     }
   ],
   "rekd": [
@@ -892,6 +1540,24 @@
       "hasSchema": true,
       "durationSeconds": 83,
       "timestamp": "2026-03-01T01:28:10.809Z"
+    },
+    {
+      "brandName": "Rekd",
+      "priorityRank": 67,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 123,
+      "shortDescWordCount": 109,
+      "fullContentWordCount": 906,
+      "primaryKeyword": "rekd skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 98,
+      "timestamp": "2026-03-02T18:08:17.907Z"
     }
   ],
   "revision-hockey": [
@@ -912,6 +1578,24 @@
       "hasSchema": true,
       "durationSeconds": 81,
       "timestamp": "2026-03-01T01:29:33.536Z"
+    },
+    {
+      "brandName": "Revision",
+      "priorityRank": 39,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 95,
+      "shortDescWordCount": 73,
+      "fullContentWordCount": 917,
+      "primaryKeyword": "revision skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 82,
+      "timestamp": "2026-03-02T17:24:40.825Z"
     }
   ],
   "rottefella": [
@@ -932,6 +1616,24 @@
       "hasSchema": true,
       "durationSeconds": 194,
       "timestamp": "2026-03-01T01:32:49.704Z"
+    },
+    {
+      "brandName": "Rottefella",
+      "priorityRank": 40,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 99,
+      "shortDescWordCount": 75,
+      "fullContentWordCount": 933,
+      "primaryKeyword": "rottefella bindings nnn",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 84,
+      "timestamp": "2026-03-02T17:26:06.381Z"
     }
   ],
   "slamm-scooters": [
@@ -952,6 +1654,24 @@
       "hasSchema": true,
       "durationSeconds": 67,
       "timestamp": "2026-03-01T01:33:58.942Z"
+    },
+    {
+      "brandName": "Slamm",
+      "priorityRank": 42,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 85,
+      "shortDescWordCount": 78,
+      "fullContentWordCount": 1003,
+      "primaryKeyword": "slamm skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 116,
+      "timestamp": "2026-03-02T17:29:36.232Z"
     }
   ],
   "snow-white": [
@@ -972,6 +1692,24 @@
       "hasSchema": true,
       "durationSeconds": 113,
       "timestamp": "2026-03-01T01:35:53.472Z"
+    },
+    {
+      "brandName": "Snow White",
+      "priorityRank": 69,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 119,
+      "shortDescWordCount": 75,
+      "fullContentWordCount": 961,
+      "primaryKeyword": "frame snow white",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 77,
+      "timestamp": "2026-03-02T18:11:02.280Z"
     }
   ],
   "sonic": [
@@ -992,6 +1730,24 @@
       "hasSchema": true,
       "durationSeconds": 85,
       "timestamp": "2026-03-01T01:37:19.988Z"
+    },
+    {
+      "brandName": "Sonic",
+      "priorityRank": 43,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 90,
+      "shortDescWordCount": 81,
+      "fullContentWordCount": 918,
+      "primaryKeyword": "sonic roller blades",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 76,
+      "timestamp": "2026-03-02T17:30:54.362Z"
     }
   ],
   "stanley": [
@@ -1012,6 +1768,24 @@
       "hasSchema": true,
       "durationSeconds": 62,
       "timestamp": "2026-03-01T01:38:23.886Z"
+    },
+    {
+      "brandName": "Stanley",
+      "priorityRank": 44,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 84,
+      "shortDescWordCount": 66,
+      "fullContentWordCount": 937,
+      "primaryKeyword": "lucky stanley",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 101,
+      "timestamp": "2026-03-02T17:32:37.024Z"
     }
   ],
   "transformer-ice-blades": [
@@ -1032,6 +1806,24 @@
       "hasSchema": true,
       "durationSeconds": 86,
       "timestamp": "2026-03-01T01:39:54.406Z"
+    },
+    {
+      "brandName": "Transformer",
+      "priorityRank": 47,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 95,
+      "shortDescWordCount": 80,
+      "fullContentWordCount": 915,
+      "primaryKeyword": "transformer skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 150,
+      "timestamp": "2026-03-02T17:38:03.742Z"
     }
   ],
   "twincam": [
@@ -1052,6 +1844,24 @@
       "hasSchema": true,
       "durationSeconds": 97,
       "timestamp": "2026-03-01T01:41:33.344Z"
+    },
+    {
+      "brandName": "TWINCAM",
+      "priorityRank": 70,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 104,
+      "shortDescWordCount": 103,
+      "fullContentWordCount": 944,
+      "primaryKeyword": "twincam skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 78,
+      "timestamp": "2026-03-02T18:12:22.095Z"
     }
   ],
   "wicked": [
@@ -1072,6 +1882,24 @@
       "hasSchema": true,
       "durationSeconds": 90,
       "timestamp": "2026-03-01T01:43:05.102Z"
+    },
+    {
+      "brandName": "WICKED",
+      "priorityRank": 50,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 90,
+      "shortDescWordCount": 91,
+      "fullContentWordCount": 1004,
+      "primaryKeyword": "wicked skate shop",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 87,
+      "timestamp": "2026-03-02T17:43:33.298Z"
     }
   ],
   "xsjado": [
@@ -1092,6 +1920,24 @@
       "hasSchema": true,
       "durationSeconds": 91,
       "timestamp": "2026-03-01T01:44:37.643Z"
+    },
+    {
+      "brandName": "Xsjado",
+      "priorityRank": 51,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 92,
+      "shortDescWordCount": 100,
+      "fullContentWordCount": 1090,
+      "primaryKeyword": "xsjado skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 119,
+      "timestamp": "2026-03-02T17:45:34.234Z"
     }
   ],
   "undercover-wheels": [
@@ -1112,6 +1958,24 @@
       "hasSchema": true,
       "durationSeconds": 65,
       "timestamp": "2026-03-01T01:45:47.398Z"
+    },
+    {
+      "brandName": "Undercover Wheels",
+      "priorityRank": 48,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 114,
+      "shortDescWordCount": 97,
+      "fullContentWordCount": 927,
+      "primaryKeyword": "undercover wheels skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 137,
+      "timestamp": "2026-03-02T17:40:22.952Z"
     }
   ],
   "daehlie": [
@@ -1132,6 +1996,24 @@
       "hasSchema": true,
       "durationSeconds": 67,
       "timestamp": "2026-03-01T01:46:56.278Z"
+    },
+    {
+      "brandName": "Daehlie",
+      "priorityRank": 53,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 103,
+      "shortDescWordCount": 93,
+      "fullContentWordCount": 903,
+      "primaryKeyword": "daehlie pants",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 78,
+      "timestamp": "2026-03-02T17:48:11.067Z"
     }
   ],
   "iqon": [
@@ -1152,6 +2034,24 @@
       "hasSchema": true,
       "durationSeconds": 84,
       "timestamp": "2026-03-01T01:48:21.789Z"
+    },
+    {
+      "brandName": "IQON",
+      "priorityRank": 54,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 120,
+      "shortDescWordCount": 97,
+      "fullContentWordCount": 928,
+      "primaryKeyword": "iqon",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 66,
+      "timestamp": "2026-03-02T17:49:18.657Z"
     }
   ],
   "adapt-brand": [
@@ -1192,6 +2092,24 @@
       "hasSchema": true,
       "durationSeconds": 96,
       "timestamp": "2026-03-01T01:51:41.933Z"
+    },
+    {
+      "brandName": "Dream Wheels",
+      "priorityRank": 16,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 128,
+      "shortDescWordCount": 102,
+      "fullContentWordCount": 919,
+      "primaryKeyword": "dream wheels skates",
+      "faqCount": 4,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 109,
+      "timestamp": "2026-03-02T16:51:08.715Z"
     }
   ],
   "epic-grindshoes": [
@@ -1212,6 +2130,24 @@
       "hasSchema": true,
       "durationSeconds": 65,
       "timestamp": "2026-03-01T01:52:48.744Z"
+    },
+    {
+      "brandName": "Epic",
+      "priorityRank": 61,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 110,
+      "shortDescWordCount": 113,
+      "fullContentWordCount": 1014,
+      "primaryKeyword": "epic grind shoes",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 76,
+      "timestamp": "2026-03-02T17:59:20.787Z"
     }
   ],
   "toko": [
@@ -1232,6 +2168,24 @@
       "hasSchema": true,
       "durationSeconds": 73,
       "timestamp": "2026-03-01T01:54:06.568Z"
+    },
+    {
+      "brandName": "Toko",
+      "priorityRank": 58,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 105,
+      "shortDescWordCount": 99,
+      "fullContentWordCount": 972,
+      "primaryKeyword": "toko skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 64,
+      "timestamp": "2026-03-02T17:55:34.187Z"
     }
   ],
   "adasmart-scooters": [
@@ -1272,6 +2226,24 @@
       "hasSchema": true,
       "durationSeconds": 70,
       "timestamp": "2026-03-01T01:56:49.297Z"
+    },
+    {
+      "brandName": "Enuff",
+      "priorityRank": 28,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 82,
+      "shortDescWordCount": 78,
+      "fullContentWordCount": 943,
+      "primaryKeyword": "enuff skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 88,
+      "timestamp": "2026-03-02T17:08:29.839Z"
     }
   ],
   "gyro": [
@@ -1292,6 +2264,24 @@
       "hasSchema": true,
       "durationSeconds": 123,
       "timestamp": "2026-03-01T01:58:54.337Z"
+    },
+    {
+      "brandName": "Gyro",
+      "priorityRank": 29,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 99,
+      "shortDescWordCount": 80,
+      "fullContentWordCount": 991,
+      "primaryKeyword": "gyro skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 79,
+      "timestamp": "2026-03-02T17:09:50.538Z"
     }
   ],
   "lange-boots": [
@@ -1312,6 +2302,24 @@
       "hasSchema": true,
       "durationSeconds": 137,
       "timestamp": "2026-03-01T02:01:13.772Z"
+    },
+    {
+      "brandName": "Lange",
+      "priorityRank": 30,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 99,
+      "shortDescWordCount": 92,
+      "fullContentWordCount": 964,
+      "primaryKeyword": "lange ski shoes",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 85,
+      "timestamp": "2026-03-02T17:11:17.699Z"
     }
   ],
   "optiwax": [
@@ -1332,6 +2340,24 @@
       "hasSchema": true,
       "durationSeconds": 109,
       "timestamp": "2026-03-01T02:03:04.348Z"
+    },
+    {
+      "brandName": "Optiwax",
+      "priorityRank": 35,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 77,
+      "shortDescWordCount": 77,
+      "fullContentWordCount": 944,
+      "primaryKeyword": "optiwax skates",
+      "faqCount": 4,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 59,
+      "timestamp": "2026-03-02T17:18:24.620Z"
     }
   ],
   "pills-wheels": [
@@ -1352,6 +2378,24 @@
       "hasSchema": true,
       "durationSeconds": 86,
       "timestamp": "2026-03-01T02:04:31.909Z"
+    },
+    {
+      "brandName": "Pills",
+      "priorityRank": 37,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 81,
+      "shortDescWordCount": 73,
+      "fullContentWordCount": 881,
+      "primaryKeyword": "pills skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 115,
+      "timestamp": "2026-03-02T17:21:47.431Z"
     }
   ],
   "shred": [
@@ -1372,6 +2416,24 @@
       "hasSchema": true,
       "durationSeconds": 93,
       "timestamp": "2026-03-01T02:06:06.607Z"
+    },
+    {
+      "brandName": "SHRED",
+      "priorityRank": 41,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 92,
+      "shortDescWordCount": 98,
+      "fullContentWordCount": 957,
+      "primaryKeyword": "shred skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 90,
+      "timestamp": "2026-03-02T17:27:38.204Z"
     }
   ],
   "sidas": [
@@ -1392,6 +2454,24 @@
       "hasSchema": true,
       "durationSeconds": 120,
       "timestamp": "2026-03-01T02:08:08.454Z"
+    },
+    {
+      "brandName": "SIDAS",
+      "priorityRank": 68,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 108,
+      "shortDescWordCount": 95,
+      "fullContentWordCount": 966,
+      "primaryKeyword": "sidas skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 84,
+      "timestamp": "2026-03-02T18:09:43.726Z"
     }
   ],
   "sweet-protection": [
@@ -1412,6 +2492,24 @@
       "hasSchema": true,
       "durationSeconds": 84,
       "timestamp": "2026-03-01T02:09:34.667Z"
+    },
+    {
+      "brandName": "Sweet",
+      "priorityRank": 45,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 96,
+      "shortDescWordCount": 80,
+      "fullContentWordCount": 984,
+      "primaryKeyword": "sweet rig",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 85,
+      "timestamp": "2026-03-02T17:34:03.667Z"
     }
   ],
   "swings": [
@@ -1432,6 +2530,24 @@
       "hasSchema": true,
       "durationSeconds": 115,
       "timestamp": "2026-03-01T02:11:31.421Z"
+    },
+    {
+      "brandName": "Swings",
+      "priorityRank": 46,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 97,
+      "shortDescWordCount": 89,
+      "fullContentWordCount": 1067,
+      "primaryKeyword": "swings skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 86,
+      "timestamp": "2026-03-02T17:35:31.592Z"
     }
   ],
   "volten": [
@@ -1452,6 +2568,24 @@
       "hasSchema": true,
       "durationSeconds": 106,
       "timestamp": "2026-03-01T02:13:19.168Z"
+    },
+    {
+      "brandName": "Volten",
+      "priorityRank": 49,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 86,
+      "shortDescWordCount": 88,
+      "fullContentWordCount": 908,
+      "primaryKeyword": "volten skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 99,
+      "timestamp": "2026-03-02T17:42:04.070Z"
     }
   ],
   "yoko": [
@@ -1472,6 +2606,24 @@
       "hasSchema": true,
       "durationSeconds": 90,
       "timestamp": "2026-03-01T02:14:51.201Z"
+    },
+    {
+      "brandName": "Yoko",
+      "priorityRank": 52,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 95,
+      "shortDescWordCount": 68,
+      "fullContentWordCount": 921,
+      "primaryKeyword": "yoko skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 75,
+      "timestamp": "2026-03-02T17:46:51.243Z"
     }
   ],
   "ennui": [
@@ -1492,6 +2644,24 @@
       "hasSchema": true,
       "durationSeconds": 155,
       "timestamp": "2026-03-01T02:17:28.044Z"
+    },
+    {
+      "brandName": "ENNUI",
+      "priorityRank": 56,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 125,
+      "shortDescWordCount": 99,
+      "fullContentWordCount": 948,
+      "primaryKeyword": "ennui city brace",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 91,
+      "timestamp": "2026-03-02T17:52:45.429Z"
     }
   ],
   "summit-skiboards": [
@@ -1512,6 +2682,24 @@
       "hasSchema": true,
       "durationSeconds": 76,
       "timestamp": "2026-03-01T02:18:46.024Z"
+    },
+    {
+      "brandName": "Summit Skiboards",
+      "priorityRank": 57,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 125,
+      "shortDescWordCount": 118,
+      "fullContentWordCount": 1040,
+      "primaryKeyword": "summit skiboards skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 100,
+      "timestamp": "2026-03-02T17:54:27.765Z"
     }
   ],
   "dynastar-ski": [
@@ -1532,6 +2720,24 @@
       "hasSchema": true,
       "durationSeconds": 92,
       "timestamp": "2026-03-01T02:20:19.590Z"
+    },
+    {
+      "brandName": "Dynastar",
+      "priorityRank": 27,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 97,
+      "shortDescWordCount": 94,
+      "fullContentWordCount": 990,
+      "primaryKeyword": "dynastar ladies skis",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 98,
+      "timestamp": "2026-03-02T17:06:59.708Z"
     }
   ],
   "mindless": [
@@ -1552,6 +2758,24 @@
       "hasSchema": true,
       "durationSeconds": 109,
       "timestamp": "2026-03-01T02:22:10.470Z"
+    },
+    {
+      "brandName": "Mindless",
+      "priorityRank": 32,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 80,
+      "shortDescWordCount": 84,
+      "fullContentWordCount": 916,
+      "primaryKeyword": "mindless skates",
+      "faqCount": 4,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 90,
+      "timestamp": "2026-03-02T17:14:34.911Z"
     }
   ],
   "reusch": [
@@ -1572,6 +2796,102 @@
       "hasSchema": true,
       "durationSeconds": 96,
       "timestamp": "2026-03-01T02:23:48.692Z"
+    },
+    {
+      "brandName": "Reusch",
+      "priorityRank": 20,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 85,
+      "shortDescWordCount": 89,
+      "fullContentWordCount": 954,
+      "primaryKeyword": "reusch skates",
+      "faqCount": 4,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 66,
+      "timestamp": "2026-03-02T16:56:42.387Z"
+    }
+  ],
+  "adapt": [
+    {
+      "brandName": "Adapt Brand",
+      "priorityRank": 15,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 96,
+      "shortDescWordCount": 103,
+      "fullContentWordCount": 990,
+      "primaryKeyword": "adapt brand skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 75,
+      "timestamp": "2026-03-02T16:21:08.422Z"
+    },
+    {
+      "brandName": "Adapt Brand",
+      "priorityRank": 15,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 103,
+      "shortDescWordCount": 108,
+      "fullContentWordCount": 991,
+      "primaryKeyword": "adapt brand skates",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 81,
+      "timestamp": "2026-03-02T16:49:18.005Z"
+    }
+  ],
+  "symetrics": [
+    {
+      "brandName": "Symetrics Brand",
+      "priorityRank": 22,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 96,
+      "shortDescWordCount": 79,
+      "fullContentWordCount": 1014,
+      "primaryKeyword": "symetrics brand skates",
+      "faqCount": 5,
+      "hasBadge": false,
+      "hasSchema": true,
+      "durationSeconds": 122,
+      "timestamp": "2026-03-02T17:00:16.616Z"
+    }
+  ],
+  "myfit": [
+    {
+      "brandName": "MYFIT",
+      "priorityRank": 34,
+      "descriptionUpdated": true,
+      "contentUpdated": true,
+      "schemaUpdated": true,
+      "metaPlugin": "rankmath_rest_meta",
+      "metaUpdated": true,
+      "beforeWordCount": 71,
+      "shortDescWordCount": 96,
+      "fullContentWordCount": 926,
+      "primaryKeyword": "myfit liners",
+      "faqCount": 5,
+      "hasBadge": true,
+      "hasSchema": true,
+      "durationSeconds": 80,
+      "timestamp": "2026-03-02T17:17:23.196Z"
     }
   ]
 }

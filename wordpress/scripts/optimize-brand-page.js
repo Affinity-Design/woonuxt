@@ -50,7 +50,10 @@ const {
   buildFAQSchema,
   buildAuthorizedBadge,
   buildInternalLinks,
+  extractBrandContext,
   extractFAQQuestionsFromKeywords,
+  BRAND_WEBSITE_MAP,
+  SITE_URL,
 } = require('./lib/brand-prompts');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -107,7 +110,8 @@ const AUTHORIZED_BRANDS = new Set([
   'endless-blading',
 ]);
 
-// Relevant category links to inject in descriptions
+// v2: CATEGORY_LINKS no longer used — categories are now extracted from scraped products
+// Kept for reference only
 const CATEGORY_LINKS = [
   {name: 'Inline Skates', slug: 'inline-skates'},
   {name: 'Roller Skates', slug: 'roller-skates'},
@@ -124,6 +128,20 @@ const GUIDE_LINKS = [
     title: 'Find your perfect inline skate size',
   },
 ];
+
+/**
+ * Normalized authorized brand check — handles slug variations.
+ * Brand slugs on the site sometimes have suffixes like "-brand", "-skates".
+ */
+function isAuthorizedBrand(slug) {
+  if (AUTHORIZED_BRANDS.has(slug)) return true;
+  // Try normalized versions
+  const normalized = slug.replace(/-brand$/, '').replace(/-skates$/, '');
+  if (AUTHORIZED_BRANDS.has(normalized)) return true;
+  // Try with suffix
+  if (AUTHORIZED_BRANDS.has(slug + '-skates')) return true;
+  return false;
+}
 
 // ─── Flags ────────────────────────────────────────────────────────────────────
 
@@ -231,10 +249,11 @@ async function fetchTerm(endpoint, isWC, termId) {
 
 // ─── Step C: Fetch top products for this brand ────────────────────────────────
 
+// v1 legacy — WC API brand filter is unreliable (silently ignores pwb-brand param).
+// Kept as fallback only; primary method is now scrapeBrandPageProducts().
 async function fetchBrandProducts(endpoint, isWC, termId, brandName, count = 5) {
   if (!WC_AUTH) return [];
   try {
-    // Try WC products with brand filter
     const taxParam = isWC ? 'brand' : 'pwb-brand';
     const url = `${BASE}/wp-json/wc/v3/products?${taxParam}=${termId}&per_page=${count}&orderby=popularity&order=desc&_fields=id,name,permalink,price,regular_price,images`;
     const res = await fetch(url, {headers: {Authorization: WC_AUTH}});
@@ -244,6 +263,180 @@ async function fetchBrandProducts(endpoint, isWC, termId, brandName, count = 5) 
     }
   } catch {}
   return [];
+}
+
+// ─── Step C2: Scrape real products from the live brand archive page ───────────
+//
+// Fetches the public-facing brand page HTML and extracts product names + URLs
+// from the WooCommerce product grid. This is far more reliable than the WC API
+// brand filter, which silently fails and returns products from OTHER brands.
+
+async function scrapeBrandPageProducts(brandSlug) {
+  const url = `${BASE}/brand/${brandSlug}/`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; PSP-BrandOptimizer/2.0)',
+        Accept: 'text/html',
+      },
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      console.warn(`    ⚠️  Brand page scrape failed: HTTP ${res.status} for ${url}`);
+      return [];
+    }
+    const html = await res.text();
+    return parseProductGridHTML(html, brandSlug);
+  } catch (err) {
+    console.warn(`    ⚠️  Brand page scrape error: ${err.message}`);
+    return [];
+  }
+}
+
+/**
+ * Parse WooCommerce product grid HTML to extract product data.
+ * Targets the standard WC product loop markup with Shoptimizer theme structure.
+ *
+ * Instead of matching full <li> blocks (which fails with nested lists),
+ * we match WC product links directly by their distinctive class names:
+ *   <a ... class="woocommerce-LoopProduct-link" ... href="URL"> ... </a>
+ *   <h2 class="woocommerce-loop-product__title">NAME</h2>
+ *
+ * Returns products verified to belong to this brand (name contains brand slug words).
+ */
+function parseProductGridHTML(html, brandSlug) {
+  const products = [];
+  const genericWords = new Set(['skates', 'skate', 'wheels', 'wheel', 'brand', 'gear', 'roller', 'inline', 'hockey', 'ski', 'boots', 'aggressive']);
+  const brandWords = brandSlug
+    .replace(/-/g, ' ')
+    .toLowerCase()
+    .split(' ')
+    .filter((w) => w.length > 2 && !genericWords.has(w));
+
+  // Strategy 1: Match WC product links by their distinctive class name
+  // Find all <a> tags with woocommerce-LoopProduct-link class
+  const productLinkPattern = /<a\s[^>]*class="[^"]*woocommerce-LoopProduct-link[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
+  let match;
+  const seen = new Set();
+
+  while ((match = productLinkPattern.exec(html)) !== null) {
+    const fullTag = match[0];
+    const innerContent = match[1];
+
+    // Extract href from the opening <a> tag
+    const hrefMatch = fullTag.match(/href="([^"]+)"/i);
+    if (!hrefMatch) continue;
+    const rawUrl = hrefMatch[1];
+
+    // Skip duplicates (WC sometimes renders the same product link twice — image + text)
+    if (seen.has(rawUrl)) continue;
+    seen.add(rawUrl);
+
+    // Extract product name from the title attribute or inner <h2>
+    let rawName = '';
+    const titleAttr = fullTag.match(/title="([^"]+)"/i);
+    const h2Match = innerContent.match(/<h2[^>]*>([\s\S]*?)<\/h2>/i);
+
+    if (h2Match) {
+      rawName = h2Match[1].replace(/<[^>]+>/g, '').trim();
+    } else if (titleAttr) {
+      rawName = titleAttr[1].trim();
+    }
+
+    if (!rawName) continue;
+
+    // Extract categories from the nearest parent <li> class (look backwards in HTML)
+    const liPos = html.lastIndexOf('<li ', html.indexOf(fullTag));
+    const liTag = liPos >= 0 ? html.slice(liPos, liPos + 500) : '';
+    const catMatches = liTag.match(/product_cat-([a-z0-9-]+)/gi) || [];
+    const categories = catMatches.map((c) => c.replace('product_cat-', ''));
+
+    products.push({
+      name: rawName,
+      url: rawUrl,
+      price: null, // prices parsed below
+      categories: categories,
+    });
+  }
+
+  // Strategy 2: Extract prices — look for price spans near each product URL
+  for (const p of products) {
+    // Find the product URL in the HTML and look for the nearest price after it
+    const urlIdx = html.indexOf(p.url);
+    if (urlIdx < 0) continue;
+    const after = html.slice(urlIdx, urlIdx + 2000);
+
+    // Current price (sale price in <ins>, or regular price)
+    const salePrice = after.match(/<ins[^>]*>[\s\S]*?<bdi>([\s\S]*?)<\/bdi>/i);
+    const regPrice = after.match(/<span[^>]+class="[^"]*woocommerce-Price-amount[^"]*"[^>]*>[\s\S]*?<bdi>([\s\S]*?)<\/bdi>/i);
+    const priceEl = salePrice || regPrice;
+    if (priceEl) {
+      p.price = priceEl[1]
+        .replace(/<[^>]+>/g, '')
+        .replace(/[^0-9.,]/g, '')
+        .trim();
+    }
+  }
+
+  console.log(`       Raw products parsed from grid: ${products.length}`);
+
+  // Brand-validate: keep only products whose name plausibly belongs to this brand
+  // This prevents cross-contamination (the bug we're fixing — brand pages showing other brands' products)
+  const validated = products.filter((p) => {
+    const nameLower = p.name.toLowerCase();
+    return brandWords.some((w) => nameLower.includes(w));
+  });
+
+  console.log(`       After brand-name validation: ${validated.length} of ${products.length}`);
+
+  // If validation filtered everything out, the brand name might not appear in product names
+  // (e.g., some brands use model names only). Return top products unfiltered with a warning.
+  if (validated.length === 0 && products.length > 0) {
+    console.warn(`    ⚠️  No products matched brand words [${brandWords.join(', ')}] — returning top ${Math.min(products.length, 8)} unfiltered`);
+    return products.slice(0, 8);
+  }
+
+  return validated.slice(0, 12);
+}
+
+/**
+ * Extract unique product categories from a scraped product list.
+ * Maps WC CSS class slugs to human-readable category names.
+ */
+function extractProductCategories(products) {
+  const CATEGORY_NAME_MAP = {
+    'inline-skates': 'Inline Skates',
+    'roller-skates': 'Roller Skates',
+    'protective-gear': 'Protective Gear',
+    'skate-wheels': 'Skate Wheels',
+    'skate-accessories': 'Skate Accessories',
+    'skate-frames': 'Skate Frames',
+    'skate-bearings': 'Skate Bearings',
+    'skate-boots': 'Skate Boots',
+    helmets: 'Helmets',
+    pads: 'Pads',
+    'cross-country-skis': 'Cross Country Skis',
+    'ski-boots': 'Ski Boots',
+    'ski-poles': 'Ski Poles',
+    'ski-wax': 'Ski Wax',
+    skiboards: 'Skiboards',
+    scooters: 'Scooters',
+    'grind-shoes': 'Grind Shoes',
+  };
+
+  const catSlugs = new Set();
+  for (const p of products) {
+    for (const c of p.categories || []) {
+      catSlugs.add(c);
+    }
+  }
+
+  return [...catSlugs]
+    .map((slug) => ({
+      slug,
+      name: CATEGORY_NAME_MAP[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+    }))
+    .slice(0, 6);
 }
 
 // ─── Step D: Get DataForSEO keyword data for content targeting ─────────────────
@@ -299,9 +492,24 @@ async function getKeywordsForContent(brand) {
     })
     .sort((a, b) => (b.keyword_data?.keyword_info?.search_volume || 0) - (a.keyword_data?.keyword_info?.search_volume || 0));
 
-  const primary = filtered[0]?.keyword_data?.keyword || brand.name.toLowerCase();
+  // v2: Primary keyword must be brand-specific — never a generic term like "inline skates"
+  const brandNameLower = brand.name.toLowerCase();
+  const brandBase = brandNameLower.replace(/\s+skates?$/i, '').trim();
+
+  // Find the highest-volume keyword that actually contains the brand name
+  const brandedKeywords = filtered.filter((k) => {
+    const kw = (k.keyword_data?.keyword || '').toLowerCase();
+    return kw.includes(brandBase);
+  });
+
+  const primary =
+    brandedKeywords[0]?.keyword_data?.keyword ||
+    filtered.find((k) => (k.keyword_data?.keyword || '').toLowerCase().includes(brandBase))?.keyword_data?.keyword ||
+    `${brandBase} skates`;
+
   const secondary = filtered
-    .slice(1, 11)
+    .filter((k) => k.keyword_data?.keyword !== primary)
+    .slice(0, 10)
     .map((k) => k.keyword_data?.keyword)
     .filter(Boolean);
   const longtail = filtered
@@ -323,6 +531,7 @@ async function getKeywordsForContent(brand) {
       intent: k.keyword_data?.search_intent_info?.main_intent,
       searchVolume: k.keyword_data?.keyword_info?.search_volume,
     })),
+    brand.name,
   );
 
   return {primary, secondary, longtail, intent: dominantIntent, faqQuestions, rawItems: filtered};
@@ -336,9 +545,17 @@ function buildKeywordsFromMasterList(brand) {
 
   const allKws = [...ranked, ...opps, ...cannibal].sort((a, b) => (b.searchVolume || b.volume || 0) - (a.searchVolume || a.volume || 0));
 
-  const primary = allKws[0]?.keyword || brand.name.toLowerCase();
+  // v2: Primary keyword must mention the brand name — never a generic term
+  const brandBase = brand.name
+    .toLowerCase()
+    .replace(/\s+skates?$/i, '')
+    .trim();
+  const brandedKw = allKws.find((k) => (k.keyword || '').toLowerCase().includes(brandBase));
+  const primary = brandedKw?.keyword || `${brandBase} skates`;
+
   const secondary = allKws
-    .slice(1, 11)
+    .filter((k) => k.keyword !== primary)
+    .slice(0, 10)
     .map((k) => k.keyword)
     .filter(Boolean);
   const longtail = allKws
@@ -347,15 +564,16 @@ function buildKeywordsFromMasterList(brand) {
     .slice(0, 5)
     .map((k) => k.keyword);
 
-  const faqQuestions = extractFAQQuestionsFromKeywords(allKws);
+  const faqQuestions = extractFAQQuestionsFromKeywords(allKws, brand.name);
 
   return {primary, secondary, longtail, intent: 'commercial', faqQuestions, rawItems: allKws};
 }
 
 // ─── Step E: Generate content via Gemini ──────────────────────────────────────
 
-async function generateBrandContent(brand, keywords, products) {
+async function generateBrandContent(brand, keywords, brandContext, options = {}) {
   const results = {};
+  const isAuthorized = isAuthorizedBrand(brand.slug);
 
   if (SKIP_CONTENT) {
     console.log('    ⏭️  --skip-content: Skipping content generation');
@@ -365,7 +583,7 @@ async function generateBrandContent(brand, keywords, products) {
   // 1. SEO title + meta description
   console.log('    🤖 Generating SEO meta...');
   try {
-    const metaPrompt = brandMetaPrompt(brand, keywords.primary);
+    const metaPrompt = brandMetaPrompt(brand, keywords.primary, {isAuthorized});
     const metaRaw = await generateContent(metaPrompt);
     results.meta = parseGeminiJSON(metaRaw);
     console.log(`       Title: "${results.meta.title}" (${results.meta.title?.length || 0}ch)`);
@@ -376,10 +594,14 @@ async function generateBrandContent(brand, keywords, products) {
 
   await sleep(6500); // Respect Gemini 10 RPM rate limit
 
-  // 2. Brand description (main body content)
+  // 2. Brand description (main body content) — no product section, uses brandContext
   console.log('    🤖 Generating brand description...');
   try {
-    const descPrompt = brandDescriptionPrompt(brand, keywords, products);
+    const descPrompt = brandDescriptionPrompt(brand, keywords, brandContext, {
+      isAuthorized,
+      productCount: options.productCount || 0,
+      productCategories: options.productCategories || [],
+    });
     results.description = await generateContent(descPrompt);
     const wc = wordCount(stripHtml(results.description));
     console.log(`       ${wc} words generated`);
@@ -389,10 +611,10 @@ async function generateBrandContent(brand, keywords, products) {
 
   await sleep(6500);
 
-  // 3. FAQ questions and answers
+  // 3. FAQ questions and answers — with brand context for grounding
   console.log('    🤖 Generating FAQs...');
   try {
-    const faqPrompt = brandFAQPrompt(brand, keywords.faqQuestions);
+    const faqPrompt = brandFAQPrompt(brand, keywords.faqQuestions, brandContext);
     const faqRaw = await generateContent(faqPrompt);
     results.faqs = parseGeminiJSON(faqRaw);
     if (!Array.isArray(results.faqs)) throw new Error('Expected array');
@@ -413,7 +635,7 @@ async function generateBrandContent(brand, keywords, products) {
  */
 function assembleShortDescription(brand, generated) {
   const parts = [];
-  const isAuthorized = AUTHORIZED_BRANDS.has(brand.slug);
+  const isAuthorized = isAuthorizedBrand(brand.slug);
 
   // 1. Authorized retailer badge
   if (isAuthorized) {
@@ -431,19 +653,26 @@ function assembleShortDescription(brand, generated) {
 
 /**
  * FULL content — goes in `psp_brand_content` meta field (renders BELOW products).
- * Full description body + internal links + FAQ HTML (no schema tags — those go separately).
+ *
+ * v2: Product links now come from real scrape data (not Gemini hallucinations).
+ *     Gemini description no longer includes a "Products" section.
+ *     Internal links use buildInternalLinks() with verified products + real categories.
  */
-function assembleFullContent(brand, generated, products) {
+function assembleFullContent(brand, generated, scrapedProducts, productCategories) {
   const parts = [];
 
-  // 1. Full description body
+  // 1. Full description body (About + Why Buy + Expert Advice — no products section)
   if (generated.description) {
     parts.push(generated.description);
   }
 
-  // 2. Internal links (top 3 product categories + guide pages always included)
-  const relevantCats = [...CATEGORY_LINKS.slice(0, 3), ...GUIDE_LINKS];
-  const internalLinksHtml = buildInternalLinks(brand.name, products, relevantCats);
+  // 2. Featured products from live scrape + relevant categories
+  const categoryLinks = productCategories.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    title: `Shop ${c.name} from ${brand.name}`,
+  }));
+  const internalLinksHtml = buildInternalLinks(brand.name, scrapedProducts, categoryLinks);
   if (internalLinksHtml) {
     parts.push(internalLinksHtml);
   }
@@ -712,9 +941,34 @@ async function processBrand(brand, taxEndpoint, taxSlug, isWC) {
     return {success: false, error: err.message};
   }
 
-  // ── B. Fetch top products ────────────────────────────────────────────────
-  const products = await fetchBrandProducts(taxEndpoint, isWC, brand.id, brand.name);
-  console.log(`       WC products fetched: ${products.length}`);
+  // ── A2. Extract brand context from existing WP description ───────────────
+  const brandContext = extractBrandContext(currentTerm.description || '', brand.slug);
+  if (brandContext.hasExistingContent) {
+    console.log(
+      `       Brand context: website=${brandContext.websiteUrl || 'none'}, origin=${brandContext.origin || 'unknown'}, founders=${brandContext.founders || 'unknown'}`,
+    );
+  } else {
+    console.log(`       Brand context: no existing description. Website fallback: ${brandContext.websiteUrl || 'none'}`);
+  }
+
+  // ── B. Scrape real products from live brand page (replaces WC API) ───────
+  console.log('       Scraping live brand page for products...');
+  const scrapedProducts = await scrapeBrandPageProducts(brand.slug);
+  console.log(`       Products scraped: ${scrapedProducts.length}`);
+  if (scrapedProducts.length > 0) {
+    console.log(
+      `       Sample: ${scrapedProducts
+        .slice(0, 3)
+        .map((p) => p.name)
+        .join(', ')}`,
+    );
+  }
+
+  // Extract product categories from the scraped products
+  const productCategories = extractProductCategories(scrapedProducts);
+  if (productCategories.length > 0) {
+    console.log(`       Categories found: ${productCategories.map((c) => c.name).join(', ')}`);
+  }
 
   // ── C. Get DataForSEO keywords ───────────────────────────────────────────
   let keywords;
@@ -727,8 +981,11 @@ async function processBrand(brand, taxEndpoint, taxSlug, isWC) {
     keywords = buildKeywordsFromMasterList(brand);
   }
 
-  // ── D. Generate content via Gemini ───────────────────────────────────────
-  const generated = await generateBrandContent(brand, keywords, products);
+  // ── D. Generate content via Gemini (with brand context) ──────────────────
+  const generated = await generateBrandContent(brand, keywords, brandContext, {
+    productCount: scrapedProducts.length || brand.taxonomy?.count || 0,
+    productCategories: productCategories.map((c) => c.name),
+  });
 
   // ── D2. Validate Rank Math meta lengths (warn before write, not after) ──
   if (generated.meta) {
@@ -749,7 +1006,7 @@ async function processBrand(brand, taxEndpoint, taxSlug, isWC) {
   // ── E. Assemble content for each WP field ───────────────────────────────
   // Keep existing content in all fields if --skip-content
   const shortDesc = !SKIP_CONTENT ? assembleShortDescription(brand, generated) : currentTerm.description || '';
-  const fullContent = !SKIP_CONTENT ? assembleFullContent(brand, generated, products) : '';
+  const fullContent = !SKIP_CONTENT ? assembleFullContent(brand, generated, scrapedProducts, productCategories) : '';
   const faqSchema = !SKIP_CONTENT ? assembleFAQSchema(generated) : null;
 
   const shortWordCount = wordCount(stripHtml(shortDesc));
@@ -868,7 +1125,7 @@ async function processBrand(brand, taxEndpoint, taxSlug, isWC) {
     fullContentWordCount: fullWordCount,
     primaryKeyword: keywords.primary,
     faqCount: generated.faqs?.length || 0,
-    hasBadge: AUTHORIZED_BRANDS.has(brand.slug),
+    hasBadge: isAuthorizedBrand(brand.slug),
     hasSchema: !SKIP_SCHEMA && (generated.faqs?.length || 0) > 0,
     durationSeconds: duration,
   };
