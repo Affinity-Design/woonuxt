@@ -13,29 +13,44 @@ const productSlug = computed(() => `/product/${decodeURIComponent(item.product.n
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Use RAW numeric price values when available — they're clean numbers like "24.50"
-// without HTML tags. Fall back to WooCommerce formatted strings (ProductPrice handles both).
+// Parse raw numeric prices. WooCommerce provides:
+// - rawPrice: current effective price (= sale price when on sale)
+// - rawRegularPrice: full regular price
+// - rawSalePrice: explicit sale price (may be null in addToCart mutation context)
+const rawPrice = computed(() => parseFloat(productType.value.rawPrice));
 const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
 const rawSale = computed(() => parseFloat(productType.value.rawSalePrice));
 
-// Detect sale: use raw values if available, otherwise check if formatted salePrice exists
+// Detect sale using multiple methods:
+// 1. Explicit rawSalePrice < rawRegularPrice
+// 2. rawPrice (effective price) < rawRegularPrice (covers addToCart mutation where rawSalePrice is null)
+// 3. Formatted salePrice string exists
 const isOnSale = computed(() => {
   if (!isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value)) {
     return rawSale.value < rawRegular.value;
   }
-  // Fallback: WooCommerce sets salePrice on items that are on sale
+  if (!isNaN(rawPrice.value) && rawPrice.value > 0 && !isNaN(rawRegular.value) && rawRegular.value > 0) {
+    return rawPrice.value < rawRegular.value;
+  }
   return !!productType.value.salePrice;
 });
 
+// The actual sale price: rawSalePrice → rawPrice (when on sale) → formatted strings
+const currentSaleValue = computed(() => {
+  if (!isNaN(rawSale.value) && rawSale.value > 0) return rawSale.value;
+  if (isOnSale.value && !isNaN(rawPrice.value) && rawPrice.value > 0) return rawPrice.value;
+  return NaN;
+});
+
 const salePercentage = computed(() => {
-  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(rawSale.value)) return '';
-  return Math.round(((rawRegular.value - rawSale.value) / rawRegular.value) * 100) + '%';
+  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(currentSaleValue.value)) return '';
+  return Math.round(((rawRegular.value - currentSaleValue.value) / rawRegular.value) * 100) + '%';
 });
 
 // Build price strings for ProductPrice component.
 // Prefer clean "$XX.XX" from raw values; fall back to formatted HTML strings.
 const effectiveSalePrice = computed(() => {
-  if (!isNaN(rawSale.value) && rawSale.value > 0) return '$' + rawSale.value.toFixed(2);
+  if (!isNaN(currentSaleValue.value)) return '$' + currentSaleValue.value.toFixed(2);
   return productType.value.salePrice || null;
 });
 
