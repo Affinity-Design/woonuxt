@@ -13,31 +13,35 @@ const productSlug = computed(() => `/product/${decodeURIComponent(item.product.n
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Use RAW numeric price values — WooCommerce formatted prices contain HTML tags
-// that cannot be reliably parsed. Raw values are always clean numbers like "24.50".
+// Use RAW numeric price values when available — they're clean numbers like "24.50"
+// without HTML tags. Fall back to WooCommerce formatted strings (ProductPrice handles both).
 const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
 const rawSale = computed(() => parseFloat(productType.value.rawSalePrice));
 
-// Detect sale using raw numeric values
+// Detect sale: use raw values if available, otherwise check if formatted salePrice exists
 const isOnSale = computed(() => {
-  return !isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value) && rawSale.value < rawRegular.value;
+  if (!isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value)) {
+    return rawSale.value < rawRegular.value;
+  }
+  // Fallback: WooCommerce sets salePrice on items that are on sale
+  return !!productType.value.salePrice;
 });
 
 const salePercentage = computed(() => {
-  if (!isOnSale.value) return '0%';
+  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(rawSale.value)) return '';
   return Math.round(((rawRegular.value - rawSale.value) / rawRegular.value) * 100) + '%';
 });
 
-// Construct clean "$XX.XX" price strings from raw values for ProductPrice component.
-// ProductPrice can parse these reliably (unlike WooCommerce HTML-formatted strings).
+// Build price strings for ProductPrice component.
+// Prefer clean "$XX.XX" from raw values; fall back to formatted HTML strings.
 const effectiveSalePrice = computed(() => {
-  if (!isOnSale.value) return null;
-  return '$' + rawSale.value.toFixed(2);
+  if (!isNaN(rawSale.value) && rawSale.value > 0) return '$' + rawSale.value.toFixed(2);
+  return productType.value.salePrice || null;
 });
 
 const effectiveRegularPrice = computed(() => {
   if (!isNaN(rawRegular.value) && rawRegular.value > 0) return '$' + rawRegular.value.toFixed(2);
-  return null;
+  return productType.value.regularPrice || productType.value.price || null;
 });
 
 const removeItem = () => {
@@ -76,7 +80,7 @@ const moveToWishList = () => {
         <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
           <ProductPrice :sale-price="effectiveSalePrice" :regular-price="effectiveRegularPrice" />
           <span
-            v-if="isOnSale"
+            v-if="isOnSale && salePercentage"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
             Save {{ salePercentage }}
           </span>
