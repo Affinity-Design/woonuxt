@@ -74,9 +74,7 @@ const moveToWishList = () => {
 
         <!-- Price line: ~~regular~~ sale price Save X% -->
         <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span v-if="isOnSale && productType.regularPrice" class="text-gray-400 line-through" v-html="productType.regularPrice" />
-          <span v-if="isOnSale && productType.salePrice" class="font-semibold" v-html="productType.salePrice" />
-          <span v-else-if="productType.regularPrice" class="font-semibold" v-html="productType.regularPrice" />
+          <ProductPrice :sale-price="effectiveSalePrice" :regular-price="effectiveRegularPrice" />
           <span
             v-if="isOnSale"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
