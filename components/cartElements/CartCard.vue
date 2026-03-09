@@ -3,6 +3,7 @@ const {updateItemQuantity} = useCart();
 const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
 const {storeSettings} = useAppConfig();
+const {exchangeRate} = useExchangeRate();
 
 const {item} = defineProps({
   item: {type: Object, required: true},
@@ -13,18 +14,19 @@ const productSlug = computed(() => `/product/${decodeURIComponent(item.product.n
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Parse raw numeric prices. WooCommerce provides:
-// - rawPrice: current effective price (= sale price when on sale)
-// - rawRegularPrice: full regular price
-// - rawSalePrice: explicit sale price (may be null in addToCart mutation context)
-const rawPrice = computed(() => parseFloat(productType.value.rawPrice));
+// Parse raw numeric prices (USD from WooCommerce).
+// For variations: rawPrice may not exist in base CartFragment, use price field parsed as fallback.
+const rawPrice = computed(() => {
+  const val = parseFloat(productType.value.rawPrice);
+  if (!isNaN(val)) return val;
+  // Fallback: parse the formatted `price` field (e.g. "$29.99" or "<span>$29.99</span>")
+  const {numericString} = cleanAndExtractPriceInfo(productType.value.price);
+  return parseFloat(numericString);
+});
 const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
 const rawSale = computed(() => parseFloat(productType.value.rawSalePrice));
 
-// Detect sale using multiple methods:
-// 1. Explicit rawSalePrice < rawRegularPrice
-// 2. rawPrice (effective price) < rawRegularPrice (covers addToCart mutation where rawSalePrice is null)
-// 3. Formatted salePrice string exists
+// Detect sale
 const isOnSale = computed(() => {
   if (!isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value)) {
     return rawSale.value < rawRegular.value;
@@ -35,7 +37,7 @@ const isOnSale = computed(() => {
   return !!productType.value.salePrice;
 });
 
-// The actual sale price: rawSalePrice → rawPrice (when on sale) → formatted strings
+// The actual sale price value: rawSalePrice → rawPrice (when on sale)
 const currentSaleValue = computed(() => {
   if (!isNaN(rawSale.value) && rawSale.value > 0) return rawSale.value;
   if (isOnSale.value && !isNaN(rawPrice.value) && rawPrice.value > 0) return rawPrice.value;
@@ -47,17 +49,32 @@ const salePercentage = computed(() => {
   return Math.round(((rawRegular.value - currentSaleValue.value) / rawRegular.value) * 100) + '%';
 });
 
-// Build price strings for ProductPrice component.
-// Prefer clean "$XX.XX" from raw values; fall back to formatted HTML strings.
-const effectiveSalePrice = computed(() => {
+// Convert a raw USD price string to CAD display string directly.
+// This avoids double-conversion that happens when passing to ProductPrice.
+const convertPrice = (rawPrice: string | null | undefined): string => {
+  if (!rawPrice) return '';
+  if (exchangeRate.value === null) {
+    const {numericString} = cleanAndExtractPriceInfo(rawPrice);
+    return numericString ? `${numericString} CAD` : '';
+  }
+  const cadNumeric = convertToCAD(rawPrice, exchangeRate.value, true);
+  return cadNumeric ? formatPriceWithCAD(cadNumeric) : '';
+};
+
+// Build the raw USD price string to pass through conversion (once).
+const salePriceRaw = computed(() => {
   if (!isNaN(currentSaleValue.value)) return '$' + currentSaleValue.value.toFixed(2);
   return productType.value.salePrice || null;
 });
 
-const effectiveRegularPrice = computed(() => {
+const regularPriceRaw = computed(() => {
   if (!isNaN(rawRegular.value) && rawRegular.value > 0) return '$' + rawRegular.value.toFixed(2);
   return productType.value.regularPrice || productType.value.price || null;
 });
+
+// Final display strings (converted to CAD once, directly)
+const displaySalePrice = computed(() => (isOnSale.value && salePriceRaw.value ? convertPrice(salePriceRaw.value) : ''));
+const displayRegularPrice = computed(() => convertPrice(regularPriceRaw.value));
 
 const removeItem = () => {
   updateItemQuantity(item.key, 0);
@@ -91,9 +108,11 @@ const moveToWishList = () => {
           {{ productType.name }}
         </NuxtLink>
 
-        <!-- Price line: ~~regular~~ sale price Save X% -->
+        <!-- Price line: sale price ~~regular~~ Save X% -->
         <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
-          <ProductPrice :sale-price="effectiveSalePrice" :regular-price="effectiveRegularPrice" />
+          <span v-if="displaySalePrice" class="text-red-600">${{ displaySalePrice }}</span>
+          <span v-if="isOnSale && displayRegularPrice" class="text-gray-400 line-through font-normal">${{ displayRegularPrice }}</span>
+          <span v-else-if="displayRegularPrice">${{ displayRegularPrice }}</span>
           <span
             v-if="isOnSale && salePercentage"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
