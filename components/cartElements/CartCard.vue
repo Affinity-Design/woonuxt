@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const {updateItemQuantity} = useCart();
 const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
