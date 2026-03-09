@@ -452,7 +452,21 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    const result = await response.json();
+    const result = await response.json().catch(async () => {
+      const rawText = await response.clone().text().catch(() => '<unable to read response>');
+      console.error(`❌ GraphQL response is not JSON [${requestId}]:`, rawText.substring(0, 500));
+      return { _parseError: true, rawText: rawText.substring(0, 500) };
+    });
+
+    if (result._parseError) {
+      return {
+        success: false,
+        error: 'GraphQL returned non-JSON response (possible WordPress error page or security block)',
+        details: result.rawText,
+        requestUrl: graphqlUrl,
+        authMethod: 'Application Password (Basic Auth)',
+      };
+    }
 
     // Check for GraphQL errors
     if (result.errors) {
