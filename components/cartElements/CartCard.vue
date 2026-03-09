@@ -14,43 +14,14 @@ const productSlug = computed(() => `/product/${decodeURIComponent(item.product.n
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Parse raw numeric prices (USD from WooCommerce).
-// For variations: rawPrice may not exist in base CartFragment, use price field parsed as fallback.
-const rawPrice = computed(() => {
-  const val = parseFloat(productType.value.rawPrice);
-  if (!isNaN(val)) return val;
-  // Fallback: parse the formatted `price` field (e.g. "$29.99" or "<span>$29.99</span>")
-  const {numericString} = cleanAndExtractPriceInfo(productType.value.price);
-  return parseFloat(numericString);
-});
-const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
-const rawSale = computed(() => parseFloat(productType.value.rawSalePrice));
+// Helper: parse a WooCommerce price string (may contain HTML entities) to a number
+const parseWooPrice = (str: string | null | undefined): number => {
+  if (!str) return NaN;
+  let s = String(str).replace(/<[^>]*>/g, '').replace(/&#36;/g, '$').replace(/&nbsp;/g, ' ').replace(/[^0-9.-]/g, '');
+  return parseFloat(s);
+};
 
-// Detect sale
-const isOnSale = computed(() => {
-  if (!isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value)) {
-    return rawSale.value < rawRegular.value;
-  }
-  if (!isNaN(rawPrice.value) && rawPrice.value > 0 && !isNaN(rawRegular.value) && rawRegular.value > 0) {
-    return rawPrice.value < rawRegular.value;
-  }
-  return !!productType.value.salePrice;
-});
-
-// The actual sale price value: rawSalePrice → rawPrice (when on sale)
-const currentSaleValue = computed(() => {
-  if (!isNaN(rawSale.value) && rawSale.value > 0) return rawSale.value;
-  if (isOnSale.value && !isNaN(rawPrice.value) && rawPrice.value > 0) return rawPrice.value;
-  return NaN;
-});
-
-const salePercentage = computed(() => {
-  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(currentSaleValue.value)) return '';
-  return Math.round(((rawRegular.value - currentSaleValue.value) / rawRegular.value) * 100) + '%';
-});
-
-// Convert a raw USD price string to CAD display string directly.
-// This avoids double-conversion that happens when passing to ProductPrice.
+// Convert a raw USD price string to CAD display string (XX.XX CAD)
 const convertPrice = (rawPrice: string | null | undefined): string => {
   if (!rawPrice) return '';
   if (exchangeRate.value === null) {
@@ -61,20 +32,49 @@ const convertPrice = (rawPrice: string | null | undefined): string => {
   return cadNumeric ? formatPriceWithCAD(cadNumeric) : '';
 };
 
-// Build the raw USD price string to pass through conversion (once).
-const salePriceRaw = computed(() => {
-  if (!isNaN(currentSaleValue.value)) return '$' + currentSaleValue.value.toFixed(2);
-  return productType.value.salePrice || null;
+// Use the cart line item's subtotal as the authoritative price source.
+// WooCommerce calculates this correctly regardless of currency/session context.
+// item.subtotal = price × quantity (before tax), so unit price = subtotal / quantity.
+const unitPrice = computed(() => {
+  const subtotalNum = parseWooPrice(item.subtotal);
+  const qty = item.quantity || 1;
+  if (!isNaN(subtotalNum) && subtotalNum > 0) {
+    return (subtotalNum / qty).toFixed(2);
+  }
+  return '';
 });
 
-const regularPriceRaw = computed(() => {
-  if (!isNaN(rawRegular.value) && rawRegular.value > 0) return '$' + rawRegular.value.toFixed(2);
-  return productType.value.regularPrice || productType.value.price || null;
+// Display price: convert the unit price (from subtotal) to CAD
+const displayPrice = computed(() => {
+  if (unitPrice.value) return convertPrice('$' + unitPrice.value);
+  return '';
 });
 
-// Final display strings (converted to CAD once, directly)
-const displaySalePrice = computed(() => (isOnSale.value && salePriceRaw.value ? convertPrice(salePriceRaw.value) : ''));
-const displayRegularPrice = computed(() => convertPrice(regularPriceRaw.value));
+// Detect sale: compare unit price against raw regular price
+const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
+const isOnSale = computed(() => {
+  const unit = parseFloat(unitPrice.value);
+  if (!isNaN(unit) && !isNaN(rawRegular.value) && rawRegular.value > 0) {
+    return unit < rawRegular.value;
+  }
+  return !!productType.value.salePrice;
+});
+
+// Regular price display (strikethrough when on sale)
+const displayRegularPrice = computed(() => {
+  if (!isOnSale.value) return '';
+  if (!isNaN(rawRegular.value) && rawRegular.value > 0) {
+    return convertPrice('$' + rawRegular.value.toFixed(2));
+  }
+  return '';
+});
+
+// Sale percentage
+const salePercentage = computed(() => {
+  const unit = parseFloat(unitPrice.value);
+  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(unit)) return '';
+  return Math.round(((rawRegular.value - unit) / rawRegular.value) * 100) + '%';
+});
 
 const removeItem = () => {
   updateItemQuantity(item.key, 0);
@@ -110,9 +110,8 @@ const moveToWishList = () => {
 
         <!-- Price line: sale price ~~regular~~ Save X% -->
         <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span v-if="displaySalePrice" class="text-red-600">${{ displaySalePrice }}</span>
+          <span :class="{'text-red-600': isOnSale}">${{ displayPrice }}</span>
           <span v-if="isOnSale && displayRegularPrice" class="text-gray-400 line-through font-normal">${{ displayRegularPrice }}</span>
-          <span v-else-if="displayRegularPrice">${{ displayRegularPrice }}</span>
           <span
             v-if="isOnSale && salePercentage"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
