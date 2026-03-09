@@ -14,66 +14,54 @@ const productSlug = computed(() => `/product/${decodeURIComponent(item.product.n
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Helper: parse a WooCommerce price string (may contain HTML entities) to a number
-const parseWooPrice = (str: string | null | undefined): number => {
-  if (!str) return NaN;
-  let s = String(str).replace(/<[^>]*>/g, '').replace(/&#36;/g, '$').replace(/&nbsp;/g, ' ').replace(/[^0-9.-]/g, '');
-  return parseFloat(s);
-};
+// Mirror the product page's getFormattedPriceDisplay() exactly.
+// Takes a WooCommerce formatted price string (e.g. "$28.99", "<span>$49.99</span>")
+// and converts USD → CAD using the same logic as pages/product/[slug].vue
+const formatCartPrice = (priceStr: string | null | undefined): string => {
+  if (!priceStr || String(priceStr).trim() === '') return '';
 
-// Convert a raw USD price string to CAD display string (XX.XX CAD)
-const convertPrice = (rawPrice: string | null | undefined): string => {
-  if (!rawPrice) return '';
   if (exchangeRate.value === null) {
-    const {numericString} = cleanAndExtractPriceInfo(rawPrice);
+    const {numericString} = cleanAndExtractPriceInfo(priceStr);
     return numericString ? `${numericString} CAD` : '';
   }
-  const cadNumeric = convertToCAD(rawPrice, exchangeRate.value, true);
-  return cadNumeric ? formatPriceWithCAD(cadNumeric) : '';
+
+  // convertToCAD with roundTo99=false — same as product page
+  const cadNumeric = convertToCAD(priceStr, exchangeRate.value);
+  if (cadNumeric === '') {
+    const {numericString} = cleanAndExtractPriceInfo(priceStr);
+    return numericString ? `${numericString} CAD` : '';
+  }
+  return formatPriceWithCAD(cadNumeric);
 };
 
-// Use the cart line item's subtotal as the authoritative price source.
-// WooCommerce calculates this correctly regardless of currency/session context.
-// item.subtotal = price × quantity (before tax), so unit price = subtotal / quantity.
-const unitPrice = computed(() => {
-  const subtotalNum = parseWooPrice(item.subtotal);
-  const qty = item.quantity || 1;
-  if (!isNaN(subtotalNum) && subtotalNum > 0) {
-    return (subtotalNum / qty).toFixed(2);
-  }
-  return '';
-});
-
-// Display price: convert the unit price (from subtotal) to CAD
-const displayPrice = computed(() => {
-  if (unitPrice.value) return convertPrice('$' + unitPrice.value);
-  return '';
-});
-
-// Detect sale: compare unit price against raw regular price
-const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
+// Use the same fields the product page uses: salePrice, regularPrice, price
 const isOnSale = computed(() => {
-  const unit = parseFloat(unitPrice.value);
-  if (!isNaN(unit) && !isNaN(rawRegular.value) && rawRegular.value > 0) {
-    return unit < rawRegular.value;
-  }
-  return !!productType.value.salePrice;
+  const sp = productType.value.salePrice;
+  const rp = productType.value.regularPrice;
+  return !!(sp && rp && sp !== rp);
 });
 
-// Regular price display (strikethrough when on sale)
+// Main display price: salePrice if on sale, otherwise regularPrice or price
+const displayPrice = computed(() => {
+  if (isOnSale.value) return formatCartPrice(productType.value.salePrice);
+  return formatCartPrice(productType.value.regularPrice || productType.value.price);
+});
+
+// Strikethrough regular price (only when on sale)
 const displayRegularPrice = computed(() => {
   if (!isOnSale.value) return '';
-  if (!isNaN(rawRegular.value) && rawRegular.value > 0) {
-    return convertPrice('$' + rawRegular.value.toFixed(2));
-  }
-  return '';
+  return formatCartPrice(productType.value.regularPrice);
 });
 
-// Sale percentage
+// Sale percentage from raw numeric values when available
 const salePercentage = computed(() => {
-  const unit = parseFloat(unitPrice.value);
-  if (!isOnSale.value || isNaN(rawRegular.value) || isNaN(unit)) return '';
-  return Math.round(((rawRegular.value - unit) / rawRegular.value) * 100) + '%';
+  if (!isOnSale.value) return '';
+  const {numericString: saleNum} = cleanAndExtractPriceInfo(productType.value.salePrice);
+  const {numericString: regNum} = cleanAndExtractPriceInfo(productType.value.regularPrice);
+  const sale = parseFloat(saleNum);
+  const reg = parseFloat(regNum);
+  if (isNaN(sale) || isNaN(reg) || reg === 0) return '';
+  return Math.round(((reg - sale) / reg) * 100) + '%';
 });
 
 const removeItem = () => {
