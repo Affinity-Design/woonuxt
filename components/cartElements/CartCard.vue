@@ -12,9 +12,33 @@ const productType = computed(() => (item.variation ? item.variation?.node : item
 const productSlug = computed(() => `/product/${decodeURIComponent(item.product.node.slug)}`);
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
-const regularPrice = computed(() => parseFloat(productType.value.rawRegularPrice));
-const salePrice = computed(() => parseFloat(productType.value.rawSalePrice));
-const salePercentage = computed(() => Math.round(((regularPrice.value - salePrice.value) / regularPrice.value) * 100) + '%');
+
+// Use RAW numeric price values — WooCommerce formatted prices contain HTML tags
+// that cannot be reliably parsed. Raw values are always clean numbers like "24.50".
+const rawRegular = computed(() => parseFloat(productType.value.rawRegularPrice));
+const rawSale = computed(() => parseFloat(productType.value.rawSalePrice));
+
+// Detect sale using raw numeric values
+const isOnSale = computed(() => {
+  return !isNaN(rawSale.value) && rawSale.value > 0 && !isNaN(rawRegular.value) && rawSale.value < rawRegular.value;
+});
+
+const salePercentage = computed(() => {
+  if (!isOnSale.value) return '0%';
+  return Math.round(((rawRegular.value - rawSale.value) / rawRegular.value) * 100) + '%';
+});
+
+// Construct clean "$XX.XX" price strings from raw values for ProductPrice component.
+// ProductPrice can parse these reliably (unlike WooCommerce HTML-formatted strings).
+const effectiveSalePrice = computed(() => {
+  if (!isOnSale.value) return null;
+  return '$' + rawSale.value.toFixed(2);
+});
+
+const effectiveRegularPrice = computed(() => {
+  if (!isNaN(rawRegular.value) && rawRegular.value > 0) return '$' + rawRegular.value.toFixed(2);
+  return null;
+});
 
 const removeItem = () => {
   updateItemQuantity(item.key, 0);
@@ -43,29 +67,27 @@ const moveToWishList = () => {
 
       <!-- Product Details with flex-grow -->
       <div class="flex-1 min-w-0 flex flex-col">
-        <div class="flex flex-wrap gap-x-2 gap-y-1 items-start text-sm">
-          <!-- Product title with text wrapping -->
-          <NuxtLink class="leading-tight line-clamp-2 break-words" :to="productSlug">
-            {{ productType.name }}
-          </NuxtLink>
+        <!-- Product title -->
+        <NuxtLink class="leading-tight line-clamp-2 break-words text-sm" :to="productSlug">
+          {{ productType.name }}
+        </NuxtLink>
 
-          <!-- Sale tag -->
+        <!-- Price line: ~~regular~~ sale price Save X% -->
+        <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span v-if="isOnSale && productType.regularPrice" class="text-gray-400 line-through" v-html="productType.regularPrice" />
+          <span v-if="isOnSale && productType.salePrice" class="font-semibold" v-html="productType.salePrice" />
+          <span v-else-if="productType.regularPrice" class="font-semibold" v-html="productType.regularPrice" />
           <span
-            v-if="productType.salePrice"
+            v-if="isOnSale"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
             Save {{ salePercentage }}
           </span>
-
-          <!-- Low stock tag -->
           <span
             v-if="isLowStock"
             class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
             Low Stock
           </span>
         </div>
-
-        <!-- Price with margin top for separation -->
-        <ProductPrice class="mt-1 text-xs" :sale-price="productType.salePrice" :regular-price="productType.regularPrice" />
       </div>
 
       <!-- Quantity Controls with fixed width -->

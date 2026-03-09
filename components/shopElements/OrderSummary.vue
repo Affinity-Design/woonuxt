@@ -1,21 +1,33 @@
-<script setup>
+<script setup lang="ts">
 import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
 const {cart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
+const {customer} = useAuth();
 
-// Helper function to properly convert USD prices to CAD using the exchange rate
-// Uses .99 rounding to match product price display (client preference)
-const formatPrice = (priceString) => {
+// Only show shipping when the user has entered a postal code
+const hasShippingAddress = computed(() => {
+  const postcode = customer.value?.billing?.postcode;
+  return postcode && String(postcode).trim().length > 0;
+});
+
+// Parse a WooCommerce price string (may contain HTML) into a number
+const parseWooPrice = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  let str = String(priceStr);
+  str = str.replace(/<[^>]*>/g, '');
+  str = str.replace(/&#36;/g, '$');
+  str = str.replace(/&nbsp;/g, ' ');
+  str = str.replace(/[^0-9.-]/g, '');
+  return parseFloat(str) || 0;
+};
+
+// Convert a WooCommerce price string to formatted CAD display string
+const formatPrice = (priceString: string | null | undefined): string => {
   if (!priceString) return '$0.00 CAD';
+  const numericCheck = parseWooPrice(priceString);
+  if (numericCheck === 0) return '$0.00 CAD';
 
-  // Check for zero amounts first
-  const numericCheck = parseFloat(String(priceString).replace(/[^0-9.-]/g, ''));
-  if (numericCheck === 0 || isNaN(numericCheck)) {
-    return '$0.00 CAD';
-  }
-
-  // Use exchange rate to convert USD to CAD with .99 rounding
   if (exchangeRate.value) {
     const cadNumericString = convertToCAD(priceString, exchangeRate.value, true);
     if (cadNumericString) {
@@ -23,35 +35,21 @@ const formatPrice = (priceString) => {
     }
   }
 
-  // Fallback: just fix the label if no exchange rate available
-  let cleaned = String(priceString)
-    .replace(/US\$/gi, '$')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!cleaned.includes('CAD')) {
-    cleaned = cleaned + ' CAD';
-  }
-
+  // Fallback: clean up and add CAD label
+  let cleaned = String(priceString).replace(/&nbsp;/g, ' ').replace(/US\$/gi, '$').trim();
+  if (!cleaned.includes('CAD')) cleaned += ' CAD';
   return cleaned;
 };
 
-// For values that need the + prefix on positive amounts
-const formatShipping = (priceString) => {
-  if (!priceString) return '$0.00 CAD';
-
-  // Check if it's a zero amount
-  const numericCheck = parseFloat(String(priceString).replace(/[^0-9.-]/g, ''));
-  if (numericCheck === 0 || isNaN(numericCheck)) {
-    return '$0.00 CAD';
-  }
-
-  const isPositive = !String(priceString).includes('-') && numericCheck > 0;
-  const formattedPrice = formatPrice(priceString);
-
-  return isPositive ? '+' + formattedPrice : formattedPrice;
-};
+// Total without shipping — for when user hasn't entered address yet
+const totalWithoutShipping = computed(() => {
+  const rawTotal = cart.value?.rawTotal;
+  const totalNumeric = rawTotal ? parseFloat(String(rawTotal)) : parseWooPrice(cart.value?.total);
+  if (isNaN(totalNumeric) || totalNumeric === 0) return '$0.00';
+  const shippingNumeric = parseWooPrice(cart.value?.shippingTotal);
+  const adjusted = Math.max(0, totalNumeric - shippingNumeric);
+  return '$' + adjusted.toFixed(2);
+});
 </script>
 
 <template>
@@ -67,32 +65,36 @@ const formatShipping = (priceString) => {
     <!-- coupon -->
     <AddCoupon class="my-8" />
     <div class="grid gap-1 text-sm font-semibold text-gray-500">
-      <!-- sub -->
+      <!-- Subtotal -->
       <div class="flex justify-between">
         <span>{{ $t('messages.shop.subtotal') }}</span>
         <span class="text-gray-700 tabular-nums">{{ formatPrice(cart.subtotal) }}</span>
       </div>
-      <!-- shipping -->
+      <!-- Shipping: only show after user enters postal code -->
       <div class="flex justify-between">
         <span>{{ $t('messages.general.shipping') }}</span>
-        <span class="text-gray-700 tabular-nums">{{ formatShipping(cart.shippingTotal) }}</span>
+        <span v-if="hasShippingAddress" class="text-gray-700 tabular-nums">
+          {{ parseWooPrice(cart.shippingTotal) > 0 ? '+ ' : '' }}{{ formatPrice(cart.shippingTotal) }}
+        </span>
+        <span v-else class="text-gray-400 text-xs italic">Enter address for quote</span>
       </div>
-      <!-- tax -->
+      <!-- Tax -->
       <div class="flex justify-between">
         <span>{{ $t('messages.general.tax') }}</span>
         <span class="text-gray-700 tabular-nums">{{ formatPrice(cart.totalTax) }}</span>
       </div>
+      <!-- Discount -->
       <Transition name="scale-y" mode="out-in">
         <div v-if="cart && cart.appliedCoupons" class="flex justify-between">
           <span>{{ $t('messages.shop.discount') }}</span>
-          <span class="text-primary tabular-nums"> - {{ formatPrice(cart.discountTotal) }} </span>
+          <span class="text-primary tabular-nums">- {{ formatPrice(cart.discountTotal) }}</span>
         </div>
       </Transition>
-      <!-- total -->
+      <!-- Total: exclude shipping when no address provided -->
       <div class="flex justify-between mt-4">
         <span>{{ $t('messages.shop.total') }}</span>
         <span class="text-lg font-bold text-gray-700 tabular-nums">
-          {{ formatPrice(cart.total) }}
+          {{ hasShippingAddress ? formatPrice(cart.total) : formatPrice(totalWithoutShipping) }}
         </span>
       </div>
     </div>

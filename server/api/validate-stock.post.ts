@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     // Query for stock status using WPGraphQL
     const stockQuery = `
-      query CheckStockStatus($productIds: [ID!]!) {
+      query CheckStockStatus($productIds: [Int]!) {
         products(where: { include: $productIds }, first: 100) {
           nodes {
             databaseId
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify({
         query: stockQuery,
         variables: {
-          productIds: productIds.map((id: number) => id.toString()),
+          productIds: productIds.map((id: any) => parseInt(id, 10)).filter((id: number) => !isNaN(id)),
         },
       }),
     });

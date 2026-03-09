@@ -1,36 +1,42 @@
 <script setup lang="ts">
-import {computed} from 'vue';
-import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
+import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
 const {cart, toggleCart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
 
-// Convert cart total from USD to CAD using the exchange rate
-// Uses .99 rounding to match product price display (client preference)
+// Parse a WooCommerce price string into a number
+const parseWooPrice = (priceStr: string | null | undefined): number => {
+  if (!priceStr) return 0;
+  let str = String(priceStr);
+  str = str.replace(/<[^>]*>/g, '');
+  str = str.replace(/&#36;/g, '$');
+  str = str.replace(/&nbsp;/g, ' ');
+  str = str.replace(/[^0-9.-]/g, '');
+  return parseFloat(str) || 0;
+};
+
+// Cart sidebar shows subtotal only (no shipping — user hasn't entered address yet).
+// Must convert USD → CAD since WooCommerce stores prices in USD.
 const formattedCartTotal = computed(() => {
-  const rawTotal = cart.value?.total;
-  if (!rawTotal) return '$0.00 CAD';
+  // Use rawTotal minus shipping to get items-only total
+  const rawTotal = cart.value?.rawTotal;
+  const totalNumeric = rawTotal ? parseFloat(String(rawTotal)) : parseWooPrice(cart.value?.total);
+  if (isNaN(totalNumeric) || totalNumeric === 0) return '$0.00 CAD';
 
-  // Check for zero amount
-  if (rawTotal.includes('$0.00')) {
-    return '$0.00 CAD';
+  const shippingNumeric = parseWooPrice(cart.value?.shippingTotal);
+  const totalWithoutShipping = Math.max(0, totalNumeric - shippingNumeric);
+  if (totalWithoutShipping === 0) return '$0.00 CAD';
+
+  const priceStr = '$' + totalWithoutShipping.toFixed(2);
+
+  if (exchangeRate.value) {
+    const cadNumericString = convertToCAD(priceStr, exchangeRate.value, true);
+    if (cadNumericString) {
+      return '$' + formatPriceWithCAD(cadNumericString);
+    }
   }
 
-  // If exchange rate is not available, show raw price cleaned up
-  if (exchangeRate.value === null) {
-    const {numericString} = cleanAndExtractPriceInfo(rawTotal);
-    return numericString ? `$${numericString} CAD` : '$0.00 CAD';
-  }
-
-  // Convert using exchange rate with .99 rounding (matches product price display)
-  const cadNumericString = convertToCAD(rawTotal, exchangeRate.value, true);
-  if (!cadNumericString) {
-    const {numericString} = cleanAndExtractPriceInfo(rawTotal);
-    return numericString ? `$${numericString} CAD` : '$0.00 CAD';
-  }
-
-  // Format with $ prefix and CAD suffix
-  return `$${formatPriceWithCAD(cadNumericString)}`;
+  return `$${totalWithoutShipping.toFixed(2)} CAD`;
 });
 </script>
 
