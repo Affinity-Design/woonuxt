@@ -7,7 +7,7 @@ const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
-const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation} = useCheckout();
+const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete} = useCheckout();
 const {exchangeRate} = useExchangeRate();
 const config = useRuntimeConfig();
 
@@ -575,7 +575,7 @@ const helcimAmount = computed(() => {
   if (cart.value.rawTotal) {
     const raw = parseFloat(cart.value.rawTotal);
     if (!isNaN(raw) && raw > 0) {
-      console.log(`[DEBUG Checkout] Helcim amount (from rawTotal):`, { rawTotal: cart.value.rawTotal, amount: raw });
+      console.log(`[DEBUG Checkout] Helcim amount (from rawTotal):`, {rawTotal: cart.value.rawTotal, amount: raw});
       return raw;
     }
   }
@@ -859,7 +859,7 @@ useSeoMeta({
           </Transition>
 
           <!-- Shipping methods section -->
-          <div v-if="cart.availableShippingMethods.length">
+          <div v-if="cart.availableShippingMethods.length && isShippingAddressComplete">
             <h3 class="mb-4 text-xl font-semibold">
               {{ $t('messages.general.shippingSelect') }}
             </h3>
@@ -867,6 +867,10 @@ useSeoMeta({
               :options="cart?.availableShippingMethods?.[0]?.rates || []"
               :active-option="cart?.chosenShippingMethods?.[0] || ''"
               @shipping-changed="refreshCart" />
+          </div>
+          <!-- Shipping loading spinner: shown when address is complete but rates haven't loaded yet -->
+          <div v-else-if="isShippingAddressComplete && isUpdatingCart" class="flex items-center gap-2 py-4">
+            <LoadingIcon size="20" />
           </div>
 
           <!-- Payment methods section - ALWAYS show since Helcim is required -->

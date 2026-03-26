@@ -13,19 +13,24 @@
 4.  **Images:** Always use `<NuxtImg>`.
 5.  **Build:** `npm run build` is REQUIRED (runs route generation scripts).
 6.  **Cache:** Run `npm run warm-cache` after deploy.
+7.  **Cross-site boundary:** `wordpress/` belongs to US backend infrastructure context (including USD and US SEO implementation concerns). Treat changes there as cross-site impact changes.
+8.  **Business objective:** Prioritize SEO dominance for BOTH US and CAD properties while maintaining stable shared infrastructure between them.
 
 ### 🗺️ Documentation Map
 
-- **SEO:** `docs/seo-implementation.md`
-- **Caching:** `docs/how-caching-works.md`
-- **Blog:** `docs/blog-architecture.md`
-- **Payments:** `docs/helcim-integration.md`
+- **SEO:** `docs/seo-master-guide.md`
+- **Caching:** `docs/caching-local.md`
+- **Blog:** `docs/blog-master-guide.md`
+- **Payments:** `docs/infrastructure-and-integrations.md`
+- **Development:** `docs/development.md`
 
 ---
 
 ## Project Overview
 
 This is a **headless WooCommerce e-commerce site** built with Nuxt 3, using WordPress + WPGraphQL as the backend. The frontend is statically generated and deployed to **Cloudflare Pages** with aggressive KV-based caching for performance.
+
+This repository is primarily the Canadian headless Woo experience derived from the US ecosystem. Data streams from WordPress and is transformed for Canadian market behavior (CAD and en-CA/fr-CA presentation), while US backend concerns remain in the WordPress domain.
 
 **Key Features:**
 
@@ -40,6 +45,12 @@ This is a **headless WooCommerce e-commerce site** built with Nuxt 3, using Word
 ```
 WordPress (CMS) → WPGraphQL → Nuxt 3 Frontend → Cloudflare Pages (KV Cache)
 ```
+
+### US/CAD Context (Critical)
+
+- Canadian Nuxt frontend is the primary concern in this repo.
+- `wordpress/` content represents US backend infrastructure concerns, including USD-oriented behavior and US-specific SEO implementation.
+- Any change that touches the US/CAD interface must document expected impact on US SEO, CAD SEO, and shared infrastructure operations.
 
 **Two-Layer Nuxt Setup:**
 
@@ -57,19 +68,20 @@ WordPress (CMS) → WPGraphQL → Nuxt 3 Frontend → Cloudflare Pages (KV Cache
 **Always run before building:**
 
 ```bash
-npm run build  # Automatically runs build-all-routes first
+npm run build  # Full pipeline: purge + sitemap + nuxt build + KV setup
 ```
 
-**What happens during build:**
+**What happens during build (in order):**
 
-1. `build-all-routes.js` → Scans `content/blog/` and generates:
+1. `prebuild-cache-purge.js` → Purges stale Cloudflare KV cache
+2. `build-sitemap.js` → Scans `content/blog/` and generates:
    - `data/blog-routes.json` (for prerendering)
    - `data/blog-redirects.json` (slug → /blog/slug redirects)
    - `data/sitemap-data.json` (for `/api/sitemap.xml`)
-2. `setup-script.js` → Populates Cloudflare KV with:
-   - `build-categories-cache.js` → Category data
-   - `build-products-cache.js` → Product data (limited by `LIMIT_PRODUCTS` env var)
 3. `nuxt build` → Static generation with prerendering
+4. `setup-script.js` → Populates Cloudflare KV with product/category data
+
+**Skip cache purge (faster, local iterations):** `npm run build:no-purge`
 
 **Never skip the build scripts** - they generate critical routing data.
 
@@ -484,45 +496,55 @@ curl http://localhost:3000/api/sitemap.xml
 
 **Read these for deep understanding:**
 
-- `docs/seo-implementation.md` - **Complete SEO guide with fail-safe architecture**
+- `docs/seo-master-guide.md` - Complete SEO guide with fail-safe architecture
   - Triple-layer error handling (pages always load)
-  - SSR compatibility patterns (fetch → $fetch migration)
+  - SSR compatibility patterns ($fetch required, not fetch)
   - Exchange rate optimization (non-blocking initialization)
-  - Before/after performance metrics
-- `docs/how-caching-works.md` - Cache layers explained
-- `docs/helcim-integration.md` - Payment flow
-- `docs/architecture.md` - System overview
-- `docs/blog-architecture.md` - Blog system details
-
-**Recent Updates (November 2025):**
-
-- SEO system now has triple-layer fail-safe (API → generator → defaults)
-- All composables migrated to `$fetch()` for SSR compatibility
-- Exchange rate initialization is non-blocking (instant page loads)
-- Zero SEO-related failures in production
+- `docs/caching-local.md` - Cache layers explained (local dev)
+- `docs/infrastructure-and-integrations.md` - Helcim/Stripe/Cloudflare/WooCommerce setup
+- `docs/blog-master-guide.md` - Blog system, SEO rules, writing guidelines
+- `docs/development.md` - Development workflow and local setup
 
 ## Commands Reference
 
 ```bash
 # Development
-npm run dev              # Start dev server
-npm run dev:ssl          # Dev with HTTPS
+npm run dev              # Start dev server (with --host)
+npm run dev:ssl          # Dev with HTTPS (requires mkcert)
 
 # Building
-npm run build            # Production build (with route generation)
+npm run build            # Production: purge + sitemap + nuxt build + KV setup
+npm run build:no-purge   # Production build without cache purge (faster)
+npm run build:local      # Build using nuxt.config.local.ts
 npm run generate         # Static site generation
 npm run preview          # Preview production build
 
-# Caching
-npm run setup-cache      # Populate KV with product/category data
-npm run warm-cache       # Warm all caches
-npm run rebuild-cache    # Full cache rebuild
-
-# Build Components
-npm run build-all-routes      # Generate routing data
+# Route/Sitemap Data Generation
+npm run build-sitemap         # Generate sitemap + blog routes/redirects (REPLACES build-all-routes)
 npm run build-blog-routes     # Blog routes only
 npm run build-product-cache   # Product cache only
 npm run build-category-cache  # Category cache only
+
+# KV Cache Management
+npm run setup-cache      # Populate KV with product/category data
+npm run warm-cache       # Warm all caches
+npm run warm-products    # Products only
+npm run warm-categories  # Categories only
+npm run warm-home        # Homepage only
+npm run rebuild-cache    # setup + warm --force
+npm run clear-cache      # Safe KV cache clear
+npm run clear-cache-all  # Clear ALL KV namespaces
+npm run clear-page-cache # Clear page cache namespace only
+npm run clear-data-cache # Clear script_data namespace only
+npm run purge-cache      # Prebuild purge only (runs as part of npm run build)
+npm run reset-cache      # clear-all + setup
+
+# Utilities
+npm run clean            # Clean build artifacts
+npm run clean:build      # clean + install + build
+npm run verify-env       # Verify all required env vars are set
+npm run debug:cache      # Check cache effectiveness
+npm run optimize-images  # Optimize images in public/
 ```
 
 ## Key Conventions

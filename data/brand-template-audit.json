@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "generatedAt": "2026-02-27T23:41:20.272Z",
+    "baseUrl": "https://test.proskatersplace.com",
+    "brandsAudited": [
+      "powerslide",
+      "stanley",
+      "rottefella"
+    ],
+    "dataForSeoUsed": true
+  },
+  "summary": {
+    "templateIssueCount": 1,
+    "perBrandIssueCount": 2,
+    "highPriorityFixes": 0
+  },
+  "templateIssues": [
+    {
+      "severity": "medium",
+      "category": "content-position",
+      "issue": "Brand description renders BELOW the product grid",
+      "fix": "Move description block above products — search engines read top-of-page content first. Use WooCommerce hook woocommerce_before_shop_loop."
+    }
+  ],
+  "perBrandIssues": [
+    {
+      "category": "trust",
+      "issue": "Authorized retailer badge missing — trust signal opportunity",
+      "fix": "Inject \"✓ Authorized Canadian Retailer\" badge in description via optimize-brand-page.js"
+    },
+    {
+      "category": "internal-links",
+      "issue": "Low internal links to categories (avg: 0.0)",
+      "fix": "Add links to related categories (inline skates, roller skates, protective gear) in brand descriptions."
+    }
+  ],
+  "brandAnalyses": [
+    {
+      "slug": "powerslide",
+      "name": "Powerslide",
+      "productCount": 376,
+      "structure": {
+        "headings": {
+          "h1s": [
+            "Powerslide"
+          ],
+          "h1MatchesBrand": true,
+          "h2Count": 1,
+          "h3Count": 13,
+          "h2Samples": [
+            "#1 Retailer for POWERSLIDE Skates &amp; Products!"
+          ]
+        },
+        "templateLayout": {
+          "descriptionPosition": "below-products",
+          "hasProductGrid": true,
+          "visibleProductCount": 91,
+          "hasPagination": true
+        },
+        "contentBlocks": {
+          "hasBreadcrumbs": true,
+          "hasBrandLogo": true,
+          "hasFAQ": true,
+          "hasRelatedBrands": false,
+          "hasBuyingGuide": false,
+          "hasAuthorizedBadge": true
+        },
+        "seoElements": {
+          "title": "Explore Powerslide: Premium Skates &amp; Gear | ProSkaters Place",
+          "titlePattern": "Explore {BRAND}: Premium Skates &amp; Gear | ProSkaters Place",
+          "titleLength": 64,
+          "metaDesc": "Discover Powerslide&#039;s high-quality skates and innovative gear at ProSkaters Place. Shop now for Powerslide Skates and ride in style!",
+          "metaDescLength": 137,
+          "schemas": [
+            "Organization",
+            "WebSite",
+            "CollectionPage",
+            "BreadcrumbList"
+          ],
+          "hasSchema": true,
+          "noindex": false
+        },
+        "internalLinking": {
+          "totalInternalLinks": 30,
+          "categoryLinks": 0,
+          "productLinks": 0,
+          "blogLinks": 0,
+          "sampleLinks": [
+            "https://test.proskatersplace.com/",
+            "/my-account/",
+            "https://test.proskatersplace.com/customer-help/",
+            "/checkout/",
+            "https://test.proskatersplace.com/products/inline-skating/"
+          ]
+        }
+      },
+      "url": "https://test.proskatersplace.com/brand/powerslide/",
+      "onPage": {
+        "url": "https://test.proskatersplace.com/brand/powerslide/",
+        "titleLength": 0,
+        "metaDescLength": 0,
+        "h1": null,
+        "h1Count": 0,
+        "h2Count": 0,
+        "wordCount": 0,
+        "internalLinksCount": 0,
+        "externalLinksCount": 0,
+        "imagesCount": 0,
+        "hasCanonical": false,
+        "canonical": null,
+        "hasHreflang": false,
+        "noindex": false,
+        "schemas": [],
+        "pageLoadMs": null,
+        "hasDuplicateTitle": false,
+        "hasDuplicateMeta": false,
+        "checks": {},
+        "cost": 0.000125
+      }
+    },
+    {
+      "slug": "stanley",
+      "name": "Stanley",
+      "productCount": 12,
+      "structure": {
+        "headings": {
+          "h1s": [
+            "Stanley"
+          ],
+          "h1MatchesBrand": true,
+          "h2Count": 0,
+          "h3Count": 0,
+          "h2Samples": []
+        },
+        "templateLayout": {
+          "descriptionPosition": "below-products",
+          "hasProductGrid": true,
+          "visibleProductCount": 89,
+          "hasPagination": true
+        },
+        "contentBlocks": {
+          "hasBreadcrumbs": true,
+          "hasBrandLogo": true,
+          "hasFAQ": true,
+          "hasRelatedBrands": false,
+          "hasBuyingGuide": false,
+          "hasAuthorizedBadge": false
+        },
+        "seoElements": {
+          "title": "Stanley - ProSkaters Place",
+          "titlePattern": "{BRAND} - ProSkaters Place",
+          "titleLength": 26,
+          "metaDesc": "Stanley is proud to sell and support products by Stanley",
+          "metaDescLength": 56,
+          "schemas": [
+            "Organization",
+            "WebSite",
+            "CollectionPage",
+            "BreadcrumbList"
+          ],
+          "hasSchema": true,
+          "noindex": false
+        },
+        "internalLinking": {
+          "totalInternalLinks": 30,
+          "categoryLinks": 0,
+          "productLinks": 0,
+          "blogLinks": 0,
+          "sampleLinks": [
+            "https://test.proskatersplace.com/",
+            "/my-account/",
+            "https://test.proskatersplace.com/customer-help/",
+            "/checkout/",
+            "https://test.proskatersplace.com/products/inline-skating/"
+          ]
+        }
+      },
+      "url": "https://test.proskatersplace.com/brand/stanley/",
+      "onPage": {
+        "url": "https://test.proskatersplace.com/brand/stanley/",
+        "titleLength": 0,
+        "metaDescLength": 0,
+        "h1": null,
+        "h1Count": 0,
+        "h2Count": 0,
+        "wordCount": 0,
+        "internalLinksCount": 0,
+        "externalLinksCount": 0,
+        "imagesCount": 0,
+        "hasCanonical": false,
+        "canonical": null,
+        "hasHreflang": false,
+        "noindex": false,
+        "schemas": [],
+        "pageLoadMs": null,
+        "hasDuplicateTitle": false,
+        "hasDuplicateMeta": false,
+        "checks": {},
+        "cost": 0.000125
+      }
+    },
+    {
+      "slug": "rottefella",
+      "name": "Rottefella",
+      "productCount": 1,
+      "structure": {
+        "headings": {
+          "h1s": [
+            "Rottefella"
+          ],
+          "h1MatchesBrand": true,
+          "h2Count": 0,
+          "h3Count": 0,
+          "h2Samples": []
+        },
+        "templateLayout": {
+          "descriptionPosition": "below-products",
+          "hasProductGrid": true,
+          "visibleProductCount": 66,
+          "hasPagination": true
+        },
+        "contentBlocks": {
+          "hasBreadcrumbs": true,
+          "hasBrandLogo": true,
+          "hasFAQ": true,
+          "hasRelatedBrands": false,
+          "hasBuyingGuide": false,
+          "hasAuthorizedBadge": false
+        },
+        "seoElements": {
+          "title": "Rottefella Bindings - ProSkaters Place",
+          "titlePattern": "{BRAND} Bindings - ProSkaters Place",
+          "titleLength": 38,
+          "metaDesc": "Rottefella is proud to sell and support products by Rottefella",
+          "metaDescLength": 62,
+          "schemas": [
+            "Organization",
+            "WebSite",
+            "CollectionPage",
+            "BreadcrumbList"
+          ],
+          "hasSchema": true,
+          "noindex": false
+        },
+        "internalLinking": {
+          "totalInternalLinks": 30,
+          "categoryLinks": 0,
+          "productLinks": 0,
+          "blogLinks": 0,
+          "sampleLinks": [
+            "https://test.proskatersplace.com/",
+            "/my-account/",
+            "https://test.proskatersplace.com/customer-help/",
+            "/checkout/",
+            "https://test.proskatersplace.com/products/inline-skating/"
+          ]
+        }
+      },
+      "url": "https://test.proskatersplace.com/brand/rottefella/",
+      "onPage": {
+        "url": "https://test.proskatersplace.com/brand/rottefella/",
+        "titleLength": 0,
+        "metaDescLength": 0,
+        "h1": null,
+        "h1Count": 0,
+        "h2Count": 0,
+        "wordCount": 0,
+        "internalLinksCount": 0,
+        "externalLinksCount": 0,
+        "imagesCount": 0,
+        "hasCanonical": false,
+        "canonical": null,
+        "hasHreflang": false,
+        "noindex": false,
+        "schemas": [],
+        "pageLoadMs": null,
+        "hasDuplicateTitle": false,
+        "hasDuplicateMeta": false,
+        "checks": {},
+        "cost": 0.000125
+      }
+    }
+  ]
+}

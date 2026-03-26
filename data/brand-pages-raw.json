@@ -1,0 +1,3525 @@
+{
+  "meta": {
+    "generatedAt": "2026-03-02T16:05:32.946Z",
+    "baseUrl": "https://proskatersplace.com",
+    "taxonomyEndpoint": "https://proskatersplace.com/wp-json/wp/v2/pwb-brand",
+    "totalBrands": 70,
+    "dataForSeoUsed": false,
+    "estimatedApiCost": 0
+  },
+  "brands": [
+    {
+      "id": 2472,
+      "name": "Adapt Brand",
+      "slug": "adapt",
+      "url": "https://proskatersplace.com/brand/adapt/",
+      "taxonomy": {
+        "description": "Finding high-quality <strong>inline skates</strong> that combine artisan craftsmanship with modern performance is the hallmark of the Adapt Brand. Established in the Netherlands as a boutique manufacturer, this company has carved out a unique space in the industry by focusing on handmade, carbon-fiber boots and integrated frame systems. Unlike mass-produced alternatives like some seba skates, every pair of <strong>adapt brand skates</strong> is meticulously crafted to provide a close-to-the-foot fit that maximizes energy transfer and control. Their dedication to using premium materials ensures that their hardware remains lightweight while maintaining the structural integrity required for heavy urban use.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/adapt/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "inline skates by Adapt Brand | ProSkaters Place US Dealer",
+        "seoDescription": "Shop Adapt Brand inline skates at ProSkaters Place. As an authorized US dealer, we provide full warranties on all premium products. Expert fitting available."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/adapt/",
+        "httpStatus": 200,
+        "title": "inline skates by Adapt Brand | ProSkaters Place US Dealer",
+        "metaDescription": "Shop Adapt Brand inline skates at ProSkaters Place. As an authorized US dealer, we provide full warranties on all premium products. Expert fitting available.",
+        "h1": "Adapt Brand",
+        "h2s": [
+          "About Adapt Brand",
+          "Why Buy Adapt Brand at ProSkaters Place?",
+          "Adapt Brand Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Adapt Brand — Frequently Asked Questions"
+        ],
+        "wordCount": 2805,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/adapt/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 96,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 96 words"
+      ]
+    },
+    {
+      "id": 2489,
+      "name": "Anarchy",
+      "slug": "anarchy-aggressive",
+      "url": "https://proskatersplace.com/brand/anarchy-aggressive/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Anarchy Retailer</strong> — ProSkaters Place is an official Anarchy dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nBuilding a reputation for rugged durability and street-ready performance, this brand has become a staple for riders who demand high-quality <strong>inline skates</strong> built for the skatepark. Since its inception, the company has focused on engineering hardware that can withstand the high-impact stresses of street skating and vertical ramps. By utilizing <strong>aggressive inline skates</strong> designs that feature UFS-compatible frames and reinforced soul plates, they provide a reliable platform for grinding and technical trick execution. Their commitment to the core skating community is evident in every pair of anarchy skates, prioritizing structural integrity without sacrificing the comfort needed for long sessions.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/anarchy-aggressive/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "inline skates - Anarchy Brand | ProSkaters Place Official",
+        "seoDescription": "Get Anarchy inline skates from ProSkaters Place, an authorized US dealer. Buy with confidence with a full warranty. Free US shipping over $150. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/anarchy-aggressive/",
+        "httpStatus": 200,
+        "title": "inline skates - Anarchy Brand | ProSkaters Place Official",
+        "metaDescription": "Get Anarchy inline skates from ProSkaters Place, an authorized US dealer. Buy with confidence with a full warranty. Free US shipping over $150. Shop now.",
+        "h1": "Anarchy",
+        "h2s": [
+          "About Anarchy",
+          "Why Buy Anarchy at ProSkaters Place?",
+          "Anarchy Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Anarchy — Frequently Asked Questions"
+        ],
+        "wordCount": 2590,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/anarchy-aggressive/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 122,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 122 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2456,
+      "name": "Bones",
+      "slug": "bones",
+      "url": "https://proskatersplace.com/brand/bones/",
+      "taxonomy": {
+        "description": "Precision engineering and a commitment to skating-specific hardware have made <strong>bones</strong> one of the most respected names in the industry for over four decades. Unlike many manufacturers that rely on generic industrial ABEC ratings, this brand revolutionized the market by developing \"Skate Rated\" standards. These standards prioritize the unique lateral loads and impact resistance required for inline and roller skating, ensuring that every component can withstand the rigors of high-intensity use while maintaining a smooth, fast roll.",
+        "count": 16,
+        "link": "https://proskatersplace.com/brand/bones/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Bones Bearings & Wheels | Official ProSkaters Place Store",
+        "seoDescription": "Shop Bones bearings and wheels at ProSkaters Place, your authorized US dealer. Get genuine gear with full warranty. Browse our 23 products today. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/bones/",
+        "httpStatus": 200,
+        "title": "Bones Bearings &amp; Wheels | Official ProSkaters Place Store",
+        "metaDescription": "Shop Bones bearings and wheels at ProSkaters Place, your authorized US dealer. Get genuine gear with full warranty. Browse our 23 products today. Shop now.",
+        "h1": "Bones",
+        "h2s": [
+          "About Bones",
+          "Why Buy Bones at ProSkaters Place?",
+          "Bones Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Bones — Frequently Asked Questions"
+        ],
+        "wordCount": 2869,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/bones/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 77,
+      "seoScore": 78,
+      "seoIssues": [
+        "Title length 61 (ideal 30-60)",
+        "Very thin description: 77 words"
+      ]
+    },
+    {
+      "id": 2498,
+      "name": "Cats",
+      "slug": "catsbearing",
+      "url": "https://proskatersplace.com/brand/catsbearing/",
+      "taxonomy": {
+        "description": "Finding high-quality components for competitive skating requires a focus on precision, and the <strong>Cats</strong> brand has built its reputation on delivering exactly that to the global skate community. Their legacy is rooted in the production of high-performance bearings that utilize advanced materials and tight manufacturing tolerances to ensure every rotation is as efficient as possible. By focusing on the niche requirements of speed and marathon skaters, they have developed a product line that prioritizes mechanical integrity over mass-market appeal.",
+        "count": 0,
+        "link": "https://proskatersplace.com/brand/catsbearing/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Cats Bearings & Gear | ProSkaters Place Official Dealer",
+        "seoDescription": "Shop Cats skating gear at ProSkaters Place, an authorized US dealer. Get high-quality products with a full manufacturer warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/catsbearing/",
+        "httpStatus": 200,
+        "title": "Cats Bearings &amp; Gear | ProSkaters Place Official Dealer",
+        "metaDescription": "Shop Cats skating gear at ProSkaters Place, an authorized US dealer. Get high-quality products with a full manufacturer warranty. Free US shipping over $150.",
+        "h1": "Cats",
+        "h2s": [],
+        "wordCount": 1449,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 79,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 79 words"
+      ]
+    },
+    {
+      "id": 2491,
+      "name": "Chaya Skates",
+      "slug": "chaya-skates",
+      "url": "https://proskatersplace.com/brand/chaya-skates/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Chaya Skates Retailer</strong> — ProSkaters Place is an official Chaya Skates dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor those seeking a perfect balance between technical precision and modern style, <strong>chaya skates</strong> offer a revolutionary approach to both park and lifestyle roller skating. As a premium brand under the Powerslide umbrella, this manufacturer has moved away from traditional \"standard\" skate construction to focus on <strong>ergonomic boot designs</strong> and specialized performance hardware. Whether you are browsing a <strong>chaya skates review</strong> to find your next pair or looking for a durable setup for the bowls, these products are engineered for comfort right out of the box. Many enthusiasts on <strong>chaya skates reddit</strong> threads highlight the brand's unique ability to merge high-fashion aesthetics with rugged, professional-grade components that withstand heavy use.",
+        "count": 100,
+        "link": "https://proskatersplace.com/brand/chaya-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Chaya Skates - Authorized US Retailer - ProSkaters Place",
+        "seoDescription": "Browse Chaya Skates at ProSkaters Place, the premier authorized US dealer. We offer a full factory warranty on 100+ styles in stock. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/chaya-skates/",
+        "httpStatus": 200,
+        "title": "Chaya Skates - Authorized US Retailer - ProSkaters Place",
+        "metaDescription": "Browse Chaya Skates at ProSkaters Place, the premier authorized US dealer. We offer a full factory warranty on 100+ styles in stock. Free US shipping over $150.",
+        "h1": "Chaya Skates",
+        "h2s": [
+          "About Chaya Skates",
+          "Why Buy Chaya Skates at ProSkaters Place?",
+          "Chaya Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Chaya Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 3451,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/chaya-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 135,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 160 (ideal 120-155)",
+        "Thin description: 135 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2486,
+      "name": "Choke",
+      "slug": "choke",
+      "url": "https://proskatersplace.com/brand/choke/",
+      "taxonomy": {
+        "description": "Known for delivering a perfect blend of performance and style, the <strong>choke</strong> brand has established itself as a leader in the recreational and urban hardware market. As a specialized division of the Powerslide umbrella, this brand utilizes advanced German engineering to produce durable, high-quality gear that stands up to the rigors of street use. By focusing on robust construction and vibrant designs, they ensure that every product provides a reliable experience for those who value both function and fashion in their equipment.",
+        "count": 15,
+        "link": "https://proskatersplace.com/brand/choke/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Choke Brand Gear | ProSkaters Place - Authorized US Dealer",
+        "seoDescription": "Shop the full Choke collection at ProSkaters Place. As an authorized US dealer, we provide a full brand warranty on all equipment. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/choke/",
+        "httpStatus": 200,
+        "title": "Choke Brand Gear | ProSkaters Place - Authorized US Dealer",
+        "metaDescription": "Shop the full Choke collection at ProSkaters Place. As an authorized US dealer, we provide a full brand warranty on all equipment. Free US shipping over $150.",
+        "h1": "Choke",
+        "h2s": [
+          "About Choke",
+          "Why Buy Choke at ProSkaters Place?",
+          "Choke Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Choke — Frequently Asked Questions"
+        ],
+        "wordCount": 3090,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/choke/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 82,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 82 words"
+      ]
+    },
+    {
+      "id": 3258,
+      "name": "Daehlie",
+      "slug": "daehlie",
+      "url": "https://proskatersplace.com/brand/daehlie/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Daehlie Retailer</strong> — ProSkaters Place is an official Daehlie dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFinding the right technical gear for high-intensity Nordic training often begins with a pair of <strong>daehlie pants</strong> designed to handle fluctuating temperatures and demanding aerobic output. Established by the legendary Bjørn Dæhlie, the most decorated cross-country skier in history, the brand has spent decades perfecting performance apparel that meets the needs of elite athletes. The heritage of the company is rooted in the harsh Norwegian landscape, where clothing must provide a <strong>perfect balance</strong> between wind protection, breathability, and unrestricted movement.",
+        "count": 21,
+        "link": "https://proskatersplace.com/brand/daehlie/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Buy Daehlie Pants | ProSkaters Place Authorized US Dealer",
+        "seoDescription": "Shop Daehlie pants at ProSkaters Place, your authorized US dealer. Explore our stock of 21 premium products with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/daehlie/",
+        "httpStatus": 200,
+        "title": "Buy Daehlie Pants | ProSkaters Place Authorized US Dealer",
+        "metaDescription": "Shop Daehlie pants at ProSkaters Place, your authorized US dealer. Explore our stock of 21 premium products with full warranty. Free US shipping over $150.",
+        "h1": "Daehlie",
+        "h2s": [
+          "About Daehlie",
+          "Why Buy Daehlie at ProSkaters Place?",
+          "Daehlie Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Daehlie — Frequently Asked Questions"
+        ],
+        "wordCount": 3488,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/daehlie/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 103,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 103 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3165,
+      "name": "Disroyal",
+      "slug": "disroyal",
+      "url": "https://proskatersplace.com/brand/disroyal/",
+      "taxonomy": {
+        "description": "Finding the right performance components for your <strong>inline skates</strong> often requires looking toward boutique manufacturers that understand the demands of high-level street and urban skating. As a premier distribution and design powerhouse, this brand represents a commitment to the technical evolution of <strong>street skates</strong>, born from the same creative vision that brought <strong>them skates</strong> to the forefront of the modern blading industry. They prioritize structural integrity and performance-driven design, making their components a staple for those who demand more from their gear than what standard stock setups provide.",
+        "count": 0,
+        "link": "https://proskatersplace.com/brand/disroyal/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Inline Skates from Disroyal | ProSkaters Place US Dealer",
+        "seoDescription": "Shop Disroyal inline skates at ProSkaters Place, your authorized US dealer. Get the full warranty on all high-performance models. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/disroyal/",
+        "httpStatus": 200,
+        "title": "Inline Skates from Disroyal | ProSkaters Place US Dealer",
+        "metaDescription": "Shop Disroyal inline skates at ProSkaters Place, your authorized US dealer. Get the full warranty on all high-performance models. Free US shipping over $150.",
+        "h1": "Disroyal",
+        "h2s": [],
+        "wordCount": 1452,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 89,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 89 words"
+      ]
+    },
+    {
+      "id": 2459,
+      "name": "DOOP",
+      "slug": "doop",
+      "url": "https://proskatersplace.com/brand/doop/",
+      "taxonomy": {
+        "description": "Combining convenience with high-performance engineering, <strong>doop skates</strong> represent a revolutionary shift in urban mobility for city commuters and recreational fitness enthusiasts. Developed under the expertise of the Powerslide brand, these skates feature a unique, patented \"step-in\" design that allows you to wear your favorite sneakers while skating. This hybrid approach eliminates the need to carry extra footwear and makes transitioning from the pavement to the office or store seamless. By focusing on high-quality components and a highly customizable fit, <strong>powerslide doop skates</strong> offer the stability of a traditional hardshell boot without the restrictive heat or sizing limitations of standard molded liners.",
+        "count": 3,
+        "link": "https://proskatersplace.com/brand/doop/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Buy Doop Skates - Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop doop skates at ProSkaters Place, your authorized US dealer. We offer official warranties and expert advice on all models. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/doop/",
+        "httpStatus": 200,
+        "title": "Buy Doop Skates - Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop doop skates at ProSkaters Place, your authorized US dealer. We offer official warranties and expert advice on all models. Free US shipping over $150.",
+        "h1": "DOOP",
+        "h2s": [
+          "About DOOP",
+          "Why Buy DOOP at ProSkaters Place?",
+          "DOOP Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "DOOP — Frequently Asked Questions"
+        ],
+        "wordCount": 2703,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/doop/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 101,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 101 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3461,
+      "name": "Dream Wheels",
+      "slug": "dream-wheels",
+      "url": "https://proskatersplace.com/brand/dream-wheels/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Dream Wheels Retailer</strong> — ProSkaters Place is an official Dream Wheels dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nEnhancing your skating experience often starts with upgrading your <strong>roller skate wheels</strong> to improve both your overall performance and night-time visibility. Dream Wheels has established itself as a leader in the industry by focusing on high-rebound urethane formulations and innovative glow technology. Unlike standard factory components, these <strong>lighting wheels</strong> utilize a specialized magnetic spacer to power internal LEDs, ensuring that your path is always illuminated during evening sessions without the need for external batteries. Their commitment to precision engineering results in a product that maintains its shape even under high pressure, providing skaters with the predictable grip and slide necessary for technical maneuvers.",
+        "count": 3,
+        "link": "https://proskatersplace.com/brand/dream-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "roller skate wheels | Dream Wheels at ProSkaters Place",
+        "seoDescription": "Find Dream Wheels roller skate wheels at ProSkaters Place, your authorized US dealer. Get high-quality products and official warranty protection. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/dream-wheels/",
+        "httpStatus": 200,
+        "title": "roller skate wheels | Dream Wheels at ProSkaters Place",
+        "metaDescription": "Find Dream Wheels roller skate wheels at ProSkaters Place, your authorized US dealer. Get high-quality products and official warranty protection. Shop now.",
+        "h1": "Dream Wheels",
+        "h2s": [
+          "About Dream Wheels",
+          "Why Buy Dream Wheels at ProSkaters Place?",
+          "Dream Wheels Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Dream Wheels — Frequently Asked Questions"
+        ],
+        "wordCount": 2778,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/dream-wheels/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 128,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 128 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2840,
+      "name": "Dynastar",
+      "slug": "dynastar-ski",
+      "url": "https://proskatersplace.com/brand/dynastar-ski/",
+      "taxonomy": {
+        "description": "For over half a century, this brand has remained a cornerstone of alpine innovation, blending traditional craftsmanship with cutting-edge composite technology. The development of <strong>dynastar ladies skis</strong> highlights their commitment to gender-specific engineering, moving beyond simple aesthetic changes to focus on the unique biomechanical needs of women on the slopes. By shifting the mounting point and adjusting the longitudinal flex patterns, they provide a more natural stance and improved power transfer for the user. This dedication to technical precision ensures that every product, from their world-cup racing modules to all-mountain options, delivers a predictable and exhilarating experience.",
+        "count": 2,
+        "link": "https://proskatersplace.com/brand/dynastar-ski/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Dynastar Ladies Skis | ProSkaters Place - Authorized Dealer",
+        "seoDescription": "Shop dynastar ladies skis at ProSkaters Place, your authorized US dealer. Get authentic equipment with full manufacturer warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/dynastar-ski/",
+        "httpStatus": 200,
+        "title": "Dynastar Ladies Skis | ProSkaters Place - Authorized Dealer",
+        "metaDescription": "Shop dynastar ladies skis at ProSkaters Place, your authorized US dealer. Get authentic equipment with full manufacturer warranty. Free US shipping over $150.",
+        "h1": "Dynastar",
+        "h2s": [
+          "About Dynastar",
+          "Why Buy Dynastar at ProSkaters Place?",
+          "Dynastar Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Dynastar — Frequently Asked Questions"
+        ],
+        "wordCount": 2703,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/dynastar-ski/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 97,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 97 words"
+      ]
+    },
+    {
+      "id": 2862,
+      "name": "Endless",
+      "slug": "endless-blading",
+      "url": "https://proskatersplace.com/brand/endless-blading/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Endless Retailer</strong> — ProSkaters Place is an official Endless dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nElevating the urban skating experience through precision engineering, <strong>endless blading</strong> has become synonymous with high-performance frame technology that prioritizes versatility and control. Based on the philosophy that a single frame should offer multiple wheel configurations, these products utilize CNC-machined 6061-T6 aluminum to provide a rigid, highly responsive ride. By incorporating a unique \"balanced rocker\" geometry, <strong>endless blading</strong> hardware bridges the gap between stability and agility. This allows enthusiasts to switch between traditional four-wheel setups and larger three-wheel configurations without the need to swap their entire hardware kit or change boots frequently.",
+        "count": 75,
+        "link": "https://proskatersplace.com/brand/endless-blading/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Endless Blading - Official US Dealer | ProSkaters Place",
+        "seoDescription": "Get the best Endless Blading frames and accessories at ProSkaters Place. As an authorized US dealer, we offer full warranties and worldwide shipping. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/endless-blading/",
+        "httpStatus": 200,
+        "title": "Endless Blading - Official US Dealer | ProSkaters Place",
+        "metaDescription": "Get the best Endless Blading frames and accessories at ProSkaters Place. As an authorized US dealer, we offer full warranties and worldwide shipping. Shop now.",
+        "h1": "Endless",
+        "h2s": [
+          "About Endless",
+          "Why Buy Endless at ProSkaters Place?",
+          "Endless Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Endless — Frequently Asked Questions"
+        ],
+        "wordCount": 3380,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/endless-blading/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 114,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Thin description: 114 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2479,
+      "name": "ENNUI",
+      "slug": "ennui",
+      "url": "https://proskatersplace.com/brand/ennui/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US ENNUI Retailer</strong> — ProSkaters Place is an official ENNUI dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nProtecting your body while pushing the limits of urban skating requires specialized gear like the <strong>ennui city brace</strong>, a flagship product that redefined wrist protection for inline skaters. Established as a dedicated protective gear brand under the Powerslide umbrella, ENNUI focuses specifically on urban and street sports rather than generic industrial safety. Their design philosophy centers on anatomical fit and slim profiles, ensuring that items like the <strong>ennui elite helmet</strong> provide maximum impact resistance without the bulky aesthetic of traditional pads. By collaborating with orthopedic specialists, the brand develops ergonomic solutions that stay in place during high-velocity slides and technical maneuvers.",
+        "count": 38,
+        "link": "https://proskatersplace.com/brand/ennui/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "ENNUI City Brace | ProSkaters Place Authorized US Dealer",
+        "seoDescription": "Buy the ENNUI City Brace from ProSkaters Place, your authorized US dealer. We provide a full factory warranty on all gear. Expert fitting available. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/ennui/",
+        "httpStatus": 200,
+        "title": "ENNUI City Brace | ProSkaters Place Authorized US Dealer",
+        "metaDescription": "Buy the ENNUI City Brace from ProSkaters Place, your authorized US dealer. We provide a full factory warranty on all gear. Expert fitting available. Shop now.",
+        "h1": "ENNUI",
+        "h2s": [
+          "About ENNUI",
+          "Why Buy ENNUI at ProSkaters Place?",
+          "ENNUI Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "ENNUI — Frequently Asked Questions"
+        ],
+        "wordCount": 3435,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/ennui/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 125,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 125 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2509,
+      "name": "Enuff",
+      "slug": "enuff-skateboards",
+      "url": "https://proskatersplace.com/brand/enuff-skateboards/",
+      "taxonomy": {
+        "description": "Dedicated to delivering high-performance hardware and complete setups, <strong>enuff</strong> has spent nearly two decades refining the balance between durability and affordability for the skating community. Founded in the UK in 2006, the brand focuses on engineering robust decks and components that specifically cater to the needs of progressing skaters who demand longevity from their equipment. By utilizing high-quality materials like cold-pressed maple and specialized aluminum alloys, they ensure that every product can withstand the impact of technical street sessions and park riding.",
+        "count": 61,
+        "link": "https://proskatersplace.com/brand/enuff-skateboards/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Enuff Gear at ProSkaters Place | Authorized US Retailer",
+        "seoDescription": "Discover Enuff gear at ProSkaters Place, your official authorized US dealer. Explore our stock of 62 high-quality products today. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/enuff-skateboards/",
+        "httpStatus": 200,
+        "title": "Enuff Gear at ProSkaters Place | Authorized US Retailer",
+        "metaDescription": "Discover Enuff gear at ProSkaters Place, your official authorized US dealer. Explore our stock of 62 high-quality products today. Free US shipping over $150.",
+        "h1": "Enuff",
+        "h2s": [
+          "About Enuff",
+          "Why Buy Enuff at ProSkaters Place?",
+          "Enuff Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Enuff — Frequently Asked Questions"
+        ],
+        "wordCount": 3298,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/enuff-skateboards/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 82,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 82 words"
+      ]
+    },
+    {
+      "id": 3326,
+      "name": "Epic",
+      "slug": "epic-grindshoes",
+      "url": "https://proskatersplace.com/brand/epic-grindshoes/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Epic Retailer</strong> — ProSkaters Place is an official Epic dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFinding the right pair of <strong>roller skates</strong> is essential for both performance and longevity, and this brand has established itself as a leader in providing high-quality equipment that balances durability with professional-grade engineering. Known for their robust quad designs, <strong>epic skates</strong> are crafted to meet the needs of rhythmic skaters, jam enthusiasts, and outdoor explorers alike. Every <strong>epic skates review</strong> from our community highlights the brand's dedication to structural integrity, utilizing reinforced plates and high-rebound wheels that can withstand the rigors of frequent use on multiple surfaces.",
+        "count": 7,
+        "link": "https://proskatersplace.com/brand/epic-grindshoes/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Epic Roller Skates | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop Epic roller skates at ProSkaters Place, your authorized US dealer. Explore our selection of high-quality skates with full manufacturer warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/epic-grindshoes/",
+        "httpStatus": 200,
+        "title": "Epic Roller Skates | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop Epic roller skates at ProSkaters Place, your authorized US dealer. Explore our selection of high-quality skates with full manufacturer warranty. Shop now.",
+        "h1": "Epic",
+        "h2s": [
+          "About Epic",
+          "Why Buy Epic at ProSkaters Place?",
+          "Epic Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Epic — Frequently Asked Questions"
+        ],
+        "wordCount": 2792,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/epic-grindshoes/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 110,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Thin description: 110 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2835,
+      "name": "Fischer",
+      "slug": "fischer",
+      "url": "https://proskatersplace.com/brand/fischer/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Fischer Retailer</strong> — ProSkaters Place is an official Fischer dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nRenowned for their precision engineering and dominance in the competitive winter sports world, <strong>fischer skates</strong> represent a legacy of performance that transitions seamlessly from the ice to the pavement. The brand has built its global reputation on high-quality manufacturing standards that prioritize maximum power transfer and long-term durability. By leveraging decades of research into composite materials and ergonomic boot design, Fischer delivers equipment that stands up to the high-intensity demands of modern skating. Their commitment to technical excellence ensures that every component is built to withstand rigorous use while maintaining a focus on <strong>lightweight construction and structural integrity</strong>.",
+        "count": 62,
+        "link": "https://proskatersplace.com/brand/fischer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Fischer Skates | Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Buy fischer skates at ProSkaters Place, your authorized US dealer for premium high-performance gear. Browse 76 products now! Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/fischer/",
+        "httpStatus": 200,
+        "title": "Fischer Skates | Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Buy fischer skates at ProSkaters Place, your authorized US dealer for premium high-performance gear. Browse 76 products now! Free US shipping over $150.",
+        "h1": "Fischer",
+        "h2s": [
+          "About Fischer",
+          "Why Buy Fischer at ProSkaters Place?",
+          "Fischer Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Fischer — Frequently Asked Questions"
+        ],
+        "wordCount": 3668,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/fischer/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 122,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 122 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2474,
+      "name": "Flying Eagle",
+      "slug": "flying-eagle",
+      "url": "https://proskatersplace.com/brand/flying-eagle/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Flying Eagle Retailer</strong> — ProSkaters Place is an official Flying Eagle dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nExperience the perfect balance of performance and versatility when you choose <strong>flying eagle skates</strong> for your urban or freestyle skating adventures. Founded with a commitment to engineering excellence, Flying Eagle has earned a global reputation for producing high-performance hard-boot skates that often outperform the industry's most expensive legacy brands. Their design philosophy focuses heavily on the <strong>EGO and Drift series</strong>, featuring precision CNC-machined aluminum frames and highly breathable anatomical liners. By prioritizing technical innovation and manufacturing efficiency, the brand ensures that the <strong>flying eagle skates price</strong> remains highly competitive for skaters seeking professional-grade equipment without the heavy premium.",
+        "count": 54,
+        "link": "https://proskatersplace.com/brand/flying-eagle/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Flying Eagle Skates | Official Retailer | ProSkaters Place",
+        "seoDescription": "Find the best Flying Eagle skates at ProSkaters Place, your authorized US dealer. We stock 60+ models for slalom, urban, and kids. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/flying-eagle/",
+        "httpStatus": 200,
+        "title": "Flying Eagle Skates | Official Retailer | ProSkaters Place",
+        "metaDescription": "Find the best Flying Eagle skates at ProSkaters Place, your authorized US dealer. We stock 60+ models for slalom, urban, and kids. Free US shipping over $150.",
+        "h1": "Flying Eagle",
+        "h2s": [
+          "About Flying Eagle",
+          "Why Buy Flying Eagle at ProSkaters Place?",
+          "Flying Eagle Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Flying Eagle — Frequently Asked Questions"
+        ],
+        "wordCount": 3747,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/flying-eagle/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 124,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 124 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2521,
+      "name": "FR Skates",
+      "slug": "fr-skates",
+      "url": "https://proskatersplace.com/brand/fr-skates/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US FR Skates Retailer</strong> — ProSkaters Place is an official FR Skates dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor many years, <strong>fr skates</strong> has defined the global standard for freestyle and urban skating through a relentless focus on performance and rigid shell construction. Originating from the vision of legendary skaters Sebastien Laffargue and Gregoire Pinto, the brand emerged as a dedicated entity to push the technical boundaries of freeride skating. Their boots are celebrated for providing <strong>exceptional power transfer</strong> and a precise fit, which has made them a staple in the competitive slalom and urban exploration scenes worldwide.",
+        "count": 72,
+        "link": "https://proskatersplace.com/brand/fr-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Buy FR Skates - Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop the full collection of FR Skates at ProSkaters Place. As an authorized US dealer, we offer expert support, full warranty, and free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/fr-skates/",
+        "httpStatus": 200,
+        "title": "Buy FR Skates - Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop the full collection of FR Skates at ProSkaters Place. As an authorized US dealer, we offer expert support, full warranty, and free US shipping over $150.",
+        "h1": "FR Skates",
+        "h2s": [
+          "About FR Skates",
+          "Why Buy FR Skates at ProSkaters Place?",
+          "FR Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "FR Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 3318,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/fr-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 105,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 105 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3167,
+      "name": "Gawds",
+      "slug": "gawds",
+      "url": "https://proskatersplace.com/brand/gawds/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Gawds Retailer</strong> — ProSkaters Place is an official Gawds dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFounded by legendary professional Franky Morales, this brand emerged from the same innovative spirit that popularized <strong>usd skates</strong> across the global street scene. This company represents a fusion of high-end street fashion and technical performance, catering to those who demand a lifestyle-driven aesthetic without compromising on the heavy-duty hardware required for technical urban skating. As a project born from Morales' vision after years of defining the sport at the highest level, <strong>gawds skates</strong> prioritize unique silhouettes and premium materials. This dedication to quality and distinct visual identity has led many enthusiasts to seek out a <strong>gawds skates review</strong> to understand how these boots handle high-impact landings and technical grinds compared to traditional plastic shells.",
+        "count": 7,
+        "link": "https://proskatersplace.com/brand/gawds/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "USD Skates - Authorized US Gawds Dealer | ProSkaters Place",
+        "seoDescription": "Shop the best usd skates and Gawds gear at ProSkaters Place. As an authorized US dealer, we offer expert advice and full warranties on all items. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/gawds/",
+        "httpStatus": 200,
+        "title": "USD Skates - Authorized US Gawds Dealer | ProSkaters Place",
+        "metaDescription": "Shop the best usd skates and Gawds gear at ProSkaters Place. As an authorized US dealer, we offer expert advice and full warranties on all items. Shop now.",
+        "h1": "Gawds",
+        "h2s": [
+          "About Gawds",
+          "Why Buy Gawds at ProSkaters Place?",
+          "Gawds Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Gawds — Frequently Asked Questions"
+        ],
+        "wordCount": 2842,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/gawds/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 137,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 137 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2461,
+      "name": "Gyro",
+      "slug": "gyro",
+      "url": "https://proskatersplace.com/brand/gyro/",
+      "taxonomy": {
+        "description": "Selecting the correct <strong>skate wheels</strong> is the most critical decision a skater can make regarding their equipment performance and overall safety. <strong>Gyro skates</strong> components have long been recognized in the global community for their high-rebound urethane and innovative hub designs that cater specifically to freestyle, slalom, and urban skaters. Founded on a commitment to precision engineering, this brand has established a stellar reputation for producing <strong>inline skate wheels</strong> that balance long-lasting durability with exceptional grip on varying surfaces. By utilizing proprietary chemical formulas, they ensure that every rotation provides maximum energy return while dampening the vibrations of rough asphalt.",
+        "count": 7,
+        "link": "https://proskatersplace.com/brand/gyro/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Gyro Skate Wheels: Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop 10+ Gyro skate wheels at ProSkaters Place, your authorized US dealer. Get high-performance wheels for speed and freestyle with full warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/gyro/",
+        "httpStatus": 200,
+        "title": "Gyro Skate Wheels: Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop 10+ Gyro skate wheels at ProSkaters Place, your authorized US dealer. Get high-performance wheels for speed and freestyle with full warranty. Shop now.",
+        "h1": "Gyro",
+        "h2s": [
+          "About Gyro",
+          "Why Buy Gyro at ProSkaters Place?",
+          "Gyro Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Gyro — Frequently Asked Questions"
+        ],
+        "wordCount": 2876,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/gyro/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 99,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Very thin description: 99 words"
+      ]
+    },
+    {
+      "id": 3169,
+      "name": "IQON",
+      "slug": "iqon",
+      "url": "https://proskatersplace.com/brand/iqon/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US IQON Retailer</strong> — ProSkaters Place is an official IQON dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nDiscover the next generation of high-performance inline technology with <strong>iqon skates</strong>, a premium label born from the creative minds at Disroyal. This innovative brand has quickly established itself as a leader in the industry by focusing on technical excellence, modularity, and environmental responsibility. Unlike traditional manufacturers, the <strong>iqon brand</strong> prioritizes the use of sustainable materials and eco-friendly packaging while pushing the boundaries of what is possible with carbon fiber and aircraft-grade aluminum. Every component is engineered to ensure your <strong>iqon skates</strong> provide a precise, responsive, and highly customized rolling experience for demanding urban and aggressive environments.",
+        "count": 44,
+        "link": "https://proskatersplace.com/brand/iqon/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "IQON Skates - Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop IQON skates at ProSkaters Place, your authorized US dealer for premium inline gear. Get a full manufacturer warranty on all boots and frames. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/iqon/",
+        "httpStatus": 200,
+        "title": "IQON Skates - Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop IQON skates at ProSkaters Place, your authorized US dealer for premium inline gear. Get a full manufacturer warranty on all boots and frames. Shop now.",
+        "h1": "IQON",
+        "h2s": [
+          "About IQON",
+          "Why Buy IQON at ProSkaters Place?",
+          "IQON Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "IQON — Frequently Asked Questions"
+        ],
+        "wordCount": 3341,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/iqon/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 120,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 120 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2485,
+      "name": "K2",
+      "slug": "k2",
+      "url": "https://proskatersplace.com/brand/k2/",
+      "taxonomy": {
+        "description": "Widely recognized for pioneering the SoftBoot® movement, <strong>k2 skates</strong> represent the intersection of comfort and performance in the inline world. Since the <strong>k2 skates 90s</strong> era, the brand has focused on creating boots that feel more like high-performance sneakers than traditional, restrictive hard-shell rollers. This design philosophy utilizes breathable mesh materials and reinforced structural cuffs to provide the necessary support for high-speed fitness skating without the uncomfortable pressure points often associated with rigid plastic shells. Based in the Pacific Northwest, the company draws from its deep engineering roots in the skiing and snowboarding industries to craft specialized gear, including performance <strong>k2 ice skates</strong> for winter recreation and rugged <strong>k2 aggressive skates</strong> for park and street use. Their commitment to anatomical fit and innovative closure systems ensures a secure, personalized wrap every time you hit the pavement.",
+        "count": 0,
+        "link": "https://proskatersplace.com/brand/k2/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "K2 Skates: Authorized US Dealer - Shop ProSkaters Place",
+        "seoDescription": "Shop premium K2 skates at ProSkaters Place, your authorized US dealer. Enjoy full manufacturer warranties on all inline skates. Worldwide shipping. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/k2/",
+        "httpStatus": 200,
+        "title": "K2 Skates: Authorized US Dealer - Shop ProSkaters Place",
+        "metaDescription": "Shop premium K2 skates at ProSkaters Place, your authorized US dealer. Enjoy full manufacturer warranties on all inline skates. Worldwide shipping. Shop now.",
+        "h1": "K2",
+        "h2s": [],
+        "wordCount": 1539,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "thin",
+      "contentWordCount": 136,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Thin description: 136 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2477,
+      "name": "Kizer",
+      "slug": "kizer",
+      "url": "https://proskatersplace.com/brand/kizer/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Kizer Retailer</strong> — ProSkaters Place is an official Kizer dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nInnovation in frame technology has long been the hallmark of <strong>kizer skates</strong>, a brand that transformed the industry by championing the Universal Frame System (UFS). By providing skaters with the ability to swap frames across different boot brands, they paved the way for the modern customization movement. Their engineering focus centers on high-grade materials, ranging from impact-resistant <strong>fluid plastics</strong> to precision-machined aluminum. This dedication ensures that every component can withstand the rigors of street skating, park sessions, and high-speed urban commuting.",
+        "count": 38,
+        "link": "https://proskatersplace.com/brand/kizer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Kizer Skates | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop for Kizer skates and frames at ProSkaters Place. As an authorized US dealer, we offer expert support, full warranties, and global shipping. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/kizer/",
+        "httpStatus": 200,
+        "title": "Kizer Skates | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop for Kizer skates and frames at ProSkaters Place. As an authorized US dealer, we offer expert support, full warranties, and global shipping. Shop now.",
+        "h1": "Kizer",
+        "h2s": [
+          "About Kizer",
+          "Why Buy Kizer at ProSkaters Place?",
+          "Kizer Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Kizer — Frequently Asked Questions"
+        ],
+        "wordCount": 3045,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/kizer/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 105,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 105 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2841,
+      "name": "Lange",
+      "slug": "lange-boots",
+      "url": "https://proskatersplace.com/brand/lange-boots/",
+      "taxonomy": {
+        "description": "With a reputation built on over 70 years of engineering excellence, the technology found in <strong>lange ski boots</strong> has long set the gold standard for performance footwear in high-speed sports. Since the brand introduced the first reinforced plastic boots in the 1960s, they have been a pioneer in creating shells that provide an unmatched anatomical fit. This legacy of precision transitioned successfully into the skating world, influencing the design of <strong>lange skates</strong> and their renowned support systems. By focusing on the \"Lange Fit,\" the company revolutionized how athletes interact with their equipment, prioritizing heel retention and efficient power transfer.",
+        "count": 3,
+        "link": "https://proskatersplace.com/brand/lange-boots/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "lange ski boots | ProSkaters Place | Authorized US Dealer",
+        "seoDescription": "ProSkaters Place is an authorized US dealer offering premium high-performance Lange ski boots with full warranty coverage. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/lange-boots/",
+        "httpStatus": 200,
+        "title": "lange ski boots | ProSkaters Place | Authorized US Dealer",
+        "metaDescription": "ProSkaters Place is an authorized US dealer offering premium high-performance Lange ski boots with full warranty coverage. Free US shipping over $150.",
+        "h1": "Lange",
+        "h2s": [
+          "About Lange",
+          "Why Buy Lange at ProSkaters Place?",
+          "Lange Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Lange — Frequently Asked Questions"
+        ],
+        "wordCount": 2755,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/lange-boots/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 99,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 99 words"
+      ]
+    },
+    {
+      "id": 2739,
+      "name": "Luminous",
+      "slug": "luminous",
+      "url": "https://proskatersplace.com/brand/luminous/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Luminous Retailer</strong> — ProSkaters Place is an official Luminous dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nEnhancing your visibility while skating late into the evening is effortless with <strong>luminous wheels</strong>, the industry standard for high-performance LED technology in roller sports. These components are engineered with a focus on both aesthetics and safety, utilizing a kinetic-powered system that requires no batteries. By using a specialized magnetic spacer that sits between your bearings, the rotation of the wheel generates the electricity needed to power internal LEDs. This creates a bright, consistent glow that makes <strong>luminous wheels inline skates</strong> visible from long distances in low-light environments.",
+        "count": 20,
+        "link": "https://proskatersplace.com/brand/luminous/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Luminous Wheels | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop Luminous wheels at ProSkaters Place, your authorized US dealer. We stock 20+ light-up options for inline and roller skates. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/luminous/",
+        "httpStatus": 200,
+        "title": "Luminous Wheels | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop Luminous wheels at ProSkaters Place, your authorized US dealer. We stock 20+ light-up options for inline and roller skates. Free US shipping over $150.",
+        "h1": "Luminous",
+        "h2s": [
+          "About Luminous",
+          "Why Buy Luminous at ProSkaters Place?",
+          "Luminous Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Luminous — Frequently Asked Questions"
+        ],
+        "wordCount": 3373,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/luminous/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 111,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 111 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2488,
+      "name": "Madd Gear",
+      "slug": "madd-gear",
+      "url": "https://proskatersplace.com/brand/madd-gear/",
+      "taxonomy": {
+        "description": "Finding the right pair of <strong>roller skates</strong> often involves balancing durability with performance, and Madd Gear has mastered this equilibrium since its inception in 2002. Originally founded in Melbourne, Australia, the brand quickly established a global reputation for producing hardware that can withstand the high-impact demands of skate parks and urban environments. Their engineering focus ensures that every product, from entry-level gear to professional kits, meets rigorous safety and performance standards. By integrating feedback from a global team of pro riders, they continue to innovate with materials that are both lightweight and resilient.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/madd-gear/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Roller Skates - Madd Gear Official US Dealer | ProSkaters",
+        "seoDescription": "Shop Madd Gear roller skates at ProSkaters Place. As an authorized US dealer, we offer full brand warranties and ship worldwide. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/madd-gear/",
+        "httpStatus": 200,
+        "title": "Roller Skates - Madd Gear Official US Dealer | ProSkaters",
+        "metaDescription": "Shop Madd Gear roller skates at ProSkaters Place. As an authorized US dealer, we offer full brand warranties and ship worldwide. Free US shipping over $150.",
+        "h1": "Madd Gear",
+        "h2s": [
+          "About Madd Gear",
+          "Why Buy Madd Gear at ProSkaters Place?",
+          "Madd Gear Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Madd Gear — Frequently Asked Questions"
+        ],
+        "wordCount": 2618,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/madd-gear/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 93,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Very thin description: 93 words"
+      ]
+    },
+    {
+      "id": 2473,
+      "name": "Matter",
+      "slug": "matter",
+      "url": "https://proskatersplace.com/brand/matter/",
+      "taxonomy": {
+        "description": "Since its inception in the early 2000s, the <strong>matter</strong> brand has revolutionized the speed skating industry through its relentless pursuit of high-performance urethane technology. Originating from the United States, this manufacturer is synonymous with the development of the multi-layer wheel, which provides the critical balance of footprint, rebound, and grip needed for world-class racing. By focusing on the chemical composition of their wheels rather than just the aesthetic, they have secured more podium finishes at international championships than almost any other wheel brand in the industry.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/matter/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Matter Wheels at ProSkaters Place | Authorized US Dealer",
+        "seoDescription": "Shop professional Matter wheels at ProSkaters Place. As an authorized US dealer, we offer premium racing gear with a full warranty and expert support. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/matter/",
+        "httpStatus": 200,
+        "title": "Matter Wheels at ProSkaters Place | Authorized US Dealer",
+        "metaDescription": "Shop professional Matter wheels at ProSkaters Place. As an authorized US dealer, we offer premium racing gear with a full warranty and expert support. Shop now.",
+        "h1": "Matter",
+        "h2s": [
+          "About Matter",
+          "Why Buy Matter at ProSkaters Place?",
+          "Matter Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Matter — Frequently Asked Questions"
+        ],
+        "wordCount": 2711,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/matter/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 86,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 160 (ideal 120-155)",
+        "Very thin description: 86 words"
+      ]
+    },
+    {
+      "id": 3510,
+      "name": "Mesmer Skates",
+      "slug": "mesmer",
+      "url": "https://proskatersplace.com/brand/mesmer/",
+      "taxonomy": {
+        "description": "Choosing the right pair of <strong>mesmer skates</strong> is about more than just aesthetics; it is about embracing a legacy of aggressive skating performance that honors the roots of the sport while pushing technical boundaries. Born from the creative vision of professional skaters and industry veterans, this brand has revitalized the classic \"Throne\" boot silhouette with modern materials and ergonomic refinements. By focusing on a \"one-piece\" soul plate design and high-density foam liners, these skates provide the responsiveness required for technical rail tricks and high-impact gaps.",
+        "count": 5,
+        "link": "https://proskatersplace.com/brand/mesmer/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Mesmer Skates | ProSkaters Place - Authorized US Dealer",
+        "seoDescription": "Buy Mesmer Skates at ProSkaters Place, the leading authorized US dealer for premium aggressive inline skates. Expert advice and warranty support. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/mesmer/",
+        "httpStatus": 200,
+        "title": "Mesmer Skates | ProSkaters Place - Authorized US Dealer",
+        "metaDescription": "Buy Mesmer Skates at ProSkaters Place, the leading authorized US dealer for premium aggressive inline skates. Expert advice and warranty support. Shop now.",
+        "h1": "Mesmer Skates",
+        "h2s": [
+          "About Mesmer Skates",
+          "Why Buy Mesmer Skates at ProSkaters Place?",
+          "Mesmer Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Mesmer Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 2596,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/mesmer/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 85,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 85 words"
+      ]
+    },
+    {
+      "id": 2514,
+      "name": "Micro Skate",
+      "slug": "micro",
+      "url": "https://proskatersplace.com/brand/micro/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Micro Skate Retailer</strong> — ProSkaters Place is an official Micro Skate dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nHigh-performance <strong>inline skates</strong> are the cornerstone of the Micro brand legacy, which originated in Switzerland with a focus on engineering excellence and urban mobility. By prioritizing professional-grade construction, they have established themselves as a leader in the roller sports industry, known for creating gear that balances <strong>technical innovation with long-term durability</strong>. Each model undergoes rigorous testing to ensure it meets the high standards required for competitive freestyle, urban commuting, and recreational fitness. Their commitment to quality is evident in the use of premium materials like CNC-machined aluminum and high-rebound urethanes.",
+        "count": 13,
+        "link": "https://proskatersplace.com/brand/micro/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Inline Skates - Micro Skate Authorized US Dealer | PSP",
+        "seoDescription": "Shop the best Micro Skate inline skates at ProSkaters Place, your authorized US dealer. Get full warranty on all 15 models. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/micro/",
+        "httpStatus": 200,
+        "title": "Inline Skates - Micro Skate Authorized US Dealer | PSP",
+        "metaDescription": "Shop the best Micro Skate inline skates at ProSkaters Place, your authorized US dealer. Get full warranty on all 15 models. Free US shipping over $150.",
+        "h1": "Micro Skate",
+        "h2s": [
+          "About Micro Skate",
+          "Why Buy Micro Skate at ProSkaters Place?",
+          "Micro Skate Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Micro Skate — Frequently Asked Questions"
+        ],
+        "wordCount": 3317,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/micro/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 116,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 116 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3158,
+      "name": "Mindless",
+      "slug": "mindless",
+      "url": "https://proskatersplace.com/brand/mindless/",
+      "taxonomy": {
+        "description": "Experience the perfect blend of British engineering and specialized skate culture with the diverse range of longboards and hardware from <strong>mindless</strong>. Based in the United Kingdom, this brand has spent over a decade refining its production techniques to create boards that cater to technical downhill riders and urban commuters alike. By utilizing premium materials like sustainably sourced Canadian maple, fast-growing bamboo, and fiber-reinforced epoxy, they ensure every deck provides the specific flex and longevity required for modern skating environments.",
+        "count": 13,
+        "link": "https://proskatersplace.com/brand/mindless/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Mindless Products | ProSkaters Place - Authorized Dealer",
+        "seoDescription": "Shop Mindless at ProSkaters Place, the authorized US dealer. Explore our stock of 16 Mindless products with a full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/mindless/",
+        "httpStatus": 200,
+        "title": "Mindless Products | ProSkaters Place - Authorized Dealer",
+        "metaDescription": "Shop Mindless at ProSkaters Place, the authorized US dealer. Explore our stock of 16 Mindless products with a full warranty. Free US shipping over $150.",
+        "h1": "Mindless",
+        "h2s": [
+          "About Mindless",
+          "Why Buy Mindless at ProSkaters Place?",
+          "Mindless Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Mindless — Frequently Asked Questions"
+        ],
+        "wordCount": 2830,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/mindless/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 80,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 80 words"
+      ]
+    },
+    {
+      "id": 3328,
+      "name": "Mini Logo",
+      "slug": "mini-logo",
+      "url": "https://proskatersplace.com/brand/mini-logo/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Mini Logo Retailer</strong> — ProSkaters Place is an official Mini Logo dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFinding high-performance gear without the premium price tag is the core mission behind <strong>mini logo skates</strong>, a brand that has spent decades perfecting the art of \"militant\" minimalism in the skate industry. As part of the prestigious Skate One family—the same legendary house that produces Powell Peralta and Bones—Mini Logo leverages elite manufacturing processes to create professional-grade hardware. By stripping away flashy graphics and high-cost marketing campaigns, they deliver components that prioritize <strong>durability and technical precision</strong> over aesthetic trends. This functional approach ensures that every dollar spent goes directly into the quality of the materials.",
+        "count": 2,
+        "link": "https://proskatersplace.com/brand/mini-logo/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Mini Logo Skates | Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop Mini Logo skates at ProSkaters Place, an authorized US dealer. Get high-quality gear with full warranty and expert support. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/mini-logo/",
+        "httpStatus": 200,
+        "title": "Mini Logo Skates | Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop Mini Logo skates at ProSkaters Place, an authorized US dealer. Get high-quality gear with full warranty and expert support. Free US shipping over $150.",
+        "h1": "Mini Logo",
+        "h2s": [
+          "About Mini Logo",
+          "Why Buy Mini Logo at ProSkaters Place?",
+          "Mini Logo Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Mini Logo — Frequently Asked Questions"
+        ],
+        "wordCount": 2637,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/mini-logo/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 121,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 121 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2507,
+      "name": "MPC",
+      "slug": "mpc",
+      "url": "https://proskatersplace.com/brand/mpc/",
+      "taxonomy": {
+        "description": "When elite athletes seek a competitive edge on the track, they prioritize high-performance <strong>junk wheels</strong> manufactured with the industry’s most advanced urethane technology. Originally rooted in Rhode Island's industrial polymer sector, this brand has defined the modern era of <strong>inline speed skating wheels</strong> through their patented MDI (Methylene Diphenyl Diisocyanate) formulations. Unlike standard wheels that rely on single-pour designs, <strong>mpc skates</strong> and their components utilize a sophisticated dual-density hub system. This mechanical innovation allows the wheel to flex during corners to increase the footprint, then snap back for maximum energy return on the straightaways.",
+        "count": 4,
+        "link": "https://proskatersplace.com/brand/mpc/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Junk Wheels - MPC Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop junk wheels at ProSkaters Place, your authorized US dealer for MPC products. Get high-performance speed skate gear with a full brand warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/mpc/",
+        "httpStatus": 200,
+        "title": "Junk Wheels - MPC Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop junk wheels at ProSkaters Place, your authorized US dealer for MPC products. Get high-performance speed skate gear with a full brand warranty. Shop now.",
+        "h1": "MPC",
+        "h2s": [
+          "About MPC",
+          "Why Buy MPC at ProSkaters Place?",
+          "MPC Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "MPC — Frequently Asked Questions"
+        ],
+        "wordCount": 2766,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/mpc/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 94,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 94 words"
+      ]
+    },
+    {
+      "id": 3285,
+      "name": "MYFIT",
+      "slug": "myfit",
+      "url": "https://proskatersplace.com/brand/myfit/",
+      "taxonomy": {
+        "description": "For skaters who prioritize high-visibility technology and robust hardware, <strong>adasmart</strong> represents a fusion of modern engineering and urban mobility standards. The brand has built a reputation for developing components that excel in demanding environments, ensuring that every session is supported by reliable materials and precision manufacturing. By focusing on the intersection of safety and performance, <strong>adasmart</strong> consistently delivers hardware that meets the rigorous demands of frequent use on varied pavement surfaces.",
+        "count": 34,
+        "link": "https://proskatersplace.com/brand/myfit/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Adasmart Scooters | Official US Dealer | ProSkaters Place",
+        "seoDescription": "Shop adasmart at ProSkaters Place, your authorized US dealer for premium electric scooters. All products include a full manufacturer warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/myfit/",
+        "httpStatus": 200,
+        "title": "Adasmart Scooters | Official US Dealer | ProSkaters Place",
+        "metaDescription": "Shop adasmart at ProSkaters Place, your authorized US dealer for premium electric scooters. All products include a full manufacturer warranty. Shop now.",
+        "h1": "MYFIT",
+        "h2s": [
+          "About Adasmart",
+          "Why Buy Adasmart at ProSkaters Place?",
+          "Adasmart Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Adasmart — Frequently Asked Questions"
+        ],
+        "wordCount": 3221,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/myfit/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 71,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 71 words"
+      ]
+    },
+    {
+      "id": 3125,
+      "name": "NN Skates",
+      "slug": "nn-skates",
+      "url": "https://proskatersplace.com/brand/nn-skates/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US NN Skates Retailer</strong> — ProSkaters Place is an official NN Skates dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor enthusiasts seeking the ultimate v-rocker experience, <strong>nn skates</strong> has revolutionized the urban skating scene by focusing on precision-engineered frames that blend stability with agility. This brand specializes in creating a custom-tailored feel that mimics the natural movement of an ice skate blade on pavement through their signature V.m rocker technology. By utilizing high-grade 6061 aircraft aluminum, they ensure every stride translates into maximum power transfer without compromising on the smooth, flowing transitions that urban flow-skaters demand. This commitment to structural integrity allows for a low center of gravity even on larger wheel setups.",
+        "count": 17,
+        "link": "https://proskatersplace.com/brand/nn-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "NN Skates | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop NN Skates at ProSkaters Place, your trusted authorized US dealer. Get premium frames and gear with a manufacturer warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/nn-skates/",
+        "httpStatus": 200,
+        "title": "NN Skates | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop NN Skates at ProSkaters Place, your trusted authorized US dealer. Get premium frames and gear with a manufacturer warranty. Free US shipping over $150.",
+        "h1": "NN Skates",
+        "h2s": [
+          "About NN Skates",
+          "Why Buy NN Skates at ProSkaters Place?",
+          "NN Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "NN Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 3068,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/nn-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 119,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 119 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2513,
+      "name": "Optiwax",
+      "slug": "optiwax",
+      "url": "https://proskatersplace.com/brand/optiwax/",
+      "taxonomy": {
+        "description": "Finding the perfect balance between speed and durability is a challenge for every skater, but <strong>optiwax</strong> has mastered the science of surface friction to give athletes a distinct advantage. Originally hailing from Finland, this brand built its reputation in the demanding world of competitive skiing before bringing its revolutionary glide technologies to the roller sports market. By focusing on advanced chemical compositions and innovative application methods, they have redefined how skaters maintain their equipment for peak efficiency.",
+        "count": 9,
+        "link": "https://proskatersplace.com/brand/optiwax/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Optiwax Products - Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop Optiwax at ProSkaters Place, your authorized US dealer. We carry high-performance glide tapes and waxes for all conditions. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/optiwax/",
+        "httpStatus": 200,
+        "title": "Optiwax Products - Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop Optiwax at ProSkaters Place, your authorized US dealer. We carry high-performance glide tapes and waxes for all conditions. Free US shipping over $150.",
+        "h1": "Optiwax",
+        "h2s": [
+          "About Optiwax",
+          "Why Buy Optiwax at ProSkaters Place?",
+          "Optiwax Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Optiwax — Frequently Asked Questions"
+        ],
+        "wordCount": 2864,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/optiwax/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 77,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Very thin description: 77 words"
+      ]
+    },
+    {
+      "id": 2519,
+      "name": "Oysi",
+      "slug": "oysi",
+      "url": "https://proskatersplace.com/brand/oysi/",
+      "taxonomy": {
+        "description": "For aggressive skaters seeking a better balance between grinding space and wheel size, <strong>oysi</strong> has revolutionized the industry with its unique chassis designs. Based in the United States, this rider-owned company focused on solving the age-old compromise of flat versus anti-rocker setups. Their engineering approach allows for a large split between the middle wheels while maintaining a low ride height, offering the agility of a flat setup with the grind-ability usually reserved for freestyle frames. This innovation has made them a staple for skaters who want to maintain speed without sacrificing technical capability or control on ledges.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/oysi/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Oysi Frames at ProSkaters Place | Authorized US Dealer",
+        "seoDescription": "Shop Oysi inline skate frames at ProSkaters Place, your authorized US dealer. We offer genuine products with a full manufacturer warranty. Buy today! Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/oysi/",
+        "httpStatus": 200,
+        "title": "Oysi Frames at ProSkaters Place | Authorized US Dealer",
+        "metaDescription": "Shop Oysi inline skate frames at ProSkaters Place, your authorized US dealer. We offer genuine products with a full manufacturer warranty. Buy today! Shop now.",
+        "h1": "Oysi",
+        "h2s": [
+          "About Oysi",
+          "Why Buy Oysi at ProSkaters Place?",
+          "Oysi Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Oysi — Frequently Asked Questions"
+        ],
+        "wordCount": 2637,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/oysi/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 97,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Very thin description: 97 words"
+      ]
+    },
+    {
+      "id": 2752,
+      "name": "Pills",
+      "slug": "pills-wheels",
+      "url": "https://proskatersplace.com/brand/pills-wheels/",
+      "taxonomy": {
+        "description": "Choosing high-quality urethane is essential for performance, and <strong>pills</strong> provides the technical precision required for modern urban and aggressive skating. Originating from a deep-rooted passion for the street skating community, this brand has focused on creating wheels that withstand the heavy impacts and abrasive surfaces found in city environments. Their engineering process prioritizes a specific chemistry in their urethane formulas, ensuring that every wheel offers a predictable slide and a reliable grip when carving through tight corners or landing technical gaps.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/pills-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Pills Inline Gear | ProSkaters Place | Authorized US Dealer",
+        "seoDescription": "Shop Pills wheels and gear at ProSkaters Place, your authorized US dealer. We offer the best selection of Pills products with full brand warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/pills-wheels/",
+        "httpStatus": 200,
+        "title": "Pills Inline Gear | ProSkaters Place | Authorized US Dealer",
+        "metaDescription": "Shop Pills wheels and gear at ProSkaters Place, your authorized US dealer. We offer the best selection of Pills products with full brand warranty. Shop now.",
+        "h1": "Pills",
+        "h2s": [
+          "About Pills",
+          "Why Buy Pills at ProSkaters Place?",
+          "Pills Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Pills — Frequently Asked Questions"
+        ],
+        "wordCount": 2567,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/pills-wheels/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 81,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Very thin description: 81 words"
+      ]
+    },
+    {
+      "id": 2482,
+      "name": "PlayLife",
+      "slug": "playlife",
+      "url": "https://proskatersplace.com/brand/playlife/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US PlayLife Retailer</strong> — ProSkaters Place is an official PlayLife dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nWhen looking for high-performance gear that bridges the gap between recreational use and the precision of <strong>custom skates</strong>, this versatile brand delivers exceptional value across the board. Operating as a strategic division of the Powerslide family, they utilize advanced manufacturing techniques to create equipment that is both accessible and technically sophisticated. Their engineering philosophy focuses on structural integrity and rider comfort, offering innovative solutions that prioritize the skater's experience on the pavement. By incorporating feedback from the global skating community, they have developed a range that feels personalized to every individual’s specific needs.",
+        "count": 17,
+        "link": "https://proskatersplace.com/brand/playlife/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Custom Skates: PlayLife Authorized Dealer | ProSkaters Place",
+        "seoDescription": "Shop for custom skates from PlayLife at ProSkaters Place. As an authorized US dealer, we offer 14 top models with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/playlife/",
+        "httpStatus": 200,
+        "title": "Custom Skates: PlayLife Authorized Dealer | ProSkaters Place",
+        "metaDescription": "Shop for custom skates from PlayLife at ProSkaters Place. As an authorized US dealer, we offer 14 top models with full warranty. Free US shipping over $150.",
+        "h1": "PlayLife",
+        "h2s": [
+          "About PlayLife",
+          "Why Buy PlayLife at ProSkaters Place?",
+          "PlayLife Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "PlayLife — Frequently Asked Questions"
+        ],
+        "wordCount": 3329,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/playlife/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 117,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 117 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2460,
+      "name": "Powerslide",
+      "slug": "powerslide",
+      "url": "https://proskatersplace.com/brand/powerslide/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Powerslide Retailer</strong> — ProSkaters Place is an official Powerslide dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor decades, the German-engineered precision of <strong>powerslide skates</strong> has defined the cutting edge of the inline sports world. This brand is internationally recognized for pushing the boundaries of hardware technology, most notably through the development of the patented <strong>TRINITY 3-point mounting system</strong>. This innovation significantly lowers the center of gravity and increases power transfer by utilizing two mounting points at the front of the boot and one at the rear. By distributing vibrations more evenly and providing a more stable platform, <strong>powerslide skates</strong> deliver a smoother ride on rough urban asphalt and a more responsive feel for technical maneuvers. Their commitment to utilizing high-quality materials, such as weight-saving magnesium frames and heat-moldable carbon fiber shells, ensures that elite-level performance is accessible to everyone in the skating community.",
+        "count": 395,
+        "link": "https://proskatersplace.com/brand/powerslide/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Powerslide Skates | Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop 370+ Powerslide skates at ProSkaters Place, your authorized US dealer. Get a full warranty on all models. Order today with free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/powerslide/",
+        "httpStatus": 200,
+        "title": "Powerslide Skates | Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop 370+ Powerslide skates at ProSkaters Place, your authorized US dealer. Get a full warranty on all models. Order today with free US shipping over $150.",
+        "h1": "Powerslide",
+        "h2s": [
+          "About Powerslide",
+          "Why Buy Powerslide at ProSkaters Place?",
+          "Powerslide Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Powerslide — Frequently Asked Questions"
+        ],
+        "wordCount": 3587,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/powerslide/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 151,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 151 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2465,
+      "name": "ProSkaters",
+      "slug": "proskaters",
+      "url": "https://proskatersplace.com/brand/proskaters/",
+      "taxonomy": {
+        "description": "Finding high-performance components that balance durability with technical precision is a core focus for the team at <strong>proskatersplace</strong>, and the ProSkaters brand line embodies this commitment to quality. This brand emerged from a deep understanding of the roller sports industry, focusing on specialized accessories and high-performance hardware that address the specific needs of urban, speed, and recreational skaters. By prioritizing structural integrity and performance consistency, ProSkaters has established itself as a reliable source for gear that withstands the rigors of pavement while providing a smooth, responsive feel for the rider.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/proskaters/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "proskatersplace | Authorized ProSkaters Place US Dealer",
+        "seoDescription": "Shop proskatersplace products at ProSkaters Place, your authorized US dealer. Get genuine gear with full warranty and fast worldwide shipping today. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/proskaters/",
+        "httpStatus": 200,
+        "title": "proskatersplace | Authorized ProSkaters Place US Dealer",
+        "metaDescription": "Shop proskatersplace products at ProSkaters Place, your authorized US dealer. Get genuine gear with full warranty and fast worldwide shipping today. Shop now.",
+        "h1": "ProSkaters",
+        "h2s": [
+          "About ProSkaters",
+          "Why Buy ProSkaters at ProSkaters Place?",
+          "ProSkaters Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "ProSkaters — Frequently Asked Questions"
+        ],
+        "wordCount": 2645,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/proskaters/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 91,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 91 words"
+      ]
+    },
+    {
+      "id": 2487,
+      "name": "Reign Hockey",
+      "slug": "reign-hockey",
+      "url": "https://proskatersplace.com/brand/reign-hockey/",
+      "taxonomy": {
+        "description": "Selecting the right <strong>inline skates</strong> is the most critical decision for any competitive player, and Reign Hockey has revolutionized the sport by applying modern engineering to traditional designs. As a specialized division of the world-renowned Powerslide brand, <strong>reign hockey skates</strong> are built with a focus on maximizing power transfer and reducing the center of gravity. By utilizing the patented TRINITY 3-point mounting system, these skates provide a stable platform that allows for more explosive acceleration and precise lateral movements that standard mounting systems simply cannot match.",
+        "count": 7,
+        "link": "https://proskatersplace.com/brand/reign-hockey/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Inline Skates | Reign Hockey | Authorized ProSkaters Place",
+        "seoDescription": "Shop Reign Hockey inline skates at ProSkaters Place, your authorized US dealer. Get the best performance gear with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/reign-hockey/",
+        "httpStatus": 200,
+        "title": "Inline Skates | Reign Hockey | Authorized ProSkaters Place",
+        "metaDescription": "Shop Reign Hockey inline skates at ProSkaters Place, your authorized US dealer. Get the best performance gear with full warranty. Free US shipping over $150.",
+        "h1": "Reign Hockey",
+        "h2s": [
+          "About Reign Hockey",
+          "Why Buy Reign Hockey at ProSkaters Place?",
+          "Reign Hockey Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Reign Hockey — Frequently Asked Questions"
+        ],
+        "wordCount": 2818,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/reign-hockey/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 86,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 86 words"
+      ]
+    },
+    {
+      "id": 2468,
+      "name": "Rekd",
+      "slug": "rekd",
+      "url": "https://proskatersplace.com/brand/rekd/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Rekd Retailer</strong> — ProSkaters Place is an official Rekd dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor athletes seeking uncompromising safety and performance, <strong>rekd</strong> provides high-quality protective gear designed specifically for the unique demands of extreme sports. Based in the UK and utilized by professionals worldwide, this brand has established a stellar reputation for creating durable helmets, triple pad sets, and impact-resistant accessories that withstand the rigors of aggressive skating and longboarding. Every product undergoes rigorous testing to meet or exceed international safety standards, ensuring that users can push their physical limits with absolute confidence. The engineering team focuses on ergonomic fits and moisture-wicking materials to ensure that protection never comes at the cost of comfort.",
+        "count": 5,
+        "link": "https://proskatersplace.com/brand/rekd/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Rekd Protection Gear | ProSkaters Place Authorized Dealer",
+        "seoDescription": "Shop Rekd protection gear at ProSkaters Place. As an authorized US dealer, we offer a full manufacturer warranty on all pads and helmets. Get yours! Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/rekd/",
+        "httpStatus": 200,
+        "title": "Rekd Protection Gear | ProSkaters Place Authorized Dealer",
+        "metaDescription": "Shop Rekd protection gear at ProSkaters Place. As an authorized US dealer, we offer a full manufacturer warranty on all pads and helmets. Get yours! Shop now.",
+        "h1": "Rekd",
+        "h2s": [
+          "About Rekd",
+          "Why Buy Rekd at ProSkaters Place?",
+          "Rekd Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Rekd — Frequently Asked Questions"
+        ],
+        "wordCount": 2889,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/rekd/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 123,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 123 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3026,
+      "name": "Reusch",
+      "slug": "reusch",
+      "url": "https://proskatersplace.com/brand/reusch/",
+      "taxonomy": {
+        "description": "Finding the right balance between comfort and protection is essential for high-performance skating, and the <strong>reusch</strong> brand has spent nearly a century perfecting this equation through elite-level sports engineering. Originally established in Germany, the company built its reputation by developing specialized gear that meets the rigorous demands of professional athletes who require precision and durability. Their design philosophy focuses on anatomical fit and advanced material science, ensuring that every piece of equipment provides maximum safety without compromising the range of motion required for technical maneuvers.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/reusch/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Reusch | ProSkaters Place - Official Authorized US Dealer",
+        "seoDescription": "Shop high-quality Reusch gear at ProSkaters Place, your authorized US dealer. We offer full official warranties on all gear. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/reusch/",
+        "httpStatus": 200,
+        "title": "Reusch | ProSkaters Place - Official Authorized US Dealer",
+        "metaDescription": "Shop high-quality Reusch gear at ProSkaters Place, your authorized US dealer. We offer full official warranties on all gear. Free US shipping over $150.",
+        "h1": "Reusch",
+        "h2s": [
+          "About Reusch",
+          "Why Buy Reusch at ProSkaters Place?",
+          "Reusch Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Reusch — Frequently Asked Questions"
+        ],
+        "wordCount": 2778,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/reusch/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 85,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 85 words"
+      ]
+    },
+    {
+      "id": 2508,
+      "name": "Revision",
+      "slug": "revision-hockey",
+      "url": "https://proskatersplace.com/brand/revision-hockey/",
+      "taxonomy": {
+        "description": "When seeking elite-level performance for indoor or outdoor surfaces, <strong>revision</strong> stands out as a premier name in wheel technology. Known primarily for their revolutionary approach to inline hockey wheel construction, this brand has dedicated years to mastering the science of urethane and hub interaction. Their engineering philosophy centers on the idea that a wheel should provide maximum energy return without sacrificing the grip necessary for tight turns and rapid accelerations. By utilizing high-grade materials and proprietary manufacturing processes, they have created a reputation for consistency that professional and competitive skaters rely on during high-stakes maneuvers.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/revision-hockey/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Revision Hockey Wheels | ProSkaters Place Authorized Dealer",
+        "seoDescription": "Shop Revision wheels at ProSkaters Place, your authorized US dealer. We offer genuine gear with a full manufacturer warranty and expert support. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/revision-hockey/",
+        "httpStatus": 200,
+        "title": "Revision Hockey Wheels | ProSkaters Place Authorized Dealer",
+        "metaDescription": "Shop Revision wheels at ProSkaters Place, your authorized US dealer. We offer genuine gear with a full manufacturer warranty and expert support. Shop now.",
+        "h1": "Revision",
+        "h2s": [
+          "About Revision",
+          "Why Buy Revision at ProSkaters Place?",
+          "Revision Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Revision — Frequently Asked Questions"
+        ],
+        "wordCount": 2566,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/revision-hockey/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 95,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 95 words"
+      ]
+    },
+    {
+      "id": 2503,
+      "name": "Rio Roller",
+      "slug": "rio-roller",
+      "url": "https://proskatersplace.com/brand/rio-roller/",
+      "taxonomy": {
+        "description": "When looking for the perfect blend of nostalgic style and modern comfort, <strong>rio roller skates</strong> stand out as a premier choice for recreational and fashion-conscious skaters. This brand has established a global reputation for creating high-quality quad skates that utilize <strong>100% vegan-friendly materials</strong>, ensuring that performance does not come at the expense of ethical standards. Every boot is engineered with reinforced uppers and anatomical insoles, providing the structural support needed for long sessions at the local rink or cruising along the boardwalk.",
+        "count": 20,
+        "link": "https://proskatersplace.com/brand/rio-roller/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Rio Roller Skates | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop stylish Rio Roller skates at ProSkaters Place, your authorized US dealer. Explore 20+ models in stock with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/rio-roller/",
+        "httpStatus": 200,
+        "title": "Rio Roller Skates | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop stylish Rio Roller skates at ProSkaters Place, your authorized US dealer. Explore 20+ models in stock with full warranty. Free US shipping over $150.",
+        "h1": "Rio Roller",
+        "h2s": [
+          "About Rio Roller",
+          "Why Buy Rio Roller at ProSkaters Place?",
+          "Rio Roller Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Rio Roller — Frequently Asked Questions"
+        ],
+        "wordCount": 3439,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/rio-roller/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 83,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 83 words"
+      ]
+    },
+    {
+      "id": 2483,
+      "name": "Rollerblade",
+      "slug": "rollerblade",
+      "url": "https://proskatersplace.com/brand/rollerblade/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Rollerblade Retailer</strong> — ProSkaters Place is an official Rollerblade dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFinding the right pair of <strong>roller skates</strong> often begins with a name that has defined the industry for over four decades. While the sport has evolved significantly since the Brennan brothers first refined the inline design in a Minnesota basement, this brand remains the gold standard for structural innovation and skating performance. They are credited with transforming a niche off-season training tool for hockey players into a global fitness phenomenon. By focusing on <strong>anatomical fit and durable shell construction</strong>, they ensure that every model provides the lateral support necessary for balance and power transfer on the pavement.",
+        "count": 34,
+        "link": "https://proskatersplace.com/brand/rollerblade/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Rollerblade Roller Skates: Authorized ProSkaters Place Shop",
+        "seoDescription": "Shop Rollerblade roller skates at ProSkaters Place, an authorized US dealer. Get the full warranty on 30+ premium models in stock. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/rollerblade/",
+        "httpStatus": 200,
+        "title": "Rollerblade Roller Skates: Authorized ProSkaters Place Shop",
+        "metaDescription": "Shop Rollerblade roller skates at ProSkaters Place, an authorized US dealer. Get the full warranty on 30+ premium models in stock. Free US shipping over $150.",
+        "h1": "Rollerblade",
+        "h2s": [
+          "About Rollerblade",
+          "Why Buy Rollerblade at ProSkaters Place?",
+          "Rollerblade Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Rollerblade — Frequently Asked Questions"
+        ],
+        "wordCount": 3273,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/rollerblade/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 121,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 121 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2839,
+      "name": "Rossignol",
+      "slug": "rossignol-ski",
+      "url": "https://proskatersplace.com/brand/rossignol-ski/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Rossignol Retailer</strong> — ProSkaters Place is an official Rossignol dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFounded in the French Alps in 1907, this legendary manufacturer has spent over a century perfecting the geometry and materials used in high-performance <strong>skate skis</strong>. The brand is synonymous with competitive excellence, often dominating the podiums of international biathlon and cross-country events. By utilizing Active Cap construction and carbon-reinforced cores, they provide equipment that remains torsionally rigid yet incredibly light. The <strong>rossignol x-ium skate</strong> series stands as a testament to this innovation, offering racers the edge they need on groomed trails through Nomex Honeycomb cores that reduce swing weight while maintaining structural integrity.",
+        "count": 50,
+        "link": "https://proskatersplace.com/brand/rossignol-ski/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Skate Skis - Rossignol Authorized ProSkaters Place Dealer",
+        "seoDescription": "Shop high-performance Rossignol skate skis at ProSkaters Place. We are an authorized US dealer offering full warranties. Over 60 items in stock. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/rossignol-ski/",
+        "httpStatus": 200,
+        "title": "Skate Skis - Rossignol Authorized ProSkaters Place Dealer",
+        "metaDescription": "Shop high-performance Rossignol skate skis at ProSkaters Place. We are an authorized US dealer offering full warranties. Over 60 items in stock. Shop now.",
+        "h1": "Rossignol",
+        "h2s": [
+          "About Rossignol",
+          "Why Buy Rossignol at ProSkaters Place?",
+          "Rossignol Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Rossignol — Frequently Asked Questions"
+        ],
+        "wordCount": 3897,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/rossignol-ski/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 117,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 117 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2512,
+      "name": "Rottefella",
+      "slug": "rottefella",
+      "url": "https://proskatersplace.com/brand/rottefella/",
+      "taxonomy": {
+        "description": "Since its founding in Norway, the innovations of <strong>rottefella</strong> have defined the global standards for cross-country and roller skiing performance. This brand is primarily recognized for revolutionizing power transfer and stability through the development of the New Nordic Norm (NNN) system, which has become the benchmark for professional athletes and enthusiasts alike. By focusing on the bio-mechanical connection between the skater and the ground, these components ensure that every ounce of energy is converted into efficient forward momentum. The commitment to mechanical precision ensures that their equipment remains the top choice for those demanding technical excellence on varied terrain.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/rottefella/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Rottefella Gear | ProSkaters Place - Authorized US Dealer",
+        "seoDescription": "Explore Rottefella products at ProSkaters Place, your trusted authorized US dealer. We provide the full manufacturer warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/rottefella/",
+        "httpStatus": 200,
+        "title": "Rottefella Gear | ProSkaters Place - Authorized US Dealer",
+        "metaDescription": "Explore Rottefella products at ProSkaters Place, your trusted authorized US dealer. We provide the full manufacturer warranty. Free US shipping over $150.",
+        "h1": "Rottefella",
+        "h2s": [
+          "About Rottefella",
+          "Why Buy Rottefella at ProSkaters Place?",
+          "Rottefella Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Rottefella — Frequently Asked Questions"
+        ],
+        "wordCount": 2636,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/rottefella/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 99,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 99 words"
+      ]
+    },
+    {
+      "id": 2464,
+      "name": "SEBA Skates",
+      "slug": "seba",
+      "url": "https://proskatersplace.com/brand/seba/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US SEBA Skates Retailer</strong> — ProSkaters Place is an official SEBA Skates dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nSince the brand's inception in 2005 by Sebastien Laffargue, the development of high-performance <strong>fr skates</strong> has redefined the freestyle and slalom skating industry. Known for their rigid shells and precision-engineered frames, these skates were designed to bridge the gap between recreational comfort and professional performance. While many enthusiasts search the <strong>seba skates website</strong> for technical specs, the brand's core identity remains rooted in a \"skaters for skaters\" philosophy, ensuring every component meets the demands of intensive urban maneuvers. By focusing on high-quality materials like carbon fiber and reinforced plastic, the brand has maintained its status as a premier choice for technical skaters worldwide.",
+        "count": 34,
+        "link": "https://proskatersplace.com/brand/seba/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "FR Skates & SEBA | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop official FR Skates at ProSkaters Place, your authorized US dealer. We stock 32 premium SEBA skate models with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/seba/",
+        "httpStatus": 200,
+        "title": "FR Skates &amp; SEBA | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop official FR Skates at ProSkaters Place, your authorized US dealer. We stock 32 premium SEBA skate models with full warranty. Free US shipping over $150.",
+        "h1": "SEBA Skates",
+        "h2s": [
+          "About SEBA Skates",
+          "Why Buy SEBA Skates at ProSkaters Place?",
+          "SEBA Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "SEBA Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 3504,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/seba/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 128,
+      "seoScore": 73,
+      "seoIssues": [
+        "Title length 62 (ideal 30-60)",
+        "Meta desc length 157 (ideal 120-155)",
+        "Thin description: 128 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3134,
+      "name": "SFR Skates",
+      "slug": "sfr-skates",
+      "url": "https://proskatersplace.com/brand/sfr-skates/",
+      "taxonomy": {
+        "description": "Finding the right gear for recreational use requires a precise balance of affordability, comfort, and durability. Since its inception over 25 years ago, the primary mission of <strong>sfr skates</strong> has been to provide high-quality equipment that allows new and intermediate skaters to develop their skills with total confidence. Known for their vibrant colors and ergonomic designs, these skates are specifically engineered to provide maximum ankle support and cushioning during long sessions at the rink or on the pavement. By utilizing <strong>reinforced chassis</strong> and high-rebound wheels, the brand has built a global reputation for longevity, ensuring that each pair can withstand the natural wear and tear of the learning process.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/sfr-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Shop SFR Skates - Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Buy SFR Skates at ProSkaters Place, the authorized US dealer for all your skating needs. Get official warranty and expert support on every order. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/sfr-skates/",
+        "httpStatus": 200,
+        "title": "Shop SFR Skates - Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Buy SFR Skates at ProSkaters Place, the authorized US dealer for all your skating needs. Get official warranty and expert support on every order. Shop now.",
+        "h1": "SFR Skates",
+        "h2s": [
+          "About SFR Skates",
+          "Why Buy SFR Skates at ProSkaters Place?",
+          "SFR Skates Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "SFR Skates — Frequently Asked Questions"
+        ],
+        "wordCount": 2955,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/sfr-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 109,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 109 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3024,
+      "name": "SHRED",
+      "slug": "shred",
+      "url": "https://proskatersplace.com/brand/shred/",
+      "taxonomy": {
+        "description": "In the competitive landscape of action sports, the <strong>shred</strong> brand distinguishes itself through a relentless focus on technical innovation and rider safety. Founded by industry veterans who realized that traditional gear often lacked the necessary balance between weight and protection, the company has spent years refining its manufacturing processes. Their heritage is built upon the idea that high-quality equipment should empower athletes to explore their potential without hesitation. By utilizing state-of-the-art materials, they have set a benchmark for reliability in the skating community, catering to those who prioritize both function and form.",
+        "count": 7,
+        "link": "https://proskatersplace.com/brand/shred/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "SHRED Skate Gear - Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop SHRED gear at ProSkaters Place, your authorized US dealer for premium skate equipment. All items include a full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/shred/",
+        "httpStatus": 200,
+        "title": "SHRED Skate Gear - Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop SHRED gear at ProSkaters Place, your authorized US dealer for premium skate equipment. All items include a full warranty. Free US shipping over $150.",
+        "h1": "SHRED",
+        "h2s": [
+          "About SHRED",
+          "Why Buy SHRED at ProSkaters Place?",
+          "SHRED Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "SHRED — Frequently Asked Questions"
+        ],
+        "wordCount": 2903,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/shred/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 92,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 92 words"
+      ]
+    },
+    {
+      "id": 3036,
+      "name": "SIDAS",
+      "slug": "sidas",
+      "url": "https://proskatersplace.com/brand/sidas/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US SIDAS Retailer</strong> — ProSkaters Place is an official SIDAS dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nFor decades, the pursuit of total foot comfort in high-performance sports has led athletes to choose <strong>sidas</strong> for their industry-leading anatomical solutions. Originally established in France by ski instructors looking to improve the connection between the foot and the boot, the brand has evolved into a global authority on biomechanics and footbed technology. By focusing on the unique shape of the human foot, they develop products that enhance stability, reduce fatigue, and prevent the common pressure points that often plague inline skaters during long sessions.",
+        "count": 5,
+        "link": "https://proskatersplace.com/brand/sidas/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Sidas | Authorized US Dealer - Shop ProSkaters Place Now",
+        "seoDescription": "Sidas products at ProSkaters Place, an authorized US dealer. Get the official warranty and global shipping on all skate gear. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/sidas/",
+        "httpStatus": 200,
+        "title": "Sidas | Authorized US Dealer - Shop ProSkaters Place Now",
+        "metaDescription": "Sidas products at ProSkaters Place, an authorized US dealer. Get the official warranty and global shipping on all skate gear. Free US shipping over $150.",
+        "h1": "SIDAS",
+        "h2s": [
+          "About SIDAS",
+          "Why Buy SIDAS at ProSkaters Place?",
+          "SIDAS Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "SIDAS — Frequently Asked Questions"
+        ],
+        "wordCount": 2859,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/sidas/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 108,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 108 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2467,
+      "name": "Slamm",
+      "slug": "slamm-scooters",
+      "url": "https://proskatersplace.com/brand/slamm-scooters/",
+      "taxonomy": {
+        "description": "Selecting hardware that survives the rigors of the skate park requires a deep understanding of materials, which is why <strong>slamm</strong> has become a trusted name for riders seeking high-performance stunt scooter technology. Developed by a team of dedicated engineers in the UK, the brand specializes in creating durable components that offer professional-level specifications without the premium price tag. Their expertise lies in balancing lightweight agility with the structural integrity needed for technical tricks, ensuring that every piece of equipment meets rigorous safety and performance standards.",
+        "count": 15,
+        "link": "https://proskatersplace.com/brand/slamm-scooters/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Slamm Scooters | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Explore Slamm scooters at ProSkaters Place, an authorized US dealer. Shop 17 high-quality models with full warranty protection. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/slamm-scooters/",
+        "httpStatus": 200,
+        "title": "Slamm Scooters | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Explore Slamm scooters at ProSkaters Place, an authorized US dealer. Shop 17 high-quality models with full warranty protection. Free US shipping over $150.",
+        "h1": "Slamm",
+        "h2s": [
+          "About Slamm",
+          "Why Buy Slamm at ProSkaters Place?",
+          "Slamm Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Slamm — Frequently Asked Questions"
+        ],
+        "wordCount": 3020,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/slamm-scooters/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 85,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 85 words"
+      ]
+    },
+    {
+      "id": 2493,
+      "name": "Snow White",
+      "slug": "snow-white",
+      "url": "https://proskatersplace.com/brand/snow-white/",
+      "taxonomy": {
+        "description": "Developing a seamless transition from the rink to the pavement requires high-performance <strong>inline figure skates</strong> designed specifically for artistic movement. Snow White has established itself as a global leader in the figure skating industry by creating the <strong>snow white inline frame</strong>, a three-wheeled rockered chassis that mimics the radius of an ice blade. This specialized design allows skaters to practice complex jumps, spins, and edge work without the limitations of flat recreational frames. Constructed from extruded aluminum, these <strong>off-ice skates</strong> are lightweight yet robust enough to handle the landing impact of double and triple jumps. Whether you are training for a competition or skating for recreation, these <strong>inline figure skates</strong> provide the most authentic ice-like experience available today.",
+        "count": 1,
+        "link": "https://proskatersplace.com/brand/snow-white/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Inline Figure Skates | Snow White Authorized US Dealer",
+        "seoDescription": "Shop Snow White inline figure skates at ProSkaters Place, an authorized US dealer. Get full factory warranty support on all frames. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/snow-white/",
+        "httpStatus": 200,
+        "title": "Inline Figure Skates | Snow White Authorized US Dealer",
+        "metaDescription": "Shop Snow White inline figure skates at ProSkaters Place, an authorized US dealer. Get full factory warranty support on all frames. Free US shipping over $150.",
+        "h1": "Snow White",
+        "h2s": [
+          "About Snow White",
+          "Why Buy Snow White at ProSkaters Place?",
+          "Snow White Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Snow White — Frequently Asked Questions"
+        ],
+        "wordCount": 2632,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/snow-white/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 119,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Thin description: 119 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2471,
+      "name": "Sonic",
+      "slug": "sonic",
+      "url": "https://proskatersplace.com/brand/sonic/",
+      "taxonomy": {
+        "description": "For enthusiasts seeking precision and reliability, <strong>sonic skates</strong> equipment offers some of the most specialized tools in the skate industry. Since its inception, the brand has focused on solving the practical problems skaters face, from on-the-go maintenance to long-term performance optimization. They are renowned for their technical expertise, producing high-quality bearing lubricants and accessory components that keep hardware running smoothly under intense pressure. While casual enthusiasts often search for novelty items like <strong>sonic the hedgehog roller skates</strong>, serious athletes recognize this brand for its professional-grade utility and engineering-first philosophy.",
+        "count": 23,
+        "link": "https://proskatersplace.com/brand/sonic/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "sonic skates | Official Sonic Dealer | ProSkaters Place",
+        "seoDescription": "Shop high-quality sonic skates at ProSkaters Place, your authorized US dealer. Explore our full stock of 25+ Sonic tools and inline components today. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/sonic/",
+        "httpStatus": 200,
+        "title": "sonic skates | Official Sonic Dealer | ProSkaters Place",
+        "metaDescription": "Shop high-quality sonic skates at ProSkaters Place, your authorized US dealer. Explore our full stock of 25+ Sonic tools and inline components today. Shop now.",
+        "h1": "Sonic",
+        "h2s": [
+          "About Sonic",
+          "Why Buy Sonic at ProSkaters Place?",
+          "Sonic Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Sonic — Frequently Asked Questions"
+        ],
+        "wordCount": 3016,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/sonic/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 90,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Very thin description: 90 words"
+      ]
+    },
+    {
+      "id": 2499,
+      "name": "Stanley",
+      "slug": "stanley",
+      "url": "https://proskatersplace.com/brand/stanley/",
+      "taxonomy": {
+        "description": "For several decades, the industrial landscape has been shaped by the precision and durability associated with the <strong>Stanley</strong> name. While many recognize the brand for its contributions to high-grade hardware and mechanical tools, its influence on performance components ensures that athletes and hobbyists alike have access to gear built with uncompromising standards. The core philosophy behind every <strong>Stanley</strong> product is a focus on material resilience and functional longevity, ensuring that critical components can withstand the constant friction and high-impact forces found in roller sports.",
+        "count": 9,
+        "link": "https://proskatersplace.com/brand/stanley/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Stanley Brand | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop Stanley at ProSkaters Place, your authorized US dealer. Get genuine products with a full warranty and fast worldwide shipping. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/stanley/",
+        "httpStatus": 200,
+        "title": "Stanley Brand | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop Stanley at ProSkaters Place, your authorized US dealer. Get genuine products with a full warranty and fast worldwide shipping. Free US shipping over $150.",
+        "h1": "Stanley",
+        "h2s": [
+          "About Stanley",
+          "Why Buy Stanley at ProSkaters Place?",
+          "Stanley Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Stanley — Frequently Asked Questions"
+        ],
+        "wordCount": 2980,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/stanley/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 84,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 159 (ideal 120-155)",
+        "Very thin description: 84 words"
+      ]
+    },
+    {
+      "id": 3437,
+      "name": "Summit Skiboards",
+      "slug": "summit-skiboards",
+      "url": "https://proskatersplace.com/brand/summit-skiboards/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Summit Skiboards Retailer</strong> — ProSkaters Place is an official Summit Skiboards dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nExperience the thrill of the slopes even in the off-season or bridge the gap between skating and skiing with high-performance <strong>skiboards</strong>. This brand has spent decades refining the geometry of short-form winter gear, emphasizing a symmetric shape and wide platform that allows for a natural, skate-like stance. By focusing on a \"skate-on-snow\" feel, they have become the gold standard for riders who want the maneuverability of inline skates combined with the stability of a traditional ski. Each model is engineered to provide maximum control, allowing for quick pivots and effortless carving that mirrors the movements found in urban skating.",
+        "count": 21,
+        "link": "https://proskatersplace.com/brand/summit-skiboards/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Skiboards by Summit | ProSkaters Place - Authorized Dealer",
+        "seoDescription": "Discover high-performance Summit skiboards at ProSkaters Place, your authorized US dealer. We offer expert advice and the full warranty on all gear. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/summit-skiboards/",
+        "httpStatus": 200,
+        "title": "Skiboards by Summit | ProSkaters Place - Authorized Dealer",
+        "metaDescription": "Discover high-performance Summit skiboards at ProSkaters Place, your authorized US dealer. We offer expert advice and the full warranty on all gear. Shop now.",
+        "h1": "Summit Skiboards",
+        "h2s": [
+          "About Summit Skiboards",
+          "Why Buy Summit Skiboards at ProSkaters Place?",
+          "Summit Skiboards Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Summit Skiboards — Frequently Asked Questions"
+        ],
+        "wordCount": 3275,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/summit-skiboards/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 125,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Thin description: 125 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3020,
+      "name": "Sweet",
+      "slug": "sweet-protection",
+      "url": "https://proskatersplace.com/brand/sweet-protection/",
+      "taxonomy": {
+        "description": "When skaters demand high-performance components that balance aesthetic appeal with technical precision, the <strong>sweet</strong> spot in the market is often found within this brand's innovative catalog. Known for its commitment to durability and performance, Sweet focuses on engineering gear that withstands the rigors of both urban freeskating and competitive racing. Their expertise lies in creating specialized hardware and accessories that enhance the skating experience through superior material selection and meticulous manufacturing standards. By prioritizing the structural integrity of every wheel and bearing, they ensure that skaters can push their limits without compromising on safety or efficiency.",
+        "count": 5,
+        "link": "https://proskatersplace.com/brand/sweet-protection/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Sweet Skating Gear | ProSkaters Place | Authorized Dealer",
+        "seoDescription": "Shop Sweet products at ProSkaters Place, your authorized US dealer for premium roller sports. We offer the latest pro gear with full warranty. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/sweet-protection/",
+        "httpStatus": 200,
+        "title": "Sweet Skating Gear | ProSkaters Place | Authorized Dealer",
+        "metaDescription": "Shop Sweet products at ProSkaters Place, your authorized US dealer for premium roller sports. We offer the latest pro gear with full warranty. Shop now.",
+        "h1": "Sweet",
+        "h2s": [
+          "About Sweet",
+          "Why Buy Sweet at ProSkaters Place?",
+          "Sweet Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Sweet — Frequently Asked Questions"
+        ],
+        "wordCount": 2803,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/sweet-protection/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 96,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 96 words"
+      ]
+    },
+    {
+      "id": 3511,
+      "name": "Swings",
+      "slug": "swings",
+      "url": "https://proskatersplace.com/brand/swings/",
+      "taxonomy": {
+        "description": "For skaters who demand both style and technical reliability, the <strong>swings</strong> brand represents a fusion of modern innovation and essential performance. The company has carved out a niche by producing components that address the specific needs of urban skaters, focusing on high-visibility solutions and robust hardware. By prioritizing materials that withstand the rigors of city streets, <strong>swings</strong> ensures that every product serves a dual purpose: improving the skater's safety and enhancing the overall feel of the skate. Their dedication to quality control has made them a staple for those looking to customize their setups with professional-grade gear.",
+        "count": 4,
+        "link": "https://proskatersplace.com/brand/swings/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Swings Inline Skates | ProSkaters Place Authorized Dealer",
+        "seoDescription": "Shop swings at ProSkaters Place, your authorized US dealer. We offer top-tier gear with full factory warranty and expert support. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/swings/",
+        "httpStatus": 200,
+        "title": "Swings Inline Skates | ProSkaters Place Authorized Dealer",
+        "metaDescription": "Shop swings at ProSkaters Place, your authorized US dealer. We offer top-tier gear with full factory warranty and expert support. Free US shipping over $150.",
+        "h1": "Swings",
+        "h2s": [
+          "About Swings",
+          "Why Buy Swings at ProSkaters Place?",
+          "Swings Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Swings — Frequently Asked Questions"
+        ],
+        "wordCount": 2647,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/swings/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 97,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Very thin description: 97 words"
+      ]
+    },
+    {
+      "id": 2842,
+      "name": "Swix",
+      "slug": "swix",
+      "url": "https://proskatersplace.com/brand/swix/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Swix Retailer</strong> — ProSkaters Place is an official Swix dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nPrecision-engineered performance defines the legacy of <strong>swix ski poles</strong>, a brand that has served as a cornerstone of the international winter sports community since 1946. Originally gaining fame for its revolutionary color-coded wax system, this Norwegian powerhouse has evolved into a global leader in high-performance hardware and technical apparel. Whether you are navigating groomed trails or training on the pavement, <strong>swix nordic poles</strong> offer the specific weight-to-stiffness ratio required for elite-level power transfer. The brand’s commitment to scientific research ensures that every product, from a technical <strong>swix hat</strong> to aerodynamic racing suits, meets the rigorous demands of professional athletes.",
+        "count": 72,
+        "link": "https://proskatersplace.com/brand/swix/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Swix Ski Poles | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop high-performance Swix ski poles at ProSkaters Place, your authorized US dealer. Explore our full stock of 85 Swix products. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/swix/",
+        "httpStatus": 200,
+        "title": "Swix Ski Poles | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop high-performance Swix ski poles at ProSkaters Place, your authorized US dealer. Explore our full stock of 85 Swix products. Free US shipping over $150.",
+        "h1": "Swix",
+        "h2s": [
+          "About Swix",
+          "Why Buy Swix at ProSkaters Place?",
+          "Swix Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Swix — Frequently Asked Questions"
+        ],
+        "wordCount": 3739,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/swix/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 123,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 123 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3541,
+      "name": "Symetrics Brand",
+      "slug": "symetrics",
+      "url": "https://proskatersplace.com/brand/symetrics/",
+      "taxonomy": {
+        "description": "<strong>We at <a href=\"/\">ProSkaters Place</a> are proud to be the only North American partner for this wonderful brand! </strong>\r\n<p style=\"text-align: justify\">The <a href=\"https://www.symetricsbrand.com/\">Symetrics Brand</a> is an Adapt Brand company from the Netherlands. Along with Adapt, it was founded by Olga Bouwhuis and Pieter Wijnant. By creating a unique hardware design with only the best materials, Adapt is putting its mark on the industry.</p>\r\n<p style=\"text-align: justify\">The Symetrics Brand is the sole source of all the frames, wheels, and bearings used on these skates. All of the components have always been designed with great care to help riders become better at their craft.</p>",
+        "count": 29,
+        "link": "https://proskatersplace.com/brand/symetrics/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": null,
+        "seoDescription": "Experience the Symetrics Brand top quality products such as frames, wheels, and bearings to boost your control, power transfer, and speed"
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/symetrics/",
+        "httpStatus": 200,
+        "title": "Symetrics Brand at ProSkaters Place",
+        "metaDescription": "Experience the Symetrics Brand top quality products such as frames, wheels, and bearings to boost your control, power transfer, and speed",
+        "h1": "Symetrics Brand",
+        "h2s": [],
+        "wordCount": 2162,
+        "schemas": [
+          "(unknown type)",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/symetrics/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 96,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 96 words"
+      ]
+    },
+    {
+      "id": 3251,
+      "name": "Toko",
+      "slug": "toko",
+      "url": "https://proskatersplace.com/brand/toko/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Toko Retailer</strong> — ProSkaters Place is an official Toko dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nAchieving peak performance on the pavement starts with precision maintenance, and <strong>toko</strong> has been at the forefront of surface engineering for over a century. Founded in Switzerland, this brand is globally recognized for its expertise in waxes, cleaners, and technical care products that reduce friction and protect high-end equipment. While many know them for their dominance in winter sports, their specialized care line provides essential solutions for inline skaters looking to maintain their bearings and frames against dirt, moisture, and consistent wear.",
+        "count": 25,
+        "link": "https://proskatersplace.com/brand/toko/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Toko Products at ProSkaters Place | Authorized US Dealer",
+        "seoDescription": "Shop Toko at ProSkaters Place, your authorized US dealer for performance waxes and tools. Browse 29 products with full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/toko/",
+        "httpStatus": 200,
+        "title": "Toko Products at ProSkaters Place | Authorized US Dealer",
+        "metaDescription": "Shop Toko at ProSkaters Place, your authorized US dealer for performance waxes and tools. Browse 29 products with full warranty. Free US shipping over $150.",
+        "h1": "Toko",
+        "h2s": [
+          "About Toko",
+          "Why Buy Toko at ProSkaters Place?",
+          "Toko Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Toko — Frequently Asked Questions"
+        ],
+        "wordCount": 3423,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/toko/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 105,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Thin description: 105 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2457,
+      "name": "Transformer",
+      "slug": "transformer-ice-blades",
+      "url": "https://proskatersplace.com/brand/transformer-ice-blades/",
+      "taxonomy": {
+        "description": "Skating enthusiasts often seek equipment that adapts to their evolving needs, and the <strong>transformer</strong> line delivers precisely that through innovative engineering and versatile design. This brand has established a reputation for creating components that allow for seamless transitions between different wheel configurations and skating disciplines without compromising on structural integrity. By focusing on precision-milled materials and user-friendly adjustments, these products cater to those who value <strong>customization and longevity</strong> in their skate setups. The hardware is designed to handle the rigorous demands of urban skating while offering the flexibility to experiment with different styles of movement.",
+        "count": 6,
+        "link": "https://proskatersplace.com/brand/transformer-ice-blades/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Transformer Inline Skates | Official ProSkaters Place Shop",
+        "seoDescription": "Shop Transformer inline skates at ProSkaters Place, your authorized US dealer. Get the best gear with full warranty and worldwide shipping today. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/transformer-ice-blades/",
+        "httpStatus": 200,
+        "title": "Transformer Inline Skates | Official ProSkaters Place Shop",
+        "metaDescription": "Shop Transformer inline skates at ProSkaters Place, your authorized US dealer. Get the best gear with full warranty and worldwide shipping today. Shop now.",
+        "h1": "Transformer",
+        "h2s": [
+          "About Transformer",
+          "Why Buy Transformer at ProSkaters Place?",
+          "Transformer Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Transformer — Frequently Asked Questions"
+        ],
+        "wordCount": 2713,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/transformer-ice-blades/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 95,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 95 words"
+      ]
+    },
+    {
+      "id": 2458,
+      "name": "TWINCAM",
+      "slug": "twincam",
+      "url": "https://proskatersplace.com/brand/twincam/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US TWINCAM Retailer</strong> — ProSkaters Place is an official TWINCAM dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nIn the world of precision roller sports components, <strong>twincam</strong> stands as the definitive benchmark for bearing technology and performance. Recognized globally for moving beyond the limitations of standard ABEC ratings, this brand introduced the ILQ (In-Line Quality) standard, specifically engineered to handle the unique lateral loads and high-speed demands of modern skating. By focusing on specialized internal geometries and high-grade materials, they have become the preferred choice for professional marathon racers, urban freeskating enthusiasts, and competitive athletes who demand consistent reliability.",
+        "count": 9,
+        "link": "https://proskatersplace.com/brand/twincam/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Twincam Bearings | Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop Twincam bearings at ProSkaters Place, your authorized US dealer. Authentic ILQ-9 and ILQ-7 kits ready with factory warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/twincam/",
+        "httpStatus": 200,
+        "title": "Twincam Bearings | Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop Twincam bearings at ProSkaters Place, your authorized US dealer. Authentic ILQ-9 and ILQ-7 kits ready with factory warranty. Free US shipping over $150.",
+        "h1": "TWINCAM",
+        "h2s": [
+          "About TWINCAM",
+          "Why Buy TWINCAM at ProSkaters Place?",
+          "TWINCAM Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "TWINCAM — Frequently Asked Questions"
+        ],
+        "wordCount": 2742,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/twincam/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 104,
+      "seoScore": 83,
+      "seoIssues": [
+        "Meta desc length 157 (ideal 120-155)",
+        "Thin description: 104 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2478,
+      "name": "Undercover Wheels",
+      "slug": "undercover-wheels",
+      "url": "https://proskatersplace.com/brand/undercover-wheels/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US Undercover Wheels Retailer</strong> — ProSkaters Place is an official Undercover Wheels dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nSelecting the right <strong>roller skate wheels</strong> is the most effective way to transform your skating experience, and few brands match the technical precision offered by Undercover. Since its inception, this brand has established itself as the premier choice for urban, freestyle, and aggressive skaters who demand more than what standard stock equipment can provide. By utilizing high-quality polyurethane formulas and collaborating with the legendary speed specialists at Matter, they have created a range of <strong>inline skate wheels</strong> that prioritize speed without sacrificing the grip necessary for technical street maneuvers.",
+        "count": 57,
+        "link": "https://proskatersplace.com/brand/undercover-wheels/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Roller Skate Wheels - Undercover Authorized US Dealer",
+        "seoDescription": "Shop Undercover roller skate wheels at ProSkaters Place, your authorized US dealer. Explore 50+ high-end models in stock now. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/undercover-wheels/",
+        "httpStatus": 200,
+        "title": "Roller Skate Wheels - Undercover Authorized US Dealer",
+        "metaDescription": "Shop Undercover roller skate wheels at ProSkaters Place, your authorized US dealer. Explore 50+ high-end models in stock now. Free US shipping over $150.",
+        "h1": "Undercover Wheels",
+        "h2s": [
+          "About Undercover Wheels",
+          "Why Buy Undercover Wheels at ProSkaters Place?",
+          "Undercover Wheels Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Undercover Wheels — Frequently Asked Questions"
+        ],
+        "wordCount": 3144,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/undercover-wheels/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 114,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 114 words (want 300+)"
+      ]
+    },
+    {
+      "id": 2494,
+      "name": "USD",
+      "slug": "usd-skates",
+      "url": "https://proskatersplace.com/brand/usd-skates/",
+      "taxonomy": {
+        "description": "<strong>✓ Authorized US USD Retailer</strong> — ProSkaters Place is an official USD dealer, ensuring you receive genuine products with full manufacturer warranty support.\n\nSince its inception in 1997, <strong>usd skates</strong> has remained at the forefront of the street and park skating world by consistently challenging traditional hardware designs. Known formally as Universal Skate Design, the brand revolutionized the industry by moving away from fixed-component skates toward a modular system that allowed for unparalleled customization. This commitment to technical innovation is represented by the iconic <strong>usd skates logo</strong>, which serves as a mark of durability and high-performance engineering for professional athletes and enthusiasts across the globe. By focusing on the specific demands of street culture, they have developed a reputation for creating hardware that can withstand high-impact landings and technical grinding on any terrain.",
+        "count": 16,
+        "link": "https://proskatersplace.com/brand/usd-skates/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "usd skates | Authorized US Dealer - ProSkaters Place",
+        "seoDescription": "Shop the best usd skates online at ProSkaters Place, your authorized US dealer. Enjoy full warranty coverage on all USD models. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/usd-skates/",
+        "httpStatus": 200,
+        "title": "usd skates | Authorized US Dealer - ProSkaters Place",
+        "metaDescription": "Shop the best usd skates online at ProSkaters Place, your authorized US dealer. Enjoy full warranty coverage on all USD models. Free US shipping over $150.",
+        "h1": "USD",
+        "h2s": [
+          "About USD",
+          "Why Buy USD at ProSkaters Place?",
+          "USD Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "USD — Frequently Asked Questions"
+        ],
+        "wordCount": 3222,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/usd-skates/",
+        "noindex": false
+      },
+      "contentScore": "thin",
+      "contentWordCount": 134,
+      "seoScore": 93,
+      "seoIssues": [
+        "Thin description: 134 words (want 300+)"
+      ]
+    },
+    {
+      "id": 3120,
+      "name": "Volten",
+      "slug": "volten",
+      "url": "https://proskatersplace.com/brand/volten/",
+      "taxonomy": {
+        "description": "For skaters who demand technical precision and rugged reliability, <strong>volten</strong> delivers a sophisticated range of hardware designed to withstand the pressures of modern urban environments. As a prominent name in the global skating community, this brand has established a reputation for blending <strong>innovative polyurethane formulas</strong> with sleek, functional aesthetics. Their development process involves rigorous testing in real-world conditions, resulting in components that provide a tactile connection to the pavement. This focus on performance ensures that every product contributes to a smoother and more controlled skating experience.",
+        "count": 3,
+        "link": "https://proskatersplace.com/brand/volten/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Volten Skates | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Shop Volten at ProSkaters Place, your authorized US dealer. Discover high-performance inline skates and gear with a full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/volten/",
+        "httpStatus": 200,
+        "title": "Volten Skates | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Shop Volten at ProSkaters Place, your authorized US dealer. Discover high-performance inline skates and gear with a full warranty. Free US shipping over $150.",
+        "h1": "Volten",
+        "h2s": [
+          "About Volten",
+          "Why Buy Volten at ProSkaters Place?",
+          "Volten Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Volten — Frequently Asked Questions"
+        ],
+        "wordCount": 2618,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/volten/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 86,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 86 words"
+      ]
+    },
+    {
+      "id": 2484,
+      "name": "WICKED",
+      "slug": "wicked",
+      "url": "https://proskatersplace.com/brand/wicked/",
+      "taxonomy": {
+        "description": "Finding the right components for your <strong>roller skates</strong> is essential for achieving peak performance, and WICKED leads the industry in delivering high-precision hardware that balances speed with reliability. Originally established to provide professional-grade bearings for world-class racers, the brand has expanded its expertise to encompass a wide range of hardware solutions that cater to modern skaters. WICKED is widely recognized for its \"Freeride\" and \"ABEC\" series, which utilize high-quality chrome steel and carbon steel to provide a smooth, fast roll that survives the rigors of urban environments and rough asphalt.",
+        "count": 27,
+        "link": "https://proskatersplace.com/brand/wicked/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Roller Skates by WICKED | ProSkaters Place Authorized Dealer",
+        "seoDescription": "Explore WICKED roller skates at ProSkaters Place, your authorized US dealer. We carry 23 premium items with a full warranty. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/wicked/",
+        "httpStatus": 200,
+        "title": "Roller Skates by WICKED | ProSkaters Place Authorized Dealer",
+        "metaDescription": "Explore WICKED roller skates at ProSkaters Place, your authorized US dealer. We carry 23 premium items with a full warranty. Free US shipping over $150.",
+        "h1": "WICKED",
+        "h2s": [
+          "About WICKED",
+          "Why Buy WICKED at ProSkaters Place?",
+          "WICKED Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "WICKED — Frequently Asked Questions"
+        ],
+        "wordCount": 3062,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/wicked/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 90,
+      "seoScore": 88,
+      "seoIssues": [
+        "Very thin description: 90 words"
+      ]
+    },
+    {
+      "id": 2497,
+      "name": "Xsjado",
+      "slug": "xsjado",
+      "url": "https://proskatersplace.com/brand/xsjado/",
+      "taxonomy": {
+        "description": "Innovation in the aggressive inline world reached a pinnacle when <strong>xsjado skates</strong> first hit the streets, offering a unique step-in binding system that allowed skaters to use specific <strong>xsjado shoes</strong>, known as footwraps, directly inside the skate skeleton. This design provided an unparalleled level of convenience and a customized fit that traditional hardboot skates could not replicate. While many collectors searching for the original <strong>xsjado skates website</strong> will find the brand is technically <strong>xsjado skates out of business</strong>, the legacy of this hardware lives on through <strong>usd shadow skates</strong>.",
+        "count": 0,
+        "link": "https://proskatersplace.com/brand/xsjado/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Xsjado Skates | Authorized US Dealer | Shop ProSkaters Place",
+        "seoDescription": "Shop xsjado skates at ProSkaters Place, an authorized US dealer. Get full warranty support and worldwide shipping on all models. Free US shipping over $150."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/xsjado/",
+        "httpStatus": 200,
+        "title": "Xsjado Skates | Authorized US Dealer | Shop ProSkaters Place",
+        "metaDescription": "Shop xsjado skates at ProSkaters Place, an authorized US dealer. Get full warranty support and worldwide shipping on all models. Free US shipping over $150.",
+        "h1": "Xsjado",
+        "h2s": [],
+        "wordCount": 1485,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": null,
+        "noindex": true
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 92,
+      "seoScore": 78,
+      "seoIssues": [
+        "Meta desc length 156 (ideal 120-155)",
+        "Very thin description: 92 words"
+      ]
+    },
+    {
+      "id": 2511,
+      "name": "Yoko",
+      "slug": "yoko",
+      "url": "https://proskatersplace.com/brand/yoko/",
+      "taxonomy": {
+        "description": "Skating enthusiasts and competitive athletes often recognize <strong>yoko</strong> as a premier Finnish brand with a deep-rooted heritage in the world of high-performance Nordic sports and rollerskiing. Established in 1977, the company has spent decades refining the intersection of technical apparel and mechanical hardware. Their expertise in carbon fiber construction and ergonomic design allows them to create gear that translates the efficiency of winter cross-country skiing to the dry-land training environment of the pavement. By focusing on the specific demands of endurance athletes, they have built a reputation for equipment that prioritizes power transfer and durability.",
+        "count": 47,
+        "link": "https://proskatersplace.com/brand/yoko/",
+        "parent": 0
+      },
+      "seoMeta": {
+        "seoPlugin": "rankmath",
+        "seoTitle": "Yoko Skates & Gear | Authorized US Dealer | ProSkaters Place",
+        "seoDescription": "Browse our selection of 48 Yoko products at ProSkaters Place. We are an authorized US dealer with full warranty support and fast worldwide shipping. Shop now."
+      },
+      "pageAudit": {
+        "url": "https://proskatersplace.com/brand/yoko/",
+        "httpStatus": 200,
+        "title": "Yoko Skates &amp; Gear | Authorized US Dealer | ProSkaters Place",
+        "metaDescription": "Browse our selection of 48 Yoko products at ProSkaters Place. We are an authorized US dealer with full warranty support and fast worldwide shipping. Shop now.",
+        "h1": "Yoko",
+        "h2s": [
+          "About Yoko",
+          "Why Buy Yoko at ProSkaters Place?",
+          "Yoko Products at ProSkaters Place",
+          "Expert Advice &amp; Support",
+          "Yoko — Frequently Asked Questions"
+        ],
+        "wordCount": 3638,
+        "schemas": [
+          "(unknown type)",
+          "FAQPage",
+          "CollectionPage"
+        ],
+        "hasFAQ": true,
+        "hasSchema": true,
+        "hasMetaDescription": true,
+        "hasTitleWithBrand": true,
+        "ogImage": "https://proskatersplace.com/wp-content/uploads/2023/08/Inline-Skates-Canada.jpg",
+        "canonical": "https://proskatersplace.com/brand/yoko/",
+        "noindex": false
+      },
+      "contentScore": "very thin",
+      "contentWordCount": 95,
+      "seoScore": 68,
+      "seoIssues": [
+        "Title length 64 (ideal 30-60)",
+        "Meta desc length 158 (ideal 120-155)",
+        "Very thin description: 95 words"
+      ]
+    }
+  ]
+}

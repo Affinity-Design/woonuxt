@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // If still not found, return 404
+    // If still not found, return 404 (not an error — just missing data)
     if (!productSEOData) {
       throw createError({
         statusCode: 404,
@@ -62,7 +62,11 @@ export default defineEventHandler(async (event) => {
 
     // Return the SEO data
     return productSEOData;
-  } catch (error) {
+  } catch (error: any) {
+    // Re-throw H3 errors (like our 404) without wrapping in 500
+    if (error?.statusCode) {
+      throw error;
+    }
     console.error('[product-seo API] Error fetching SEO data:', error);
     throw createError({
       statusCode: 500,

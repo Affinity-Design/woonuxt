@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
+import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
 
 const {cart, toggleCart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
@@ -15,25 +15,33 @@ const parseWooPrice = (priceStr: string | null | undefined): number => {
   return parseFloat(str) || 0;
 };
 
-// Cart sidebar shows subtotal only (no shipping — user hasn't entered address yet).
-// Must convert USD → CAD since WooCommerce stores prices in USD.
-const formattedCartTotal = computed(() => {
-  // Use rawTotal minus shipping to get items-only total
-  const rawTotal = cart.value?.rawTotal;
-  const totalNumeric = rawTotal ? parseFloat(String(rawTotal)) : parseWooPrice(cart.value?.total);
-  if (isNaN(totalNumeric) || totalNumeric === 0) return '$0.00 CAD';
+// Check if a WooCommerce price string is already in CAD (multicurrency plugin)
+const isWooPriceInCAD = (priceStr: string | null | undefined): boolean => {
+  if (!priceStr) return false;
+  const info = cleanAndExtractPriceInfo(priceStr);
+  return info.isCAD;
+};
 
-  const shippingNumeric = parseWooPrice(cart.value?.shippingTotal);
-  const totalWithoutShipping = Math.max(0, totalNumeric - shippingNumeric);
+// Cart sidebar shows subtotal only (no shipping — user hasn't entered address yet).
+// Computed from subtotal + tax - discount (NOT total - shippingTotal) because
+// the backend may include stale shipping in total while reporting shippingTotal as $0.
+// Detects if WooCommerce already returns CAD values (multicurrency) to avoid double-conversion.
+const formattedCartTotal = computed(() => {
+  const subtotalNumeric = parseWooPrice(cart.value?.subtotal);
+  const taxNumeric = parseWooPrice(cart.value?.totalTax);
+  const discountNumeric = parseWooPrice(cart.value?.discountTotal);
+  const totalWithoutShipping = Math.max(0, subtotalNumeric + taxNumeric - discountNumeric);
   if (totalWithoutShipping === 0) return '$0.00 CAD';
 
-  const priceStr = '$' + totalWithoutShipping.toFixed(2);
+  // If WooCommerce prices are already in CAD (multicurrency plugin), don't convert again
+  if (isWooPriceInCAD(cart.value?.subtotal)) {
+    return '$' + totalWithoutShipping.toFixed(2) + ' CAD';
+  }
 
+  // USD prices — convert to CAD
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(priceStr, exchangeRate.value, true);
-    if (cadNumericString) {
-      return '$' + formatPriceWithCAD(cadNumericString);
-    }
+    const converted = totalWithoutShipping * exchangeRate.value;
+    return '$' + converted.toFixed(2) + ' CAD';
   }
 
   return `$${totalWithoutShipping.toFixed(2)} CAD`;
@@ -61,7 +69,8 @@ const formattedCartTotal = computed(() => {
             to="/checkout"
             @click.prevent="toggleCart()">
             <span class="mx-2">{{ $t('messages.shop.checkout') }}</span>
-            <span>{{ formattedCartTotal }}</span>
+            <span v-if="isUpdatingCart" class="inline-block h-5 w-24 bg-gray-600 rounded animate-pulse align-middle"></span>
+            <span v-else>{{ formattedCartTotal }}</span>
           </NuxtLink>
         </div>
       </template>

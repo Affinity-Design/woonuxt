@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
+import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
 
 const {cart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
-const {customer} = useAuth();
-
-// Only show shipping when the user has entered a postal code
-const hasShippingAddress = computed(() => {
-  const postcode = customer.value?.billing?.postcode;
-  return postcode && String(postcode).trim().length > 0;
-});
+const {isShippingAddressComplete} = useCheckout();
 
 // Parse a WooCommerce price string (may contain HTML) into a number
 const parseWooPrice = (priceStr: string | null | undefined): number => {
@@ -36,19 +30,26 @@ const formatPrice = (priceString: string | null | undefined): string => {
   }
 
   // Fallback: clean up and add CAD label
-  let cleaned = String(priceString).replace(/&nbsp;/g, ' ').replace(/US\$/gi, '$').trim();
+  let cleaned = String(priceString)
+    .replace(/&nbsp;/g, ' ')
+    .replace(/US\$/gi, '$')
+    .trim();
   if (!cleaned.includes('CAD')) cleaned += ' CAD';
   return cleaned;
 };
 
-// Total without shipping — for when user hasn't entered address yet
+// Total without shipping — for when user hasn't entered address yet.
+// Sums the DISPLAYED values (after formatPrice conversion) to guarantee
+// the total always equals subtotal + tax - discount as shown on screen.
+// This avoids double-conversion when WooCommerce returns CAD prices (multicurrency).
 const totalWithoutShipping = computed(() => {
-  const rawTotal = cart.value?.rawTotal;
-  const totalNumeric = rawTotal ? parseFloat(String(rawTotal)) : parseWooPrice(cart.value?.total);
-  if (isNaN(totalNumeric) || totalNumeric === 0) return '$0.00';
-  const shippingNumeric = parseWooPrice(cart.value?.shippingTotal);
-  const adjusted = Math.max(0, totalNumeric - shippingNumeric);
-  return '$' + adjusted.toFixed(2);
+  // Parse the already-formatted CAD display values for each line
+  const subtotalCAD = parseWooPrice(formatPrice(cart.value?.subtotal));
+  const taxCAD = parseWooPrice(formatPrice(cart.value?.totalTax));
+  const discountCAD = parseWooPrice(formatPrice(cart.value?.discountTotal));
+  const result = Math.max(0, subtotalCAD + taxCAD - discountCAD);
+  if (result === 0) return '$0.00 CAD';
+  return '$' + result.toFixed(2) + ' CAD';
 });
 </script>
 
@@ -70,10 +71,13 @@ const totalWithoutShipping = computed(() => {
         <span>{{ $t('messages.shop.subtotal') }}</span>
         <span class="text-gray-700 tabular-nums">{{ formatPrice(cart.subtotal) }}</span>
       </div>
-      <!-- Shipping: only show after user enters postal code -->
+      <!-- Shipping: only show after user enters full address -->
       <div class="flex justify-between">
         <span>{{ $t('messages.general.shipping') }}</span>
-        <span v-if="hasShippingAddress" class="text-gray-700 tabular-nums">
+        <span v-if="isShippingAddressComplete && isUpdatingCart" class="text-gray-700">
+          <LoadingIcon size="16" />
+        </span>
+        <span v-else-if="isShippingAddressComplete" class="text-gray-700 tabular-nums">
           {{ parseWooPrice(cart.shippingTotal) > 0 ? '+ ' : '' }}{{ formatPrice(cart.shippingTotal) }}
         </span>
         <span v-else class="text-gray-400 text-xs italic">Enter address for quote</span>
@@ -94,7 +98,7 @@ const totalWithoutShipping = computed(() => {
       <div class="flex justify-between mt-4">
         <span>{{ $t('messages.shop.total') }}</span>
         <span class="text-lg font-bold text-gray-700 tabular-nums">
-          {{ hasShippingAddress ? formatPrice(cart.total) : formatPrice(totalWithoutShipping) }}
+          {{ isShippingAddressComplete ? formatPrice(cart.total) : totalWithoutShipping }}
         </span>
       </div>
     </div>
