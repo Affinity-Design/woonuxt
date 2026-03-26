@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const {updateItemQuantity} = useCart();
+const {updateItemQuantity, isUpdatingCart} = useCart();
 const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
 const {storeSettings} = useAppConfig();
@@ -98,18 +98,24 @@ const moveToWishList = () => {
 
         <!-- Price line: sale price ~~regular~~ Save X% -->
         <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span :class="{'text-red-600': isOnSale}">${{ displayPrice }}</span>
-          <span v-if="isOnSale && displayRegularPrice" class="text-gray-400 line-through font-normal">${{ displayRegularPrice }}</span>
-          <span
-            v-if="isOnSale && salePercentage"
-            class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
-            Save {{ salePercentage }}
-          </span>
-          <span
-            v-if="isLowStock"
-            class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
-            Low Stock
-          </span>
+          <template v-if="isUpdatingCart">
+            <span class="inline-block h-3 w-16 bg-gray-200 rounded animate-pulse"></span>
+            <span class="inline-block h-3 w-10 bg-gray-200 rounded animate-pulse"></span>
+          </template>
+          <template v-else>
+            <span :class="{'text-red-600': isOnSale}">${{ displayPrice }}</span>
+            <span v-if="isOnSale && displayRegularPrice" class="text-gray-400 line-through font-normal">${{ displayRegularPrice }}</span>
+            <span
+              v-if="isOnSale && salePercentage"
+              class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
+              Save {{ salePercentage }}
+            </span>
+            <span
+              v-if="isLowStock"
+              class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
+              Low Stock
+            </span>
+          </template>
         </div>
       </div>
 

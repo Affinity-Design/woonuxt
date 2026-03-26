@@ -50,8 +50,6 @@
 
 2. **Commercial keywords routing to informational pages** — "roller blades" (22,200/mo, pos 4) and "roller skate" (12,100/mo, pos 5) both rank for the cost article `/how-much-does-roller-skating-cost/`. High bounce guaranteed → NavBoost suppression over time. Fix: `create-redirects.js` (needs Redirection plugin).
 
-3. **$99 vs $150 free shipping inconsistency** — Homepage header says $150; inline skates category says $99. Trust destroyer. Source is a global Elementor template — needs manual fix in WP Admin Elementor editor (look for site-wide announcement bar/sticky header).
-
 4. **23% of keywords trigger AI Overviews — site not cited** — 238 queries Google answers directly. Fix: `add-quick-answer-boxes.js` + FAQPage schema + rewrite article openings to inverted-pyramid format.
 
 5. **Broken footer link** — `skaterboards-and-longboards` typo (note: "skater**boards**"). ✅ **Fixed on live Feb 28, 2026.**
@@ -62,8 +60,6 @@
 
 - Homepage H1 is "ProSkaters Place" — brand-only, no keyword signal in the strongest on-page slot
 - Homepage title tag leads with "Best" — front-loads sentiment over keyword; low priority fix
-- Duplicate FAQ question on homepage ("Are roller skates better tight or loose?" appeared twice) — ✅ **Confirmed clean on live Feb 28, 2026**
-- Brand logo alt text was "Home 1", "Home 2" — ✅ **Confirmed clean on live Feb 28, 2026**
 - No Product, ReviewAggregate, or Organization schema detected on homepage or category pages
 
 **Keyword portfolio:**
@@ -223,8 +219,6 @@ All scripts: `wordpress/scripts/` | Shared libs: `wordpress/scripts/lib/`
 
 ### Immediate (This Week)
 
-- [ ] **Fix $99 shipping threshold manually** — Go to WP Admin → Elementor → find global announcement bar / sticky header → change `$99` to `$150`. Cannot be scripted (global Elementor template).
-- [ ] **Retry 7 failed brands** — Run retry commands above; diagnose each error individually.
 - [ ] **Push git to remote** — `git push origin test` (only committed locally at `68ac398`).
 - [ ] **Visual spot-check brand pages** — Visit 3-4 live brand pages to confirm: content renders below products, FAQPage schema in `<head>`, no duplicate Elementor content.
 - [ ] **Submit to Google Search Console** — Resubmit updated brand page URLs for the 69 optimized brands.

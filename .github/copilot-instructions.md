@@ -13,6 +13,8 @@
 4.  **Images:** Always use `<NuxtImg>`.
 5.  **Build:** `npm run build` is REQUIRED (runs route generation scripts).
 6.  **Cache:** Run `npm run warm-cache` after deploy.
+7.  **Cross-site boundary:** `wordpress/` belongs to US backend infrastructure context (including USD and US SEO implementation concerns). Treat changes there as cross-site impact changes.
+8.  **Business objective:** Prioritize SEO dominance for BOTH US and CAD properties while maintaining stable shared infrastructure between them.
 
 ### 🗺️ Documentation Map
 
@@ -28,6 +30,8 @@
 
 This is a **headless WooCommerce e-commerce site** built with Nuxt 3, using WordPress + WPGraphQL as the backend. The frontend is statically generated and deployed to **Cloudflare Pages** with aggressive KV-based caching for performance.
 
+This repository is primarily the Canadian headless Woo experience derived from the US ecosystem. Data streams from WordPress and is transformed for Canadian market behavior (CAD and en-CA/fr-CA presentation), while US backend concerns remain in the WordPress domain.
+
 **Key Features:**
 
 - Static blog with Nuxt Content (`content/blog/`)
@@ -41,6 +45,12 @@ This is a **headless WooCommerce e-commerce site** built with Nuxt 3, using Word
 ```
 WordPress (CMS) → WPGraphQL → Nuxt 3 Frontend → Cloudflare Pages (KV Cache)
 ```
+
+### US/CAD Context (Critical)
+
+- Canadian Nuxt frontend is the primary concern in this repo.
+- `wordpress/` content represents US backend infrastructure concerns, including USD-oriented behavior and US-specific SEO implementation.
+- Any change that touches the US/CAD interface must document expected impact on US SEO, CAD SEO, and shared infrastructure operations.
 
 **Two-Layer Nuxt Setup:**
 

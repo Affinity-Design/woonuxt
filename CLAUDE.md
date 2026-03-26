@@ -6,7 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 WooNuxt is a headless WooCommerce e-commerce frontend built with **Nuxt 3** for ProSkaters Place (proskatersplace.ca). It connects to a WordPress + WPGraphQL backend and deploys on **Cloudflare Pages** with KV-based caching.
 
+This repository is the Canadian headless Woo experience derived from a US site ecosystem. Source commerce and content data stream from the WordPress backend and are transformed for Canadian presentation and SEO requirements.
+
+Everything under `wordpress/` is US backend infrastructure context (including USD-oriented backend concerns and US-specific SEO implementation details), not the primary Canadian frontend layer.
+
 **Key characteristics**: Canadian-focused (en-CA, fr-CA, CAD pricing, Toronto geo-targeting), multi-layer caching (prerender + ISR + Cloudflare KV), custom payment integrations (Helcim, Stripe, PayPal), blog via Nuxt Content (Markdown).
+
+**Primary objective**: SEO dominance across both US and CAD properties, while maintaining stable shared infrastructure between the two ecosystems.
 
 ## Commands
 
@@ -97,6 +103,9 @@ Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (p
 5. **Blog posts** — Check `data/seo_Keywordlist.csv` for target keywords, `data/blog-keywords-used.md` for used ones. Generate images with `node scripts/generate-blog-image.js "keyword" --posted`. Use internal links from `data/sitemap-data.json`. 1,000-2,500 words with H2/H3 headings.
 6. **Images** — Use `<NuxtImg>` component (optimization is disabled on Cloudflare but component is still used for consistency).
 7. **Local dev with GraphQL issues** — Use `npm run dev:ssl:local` which uses `nuxt.config.local.ts` with a local schema file (`data/local-schema.graphql`) to avoid "Unauthorized request origin" errors.
+8. **US/CAD boundary** — Treat `wordpress/` as US backend infrastructure scope. Changes there require explicit cross-site impact review (US SEO impact, CAD SEO impact, and shared infrastructure risk).
+9. **Currency and localization integrity** — Preserve USD-origin backend assumptions while enforcing CAD/en-CA/fr-CA presentation behavior in the frontend layer.
+10. **Dual-site SEO safety** — Do not ship changes that improve one market while degrading the other without an explicit decision and mitigation plan.
 
 ## Key Config Files
 

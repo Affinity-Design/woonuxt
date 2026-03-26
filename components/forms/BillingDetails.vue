@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import {debounce} from 'lodash-es';
-const {updateShippingLocation} = useCheckout();
+const {updateShippingLocation, isShippingAddressComplete} = useCheckout();
 const {isBillingAddressEnabled} = useCart();
+
+const updateShippingIfComplete = () => {
+  if (isShippingAddressComplete.value) updateShippingLocation();
+};
 
 const props = defineProps({
   modelValue: {type: Object, required: true},
@@ -29,8 +33,8 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.address1"
         placeholder="O'Connell Street 47"
         autocomplete="street-address"
-        @input="debounce(updateShippingLocation, 1000)"
-        @blur="updateShippingLocation"
+        @input="debounce(updateShippingIfComplete, 1000)"
+        @blur="updateShippingIfComplete"
         type="text"
         required />
     </div>
@@ -47,8 +51,8 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.city"
         placeholder="Toronto"
         autocomplete="locality"
-        @input="debounce(updateShippingLocation, 1000)"
-        @blur="updateShippingLocation"
+        @input="debounce(updateShippingIfComplete, 1000)"
+        @blur="updateShippingIfComplete"
         type="text"
         required />
     </div>
@@ -60,13 +64,13 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.state"
         default-value="Ontario"
         country-code="CA"
-        @change="updateShippingLocation"
+        @change="updateShippingIfComplete"
         autocomplete="address-level1" />
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
       <label for="country">{{ 'Country' }}</label>
-      <CountrySelect id="country" v-model="billing.country" default-value="Canada" @change="updateShippingLocation" autocomplete="country" />
+      <CountrySelect id="country" v-model="billing.country" default-value="Canada" @change="updateShippingIfComplete" autocomplete="country" />
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
@@ -75,8 +79,8 @@ const billing = toRef(props, 'modelValue');
         id="zip"
         v-model="billing.postcode"
         placeholder="M9W4Y6"
-        @input="debounce(updateShippingLocation, 800)"
-        @blur="updateShippingLocation"
+        @input="debounce(updateShippingIfComplete, 800)"
+        @blur="updateShippingIfComplete"
         autocomplete="postal-code"
         type="text"
         required />

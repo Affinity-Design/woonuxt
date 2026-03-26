@@ -11,6 +11,7 @@ export function useCart() {
   const isShowingCart = useState<boolean>('isShowingCart', () => false);
   const isUpdatingCart = useState<boolean>('isUpdatingCart', () => false);
   const isUpdatingCoupon = useState<boolean>('isUpdatingCoupon', () => false);
+  const isRefreshPending = useState<boolean>('isRefreshPending', () => false);
   const paymentGateways = useState<PaymentGateways | null>('paymentGateways', () => null);
   const {logGQLError, clearAllCookies} = useHelpers();
 
@@ -36,6 +37,7 @@ export function useCart() {
       resetInitialState();
       return false; // Cart was not successfully refreshed
     } finally {
+      isRefreshPending.value = false;
       isUpdatingCart.value = false;
     }
   }
@@ -85,6 +87,9 @@ export function useCart() {
 
       // Refresh cart in the background to get complete price fields
       // (addToCart mutation may return incomplete variation price data)
+      // Don't reset isUpdatingCart here — refreshCart() will reset it when done,
+      // keeping the skeleton visible until final cart data arrives.
+      isRefreshPending.value = true;
       refreshCart();
 
       return {success: true};
@@ -116,10 +121,9 @@ export function useCart() {
       // Show toast notification with error message (HTML entities decoded automatically)
       toast.error(errorMessage);
 
-      return {success: false, message: errorMessage};
-    } finally {
-      // Always reset loading state, even on error
+      // Only reset loading state on error — success path relies on refreshCart() to reset
       isUpdatingCart.value = false;
+      return {success: false, message: errorMessage};
     }
   }
 
@@ -223,9 +227,12 @@ export function useCart() {
     }
   }
 
-  // Stop the loading spinner when the cart is updated
+  // Stop the loading spinner when the cart is updated,
+  // but not if a background refreshCart() is still pending
   watch(cart, (val) => {
-    isUpdatingCart.value = false;
+    if (!isRefreshPending.value) {
+      isUpdatingCart.value = false;
+    }
   });
 
   // Check if all products in the cart are virtual

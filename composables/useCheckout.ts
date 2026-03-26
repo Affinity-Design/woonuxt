@@ -85,10 +85,23 @@ export function useCheckout() {
     return city.replace(/[\s,]+(BC|AB|SK|MB|ON|QC|NB|NS|PE|NL|YT|NT|NU|Canada|CA|B\.C\.|A\.B\.)[\.]*$/i, '').trim();
   };
 
+  // Computed ref: true when all 5 required shipping address fields are populated.
+  // Checks billing address by default; checks shipping address when shipToDifferentAddress is true.
+  const isShippingAddressComplete = computed(() => {
+    const {customer} = useAuth();
+    const address = orderInput.value.shipToDifferentAddress ? customer.value?.shipping : customer.value?.billing;
+    if (!address) return false;
+    const fields = [address.address1, address.city, address.state, address.country, address.postcode];
+    return fields.every((f) => f && String(f).trim().length > 0);
+  });
+
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
     const {customer, viewer} = useAuth();
     const {isUpdatingCart, refreshCart} = useCart();
+
+    // Skip API call when address is incomplete
+    if (!isShippingAddressComplete.value) return;
 
     isUpdatingCart.value = true;
 
@@ -610,6 +623,7 @@ export function useCheckout() {
   return {
     orderInput,
     isProcessingOrder,
+    isShippingAddressComplete,
     processCheckout,
     updateShippingLocation,
     setOrderAttribution,
