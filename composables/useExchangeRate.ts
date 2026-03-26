@@ -2,7 +2,11 @@
 import {useState, useRuntimeConfig, useFetch, useCookie, callOnce} from '#imports';
 
 // Helper function to check if running on the server/build context
-const isServerContext = () => process.server;
+const isServerContext = () => typeof window === 'undefined';
+const isClientContext = () => typeof window !== 'undefined';
+const isDevEnvironment = process.env.NODE_ENV !== 'production';
+
+const getUtcDayKey = (timestamp = Date.now()) => new Date(timestamp).toISOString().slice(0, 10);
 
 // Global flag to track if initialization has been attempted (singleton pattern)
 let initializationAttempted = false;
@@ -10,15 +14,24 @@ let initializationAttempted = false;
 export const useExchangeRate = () => {
   const config = useRuntimeConfig();
 
-  // Initialize useState. ALWAYS start with build-time fallback to prevent white screens
-  const exchangeRate = useState<number | null>('exchangeRate', () => {
-    // Always try to use build-time fallback first (works on both server and client)
+  const getBuildTimeFallbackRate = () => {
     const buildTimeRateRaw = config.public.buildTimeExchangeRate;
     if (buildTimeRateRaw) {
       const buildTimeRate = parseFloat(String(buildTimeRateRaw));
       if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
         return buildTimeRate;
       }
+    }
+
+    return null;
+  };
+
+  // Initialize useState. ALWAYS start with build-time fallback to prevent white screens
+  const exchangeRate = useState<number | null>('exchangeRate', () => {
+    // Always try to use build-time fallback first (works on both server and client)
+    const buildTimeRate = getBuildTimeFallbackRate();
+    if (buildTimeRate !== null) {
+      return buildTimeRate;
     }
     // Only return null as absolute last resort
     console.warn('[useExchangeRate] No build-time fallback available!');
@@ -36,7 +49,7 @@ export const useExchangeRate = () => {
     maxAge: 24 * 60 * 60, // 1 day expiry
     path: '/',
     sameSite: 'lax', // Allow cookie on same-site navigation
-    secure: process.env.NODE_ENV === 'production', // Secure in production only
+    secure: !isDevEnvironment,
     default: () => '', // Default to empty string instead of null
   });
 
@@ -51,23 +64,24 @@ export const useExchangeRate = () => {
     // This runs only once on the client after hydration
     if (isServerContext()) return; // Should not run on server
 
-    const now = Date.now();
-    const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+    const currentDayKey = getUtcDayKey();
 
     // 1. Check client-side cookie FIRST (highest priority)
     let rateFromCookie: number | null = null;
     let updateTimeFromCookie: number | null = null;
+    let staleRateFromCookie: number | null = null;
+    let staleUpdateTimeFromCookie: number | null = null;
 
     if (cookie.value && typeof cookie.value === 'string' && cookie.value !== '') {
       try {
         const parsed = JSON.parse(cookie.value);
         if (parsed && typeof parsed.rate === 'number' && typeof parsed.lastUpdated === 'number') {
-          // Check if cookie is still fresh (less than 24 hours old)
-          if (now - parsed.lastUpdated < ONE_DAY_IN_MS) {
+          if (getUtcDayKey(parsed.lastUpdated) === currentDayKey) {
             rateFromCookie = parsed.rate;
             updateTimeFromCookie = parsed.lastUpdated;
           } else {
-            cookie.value = ''; // Clear expired cookie
+            staleRateFromCookie = parsed.rate;
+            staleUpdateTimeFromCookie = parsed.lastUpdated;
           }
         } else {
           cookie.value = ''; // Clear invalid cookie
@@ -85,10 +99,17 @@ export const useExchangeRate = () => {
       return; // Don't call fetchExchangeRate - we have fresh data
     }
 
+    const hasStaleCookieData = staleRateFromCookie !== null && staleUpdateTimeFromCookie !== null;
+
+    if (hasStaleCookieData) {
+      exchangeRate.value = staleRateFromCookie;
+      lastClientUpdate.value = staleUpdateTimeFromCookie;
+    }
+
     // 3. Check if state already has a value (from build-time fallback via payload)
-    if (exchangeRate.value !== null) {
+    if (exchangeRate.value !== null && !hasStaleCookieData) {
       lastClientUpdate.value = null; // Mark as needing eventual refresh
-    } else {
+    } else if (exchangeRate.value === null) {
       console.warn('[useExchangeRate] No fallback rate available - this should not happen!');
       lastClientUpdate.value = null;
     }
@@ -109,10 +130,10 @@ export const useExchangeRate = () => {
     if (isFetching.value) return;
 
     const now = Date.now();
-    const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const currentDayKey = getUtcDayKey(now);
 
-    // Fetch if no rate, or no known last update time, or if last update is older than 24 hours
-    const shouldFetch = exchangeRate.value === null || lastClientUpdate.value === null || now - lastClientUpdate.value > ONE_DAY_IN_MS;
+    // Fetch if no rate, or no known last update time, or if the cached rate is from a previous UTC day.
+    const shouldFetch = exchangeRate.value === null || lastClientUpdate.value === null || getUtcDayKey(lastClientUpdate.value) !== currentDayKey;
 
     if (!shouldFetch) return;
 
@@ -128,13 +149,9 @@ export const useExchangeRate = () => {
         console.warn('[useExchangeRate] Fetch error:', error.value);
         // Don't throw - keep existing rate if available
         if (exchangeRate.value === null) {
-          // Fallback to build-time rate if available
-          const buildTimeRateRaw = config.public.buildTimeExchangeRate;
-          if (buildTimeRateRaw) {
-            const buildTimeRate = parseFloat(String(buildTimeRateRaw));
-            if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-              exchangeRate.value = buildTimeRate;
-            }
+          const buildTimeRate = getBuildTimeFallbackRate();
+          if (buildTimeRate !== null) {
+            exchangeRate.value = buildTimeRate;
           }
         }
         isFetching.value = false;
@@ -143,13 +160,14 @@ export const useExchangeRate = () => {
 
       if (data.value && data.value.success && data.value.data?.rate) {
         const newRate = data.value.data.rate;
+        const serverLastUpdated = typeof data.value.data.lastUpdated === 'number' ? data.value.data.lastUpdated : now;
 
         // Update state
         exchangeRate.value = newRate;
-        lastClientUpdate.value = now; // Record time of *this* client update
+        lastClientUpdate.value = serverLastUpdated;
 
         // Update cookie with proper serialization
-        const cookieData = JSON.stringify({rate: newRate, lastUpdated: now});
+        const cookieData = JSON.stringify({rate: newRate, lastUpdated: serverLastUpdated});
         cookie.value = cookieData;
 
         console.log('[useExchangeRate] Updated rate:', newRate);
@@ -157,13 +175,9 @@ export const useExchangeRate = () => {
         console.warn('[useExchangeRate] Client fetch returned unexpected data:', data.value);
         // Don't clear existing rate - keep what we have
         if (exchangeRate.value === null) {
-          // Fallback to build-time rate
-          const buildTimeRateRaw = config.public.buildTimeExchangeRate;
-          if (buildTimeRateRaw) {
-            const buildTimeRate = parseFloat(String(buildTimeRateRaw));
-            if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-              exchangeRate.value = buildTimeRate;
-            }
+          const buildTimeRate = getBuildTimeFallbackRate();
+          if (buildTimeRate !== null) {
+            exchangeRate.value = buildTimeRate;
           }
         }
       }
@@ -171,13 +185,9 @@ export const useExchangeRate = () => {
       console.error('[useExchangeRate] Fetch failed:', fetchError);
       // Keep existing rate if we have one, don't crash the page
       if (exchangeRate.value === null) {
-        // Last resort: use build-time rate
-        const buildTimeRateRaw = config.public.buildTimeExchangeRate;
-        if (buildTimeRateRaw) {
-          const buildTimeRate = parseFloat(String(buildTimeRateRaw));
-          if (!isNaN(buildTimeRate) && buildTimeRate > 0) {
-            exchangeRate.value = buildTimeRate;
-          }
+        const buildTimeRate = getBuildTimeFallbackRate();
+        if (buildTimeRate !== null) {
+          exchangeRate.value = buildTimeRate;
         }
       }
       // Do NOT clear the rate or throw - graceful degradation
@@ -187,7 +197,7 @@ export const useExchangeRate = () => {
   };
 
   // --- Auto-initialize on client (runs only once globally) ---
-  if (process.client && !initializationAttempted) {
+  if (isClientContext() && !initializationAttempted) {
     callOnce('exchangeRateInit', initializeOnClient);
   }
 
