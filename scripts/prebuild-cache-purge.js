@@ -88,6 +88,7 @@ if (CF_KV_NAMESPACE_ID_SCRIPT_DATA && !isValidUUID(CF_KV_NAMESPACE_ID_SCRIPT_DAT
  */
 function makeRequest(path, method = 'GET', body = null) {
   return new Promise((resolve, reject) => {
+    const bodyStr = body ? JSON.stringify(body) : null;
     const options = {
       hostname: 'api.cloudflare.com',
       path: `/client/v4${path}`,
@@ -97,6 +98,11 @@ function makeRequest(path, method = 'GET', body = null) {
         'Content-Type': 'application/json',
       },
     };
+
+    // Content-Length is required for DELETE with body (Cloudflare returns EOF without it)
+    if (bodyStr) {
+      options.headers['Content-Length'] = Buffer.byteLength(bodyStr);
+    }
 
     const req = https.request(options, (res) => {
       let data = '';
@@ -116,7 +122,7 @@ function makeRequest(path, method = 'GET', body = null) {
     });
 
     req.on('error', reject);
-    if (body) req.write(JSON.stringify(body));
+    if (bodyStr) req.write(bodyStr);
     req.end();
   });
 }

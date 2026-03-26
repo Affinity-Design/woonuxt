@@ -83,6 +83,10 @@ export function useCart() {
       const {storeSettings} = useAppConfig();
       if (storeSettings.autoOpenCart && !isShowingCart.value) toggleCart(true);
 
+      // Refresh cart in the background to get complete price fields
+      // (addToCart mutation may return incomplete variation price data)
+      refreshCart();
+
       return {success: true};
     } catch (error: any) {
       logGQLError(error);

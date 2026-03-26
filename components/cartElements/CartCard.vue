@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 const {updateItemQuantity} = useCart();
 const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
 const {storeSettings} = useAppConfig();
+const {exchangeRate} = useExchangeRate();
 
 const {item} = defineProps({
   item: {type: Object, required: true},
@@ -12,9 +13,56 @@ const productType = computed(() => (item.variation ? item.variation?.node : item
 const productSlug = computed(() => `/product/${decodeURIComponent(item.product.node.slug)}`);
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
-const regularPrice = computed(() => parseFloat(productType.value.rawRegularPrice));
-const salePrice = computed(() => parseFloat(productType.value.rawSalePrice));
-const salePercentage = computed(() => Math.round(((regularPrice.value - salePrice.value) / regularPrice.value) * 100) + '%');
+
+// Mirror the product page's getFormattedPriceDisplay() exactly.
+// Takes a WooCommerce formatted price string (e.g. "$28.99", "<span>$49.99</span>")
+// and converts USD → CAD using the same logic as pages/product/[slug].vue
+const formatCartPrice = (priceStr: string | null | undefined): string => {
+  if (!priceStr || String(priceStr).trim() === '') return '';
+
+  if (exchangeRate.value === null) {
+    const {numericString} = cleanAndExtractPriceInfo(priceStr);
+    return numericString ? `${numericString} CAD` : '';
+  }
+
+  // convertToCAD with roundTo99=false — same as product page
+  const cadNumeric = convertToCAD(priceStr, exchangeRate.value);
+  if (cadNumeric === '') {
+    const {numericString} = cleanAndExtractPriceInfo(priceStr);
+    return numericString ? `${numericString} CAD` : '';
+  }
+  return formatPriceWithCAD(cadNumeric);
+};
+
+// Use the same fields the product page uses: salePrice, regularPrice, price
+const isOnSale = computed(() => {
+  const sp = productType.value.salePrice;
+  const rp = productType.value.regularPrice;
+  return !!(sp && rp && sp !== rp);
+});
+
+// Main display price: salePrice if on sale, otherwise regularPrice or price
+const displayPrice = computed(() => {
+  if (isOnSale.value) return formatCartPrice(productType.value.salePrice);
+  return formatCartPrice(productType.value.regularPrice || productType.value.price);
+});
+
+// Strikethrough regular price (only when on sale)
+const displayRegularPrice = computed(() => {
+  if (!isOnSale.value) return '';
+  return formatCartPrice(productType.value.regularPrice);
+});
+
+// Sale percentage from raw numeric values when available
+const salePercentage = computed(() => {
+  if (!isOnSale.value) return '';
+  const {numericString: saleNum} = cleanAndExtractPriceInfo(productType.value.salePrice);
+  const {numericString: regNum} = cleanAndExtractPriceInfo(productType.value.regularPrice);
+  const sale = parseFloat(saleNum);
+  const reg = parseFloat(regNum);
+  if (isNaN(sale) || isNaN(reg) || reg === 0) return '';
+  return Math.round(((reg - sale) / reg) * 100) + '%';
+});
 
 const removeItem = () => {
   updateItemQuantity(item.key, 0);
@@ -43,29 +91,26 @@ const moveToWishList = () => {
 
       <!-- Product Details with flex-grow -->
       <div class="flex-1 min-w-0 flex flex-col">
-        <div class="flex flex-wrap gap-x-2 gap-y-1 items-start text-sm">
-          <!-- Product title with text wrapping -->
-          <NuxtLink class="leading-tight line-clamp-2 break-words" :to="productSlug">
-            {{ productType.name }}
-          </NuxtLink>
+        <!-- Product title -->
+        <NuxtLink class="leading-tight line-clamp-2 break-words text-sm" :to="productSlug">
+          {{ productType.name }}
+        </NuxtLink>
 
-          <!-- Sale tag -->
+        <!-- Price line: sale price ~~regular~~ Save X% -->
+        <div class="mt-1 text-xs flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span :class="{'text-red-600': isOnSale}">${{ displayPrice }}</span>
+          <span v-if="isOnSale && displayRegularPrice" class="text-gray-400 line-through font-normal">${{ displayRegularPrice }}</span>
           <span
-            v-if="productType.salePrice"
+            v-if="isOnSale && salePercentage"
             class="text-[10px] border-green-200 leading-none bg-green-100 inline-block p-0.5 rounded text-green-600 border whitespace-nowrap">
             Save {{ salePercentage }}
           </span>
-
-          <!-- Low stock tag -->
           <span
             v-if="isLowStock"
             class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
             Low Stock
           </span>
         </div>
-
-        <!-- Price with margin top for separation -->
-        <ProductPrice class="mt-1 text-xs" :sale-price="productType.salePrice" :regular-price="productType.regularPrice" />
       </div>
 
       <!-- Quantity Controls with fixed width -->
