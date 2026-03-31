@@ -2,9 +2,9 @@
   "name": "woonuxt",
   "private": true,
   "scripts": {
-    "build": "node scripts/prebuild-cache-purge.js && node scripts/build-sitemap.js && nuxt build && node scripts/setup-script.js",
-    "build:no-purge": "node scripts/build-sitemap.js && nuxt build && node scripts/setup-script.js",
-    "build:local": "node scripts/build-sitemap.js && nuxt build --config nuxt.config.local.ts",
+    "build": "node scripts/clean-build.js && node scripts/prebuild-cache-purge.js && node scripts/build-sitemap.js && nuxt build && node scripts/setup-script.js",
+    "build:no-purge": "node scripts/clean-build.js && node scripts/build-sitemap.js && nuxt build && node scripts/setup-script.js",
+    "build:local": "node scripts/clean-build.js && node scripts/build-sitemap.js && nuxt build --config nuxt.config.local.ts",
     "preview:local": "nuxt preview --config nuxt.config.local.ts",
     "dev": "nuxt dev --host",
     "dev:ssl": "nuxt dev --https --ssl-cert localhost.pem --ssl-key localhost-key.pem",
