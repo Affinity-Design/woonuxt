@@ -1,8 +1,0 @@
-# Wrangler configuration for Cloudflare Pages
-# Required since Wrangler 3.100+ changed how it processes _worker.js directories
-# Without this, Wrangler tries to re-bundle Nitro's pre-bundled worker and fails
-
-name = "proskatersplace-ca"
-pages_build_output_dir = ".output/public"
-compatibility_date = "2024-09-19"
-compatibility_flags = ["nodejs_compat"]
