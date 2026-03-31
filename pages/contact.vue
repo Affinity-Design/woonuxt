@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import VueTurnstile from 'vue-turnstile';
 
+const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
+
 const {setCanadianSEO} = useCanadianSEO();
 
 // Contact page SEO optimization
@@ -465,7 +467,7 @@ async function submitForm() {
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-              <span><strong>Free Shipping:</strong> On orders over $99 across Canada</span>
+              <span><strong>Free Shipping:</strong> On orders over ${{ freeShipThreshold }} across Canada</span>
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />

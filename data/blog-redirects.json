@@ -47,6 +47,12 @@
       "statusCode": 301
     }
   },
+  "/roller-skates-for-women": {
+    "redirect": {
+      "to": "/blog/roller-skates-for-women",
+      "statusCode": 301
+    }
+  },
   "/roller-skates-toronto": {
     "redirect": {
       "to": "/blog/roller-skates-toronto",

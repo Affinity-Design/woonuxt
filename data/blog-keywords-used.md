@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2025-11-13
+**Last Updated:** 2026-03-31
 
 ---
 
@@ -92,12 +92,13 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Suggested Post: "Best Skate Stores in Toronto (Local Shopping Guide)"
   - Status: Available
 
-- [ ] **roller skates for women** (480 sv, 0 kd, $0.42 cpc)
+- [x] **roller skates for women** (480 sv, 0 kd, $0.42 cpc)
 
   - Intent: Commercial/Transactional
   - Difficulty: Very Easy
-  - Suggested Post: "Best Women's Roller Skates 2025"
-  - Status: Available
+  - Post: `/blog/roller-skates-for-women`
+  - Published: 2026-03-31
+  - Status: ✅ Live
 
 - [ ] **proskatersplace** (480 sv, 3 kd, $0.00 cpc)
 

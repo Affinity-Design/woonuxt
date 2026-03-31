@@ -42,11 +42,14 @@ export interface CategoryContentData {
   h2Headings: string[]; // Suggested H2 headings for content
 }
 
+// Free shipping threshold — controlled by NUXT_PUBLIC_FREE_SHIPPING_THRESHOLD env var
+const FREE_SHIP = process.env.NUXT_PUBLIC_FREE_SHIPPING_THRESHOLD || '135';
+
 export const categoryContentData: Record<string, CategoryContentData> = {
   'inline-skates': {
     topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Premium Inline Skates & Rollerblades in Canada</h2>
       <p>
-        Welcome to ProSkaters Place, <strong>Canada's premier destination for inline skates</strong>. Based in Toronto, we ship nationwide with <strong>free delivery on orders over $99 CAD</strong>. Whether you're a beginner looking for your first pair of recreational skates or a professional speed skater, we have the perfect inline skates for you. Browse our extensive collection of <strong>150+ inline skate models</strong> from top brands including Rollerblade, K2, Powerslide, FR Skates, and Seba. All prices in CAD with expert sizing advice available. Shop with confidence knowing you're getting authentic products backed by manufacturer warranties and our Toronto-based customer service team.
+        Welcome to ProSkaters Place, <strong>Canada's premier destination for inline skates</strong>. Based in Toronto, we ship nationwide with <strong>free delivery on orders over $${FREE_SHIP} CAD</strong>. Whether you're a beginner looking for your first pair of recreational skates or a professional speed skater, we have the perfect inline skates for you. Browse our extensive collection of <strong>150+ inline skate models</strong> from top brands including Rollerblade, K2, Powerslide, FR Skates, and Seba. All prices in CAD with expert sizing advice available. Shop with confidence knowing you're getting authentic products backed by manufacturer warranties and our Toronto-based customer service team.
       </p>`,
 
     bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Buy Inline Skates from ProSkaters Place Canada & Toronto?</h2>
@@ -75,7 +78,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck-fast',
         title: 'Free Shipping',
-        description: 'On orders over $99 CAD across Canada',
+        description: `On orders over $${FREE_SHIP} CAD across Canada`,
       },
       {
         icon: 'mdi:currency-usd',
@@ -102,8 +105,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       },
       {
         question: 'Do you ship inline skates across Canada?',
-        answer:
-          'Yes! We ship inline skates nationwide from our Toronto warehouse. Free shipping on orders over $99 CAD to all provinces including Ontario, Quebec, BC, Alberta, Manitoba, Saskatchewan, Nova Scotia, New Brunswick, PEI, Newfoundland, Yukon, NWT, and Nunavut. Most orders arrive within 2-5 business days. Express shipping available for urgent orders.',
+        answer: `Yes! We ship inline skates nationwide from our Toronto warehouse. Free shipping on orders over $${FREE_SHIP} CAD to all provinces including Ontario, Quebec, BC, Alberta, Manitoba, Saskatchewan, Nova Scotia, New Brunswick, PEI, Newfoundland, Yukon, NWT, and Nunavut. Most orders arrive within 2-5 business days. Express shipping available for urgent orders.`,
       },
       {
         question: 'What are the best inline skates for beginners in Canada?',
@@ -161,7 +163,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
         Shop <strong>Canada's largest selection of roller skates</strong> at ProSkaters Place. Based in Toronto with nationwide shipping, we are your #1 source for <strong>pro-quality quad skates</strong>, artistic skates, and retro roller skates. Browse over <strong>100+ exclusive models</strong> from world-leading brands like Moxi, Riedell, Sure-Grip, Chaya, and Impala.
       </p>
       <p>
-        Whether you are cruising the smooth paths of the Toronto Waterfront, hitting the local skate park, or dancing at the roller rink, we have the perfect pair for you. <strong>Free shipping on orders over $99 CAD</strong>. Expert sizing help available from our Canadian team.
+        Whether you are cruising the smooth paths of the Toronto Waterfront, hitting the local skate park, or dancing at the roller rink, we have the perfect pair for you. <strong>Free shipping on orders over $${FREE_SHIP} CAD</strong>. Expert sizing help available from our Canadian team.
       </p>`,
 
     bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why We Are Canada's Top Roller Skate Shop</h2>
@@ -193,7 +195,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck-fast',
         title: 'Fast Shipping',
-        description: 'Free on $99+ orders across Canada',
+        description: `Free on $${FREE_SHIP}+ orders across Canada`,
       },
       {
         icon: 'mdi:star',
@@ -230,13 +232,11 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       },
       {
         question: 'Are roller skates good for beginners?',
-        answer:
-          'Absolutely! Roller skates (quad skates) are often easier for beginners than inline skates due to their wider wheelbase and better balance. We recommend starting with recreational roller skates that have heel brakes and good ankle support. Popular beginner models include Sure-Grip Boardwalk, Moxi Beach Bunny, and Chaya Melrose. All priced in CAD with free shipping over $99.',
+        answer: `Absolutely! Roller skates (quad skates) are often easier for beginners than inline skates due to their wider wheelbase and better balance. We recommend starting with recreational roller skates that have heel brakes and good ankle support. Popular beginner models include Sure-Grip Boardwalk, Moxi Beach Bunny, and Chaya Melrose. All priced in CAD with free shipping over $${FREE_SHIP}.`,
       },
       {
         question: 'Do you have roller skates for kids in Canada?',
-        answer:
-          "Yes! We carry adjustable roller skates for kids that grow with their feet (sizes typically 11-2 and 2-5). These are perfect for Canadian families as they last through multiple growth spurts. Kid's roller skates include safety features like extra ankle support and quality bearings. Ships free on orders over $99 CAD. See our Kids' Skates category for full selection.",
+        answer: `Yes! We carry adjustable roller skates for kids that grow with their feet (sizes typically 11-2 and 2-5). These are perfect for Canadian families as they last through multiple growth spurts. Kid's roller skates include safety features like extra ankle support and quality bearings. Ships free on orders over $${FREE_SHIP} CAD. See our Kids' Skates category for full selection.`,
       },
     ],
 
@@ -265,7 +265,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
   'protective-gear': {
     topDescription: `<h2 class="text-2xl font-bold mb-4">Protective Gear for Skating | Helmets, Pads & Guards</h2>
       <p>
-        Stay safe while skating with <strong>premium protective gear from Canada's trusted skate shop</strong>. Shop 80+ safety products including helmets, knee pads, elbow pads, and wrist guards. Free shipping on orders over $99 CAD across Canada. All protective gear is safety-certified and tested for skating. Perfect for inline skating, roller skating, skateboarding, and scootering. Sizes available for kids, youth, and adults. Ships from Toronto within 1-2 business days.
+        Stay safe while skating with <strong>premium protective gear from Canada's trusted skate shop</strong>. Shop 80+ safety products including helmets, knee pads, elbow pads, and wrist guards. Free shipping on orders over $${FREE_SHIP} CAD across Canada. All protective gear is safety-certified and tested for skating. Perfect for inline skating, roller skating, skateboarding, and scootering. Sizes available for kids, youth, and adults. Ships from Toronto within 1-2 business days.
       </p>`,
 
     benefits: [
@@ -304,8 +304,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       },
       {
         question: 'Can kids use adult protective gear?',
-        answer:
-          "No – kids need properly sized protective gear for effective protection. Adult gear is too large and won't stay in place during falls. We carry dedicated kids' protective gear in sizes XS-L (typically ages 4-14). Kids' gear is designed with smaller proportions and features easy-adjust straps. Free shipping on orders over $99 CAD includes kids' protection sets.",
+        answer: `No – kids need properly sized protective gear for effective protection. Adult gear is too large and won't stay in place during falls. We carry dedicated kids' protective gear in sizes XS-L (typically ages 4-14). Kids' gear is designed with smaller proportions and features easy-adjust straps. Free shipping on orders over $${FREE_SHIP} CAD includes kids' protection sets.`,
       },
     ],
 
@@ -320,7 +319,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
         Shop <strong>Canada's best selection of kids' roller skates</strong>. We specialize in high-quality <strong>adjustable inline skates</strong> that grow 4 full sizes, saving you money while keeping your child safe. Avoid cheap plastic toy skates – our collection features professional-grade skates from trusted brands like Rollerblade, Micro, Powerslide, and K2. Perfect for learning to skate on Ontario trails or in the rink.
       </p>
       <p>
-        <strong>Why Choose Adjustable Skates?</strong> Kids grow fast! Our adjustable skates feature a simple push-button mechanism to expand the toe cap, ensuring a perfect fit for 2-3 years. All skates ship from Toronto with <strong>free delivery on orders over $99 CAD</strong>.
+        <strong>Why Choose Adjustable Skates?</strong> Kids grow fast! Our adjustable skates feature a simple push-button mechanism to expand the toe cap, ensuring a perfect fit for 2-3 years. All skates ship from Toronto with <strong>free delivery on orders over $${FREE_SHIP} CAD</strong>.
       </p>`,
 
     bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">How to Choose Skates for Kids</h2>
@@ -349,7 +348,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck-fast',
         title: 'Free Shipping',
-        description: 'On orders over $99 CAD',
+        description: `On orders over $${FREE_SHIP} CAD`,
       },
       {
         icon: 'mdi:star',
@@ -400,7 +399,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
   'clearance-items': {
     topDescription: `<h2 class="text-2xl font-bold mb-4">Clearance Skates & Gear | Up to 60% Off</h2>
       <p>
-        <strong>Save big on clearance inline skates, roller skates, and accessories</strong> at ProSkaters Place Canada. Limited quantities, previous season models, and overstock items at massive discounts. All products are brand new, authentic, and include manufacturer warranties. Free shipping over $99 CAD. Shop now before they're gone! Clearance items update weekly. All prices in Canadian dollars. Ships from Toronto within 1-2 business days. No returns on clearance items – sales are final.
+        <strong>Save big on clearance inline skates, roller skates, and accessories</strong> at ProSkaters Place Canada. Limited quantities, previous season models, and overstock items at massive discounts. All products are brand new, authentic, and include manufacturer warranties. Free shipping over $${FREE_SHIP} CAD. Shop now before they're gone! Clearance items update weekly. All prices in Canadian dollars. Ships from Toronto within 1-2 business days. No returns on clearance items – sales are final.
       </p>`,
 
     benefits: [
@@ -422,7 +421,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck',
         title: 'Fast Shipping',
-        description: 'Free over $99 CAD',
+        description: `Free over $${FREE_SHIP} CAD`,
       },
     ],
 
@@ -439,8 +438,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       },
       {
         question: 'How often do clearance items change?',
-        answer:
-          'We add new clearance items weekly, typically on Mondays. Popular sizes and models sell out quickly – sometimes within hours. Sign up for our email newsletter to get notified when new clearance items are added. Follow us on Instagram @proskatersplace for clearance alerts. All clearance prices are in CAD with free shipping over $99.',
+        answer: `We add new clearance items weekly, typically on Mondays. Popular sizes and models sell out quickly – sometimes within hours. Sign up for our email newsletter to get notified when new clearance items are added. Follow us on Instagram @proskatersplace for clearance alerts. All clearance prices are in CAD with free shipping over $${FREE_SHIP}.`,
       },
     ],
 
@@ -452,7 +450,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
   'alpine-skis': {
     topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Premium Alpine Skis in Canada</h2>
       <p>
-        Discover the thrill of the slopes with ProSkaters Place, <strong>Canada's trusted source for alpine skis</strong>. Based in Toronto, we offer a curated selection of high-performance downhill skis for all skill levels. From carving groomers to floating through powder, find the perfect pair of skis to elevate your winter experience. We stock top brands and offer <strong>free shipping on orders over $99 CAD</strong> across Canada. Our expert team can help you choose the right length, width, and stiffness for your skiing style. All prices in CAD.
+        Discover the thrill of the slopes with ProSkaters Place, <strong>Canada's trusted source for alpine skis</strong>. Based in Toronto, we offer a curated selection of high-performance downhill skis for all skill levels. From carving groomers to floating through powder, find the perfect pair of skis to elevate your winter experience. We stock top brands and offer <strong>free shipping on orders over $${FREE_SHIP} CAD</strong> across Canada. Our expert team can help you choose the right length, width, and stiffness for your skiing style. All prices in CAD.
       </p>`,
 
     bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Buy Alpine Skis from ProSkaters Place?</h2>
@@ -480,7 +478,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck-fast',
         title: 'Free Shipping',
-        description: 'On orders over $99 CAD',
+        description: `On orders over $${FREE_SHIP} CAD`,
       },
       {
         icon: 'mdi:currency-usd',
@@ -525,7 +523,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
   'cross-country-skis': {
     topDescription: `<h2 class="text-2xl font-bold mb-4">Shop Cross Country Skis in Canada</h2>
       <p>
-        Embrace the winter with ProSkaters Place, your destination for <strong>cross country (Nordic) skis in Canada</strong>. We offer a wide range of classic, skate, and touring skis for fitness enthusiasts and recreational skiers alike. Enjoy the tranquility of the trails or get a full-body workout with our high-quality equipment. <strong>Free shipping on orders over $99 CAD</strong> nationwide. Based in Toronto, we serve the entire Canadian cross-country skiing community with expert advice and authentic products.
+        Embrace the winter with ProSkaters Place, your destination for <strong>cross country (Nordic) skis in Canada</strong>. We offer a wide range of classic, skate, and touring skis for fitness enthusiasts and recreational skiers alike. Enjoy the tranquility of the trails or get a full-body workout with our high-quality equipment. <strong>Free shipping on orders over $${FREE_SHIP} CAD</strong> nationwide. Based in Toronto, we serve the entire Canadian cross-country skiing community with expert advice and authentic products.
       </p>`,
 
     bottomDescription: `<h2 class="text-2xl font-bold mb-4 mt-12">Why Choose ProSkaters Place for Nordic Skiing?</h2>
@@ -558,7 +556,7 @@ export const categoryContentData: Record<string, CategoryContentData> = {
       {
         icon: 'mdi:truck-fast',
         title: 'Free Shipping',
-        description: 'On orders over $99 CAD',
+        description: `On orders over $${FREE_SHIP} CAD`,
       },
       {
         icon: 'mdi:currency-usd',

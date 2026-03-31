@@ -14,7 +14,7 @@ tags: ['roller skates', 'buying guide', 'canada', 'quad skates', 'beginner skate
 
 <div class="bg-gray-100 p-6 rounded-lg border-l-4 border-yellow-500 my-8">
   <h3 class="text-xl font-bold text-gray-900 mt-0">Ready to roll?</h3>
-  <p class="text-gray-700 mb-4">Skip the research and shop Canada's top-rated roller skates. <strong>Free shipping over $99 CAD!</strong></p>
+  <p class="text-gray-700 mb-4">Skip the research and shop Canada's top-rated roller skates. <strong>Free shipping over $135 CAD!</strong></p>
   <a href="/product-category/roller-skates" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 no-underline">
     Shop 100+ Roller Skates &rarr;
   </a>

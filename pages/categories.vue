@@ -174,11 +174,11 @@ const otherCategories = computed(() => {
 
 // Canadian SEO Optimization
 const {setCanadianSEO} = useCanadianSEO();
+const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
 
 setCanadianSEO({
   title: 'Shop All Categories | Skates, Scooters & Gear | ProSkaters Place Canada',
-  description:
-    "Browse all skating product categories at ProSkaters Place. ⭐ Inline skates, roller skates, protective gear, scooters & more. ⭐ Free shipping $99+ ⭐ Toronto-based. Shop Canada's #1 skate shop.",
+  description: `Browse all skating product categories at ProSkaters Place. ⭐ Inline skates, roller skates, protective gear, scooters & more. ⭐ Free shipping $${freeShipThreshold}+ ⭐ Toronto-based. Shop Canada's #1 skate shop.`,
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',
 });
@@ -347,7 +347,7 @@ onMounted(() => {
               </svg>
             </div>
             <h3 class="text-xl font-semibold text-white mb-2">Fast Shipping</h3>
-            <p class="text-gray-300">Free shipping on orders $99+ across Canada with fast delivery</p>
+            <p class="text-gray-300">Free shipping on orders ${{ freeShipThreshold }}+ across Canada with fast delivery</p>
           </div>
         </div>
       </div>
@@ -385,8 +385,8 @@ onMounted(() => {
               <li><strong class="text-white">Accessories:</strong> Tools, bags, apparel, and skating essentials</li>
             </ul>
             <p class="text-gray-300">
-              All products ship across Canada with free shipping on orders over $99. Our Toronto-based experts are available to help you choose the perfect
-              equipment for your skating needs.
+              All products ship across Canada with free shipping on orders over ${{ freeShipThreshold }}. Our Toronto-based experts are available to help you
+              choose the perfect equipment for your skating needs.
             </p>
           </div>
         </div>

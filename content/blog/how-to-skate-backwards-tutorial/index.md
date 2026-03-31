@@ -707,7 +707,7 @@ Backwards skating transforms you from a casual skater into someone with real ski
 - [Complete Protection Gear](/product-category/protection-gear)
 - [Quality Skates with Good Support](/product-category/inline-skates)
 
-**Canadian Support**: Free shipping over $99, 30-day returns, expert advice from our Toronto-based team.
+**Canadian Support**: Free shipping over $135, 30-day returns, expert advice from our Toronto-based team.
 
 **Questions?** Email info@proskatersplace.ca or visit our [Toronto showroom](/contact) for in-person coaching recommendations.
 

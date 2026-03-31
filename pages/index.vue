@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import {ProductsOrderByEnum} from '#woo';
 
+const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
+
 // Canadian SEO Optimization
 const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
   title: 'Best Roller Skates & Inline Skates Canada | ProSkaters Place Toronto',
-  description:
-    "Shop Canada's #1 roller skates & inline skates store. ⭐ 1000+ models ⭐ Free shipping $99+ ⭐ Expert fitting ⭐ Toronto-based. Inline skates, quad roller skates, protective gear & more!",
+  description: `Shop Canada's #1 roller skates & inline skates store. ⭐ 1000+ models ⭐ Free shipping $${freeShipThreshold}+ ⭐ Expert fitting ⭐ Toronto-based. Inline skates, quad roller skates, protective gear & more!`,
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',
 });
@@ -128,8 +129,7 @@ const homepageFAQs = [
   },
   {
     question: 'Do you ship roller skates across Canada?',
-    answer:
-      'Yes! We offer free shipping on orders over $99 to all Canadian provinces and territories. Orders within the Greater Toronto Area (GTA) qualify for same-day shipping. We ship from our Toronto warehouse for fast delivery across Ontario, Quebec, British Columbia, Alberta, and beyond.',
+    answer: `Yes! We offer free shipping on orders over $${freeShipThreshold} to all Canadian provinces and territories. Orders within the Greater Toronto Area (GTA) qualify for same-day shipping. We ship from our Toronto warehouse for fast delivery across Ontario, Quebec, British Columbia, Alberta, and beyond.`,
   },
   {
     question: 'How do I choose the right size for inline skates or roller skates?',
@@ -198,7 +198,7 @@ const homepageFAQs = [
           <div class="flex flex-col items-center">
             <img src="/icons/box.svg" width="48" height="48" alt="Free Expedited Shipping" loading="lazy" class="mb-4 h-12 w-12" />
             <h3 class="text-lg font-semibold uppercase tracking-wider text-gray-700">Free Shipping</h3>
-            <h6>*On Orders Over $99*</h6>
+            <h6>*On Orders Over ${{ freeShipThreshold }}*</h6>
           </div>
 
           <div class="flex flex-col items-center">
@@ -384,7 +384,7 @@ const homepageFAQs = [
             <ul class="space-y-4 text-gray-700 text-lg">
               <li class="flex items-start">
                 <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                <div><strong>Free Shipping:</strong> Complimentary shipping on all orders over $99 across Canada</div>
+                <div><strong>Free Shipping:</strong> Complimentary shipping on all orders over ${{ freeShipThreshold }} across Canada</div>
               </li>
               <li class="flex items-start">
                 <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />

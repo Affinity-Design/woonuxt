@@ -392,7 +392,7 @@ Expensive, but genuine pro-level performance. Will last 5+ years even with heavy
 - Overkill for most Canadian skaters
 - Only if you know you need this level
 
-**Canadian Tip**: Free shipping over $99 at ProSkaters Place Canada. Watch for seasonal sales (Spring and Fall) for 15-25% off.
+**Canadian Tip**: Free shipping over $135 at ProSkaters Place Canada. Watch for seasonal sales (Spring and Fall) for 15-25% off.
 
 ### Step 3: Get the Right Size
 
@@ -504,7 +504,7 @@ Expensive, but genuine pro-level performance. Will last 5+ years even with heavy
 ✅ **Canadian company** - Toronto-based, understand Canadian conditions
 ✅ **Expert staff** - 20+ years inline skating experience
 ✅ **All prices in CAD** - No surprise conversions or duties
-✅ **Free shipping** - Orders over $99 across Canada
+✅ **Free shipping** - Orders over $135 across Canada
 ✅ **30-day returns** - Hassle-free size exchanges
 ✅ **Professional fitting** - Toronto showroom available
 ✅ **Canadian warranty** - Local support and service
@@ -607,7 +607,7 @@ Choosing the best inline skates for your needs doesn't have to be complicated. H
 
 **Step 1**: [Browse our complete inline skate collection](/product-category/inline-skates)
 **Step 2**: Use our sizing guides or contact us for consultation
-**Step 3**: Order with confidence - free shipping over $99, 30-day returns
+**Step 3**: Order with confidence - free shipping over $135, 30-day returns
 
 **Questions?** Our Canadian team is here to help:
 

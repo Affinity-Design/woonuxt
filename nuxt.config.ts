@@ -78,6 +78,7 @@ export default defineNuxtConfig({
       // --- NEW: Build-time fallback exchange rate ---
       // Provide a default value (e.g., 1.0) if the env var isn't set during build
       buildTimeExchangeRate: process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || '1.37',
+      freeShippingThreshold: process.env.NUXT_PUBLIC_FREE_SHIPPING_THRESHOLD || '135',
 
       // --- Product Attribute Filters Configuration ---
       // These appear as filter options on category pages

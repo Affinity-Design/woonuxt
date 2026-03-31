@@ -345,7 +345,7 @@ export const useProductRichSnippets = () => {
       },
       {
         question: `How long does shipping take for ${productName}?`,
-        answer: `Standard shipping for ${productName} takes 2-7 business days within Canada. Free shipping is available on orders over $99 CAD.`,
+        answer: `Standard shipping for ${productName} takes 2-7 business days within Canada. Free shipping is available on orders over $${config.public.freeShippingThreshold} CAD.`,
       },
     );
 

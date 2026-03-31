@@ -850,7 +850,7 @@ A: Yes! Family skating is wonderful. Just remember you need to learn separately 
 - Browse full gear range
 - Connect with local skating community
 
-**Free Shipping**: Orders over $99 across Canada
+**Free Shipping**: Orders over $135 across Canada
 **Returns**: 30-day hassle-free returns and size exchanges
 
 ### Online Learning Resources

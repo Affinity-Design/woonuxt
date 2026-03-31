@@ -72,6 +72,8 @@ export interface CategorySEOOptions {
 
 export const useCategorySEO = () => {
   const {setCanadianSEO, formatCADPrice} = useCanadianSEO();
+  const config = useRuntimeConfig();
+  const fst = config.public.freeShippingThreshold;
 
   /**
    * Generate SEO-optimized category title with Canadian terms
@@ -93,13 +95,13 @@ export const useCategorySEO = () => {
    */
   const generateCategoryDescription = (name: string, totalProducts: number, slug: string, locale: 'en-CA' | 'fr-CA' = 'en-CA'): string => {
     const descriptions: Record<string, string> = {
-      'inline-skates': `Shop ${totalProducts}+ inline skates in Canada at ProSkaters Place. Free shipping on orders over $99 CAD. Top brands including Rollerblade, K2, and Powerslide. Expert advice, fast delivery across Toronto, Ontario, and nationwide. Find your perfect fit from recreational to professional inline skates.`,
-      'roller-skates': `Browse ${totalProducts}+ roller skates available in Canada. Best prices in CAD with free Canadian shipping on $99+. Quad skates for all skill levels, from beginner to advanced. Shop indoor, outdoor, and artistic roller skates from trusted brands. Fast delivery from Toronto across Canada.`,
+      'inline-skates': `Shop ${totalProducts}+ inline skates in Canada at ProSkaters Place. Free shipping on orders over $${fst} CAD. Top brands including Rollerblade, K2, and Powerslide. Expert advice, fast delivery across Toronto, Ontario, and nationwide. Find your perfect fit from recreational to professional inline skates.`,
+      'roller-skates': `Browse ${totalProducts}+ roller skates available in Canada. Best prices in CAD with free Canadian shipping on $${fst}+. Quad skates for all skill levels, from beginner to advanced. Shop indoor, outdoor, and artistic roller skates from trusted brands. Fast delivery from Toronto across Canada.`,
       'protective-gear': `Shop ${totalProducts}+ protective gear items for skating in Canada. Helmets, knee pads, elbow pads, and wrist guards. Safety-certified equipment with fast Canadian shipping. Best prices in CAD with expert sizing advice. Protect yourself with quality gear from ProSkaters Place Toronto.`,
       'wheels-bearings': `Upgrade your ride with ${totalProducts}+ wheels and bearings available in Canada. Premium skate wheels and ABEC/ILQ bearings from top brands. Fast shipping across Ontario and nationwide. Find the perfect setup for indoor, outdoor, or speed skating. Expert advice available.`,
       accessories: `Complete your skating setup with ${totalProducts}+ accessories in Canada. Bags, tools, laces, and maintenance supplies. Fast Canadian shipping on all orders. Best prices in CAD from Toronto's trusted skate shop. Everything you need to maintain and customize your skates.`,
-      'clearance-items': `Save big on ${totalProducts}+ clearance items! Discounted inline skates, roller skates, and accessories in Canada. Limited quantities, best prices in CAD. Free shipping on $99+. Fast delivery from Toronto. Shop now before they're gone!`,
-      'children-products': `Shop ${totalProducts}+ kids' skates in Canada. Adjustable inline and roller skates for growing feet. Safe, quality skates for children and teens. Best prices in CAD with fast Canadian shipping. Expert sizing advice from ProSkaters Place Toronto. Free shipping on $99+.`,
+      'clearance-items': `Save big on ${totalProducts}+ clearance items! Discounted inline skates, roller skates, and accessories in Canada. Limited quantities, best prices in CAD. Free shipping on $${fst}+. Fast delivery from Toronto. Shop now before they're gone!`,
+      'children-products': `Shop ${totalProducts}+ kids' skates in Canada. Adjustable inline and roller skates for growing feet. Safe, quality skates for children and teens. Best prices in CAD with fast Canadian shipping. Expert sizing advice from ProSkaters Place Toronto. Free shipping on $${fst}+.`,
     };
 
     // Return custom description if available, otherwise generate generic one
@@ -110,8 +112,8 @@ export const useCategorySEO = () => {
     // Generic category description with Canadian SEO terms
     const template =
       locale === 'fr-CA'
-        ? `Magasinez ${totalProducts}+ produits de ${name.toLowerCase()} au Canada chez ProSkaters Place. Livraison gratuite sur les commandes de plus de 99 $ CAD. Meilleurs prix, conseils d'experts et livraison rapide à travers le Canada.`
-        : `Shop ${totalProducts}+ ${name.toLowerCase()} products in Canada at ProSkaters Place. Free shipping on orders over $99 CAD. Best prices, expert advice, and fast delivery across Canada from Toronto.`;
+        ? `Magasinez ${totalProducts}+ produits de ${name.toLowerCase()} au Canada chez ProSkaters Place. Livraison gratuite sur les commandes de plus de ${fst} $ CAD. Meilleurs prix, conseils d'experts et livraison rapide à travers le Canada.`
+        : `Shop ${totalProducts}+ ${name.toLowerCase()} products in Canada at ProSkaters Place. Free shipping on orders over $${fst} CAD. Best prices, expert advice, and fast delivery across Canada from Toronto.`;
 
     return template;
   };
