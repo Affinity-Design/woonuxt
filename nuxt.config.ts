@@ -190,6 +190,8 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'cloudflare-pages',
+    // Required by Wrangler 3.x to correctly resolve _worker.js directory format
+    compatibilityDate: '2024-09-19',
     // Enable Node.js compatibility for Cloudflare Workers
     // Required for Node.js built-in modules (Buffer, events, util, etc.)
     compatibilityFlags: ['nodejs_compat'],
