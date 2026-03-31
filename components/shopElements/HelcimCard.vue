@@ -697,7 +697,7 @@ onUnmounted(() => {
         <div class="flex items-center justify-between">
           <div>
             <div class="font-medium text-blue-800">Secure Payment</div>
-            <div class="text-sm text-blue-600">Amount: {{ currency }} ${{ displayAmount }}</div>
+            <div class="text-sm text-blue-600">by Helcim</div>
           </div>
           <Icon name="ion:shield-checkmark" size="24" class="text-blue-600" />
         </div>
