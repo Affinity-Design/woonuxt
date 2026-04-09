@@ -74,34 +74,34 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | — | Pending |
-| DATA-02 | — | Pending |
-| DATA-03 | — | Pending |
-| DATA-04 | — | Pending |
-| DATA-05 | — | Pending |
-| CART-01 | — | Pending |
-| CART-02 | — | Pending |
-| CART-03 | — | Pending |
-| CART-04 | — | Pending |
-| CART-05 | — | Pending |
-| CART-06 | — | Pending |
-| CHKT-01 | — | Pending |
-| CHKT-02 | — | Pending |
-| CHKT-03 | — | Pending |
-| CHKT-04 | — | Pending |
-| META-01 | — | Pending |
-| META-02 | — | Pending |
-| META-03 | — | Pending |
-| META-04 | — | Pending |
-| META-05 | — | Pending |
-| META-06 | — | Pending |
-| I18N-01 | — | Pending |
-| I18N-02 | — | Pending |
+| DATA-01 | Phase 1: Cart Data Foundation | Pending |
+| DATA-02 | Phase 1: Cart Data Foundation | Pending |
+| DATA-03 | Phase 2: Detection Composable | Pending |
+| DATA-04 | Phase 2: Detection Composable | Pending |
+| DATA-05 | Phase 2: Detection Composable | Pending |
+| CART-01 | Phase 3: Notice Component | Pending |
+| CART-02 | Phase 3: Notice Component | Pending |
+| CART-03 | Phase 4: Cart Line Item Badges | Pending |
+| CART-04 | Phase 4: Cart Line Item Badges | Pending |
+| CART-05 | Phase 4: Cart Line Item Badges | Pending |
+| CART-06 | Phase 4: Cart Line Item Badges | Pending |
+| CHKT-01 | Phase 5: Checkout Summary Banners | Pending |
+| CHKT-02 | Phase 5: Checkout Summary Banners | Pending |
+| CHKT-03 | Phase 5: Checkout Summary Banners | Pending |
+| CHKT-04 | Phase 5: Checkout Summary Banners | Pending |
+| META-01 | Phase 6: Order Metadata Injection | Pending |
+| META-02 | Phase 6: Order Metadata Injection | Pending |
+| META-03 | Phase 6: Order Metadata Injection | Pending |
+| META-04 | Phase 6: Order Metadata Injection | Pending |
+| META-05 | Phase 6: Order Metadata Injection | Pending |
+| META-06 | Phase 6: Order Metadata Injection | Pending |
+| I18N-01 | Phase 7: Internationalization | Pending |
+| I18N-02 | Phase 7: Internationalization | Pending |
 
 **Coverage:**
 - v1 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23 ⚠️
+- Mapped to phases: 23 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-09*
