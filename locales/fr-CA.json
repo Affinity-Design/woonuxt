@@ -161,6 +161,12 @@
       "invalidPasswordResetLink": "Le lien de réinitialisation du mot de passe est invalide.",
       "general": "Une erreur est survenue",
       "noOrder": "Impossible de trouver votre commande. Veuillez réessayer plus tard."
+    },
+    "notices": {
+      "backorderBanner": "Votre commande contient des articles en rupture de stock. Ces articles seront expédiés dès qu'ils seront disponibles.",
+      "clearanceBanner": "Votre commande contient des articles en liquidation qui ne sont pas remboursables.",
+      "onBackorder": "En rupture de stock",
+      "nonRefundable": "Non remboursable"
     }
   }
 }

@@ -5,6 +5,7 @@ const {FALLBACK_IMG} = useHelpers();
 const {storeSettings} = useAppConfig();
 const {exchangeRate} = useExchangeRate();
 const {backorderItems, clearanceItems} = useCartNotices();
+const {t} = useI18n();
 
 const {item} = defineProps({
   item: {type: Object, required: true},
@@ -121,12 +122,12 @@ const moveToWishList = () => {
             <span
               v-if="isBackorder"
               class="text-[10px] border-yellow-300 leading-none bg-yellow-50 inline-block p-0.5 rounded text-yellow-700 border whitespace-nowrap">
-              On Backorder
+              {{ t('messages.notices.onBackorder') }}
             </span>
             <span
               v-if="isClearance"
               class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
-              Non-refundable
+              {{ t('messages.notices.nonRefundable') }}
             </span>
           </template>
         </div>
