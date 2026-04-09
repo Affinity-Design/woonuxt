@@ -49,9 +49,9 @@ const MAX_BRANDS = LIMIT_ARG ? parseInt(LIMIT_ARG.split('=')[1], 10) : Infinity;
 const CSV_ARG = process.argv.find((a) => a.startsWith('--csv='));
 const OUTPUT_DIR_ARG = process.argv.find((a) => a.startsWith('--output-dir='));
 
-const INPUT_PATH = path.resolve(__dirname, '../../data/brand-pages-raw.json');
+const INPUT_PATH = path.resolve(__dirname, '../../data/brands/brand-pages-raw.json');
 const CSV_PATH = CSV_ARG ? path.resolve(process.cwd(), CSV_ARG.split('=')[1]) : path.resolve(__dirname, '../docs/proskatersplace.com-us-2026-02-27-full.csv');
-const OUT_DIR = OUTPUT_DIR_ARG ? path.resolve(process.cwd(), OUTPUT_DIR_ARG.split('=')[1]) : path.resolve(__dirname, '../../data');
+const OUT_DIR = OUTPUT_DIR_ARG ? path.resolve(process.cwd(), OUTPUT_DIR_ARG.split('=')[1]) : path.resolve(__dirname, '../../data/brands');
 
 const OUTPUT_JSON = path.join(OUT_DIR, 'brand-master-list.json');
 const OUTPUT_CSV = path.join(OUT_DIR, 'brand-master-list.csv');

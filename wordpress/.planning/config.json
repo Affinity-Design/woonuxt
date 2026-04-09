@@ -1,0 +1,18 @@
+{
+  "mode": "interactive",
+  "granularity": "fine",
+  "model_profile": "balanced",
+  "commit_docs": true,
+  "parallelization": true,
+  "branching_strategy": "none",
+  "quick_branch_template": null,
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "auto_advance": true,
+    "nyquist_validation": true,
+    "ui_phase": true,
+    "ui_safety_gate": true
+  }
+}

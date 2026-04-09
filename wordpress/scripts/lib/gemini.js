@@ -8,9 +8,10 @@
  *
  * Env vars (either name works):
  *   GEMINI_API_KEY=...       ← preferred convention (matches Google docs)
- *   GOOGLE_AI_API_KEY=...    ← also accepted (already in .env)
+ *   GOOGLE_API_KEY=...       ← standard SDK env var name
+ *   GOOGLE_AI_API_KEY=...    ← legacy repo alias
  *
- * Default model: gemini-3-flash-preview  (override with GEMINI_MODEL env var or
+ * Default model: gemini-flash-latest  (override with GEMINI_MODEL env var or
  *   the model option on each call)
  */
 
@@ -19,7 +20,8 @@ const {GoogleGenAI} = require('@google/genai');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+const API_VERSION = process.env.GEMINI_API_VERSION || 'v1beta';
 
 // Max requests per minute — preview models are more restricted; use 10 RPM
 // as a conservative safe default.  Increase via GEMINI_RPM env var if on a
@@ -33,13 +35,13 @@ const BASE_BACKOFF_MS = 2000; // 2 s, doubles each retry → 2s, 4s, 8s, 16s
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_AI_API_KEY;
 
 if (!apiKey) {
-  throw new Error('[gemini.js] Missing API key — set GEMINI_API_KEY or GOOGLE_AI_API_KEY in .env');
+  throw new Error('[gemini.js] Missing API key — set GEMINI_API_KEY, GOOGLE_API_KEY, or GOOGLE_AI_API_KEY in .env');
 }
 
-const ai = new GoogleGenAI({apiKey});
+const ai = new GoogleGenAI({apiKey, apiVersion: API_VERSION});
 
 // ─── Rate-limiting state ───────────────────────────────────────────────────────
 
@@ -73,7 +75,7 @@ function isRetryable(err) {
  *
  * @param {string} prompt          — The user prompt
  * @param {object} [options]
- * @param {string} [options.model] — Override model (default: gemini-3-flash-preview)
+ * @param {string} [options.model] — Override model (default: gemini-flash-latest)
  * @param {string} [options.system]— System instruction string
  * @param {number} [options.temperature] — Sampling temperature (default: 1.0)
  * @returns {Promise<string>}      — response.text

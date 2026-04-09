@@ -42,6 +42,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 1 plan
 
 Plans:
+
 - [ ] 01-01-PLAN.md — Establish `/fr` routing, dynamic `<html lang>`, and French route-rule parity without breaking English URLs
 
 ### Phase 2: Locale File Completion

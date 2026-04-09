@@ -55,8 +55,8 @@ const OVERRIDE_BRANDS = BRANDS_ARG
       .map((s) => s.trim())
   : null;
 
-const INPUT_PATH = path.resolve(__dirname, '../../data/brand-pages-raw.json');
-const OUTPUT_PATH = path.resolve(__dirname, '../../data/brand-template-audit.json');
+const INPUT_PATH = path.resolve(__dirname, '../../data/brands/brand-pages-raw.json');
+const OUTPUT_PATH = path.resolve(__dirname, '../../data/brands/brand-template-audit.json');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

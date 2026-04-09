@@ -23,9 +23,7 @@ export function useCartNotices() {
   // Extract cart item slugs for category lookup
   const cartItemSlugs = computed<string[]>(() => {
     if (!cart.value?.contents?.nodes) return [];
-    return cart.value.contents.nodes
-      .map((item: any) => item.product?.node?.slug)
-      .filter((slug: string | undefined): slug is string => !!slug);
+    return cart.value.contents.nodes.map((item: any) => item.product?.node?.slug).filter((slug: string | undefined): slug is string => !!slug);
   });
 
   // Fetch categories when cart items change

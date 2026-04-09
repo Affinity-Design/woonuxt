@@ -24,12 +24,14 @@ All three layers operate within existing architectural boundaries: root override
 **Boundary:** Pure computation. Reads `useState('cart')` — writes nothing. No side effects, no API calls, no DOM interaction.
 
 **Inputs:**
+
 - `cart.value.contents.nodes[]` — cart line items (from `useState('cart')`)
 - Each node's `product.node.stockStatus` — backorder detection (simple products)
 - Each node's `variation.node.stockStatus` — backorder detection (variable products)
 - Each node's `product.node.productCategories.nodes[].slug` — clearance detection (match `clearance-items`)
 
 **Outputs:**
+
 ```typescript
 interface CartNotice {
   type: 'warning' | 'info' | 'error';
@@ -56,11 +58,13 @@ interface CartNotice {
 ```
 
 **Communicates with:**
+
 - `useCart()` — reads `cart` state (dependency: consumer)
 - `useI18n()` — resolves notice message strings
 - `useCheckout()` / `create-admin-order.post.ts` — supplies metadata via `getOrderMetadata()` / `getOrderNotes()` (dependency: supplier)
 
 **Does NOT communicate with:**
+
 - GraphQL API (all data already in cart state)
 - Cloudflare KV (cart is client-side state, no SSR caching concern)
 - WordPress REST API (only indirectly, via checkout composable)
@@ -72,6 +76,7 @@ interface CartNotice {
 **Boundary:** Presentational only. Receives props, emits nothing, mutates nothing.
 
 **Props:**
+
 ```typescript
 {
   type: 'warning' | 'info' | 'error';   // Determines colour scheme
@@ -82,18 +87,20 @@ interface CartNotice {
 ```
 
 **Rendering rules:**
-| Type    | Background   | Text           | Border         | ARIA role   |
+| Type | Background | Text | Border | ARIA role |
 |---------|-------------|----------------|----------------|-------------|
 | warning | bg-yellow-50 | text-yellow-800 | border-yellow-200 | role="alert" |
-| info    | bg-blue-50   | text-blue-800   | border-blue-200   | role="status" |
-| error   | bg-red-50    | text-red-800    | border-red-200    | role="alert"  |
+| info | bg-blue-50 | text-blue-800 | border-blue-200 | role="status" |
+| error | bg-red-50 | text-red-800 | border-red-200 | role="alert" |
 
 Visual consistency: `warning` type matches existing `StockStatus.vue` yellow palette (`text-yellow-600` on product pages → `text-yellow-800` + `bg-yellow-50` in notices for sufficient contrast in banner context).
 
 **Communicates with:**
+
 - Parent components only (via props). No composable calls, no state reads.
 
 **Placement (consumed by):**
+
 - `CartCard.vue` — inline `badge` variant per line item
 - `Cart.vue` — summary `banner` variant above checkout button
 - `checkout.vue` — summary `banner` variant above payment form
@@ -105,6 +112,7 @@ Visual consistency: `warning` type matches existing `StockStatus.vue` yellow pal
 **Boundary:** GraphQL schema query. No runtime code.
 
 **Current gap in `woonuxt_base/app/queries/fragments/CartFragment.gql`:**
+
 ```
 # Line 33-41: product.node includes ...SimpleProduct, ...VariableProduct, ...ExternalProduct
 # SimpleProduct fragment DOES include stockStatus
@@ -123,6 +131,7 @@ The `SimpleProduct` fragment includes `stockStatus` (verified in `woonuxt_base/a
 **Override required:** Copy `CartFragment.gql` to root `gql/queries/fragments/CartFragment.gql` and add `...ProductCategories` spread inside `product { node { ... } }`.
 
 **Communicates with:**
+
 - WPGraphQL server — requests additional fields
 - `useCartNotices` composable — provides data for clearance detection
 - `nuxt-graphql-client` — auto-imported, type-generated
@@ -135,10 +144,10 @@ The `SimpleProduct` fragment includes `stockStatus` (verified in `woonuxt_base/a
 
 **Two order creation paths exist:**
 
-| Path | File | Trigger | Metadata Injection Point |
-|------|------|---------|--------------------------|
-| **Helcim (primary)** | `composables/useCheckout.ts` → `server/api/create-admin-order.post.ts` | Helcim payment completes | `adminOrderData.lineItems[].metaData` + `adminOrderData.metaData` (order-level) |
-| **GQL fallback** | `composables/useCheckout.ts` → `GqlCheckout()` | Non-Helcim payment | `orderInput.metaData` (order-level only — GQL checkout mutation has limited line-item meta control) |
+| Path                 | File                                                                   | Trigger                  | Metadata Injection Point                                                                            |
+| -------------------- | ---------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------- |
+| **Helcim (primary)** | `composables/useCheckout.ts` → `server/api/create-admin-order.post.ts` | Helcim payment completes | `adminOrderData.lineItems[].metaData` + `adminOrderData.metaData` (order-level)                     |
+| **GQL fallback**     | `composables/useCheckout.ts` → `GqlCheckout()`                         | Non-Helcim payment       | `orderInput.metaData` (order-level only — GQL checkout mutation has limited line-item meta control) |
 
 **Helcim path (detailed):**
 
@@ -149,10 +158,10 @@ In `useCheckout.ts` around line 215, `cart.value.contents.nodes` is mapped to `l
 metaData: [
   ...existingVariationMeta,
   // NEW: backorder status
-  ...(isBackorder ? [{ key: 'Backorder', value: 'Yes' }] : []),
+  ...(isBackorder ? [{key: 'Backorder', value: 'Yes'}] : []),
   // NEW: clearance status
-  ...(isClearance ? [{ key: 'Clearance', value: 'Non-refundable' }] : []),
-]
+  ...(isClearance ? [{key: 'Clearance', value: 'Non-refundable'}] : []),
+];
 ```
 
 Order-level notes are added to `adminOrderData.metaData` or `adminOrderData.customerNote` (internal notes visible in WC admin):
@@ -167,6 +176,7 @@ Order-level notes are added to `adminOrderData.metaData` or `adminOrderData.cust
 `orderInput.value.metaData` (line 27) is the array that flows to `GqlCheckout`. Order-level meta can be appended here. Line-item-level meta is limited in the GQL checkout mutation — the Helcim admin path is the primary order creation mechanism.
 
 **Communicates with:**
+
 - `useCartNotices` — reads `getOrderMetadata()` and `getOrderNotes()`
 - `useCheckout()` — injects into `enhancedMetaData` array
 - `server/api/create-admin-order.post.ts` — receives metadata in request body
@@ -179,11 +189,13 @@ Order-level notes are added to `adminOrderData.metaData` or `adminOrderData.cust
 **Boundary:** Static JSON files. No runtime logic.
 
 **Files modified:**
+
 - `locales/en-CA.json` — add keys under `messages.shop.notices.*`
 - `locales/fr-CA.json` — add French translations
 - `locales/en-US.json` — add English fallback (same as en-CA)
 
 **Key structure:**
+
 ```json
 {
   "messages": {
@@ -202,6 +214,7 @@ Order-level notes are added to `adminOrderData.metaData` or `adminOrderData.cust
 ```
 
 **Communicates with:**
+
 - `useCartNotices` — reads via `useI18n().t()`
 - `CartNotice.vue` — receives already-translated strings as props
 
@@ -301,17 +314,17 @@ CartCard.vue    Cart.vue    checkout.vue
 
 ## Component Interaction Matrix
 
-| Component | Reads From | Writes To | Triggers |
-|-----------|-----------|-----------|----------|
-| `CartFragment.gql` (override) | WPGraphQL schema | Cart state (via GqlGetCart) | — |
-| `useCartNotices` composable | `useState('cart')`, `useI18n()` | Nothing (pure computation) | — |
-| `CartNotice.vue` component | Props only | Nothing | — |
-| `CartCard.vue` (modified) | `useCartNotices()` | Nothing | — |
-| `Cart.vue` (modified) | `useCartNotices()` | Nothing | — |
-| `checkout.vue` (modified) | `useCartNotices()` | Nothing | — |
-| `useCheckout.ts` (modified) | `useCartNotices().getOrderMetadata()` | `adminOrderData.metaData`, `lineItems[].metaData` | Order creation |
-| `create-admin-order.post.ts` (modified) | Request body `metaData`, `lineItems[].metaData` | WordPress order via REST API | Order notes |
-| `en-CA.json`, `fr-CA.json` (modified) | — | — | i18n key resolution |
+| Component                               | Reads From                                      | Writes To                                         | Triggers            |
+| --------------------------------------- | ----------------------------------------------- | ------------------------------------------------- | ------------------- |
+| `CartFragment.gql` (override)           | WPGraphQL schema                                | Cart state (via GqlGetCart)                       | —                   |
+| `useCartNotices` composable             | `useState('cart')`, `useI18n()`                 | Nothing (pure computation)                        | —                   |
+| `CartNotice.vue` component              | Props only                                      | Nothing                                           | —                   |
+| `CartCard.vue` (modified)               | `useCartNotices()`                              | Nothing                                           | —                   |
+| `Cart.vue` (modified)                   | `useCartNotices()`                              | Nothing                                           | —                   |
+| `checkout.vue` (modified)               | `useCartNotices()`                              | Nothing                                           | —                   |
+| `useCheckout.ts` (modified)             | `useCartNotices().getOrderMetadata()`           | `adminOrderData.metaData`, `lineItems[].metaData` | Order creation      |
+| `create-admin-order.post.ts` (modified) | Request body `metaData`, `lineItems[].metaData` | WordPress order via REST API                      | Order notes         |
+| `en-CA.json`, `fr-CA.json` (modified)   | —                                               | —                                                 | i18n key resolution |
 
 ## Architectural Constraints
 
@@ -347,11 +360,11 @@ Helcim admin order (primary) has full control over line item metadata and order 
 
 All changes are root-level overrides:
 
-| Override | Base File | Root Override Location |
-|----------|-----------|----------------------|
-| Cart fragment | `woonuxt_base/app/queries/fragments/CartFragment.gql` | `gql/queries/fragments/CartFragment.gql` |
-| CartCard | `woonuxt_base/app/components/cartElements/CartCard.vue` | `components/cartElements/CartCard.vue` (already overridden) |
-| Cart | `woonuxt_base/app/components/shopElements/Cart.vue` | `components/shopElements/Cart.vue` (already overridden) |
+| Override      | Base File                                               | Root Override Location                                      |
+| ------------- | ------------------------------------------------------- | ----------------------------------------------------------- |
+| Cart fragment | `woonuxt_base/app/queries/fragments/CartFragment.gql`   | `gql/queries/fragments/CartFragment.gql`                    |
+| CartCard      | `woonuxt_base/app/components/cartElements/CartCard.vue` | `components/cartElements/CartCard.vue` (already overridden) |
+| Cart          | `woonuxt_base/app/components/shopElements/Cart.vue`     | `components/shopElements/Cart.vue` (already overridden)     |
 
 New files (no base equivalent): `composables/useCartNotices.ts`, `components/CartNotice.vue`
 
@@ -362,6 +375,7 @@ Build order is driven by **data dependency chains**. Each phase must be verifiab
 ### Phase 1: Data Foundation — CartFragment Override + Composable Shell
 
 **Build:**
+
 1. Copy `CartFragment.gql` to `gql/queries/fragments/CartFragment.gql`
 2. Add `...ProductCategories` spread inside `product { node { ... } }`
 3. Verify: `npm run dev` → open cart → inspect GQL response → confirm `productCategories` and `stockStatus` present on product nodes
@@ -375,6 +389,7 @@ Build order is driven by **data dependency chains**. Each phase must be verifiab
 ### Phase 2: Display Layer — CartNotice Component + Cart/Checkout Integration
 
 **Build:**
+
 1. Create `components/CartNotice.vue` (presentational, props-driven)
 2. Integrate into `CartCard.vue` — add inline badge per line item
 3. Integrate into `Cart.vue` — add summary banner above checkout button
@@ -389,6 +404,7 @@ Build order is driven by **data dependency chains**. Each phase must be verifiab
 ### Phase 3: Order Metadata — Checkout Integration + Server-Side
 
 **Build:**
+
 1. Modify `useCheckout.ts` — call `useCartNotices().getOrderMetadata()` and inject into `enhancedMetaData` array
 2. Modify `useCheckout.ts` — call `useCartNotices().getOrderNotes()` and inject into admin order data
 3. Modify `server/api/create-admin-order.post.ts` — ensure `lineItem.metaData` pass-through works for new keys (Backorder, Clearance)
@@ -404,7 +420,7 @@ Build order is driven by **data dependency chains**. Each phase must be verifiab
 ```
 Phase 1: Data     ─────► Phase 2: Display     ─────► Phase 3: Metadata
 (foundation)              (visual verification)         (order integration)
-                                                        
+
 Fragment override         CartNotice.vue               useCheckout.ts mods
 useCartNotices.ts         CartCard.vue mods            create-admin-order mods
                           Cart.vue mods                Order notes
@@ -427,19 +443,20 @@ useCartNotices.ts         CartCard.vue mods            create-admin-order mods
 **Why:** Matches existing codebase patterns (`useCart`, `useAuth`, `useCheckout` all use `useState` + `computed`). Automatic reactivity means notices update when cart changes — no manual refresh, no event bus, no watchers needed in consuming components.
 
 **Example:**
+
 ```typescript
 // In useCartNotices.ts
 export function useCartNotices() {
-  const { cart } = useCart();
-  
-  const backorderItems = computed(() =>
-    cart.value?.contents?.nodes?.filter(item => {
-      const status = item.variation?.node?.stockStatus 
-        || item.product?.node?.stockStatus;
-      return compareStatus(status, StockStatusEnum.ON_BACKORDER);
-    }) || []
+  const {cart} = useCart();
+
+  const backorderItems = computed(
+    () =>
+      cart.value?.contents?.nodes?.filter((item) => {
+        const status = item.variation?.node?.stockStatus || item.product?.node?.stockStatus;
+        return compareStatus(status, StockStatusEnum.ON_BACKORDER);
+      }) || [],
   );
-  
+
   const hasBackorderItems = computed(() => backorderItems.value.length > 0);
   // ...
 }
@@ -495,18 +512,18 @@ export function useCartNotices() {
 
 All findings verified against codebase files:
 
-| Claim | Source | Confidence |
-|-------|--------|------------|
-| `stockStatus` on SimpleProduct fragment | `woonuxt_base/app/queries/fragments/SimpleProduct.gql:11` | HIGH |
-| `stockStatus` on variation nodes in cart | `woonuxt_base/app/queries/fragments/CartFragment.gql:53` | HIGH |
-| `productCategories` NOT in cart fragment | Grep search across `woonuxt_base/app/queries/` — no match in CartFragment.gql | HIGH |
-| `ProductCategories` fragment exists | `woonuxt_base/app/queries/fragments/ProductCategoriesFragment.gql` | HIGH |
-| Helcim order metadata path | `composables/useCheckout.ts:215-284`, `server/api/create-admin-order.post.ts:301-375` | HIGH |
-| Cart/checkout are client-only | `nuxt.config.ts` routeRules (verified in ARCHITECTURE.md codebase analysis) | HIGH |
-| StockStatus.vue yellow palette | `components/productElements/StockStatus.vue` — `text-yellow-600` | HIGH |
-| Nuxt layer override priority | `nuxt.config.ts` — `priority: 1000` on root layer | HIGH |
+| Claim                                               | Source                                                                                                | Confidence                          |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `stockStatus` on SimpleProduct fragment             | `woonuxt_base/app/queries/fragments/SimpleProduct.gql:11`                                             | HIGH                                |
+| `stockStatus` on variation nodes in cart            | `woonuxt_base/app/queries/fragments/CartFragment.gql:53`                                              | HIGH                                |
+| `productCategories` NOT in cart fragment            | Grep search across `woonuxt_base/app/queries/` — no match in CartFragment.gql                         | HIGH                                |
+| `ProductCategories` fragment exists                 | `woonuxt_base/app/queries/fragments/ProductCategoriesFragment.gql`                                    | HIGH                                |
+| Helcim order metadata path                          | `composables/useCheckout.ts:215-284`, `server/api/create-admin-order.post.ts:301-375`                 | HIGH                                |
+| Cart/checkout are client-only                       | `nuxt.config.ts` routeRules (verified in ARCHITECTURE.md codebase analysis)                           | HIGH                                |
+| StockStatus.vue yellow palette                      | `components/productElements/StockStatus.vue` — `text-yellow-600`                                      | HIGH                                |
+| Nuxt layer override priority                        | `nuxt.config.ts` — `priority: 1000` on root layer                                                     | HIGH                                |
 | `productCategories` resolution on cart product node | Inferred from WPGraphQL type system — cart product.node resolves to Product interface implementations | MEDIUM — needs runtime verification |
 
 ---
 
-*Architecture research: 2026-04-09*
+_Architecture research: 2026-04-09_

@@ -124,9 +124,7 @@ const moveToWishList = () => {
               class="text-[10px] border-yellow-300 leading-none bg-yellow-50 inline-block p-0.5 rounded text-yellow-700 border whitespace-nowrap">
               {{ t('messages.notices.onBackorder') }}
             </span>
-            <span
-              v-if="isClearance"
-              class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
+            <span v-if="isClearance" class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
               {{ t('messages.notices.nonRefundable') }}
             </span>
           </template>

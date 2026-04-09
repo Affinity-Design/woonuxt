@@ -50,7 +50,7 @@ const SKIP_DATAFORSEO = process.argv.includes('--skip-dataforseo');
 const LIMIT_ARG = process.argv.find((a) => a.startsWith('--limit='));
 const MAX_BRANDS = LIMIT_ARG ? parseInt(LIMIT_ARG.split('=')[1], 10) : Infinity;
 const OUTPUT_ARG = process.argv.find((a) => a.startsWith('--output='));
-const OUTPUT_PATH = OUTPUT_ARG ? path.resolve(process.cwd(), OUTPUT_ARG.split('=')[1]) : path.resolve(__dirname, '../../data/brand-pages-raw.json');
+const OUTPUT_PATH = OUTPUT_ARG ? path.resolve(process.cwd(), OUTPUT_ARG.split('=')[1]) : path.resolve(__dirname, '../../data/brands/brand-pages-raw.json');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

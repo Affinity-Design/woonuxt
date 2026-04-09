@@ -1,89 +1,136 @@
-# Backorder & Condition-Based Cart/Checkout Notices
+# Comprehensive French Bilingual Support
 
 ## What This Is
 
-A reusable notice system for the ProSkaters Place Canada checkout flow that warns customers about product conditions (backorder status, clearance no-refund policy) before they complete purchase. Notices appear inline per line item and as summary banners in both cart and checkout. Order metadata is written to WooCommerce so backorder/clearance status is visible in admin and emails.
+A complete bilingual (EN/FR) transformation of the ProSkaters Place Canada frontend — delivering true French Canadian customer experience across all customer-facing touchpoints while preserving English admin/backend metadata for order fulfillment clarity.
 
 ## Core Value
 
-Customers must see clear, unmissable warnings about backorder items and clearance no-refund policies before they hit "Place Order" — preventing disputes and setting correct expectations.
+French-speaking Canadian customers see a fully localized experience — navigation, product chrome, checkout flow, emails, and SEO — in natural fr-CA French. Backend order data remains English so the fulfillment team reads orders without translation friction.
 
 ## Requirements
 
 ### Validated
 
-- ✓ GraphQL schema exposes `stockStatus` (`ON_BACKORDER`) on products and variations — existing
-- ✓ `StockStatusEnum` TypeScript enum available via `#woo` — existing
-- ✓ `StockStatus.vue` component renders backorder in yellow on product pages — existing
-- ✓ Toast notification system exists (`useToast`, `ToastContainer.vue`) — existing
-- ✓ WooCommerce `clearance-items` category (slug: `clearance-items`, ID: 2531) exists — existing
-- ✓ Cart fragment returns `variation.node.stockStatus` — existing
-- ✓ Order creation supports `lineItem.metaData` and `metaData` arrays — existing
+- ✓ `@nuxtjs/i18n` module already installed and configured in nuxt.config.ts — existing
+- ✓ `locales/fr-CA.json` exists with ~80% of base WooNuxt keys translated — existing
+- ✓ `locales/en-CA.json` complete with all base keys + custom keys — existing
+- ✓ `i18n.config.ts` defines fr-CA in fallback chain — existing
+- ✓ `useCanadianSEO()` composable already has locale param, hreflang skeleton, and `detectLocale()` — existing
+- ✓ `formatCADPrice()` supports fr-CA formatting (`123,45 $`) — existing
+- ✓ Vue i18n `$t()` available in all components via module auto-import — existing
 
 ### Active
 
-- [ ] Reusable `CartNotice.vue` component — condition-driven, accepts type (warning/info/error), message, and icon; styled yellow for warnings
-- [ ] Extend `CartFragment.gql` override to include `stockStatus` on the product node (simple products)
-- [ ] Per-line-item backorder badge in cart drawer/page — yellow indicator next to each backorder item
-- [ ] Per-line-item clearance badge in cart drawer/page — indicator that item is non-refundable
-- [ ] Summary backorder banner at top of checkout — "Your order contains items on backorder"
-- [ ] Summary clearance banner at top of checkout — "Your order contains clearance items that are not refundable"
-- [ ] Computed helper in `useCart` (or new composable) to detect backorder/clearance items in cart
-- [ ] Clearance detection: match cart items against `clearance-items` product category (slug/ID)
-- [ ] Pass backorder status as line item meta (`Backorder: Yes`) during order creation
-- [ ] Add order-level note when order contains backorder items ("Contains backorder items: [SKUs]")
-- [ ] Add order-level note when order contains clearance items ("Contains non-refundable clearance items: [SKUs]")
-- [ ] i18n keys for all notice messages (en-CA and fr-CA)
+**Infrastructure (Phase 1):**
+
+- [ ] Switch i18n strategy from `no_prefix` to `prefix_except_default` for /fr/ route generation
+- [ ] Add /fr/ prefix route rules (prerender, cache, SSR settings) mirroring English routes
+- [ ] Dynamic `lang` attribute on `<html>` — `en-CA` or `fr-CA` based on active locale
+- [ ] Ensure /fr/ routes work with existing Cloudflare KV caching and prerendering
+
+**Locale Completeness (Phase 2):**
+
+- [ ] Audit all hardcoded customer-facing strings and create matching i18n keys
+- [ ] Add ~60+ new keys to both en-CA.json and fr-CA.json for currently-hardcoded text
+- [ ] Ensure fr-CA.json covers: home page, blog chrome, checkout, order confirmation, search, contact, size calculator, error messages
+- [ ] Ensure natural fr-CA phrasing (not Google Translate quality)
+
+**Component Extraction (Phase 3):**
+
+- [ ] Replace all hardcoded English in `/components/` with `$t()` calls
+- [ ] Key targets: BlogPost.vue, BlogPostCard.vue, CategoryContent.vue, ProductFAQ.vue, ProductReviews.vue
+- [ ] Override base layer components (SignInLink, MainMenu, AppFooter) to use $t() where needed
+- [ ] Ensure aria-labels and alt text use $t() for accessibility
+
+**Page Extraction (Phase 4):**
+
+- [ ] Replace hardcoded English on index.vue (hero, trust badges, FAQ, CTAs, welcome text)
+- [ ] Replace hardcoded English on checkout/order-received (confirmation messages)
+- [ ] Replace hardcoded English on contact.vue, search.vue, size calculator
+- [ ] Replace hardcoded error messages on checkout.vue
+
+**Language Switcher (Phase 5):**
+
+- [ ] Visible EN/FR toggle in site header
+- [ ] Route-aware: switches between /page and /fr/page while preserving path
+- [ ] Persist locale preference (cookie or localStorage)
+- [ ] Works on mobile menu as well as desktop header
+
+**French SEO & Hreflang (Phase 6):**
+
+- [ ] Wire useCanadianSEO() to detect /fr/ prefix and set locale automatically
+- [ ] Generate proper hreflang link tags on all pages (en-CA, fr-CA, en-US, x-default)
+- [ ] French pages get `og:locale` = `fr_CA`, title/description in French
+- [ ] Update sitemap generation to include /fr/ alternate URLs
+- [ ] French canonical URLs (https://proskatersplace.ca/fr/...)
+
+**Contact Email i18n (Phase 7):**
+
+- [ ] Detect submission locale from route or form data
+- [ ] French confirmation email text for French-context submissions
+- [ ] Admin notification email stays English (internal use)
+- [ ] Error messages on contact form use $t()
+
+**Blog UI Chrome i18n (Phase 8):**
+
+- [ ] BlogPost.vue: breadcrumbs, "Share this article", "Tags", "About the Author", "Table of Contents", "Ready to Get Skating?" CTA
+- [ ] BlogPostCard.vue: reading time, category labels
+- [ ] Blog listing page navigation text
+- [ ] Keep actual blog post content in English (French content is out of scope)
 
 ### Out of Scope
 
-- Blocking modal / forced acknowledgment before payment — informational only for now
-- Dedicated email template section — line item meta auto-renders in standard WC emails
-- Low-stock quantity warnings ("Only 2 left!") — may add later via same component
-- Modifying the base layer (`woonuxt_base/`) — all changes via root overrides
+- French blog post content (Markdown articles stay English for now)
+- French product names/descriptions in WooCommerce backend (stays English — WPGraphQL returns English)
+- Backend order metadata (line item meta, order notes) — stays English for fulfillment team clarity
+- Admin-facing server logs and error messages — English only
+- WooCommerce admin email templates — controlled by WordPress, not this repo
+- French subdomain (fr.proskatersplace.ca) — using /fr/ prefix instead
+- Auto-translating user-generated content (reviews, order notes from customers)
+- French versions of static legal pages (terms, privacy) — separate legal review needed
 
 ## Context
 
-- **Brownfield project**: ProSkaters Place Canada is live. This adds a new feature layer on top.
-- **Two-layer architecture**: `woonuxt_base/` is read-only. Override cart fragment and components by copying to root.
-- **Cart data gap**: `CartFragment.gql` returns `stockStatus` on variation nodes but NOT on product nodes for simple products. Need to extend the fragment.
-- **Clearance detection**: Products in WooCommerce category `clearance-items` (slug: `clearance-items`, cat ID: 2531). Category data comes through GraphQL on product nodes (`productCategories`).
-- **Order creation path**: Helcim orders go through `server/api/create-admin-order.post.ts` which already maps `lineItem.metaData` (variation attributes). GraphQL-based checkout uses `GqlCheckout` mutation. Both paths need backorder metadata injection.
-- **Existing stock display**: `components/productElements/StockStatus.vue` already shows "On Backorder" in yellow on product pages — new component should use consistent colour/messaging.
+- **Current state**: i18n module installed with `no_prefix` strategy. fr-CA.json has base WooNuxt keys but frontend has 60+ hardcoded English strings. No /fr/ routes exist. No language switcher.
+- **Backend boundary**: WordPress/WooCommerce data (product names, descriptions, categories) comes through in English via WPGraphQL. This initiative does NOT translate backend data — it translates the site chrome, navigation, checkout flow, and SEO markup around that English product data.
+- **Admin clarity rule**: Order metadata (line item meta like "Backorder: Yes", order notes listing SKUs) MUST stay English so the fulfillment team in the admin dashboard can read what was ordered without needing translation.
+- **SEO alignment**: This directly supports the .ca bilingual SEO vision — Google indexes /fr/ pages separately, hreflang tags connect EN↔FR alternates, French pages rank for French Canadian search queries.
+- **Architecture constraint**: `woonuxt_base/` is read-only. Override components by copying to root `/components/`.
+- **Caching**: /fr/ routes need the same Cloudflare KV + prerender treatment as English routes.
 
 ## Constraints
 
 - **Architecture**: Must not modify `woonuxt_base/`. Override by copying files to root.
-- **Data**: Must work with existing WPGraphQL schema — no WordPress plugin changes.
-- **Rendering**: Cart/checkout are client-only (`ssr: false`). Notices render client-side only.
-- **i18n**: All user-facing strings must have en-CA and fr-CA translations.
-- **Reusability**: Notice component must be generic (condition + message + type), not hardcoded to backorder.
+- **Backend data**: Product names, descriptions, categories remain English from WPGraphQL.
+- **Order metadata**: All order notes, line item meta, admin-facing text stays English.
+- **Quality**: French translations must be natural fr-CA (Canadian French), not France French.
+- **Performance**: /fr/ routes must have same caching/prerender treatment as English.
+- **SEO**: Every /fr/ page must have correct hreflang pointing to English equivalent and vice versa.
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Reusable condition-based notice vs. dedicated BackorderNotice | Future conditions (clearance, low stock) use same component | — Pending |
-| Informational only, no blocking | Fewer friction points; backorder/clearance are pre-purchase warnings not legal gates | — Pending |
-| Line item meta + order note (both) | Maximum visibility in WC admin and emails for fulfillment team | — Pending |
-| Extend CartFragment for simple product stockStatus | Simple products can also be on backorder; variation-only coverage is insufficient | — Pending |
+| Decision                                   | Rationale                                                                                                        | Status     |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------- |
+| `/fr/` prefix routing (not subdomain)      | Simpler infrastructure, single Cloudflare Pages deployment, @nuxtjs/i18n native support                          | ✅ Decided |
+| `prefix_except_default` strategy           | English stays at root paths, French gets /fr/ prefix — no breaking URL changes for existing English SEO          | ✅ Decided |
+| Blog content stays English                 | French blog content requires separate editorial pipeline; translate UI chrome only for now                       | ✅ Decided |
+| Contact form email only (not order emails) | Order emails are WooCommerce-controlled; contact.ts is the only email we fully control                           | ✅ Decided |
+| Header language toggle (EN/FR)             | Users need explicit control; browser detection alone isn't sufficient for bilingual regions                      | ✅ Decided |
+| Order metadata stays English               | Fulfillment team reads admin dashboard in English; translating "Backorder: Yes" to "En rupture" causes confusion | ✅ Decided |
+| Product data stays English from API        | WPGraphQL returns English product data; frontend translates chrome around it, not product content                | ✅ Decided |
 
 ## Evolution
 
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd-transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
+This document evolves at phase transitions and milestone boundaries. 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `/gsd-complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-09 after initialization*
+
+_Last updated: 2026-04-09 after initialization_

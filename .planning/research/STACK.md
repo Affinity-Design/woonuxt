@@ -16,48 +16,48 @@ The stack recommendation is: one new composable (`useCartNotices`), one new comp
 
 ### Component Layer
 
-| Technology | Version | Purpose | Why This, Not Something Else |
-|---|---|---|---|
-| Vue 3 SFC (Nuxt auto-import) | via Nuxt 3.13.2 | `CartNotice.vue` inline alert component | Already the component model. No component library needed — Tailwind + Icon + props replaces any alert library. |
-| `@nuxt/icon` (Iconify `ion` set) | 1.10.3 | Warning/info icons in notices | Already used in `ToastContainer.vue` for `ion:warning`, `ion:alert-circle`. Consistent icon language. |
-| Tailwind CSS | via `@nuxtjs/tailwindcss 6.13.1` | Yellow/amber warning styles, badge styles | Existing colour system. `CartCard.vue` already uses yellow for low-stock badges — extend the same palette. |
-| Vue `<Transition>` | built-in | Animate notice show/hide | Already used in `ToastContainer.vue` (`<TransitionGroup>`). No library needed. |
+| Technology                       | Version                          | Purpose                                   | Why This, Not Something Else                                                                                   |
+| -------------------------------- | -------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Vue 3 SFC (Nuxt auto-import)     | via Nuxt 3.13.2                  | `CartNotice.vue` inline alert component   | Already the component model. No component library needed — Tailwind + Icon + props replaces any alert library. |
+| `@nuxt/icon` (Iconify `ion` set) | 1.10.3                           | Warning/info icons in notices             | Already used in `ToastContainer.vue` for `ion:warning`, `ion:alert-circle`. Consistent icon language.          |
+| Tailwind CSS                     | via `@nuxtjs/tailwindcss 6.13.1` | Yellow/amber warning styles, badge styles | Existing colour system. `CartCard.vue` already uses yellow for low-stock badges — extend the same palette.     |
+| Vue `<Transition>`               | built-in                         | Animate notice show/hide                  | Already used in `ToastContainer.vue` (`<TransitionGroup>`). No library needed.                                 |
 
 ### Data Layer
 
-| Technology | Purpose | Why |
-|---|---|---|
+| Technology                                            | Purpose                                                           | Why                                                                                                                                                                                              |
+| ----------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `nuxt-graphql-client` + overridden `CartFragment.gql` | Extend cart product data with `stockStatus` + `productCategories` | The **only** way to get product-level stock status and category membership from cart items. Fragment override is the established pattern (root `queries/` takes precedence over `woonuxt_base`). |
-| `useState()` composable (`useCartNotices`) | Compute notice conditions from cart state | Follows existing state pattern (`useCart`, `useCheckout`, `useToast`). No Pinia/Vuex needed. |
-| `StockStatusEnum` from `#woo` | Type-safe backorder detection | Already used in `StockStatus.vue`. Provides `ON_BACKORDER`, `IN_STOCK`, `OUT_OF_STOCK` constants. |
+| `useState()` composable (`useCartNotices`)            | Compute notice conditions from cart state                         | Follows existing state pattern (`useCart`, `useCheckout`, `useToast`). No Pinia/Vuex needed.                                                                                                     |
+| `StockStatusEnum` from `#woo`                         | Type-safe backorder detection                                     | Already used in `StockStatus.vue`. Provides `ON_BACKORDER`, `IN_STOCK`, `OUT_OF_STOCK` constants.                                                                                                |
 
 ### Order Metadata Layer
 
-| Technology | Purpose | Why |
-|---|---|---|
-| WPGraphQL `createOrder` mutation (`lineItem.metaData`) | Backorder/clearance line-item meta on Helcim orders | Already used in `create-admin-order.post.ts` for variation attributes. Same `metaData` array — just append entries. |
-| WPGraphQL `checkout` mutation (`metaData: [MetaDataInput]`) | Order-level backorder/clearance meta on GraphQL checkout | Already used in `useCheckout.ts` `orderInput.metaData` array. Append new entries before submission. |
-| WooCommerce REST API order notes | Post-creation order notes with affected SKUs | Already used in `create-admin-order.post.ts` for post-creation updates. Add note after order creation. |
+| Technology                                                  | Purpose                                                  | Why                                                                                                                 |
+| ----------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| WPGraphQL `createOrder` mutation (`lineItem.metaData`)      | Backorder/clearance line-item meta on Helcim orders      | Already used in `create-admin-order.post.ts` for variation attributes. Same `metaData` array — just append entries. |
+| WPGraphQL `checkout` mutation (`metaData: [MetaDataInput]`) | Order-level backorder/clearance meta on GraphQL checkout | Already used in `useCheckout.ts` `orderInput.metaData` array. Append new entries before submission.                 |
+| WooCommerce REST API order notes                            | Post-creation order notes with affected SKUs             | Already used in `create-admin-order.post.ts` for post-creation updates. Add note after order creation.              |
 
 ### I18n Layer
 
-| Technology | Purpose | Why |
-|---|---|---|
+| Technology                                     | Purpose                    | Why                                                                                                                              |
+| ---------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `@nuxtjs/i18n 8.5.5` with `$t()` / `useI18n()` | All notice message strings | Established pattern. `StockStatus.vue` already uses `$t("messages.shop.onBackorder")`. Add keys under `messages.shop.notices.*`. |
-| `locales/en-CA.json` + `locales/fr-CA.json` | Bilingual notice text | Required by project constraints. |
+| `locales/en-CA.json` + `locales/fr-CA.json`    | Bilingual notice text      | Required by project constraints.                                                                                                 |
 
 ---
 
 ## Alternatives Considered (And Rejected)
 
-| Approach | Rejected | Why Not |
-|---|---|---|
-| Headless UI / Radix-Vue alert component | Overkill | A `<div>` with Tailwind classes + Icon is sufficient. No ARIA dialog semantics needed for inline warnings. |
-| Pinia store for notice state | Unnecessary | Notices are computed from cart state, not independent. A composable returning `computed()` values is simpler and follows existing patterns. |
-| Server-side notice generation (Nitro middleware) | Wrong layer | Cart/checkout are `ssr: false`. Notices are client-only computed values. Server has no role here. |
-| WordPress plugin for backorder notices | Outside constraints | PROJECT.md constraint: "Must work with existing WPGraphQL schema — no WordPress plugin changes." |
-| Separate GraphQL query for stock/category per item | N+1 problem | One extended cart fragment is cheaper than querying each item individually. Cart already fetches product data. |
-| Custom WPGraphQL extension (PHP) | Outside scope | Would require WordPress code changes. Category data is already available through `productCategories` fragment on the `Product` type — just need to include it in the cart fragment. |
+| Approach                                           | Rejected            | Why Not                                                                                                                                                                             |
+| -------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Headless UI / Radix-Vue alert component            | Overkill            | A `<div>` with Tailwind classes + Icon is sufficient. No ARIA dialog semantics needed for inline warnings.                                                                          |
+| Pinia store for notice state                       | Unnecessary         | Notices are computed from cart state, not independent. A composable returning `computed()` values is simpler and follows existing patterns.                                         |
+| Server-side notice generation (Nitro middleware)   | Wrong layer         | Cart/checkout are `ssr: false`. Notices are client-only computed values. Server has no role here.                                                                                   |
+| WordPress plugin for backorder notices             | Outside constraints | PROJECT.md constraint: "Must work with existing WPGraphQL schema — no WordPress plugin changes."                                                                                    |
+| Separate GraphQL query for stock/category per item | N+1 problem         | One extended cart fragment is cheaper than querying each item individually. Cart already fetches product data.                                                                      |
+| Custom WPGraphQL extension (PHP)                   | Outside scope       | Would require WordPress code changes. Category data is already available through `productCategories` fragment on the `Product` type — just need to include it in the cart fragment. |
 
 ---
 
@@ -77,6 +77,7 @@ The stack recommendation is: one new composable (`useCartNotices`), one new comp
 ```
 
 Props:
+
 - `type: 'warning' | 'info' | 'error'` — drives colour and icon
 - `message: string` — i18n-resolved display text
 - `icon?: string` — override default icon (default: `ion:warning` for warning, `ion:information-circle` for info)
@@ -84,11 +85,11 @@ Props:
 
 **Colour map (consistent with existing palette):**
 
-| Type | Background | Text | Border | Icon | Precedent |
-|---|---|---|---|---|---|
-| `warning` | `bg-yellow-50` | `text-yellow-800` | `border-yellow-300` | `ion:warning` | `StockStatus.vue` uses `text-yellow-600` for backorder; `CartCard.vue` uses `bg-yellow-100` for Low Stock badge |
-| `info` | `bg-blue-50` | `text-blue-800` | `border-blue-300` | `ion:information-circle` | `ToastContainer.vue` uses `bg-blue-600` for info toasts |
-| `error` | `bg-red-50` | `text-red-800` | `border-red-300` | `ion:alert-circle` | `ToastContainer.vue` uses `bg-red-600` for error toasts |
+| Type      | Background     | Text              | Border              | Icon                     | Precedent                                                                                                       |
+| --------- | -------------- | ----------------- | ------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `warning` | `bg-yellow-50` | `text-yellow-800` | `border-yellow-300` | `ion:warning`            | `StockStatus.vue` uses `text-yellow-600` for backorder; `CartCard.vue` uses `bg-yellow-100` for Low Stock badge |
+| `info`    | `bg-blue-50`   | `text-blue-800`   | `border-blue-300`   | `ion:information-circle` | `ToastContainer.vue` uses `bg-blue-600` for info toasts                                                         |
+| `error`   | `bg-red-50`    | `text-red-800`    | `border-red-300`    | `ion:alert-circle`       | `ToastContainer.vue` uses `bg-red-600` for error toasts                                                         |
 
 **Why inline div and not toast:** Toasts are ephemeral — they disappear after `duration` ms. Backorder/clearance warnings must be **persistent and visible** at time of purchase decision. They sit in the DOM alongside cart items, not floating over content.
 
@@ -106,23 +107,27 @@ Props:
 
 ```typescript
 export function useCartNotices() {
-  const { cart } = useCart();
+  const {cart} = useCart();
 
-  const backorderItems = computed(() => { /* filter cart items by stockStatus === ON_BACKORDER */ });
-  const clearanceItems = computed(() => { /* filter cart items by category slug === 'clearance-items' */ });
-  
+  const backorderItems = computed(() => {
+    /* filter cart items by stockStatus === ON_BACKORDER */
+  });
+  const clearanceItems = computed(() => {
+    /* filter cart items by category slug === 'clearance-items' */
+  });
+
   const hasBackorderItems = computed(() => backorderItems.value.length > 0);
   const hasClearanceItems = computed(() => clearanceItems.value.length > 0);
-  
+
   // Structured notice objects ready for CartNotice component
   const notices = computed(() => {
     const result = [];
-    if (hasBackorderItems.value) result.push({ type: 'warning', messageKey: 'messages.shop.notices.backorderSummary' });
-    if (hasClearanceItems.value) result.push({ type: 'info', messageKey: 'messages.shop.notices.clearanceSummary' });
+    if (hasBackorderItems.value) result.push({type: 'warning', messageKey: 'messages.shop.notices.backorderSummary'});
+    if (hasClearanceItems.value) result.push({type: 'info', messageKey: 'messages.shop.notices.clearanceSummary'});
     return result;
   });
 
-  return { backorderItems, clearanceItems, hasBackorderItems, hasClearanceItems, notices };
+  return {backorderItems, clearanceItems, hasBackorderItems, hasClearanceItems, notices};
 }
 ```
 
@@ -150,7 +155,7 @@ const CLEARANCE_SLUG = 'clearance-items';
 
 const isInClearance = (item: CartItem): boolean => {
   const categories = item.product?.node?.productCategories?.nodes ?? [];
-  return categories.some(cat => cat.slug === CLEARANCE_SLUG);
+  return categories.some((cat) => cat.slug === CLEARANCE_SLUG);
 };
 ```
 
@@ -230,6 +235,7 @@ The admin order endpoint already accepts and processes `lineItem.metaData` (see 
 1. **Line-item meta** — For each backorder item, add `{ key: 'Backorder', value: 'Yes' }` to `lineItem.metaData` array. For each clearance item, add `{ key: 'Clearance', value: 'Non-refundable' }`.
 
 2. **Order-level meta** — Add to the existing `metaData` array in the mutation variables:
+
    ```typescript
    { key: '_contains_backorder_items', value: 'yes' }
    { key: '_backorder_skus', value: 'SKU1, SKU2' }
@@ -252,16 +258,10 @@ The GraphQL checkout mutation supports **order-level metaData only** — not per
 ```typescript
 // In useCheckout.ts processCheckout(), before GqlCheckout call:
 if (hasBackorderItems.value) {
-  orderInput.value.metaData.push(
-    { key: '_contains_backorder_items', value: 'yes' },
-    { key: '_backorder_skus', value: backorderSkus.join(', ') }
-  );
+  orderInput.value.metaData.push({key: '_contains_backorder_items', value: 'yes'}, {key: '_backorder_skus', value: backorderSkus.join(', ')});
 }
 if (hasClearanceItems.value) {
-  orderInput.value.metaData.push(
-    { key: '_contains_clearance_items', value: 'yes' },
-    { key: '_clearance_skus', value: clearanceSkus.join(', ') }
-  );
+  orderInput.value.metaData.push({key: '_contains_clearance_items', value: 'yes'}, {key: '_clearance_skus', value: clearanceSkus.join(', ')});
 }
 ```
 
@@ -279,8 +279,7 @@ if (hasClearanceItems.value) {
 
 ```vue
 <!-- Existing in CartCard.vue -->
-<span v-if="isLowStock"
-  class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
+<span v-if="isLowStock" class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
   Low Stock
 </span>
 ```
@@ -288,12 +287,12 @@ if (hasClearanceItems.value) {
 **New badges follow identical structure:**
 
 ```vue
-<span v-if="isItemOnBackorder"
+<span
+  v-if="isItemOnBackorder"
   class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-yellow-700 border whitespace-nowrap">
   {{ $t('messages.shop.notices.backorderBadge') }}
 </span>
-<span v-if="isItemClearance"
-  class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
+<span v-if="isItemClearance" class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
   {{ $t('messages.shop.notices.clearanceBadge') }}
 </span>
 ```
@@ -307,6 +306,7 @@ if (hasClearanceItems.value) {
 New keys to add under `messages.shop.notices` in both locale files:
 
 **`locales/en-CA.json`:**
+
 ```json
 {
   "messages": {
@@ -325,6 +325,7 @@ New keys to add under `messages.shop.notices` in both locale files:
 ```
 
 **`locales/fr-CA.json`:**
+
 ```json
 {
   "messages": {
@@ -348,20 +349,21 @@ New keys to add under `messages.shop.notices` in both locale files:
 
 ## File Change Map
 
-| File | Action | Purpose |
-|---|---|---|
-| `queries/fragments/CartFragment.gql` | **CREATE** (override) | Add `stockStatus` inline fragments + `productCategories` to product node |
-| `composables/useCartNotices.ts` | **CREATE** | Backorder/clearance detection from cart state |
-| `components/CartNotice.vue` | **CREATE** | Reusable inline alert component |
-| `components/cartElements/CartCard.vue` | **EDIT** | Add per-item backorder/clearance badges |
-| `components/shopElements/Cart.vue` | **EDIT** | Add summary notices above cart item list |
-| `pages/checkout.vue` | **EDIT** | Add summary notices above order summary |
-| `composables/useCheckout.ts` | **EDIT** | Inject backorder/clearance metaData before checkout |
-| `server/api/create-admin-order.post.ts` | **EDIT** | Inject line-item meta + order notes for Helcim path |
-| `locales/en-CA.json` | **EDIT** | Add notice i18n keys |
-| `locales/fr-CA.json` | **EDIT** | Add notice i18n keys (French) |
+| File                                    | Action                | Purpose                                                                  |
+| --------------------------------------- | --------------------- | ------------------------------------------------------------------------ |
+| `queries/fragments/CartFragment.gql`    | **CREATE** (override) | Add `stockStatus` inline fragments + `productCategories` to product node |
+| `composables/useCartNotices.ts`         | **CREATE**            | Backorder/clearance detection from cart state                            |
+| `components/CartNotice.vue`             | **CREATE**            | Reusable inline alert component                                          |
+| `components/cartElements/CartCard.vue`  | **EDIT**              | Add per-item backorder/clearance badges                                  |
+| `components/shopElements/Cart.vue`      | **EDIT**              | Add summary notices above cart item list                                 |
+| `pages/checkout.vue`                    | **EDIT**              | Add summary notices above order summary                                  |
+| `composables/useCheckout.ts`            | **EDIT**              | Inject backorder/clearance metaData before checkout                      |
+| `server/api/create-admin-order.post.ts` | **EDIT**              | Inject line-item meta + order notes for Helcim path                      |
+| `locales/en-CA.json`                    | **EDIT**              | Add notice i18n keys                                                     |
+| `locales/fr-CA.json`                    | **EDIT**              | Add notice i18n keys (French)                                            |
 
 **Files NOT changed:**
+
 - `woonuxt_base/` — Read-only constraint respected
 - No WordPress/PHP files — Schema constraint respected
 - No new npm packages — Everything exists
@@ -370,27 +372,27 @@ New keys to add under `messages.shop.notices` in both locale files:
 
 ## Confidence Assessment
 
-| Area | Confidence | Reason |
-|---|---|---|
-| Component pattern (`CartNotice.vue`) | HIGH | Mirrors existing `ToastContainer.vue` + `StockStatus.vue` patterns verbatim |
-| Composable pattern (`useCartNotices`) | HIGH | Identical to existing `useCart`, `useToast` — `computed()` over `useState()` |
-| CartFragment override | HIGH | Two-layer override is the documented pattern; `productCategories` is a standard WPGraphQL field |
-| Helcim order metadata | HIGH | `lineItem.metaData` already used for variation attributes in same file |
-| GraphQL checkout metadata | HIGH | `orderInput.metaData` array already populated with 15+ entries in `useCheckout.ts` |
-| Per-line-item GraphQL checkout meta | N/A | Not possible — WPGraphQL `checkout` mutation doesn't support it. Order-level meta is sufficient. |
-| Clearance category detection | HIGH | `productCategories.nodes[].slug` matching against `'clearance-items'` — standard GraphQL field |
-| I18n integration | HIGH | Uses existing `$t()` + locale file pattern |
+| Area                                  | Confidence | Reason                                                                                           |
+| ------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------ |
+| Component pattern (`CartNotice.vue`)  | HIGH       | Mirrors existing `ToastContainer.vue` + `StockStatus.vue` patterns verbatim                      |
+| Composable pattern (`useCartNotices`) | HIGH       | Identical to existing `useCart`, `useToast` — `computed()` over `useState()`                     |
+| CartFragment override                 | HIGH       | Two-layer override is the documented pattern; `productCategories` is a standard WPGraphQL field  |
+| Helcim order metadata                 | HIGH       | `lineItem.metaData` already used for variation attributes in same file                           |
+| GraphQL checkout metadata             | HIGH       | `orderInput.metaData` array already populated with 15+ entries in `useCheckout.ts`               |
+| Per-line-item GraphQL checkout meta   | N/A        | Not possible — WPGraphQL `checkout` mutation doesn't support it. Order-level meta is sufficient. |
+| Clearance category detection          | HIGH       | `productCategories.nodes[].slug` matching against `'clearance-items'` — standard GraphQL field   |
+| I18n integration                      | HIGH       | Uses existing `$t()` + locale file pattern                                                       |
 
 ---
 
 ## Risks and Mitigations
 
-| Risk | Severity | Mitigation |
-|---|---|---|
-| CartFragment `productCategories` field doesn't resolve in cart context | LOW | `productCategories` is on the `Product` interface in WPGraphQL, not a type-specific field. Should resolve for all product types. Test with a real cart containing categorized products. |
-| `stockStatus` inline fragments still don't resolve for simple products | LOW | Fallback: query stock status separately via `GqlGetStockStatus(slug)` for items missing status. But this is unlikely — the inline fragment is the documented WPGraphQL approach. |
-| Cart response size increase from `productCategories` | NEGLIGIBLE | ~50 bytes per item × 5 items = 250 bytes. Cart/checkout are client-only pages, not SSR-cached. |
-| Race condition: cart updates while user is on checkout | LOW | Notices are reactive (`computed`). If cart refreshes, notices update. Existing `isUpdatingCart` guard prevents stale reads. |
+| Risk                                                                   | Severity   | Mitigation                                                                                                                                                                              |
+| ---------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CartFragment `productCategories` field doesn't resolve in cart context | LOW        | `productCategories` is on the `Product` interface in WPGraphQL, not a type-specific field. Should resolve for all product types. Test with a real cart containing categorized products. |
+| `stockStatus` inline fragments still don't resolve for simple products | LOW        | Fallback: query stock status separately via `GqlGetStockStatus(slug)` for items missing status. But this is unlikely — the inline fragment is the documented WPGraphQL approach.        |
+| Cart response size increase from `productCategories`                   | NEGLIGIBLE | ~50 bytes per item × 5 items = 250 bytes. Cart/checkout are client-only pages, not SSR-cached.                                                                                          |
+| Race condition: cart updates while user is on checkout                 | LOW        | Notices are reactive (`computed`). If cart refreshes, notices update. Existing `isUpdatingCart` guard prevents stale reads.                                                             |
 
 ---
 

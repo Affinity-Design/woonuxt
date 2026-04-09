@@ -166,8 +166,8 @@ if (!TARGET_SLUG && !RUN_ALL && !TOP_N && !BATCH_FILE) {
   process.exit(1);
 }
 
-const MASTER_LIST_PATH = path.resolve(__dirname, '../../data/brand-master-list.json');
-const LOG_PATH = path.resolve(__dirname, '../../data/brand-optimization-log.json');
+const MASTER_LIST_PATH = path.resolve(__dirname, '../../data/brands/brand-master-list.json');
+const LOG_PATH = path.resolve(__dirname, '../../data/brands/brand-optimization-log.json');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

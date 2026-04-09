@@ -20,7 +20,7 @@ const sharp = require('sharp');
 const fetch = global.fetch || require('node-fetch');
 
 const ROOT = path.join(__dirname, '..');
-const CATEGORY_FILE = path.join(ROOT, 'data', 'catagoy.json');
+const CATEGORY_FILE = path.join(ROOT, 'data', 'category.json');
 const OPTIMIZED_DIR = path.join(ROOT, 'public', 'images', 'optimized');
 const OUTPUT_DIR = path.join(ROOT, 'public', 'images', 'psp.com');
 
