@@ -4,6 +4,7 @@ const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
 const {storeSettings} = useAppConfig();
 const {exchangeRate} = useExchangeRate();
+const {backorderItems, clearanceItems} = useCartNotices();
 
 const {item} = defineProps({
   item: {type: Object, required: true},
@@ -12,6 +13,8 @@ const {item} = defineProps({
 const productType = computed(() => (item.variation ? item.variation?.node : item.product?.node));
 const productSlug = computed(() => `/product/${decodeURIComponent(item.product.node.slug)}`);
 const isLowStock = computed(() => (productType.value.stockQuantity ? productType.value.lowStockAmount >= productType.value.stockQuantity : false));
+const isBackorder = computed(() => backorderItems.value.some((bi) => bi.key === item.key));
+const isClearance = computed(() => clearanceItems.value.some((ci) => ci.key === item.key));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
 // Mirror the product page's getFormattedPriceDisplay() exactly.
@@ -114,6 +117,16 @@ const moveToWishList = () => {
               v-if="isLowStock"
               class="text-[10px] border-yellow-200 leading-none bg-yellow-100 inline-block p-0.5 rounded text-orange-500 border whitespace-nowrap">
               Low Stock
+            </span>
+            <span
+              v-if="isBackorder"
+              class="text-[10px] border-yellow-300 leading-none bg-yellow-50 inline-block p-0.5 rounded text-yellow-700 border whitespace-nowrap">
+              On Backorder
+            </span>
+            <span
+              v-if="isClearance"
+              class="text-[10px] border-red-200 leading-none bg-red-50 inline-block p-0.5 rounded text-red-600 border whitespace-nowrap">
+              Non-refundable
             </span>
           </template>
         </div>
