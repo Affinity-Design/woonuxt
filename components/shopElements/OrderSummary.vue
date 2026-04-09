@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
+import {convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
 const {cart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
@@ -16,14 +16,15 @@ const parseWooPrice = (priceStr: string | null | undefined): number => {
   return parseFloat(str) || 0;
 };
 
-// Convert a WooCommerce price string to formatted CAD display string
+// Convert a WooCommerce price string to formatted CAD display string.
+// Checkout totals must use exact conversion, not product-display .99 rounding.
 const formatPrice = (priceString: string | null | undefined): string => {
   if (!priceString) return '$0.00 CAD';
   const numericCheck = parseWooPrice(priceString);
   if (numericCheck === 0) return '$0.00 CAD';
 
   if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(priceString, exchangeRate.value, true);
+    const cadNumericString = convertToCAD(priceString, exchangeRate.value);
     if (cadNumericString) {
       return '$' + formatPriceWithCAD(cadNumericString);
     }

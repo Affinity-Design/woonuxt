@@ -1,13 +1,24 @@
 <script setup>
-const { updateShippingMethod } = useCart();
-const currencySymbol = "$";
+const {updateShippingMethod} = useCart();
+const currencySymbol = '$';
 const props = defineProps({
-  options: { type: Array, required: true },
-  activeOption: { type: String, required: true },
+  options: {type: Array, required: true},
+  activeOption: {type: String, required: true},
 });
 
 const setActiveOption = async (id) => {
   await updateShippingMethod(id);
+};
+
+const formatShippingCost = (cost) => {
+  if (cost === null || cost === undefined) return `${currencySymbol}0`;
+
+  const normalized = String(cost)
+    .replace(/<[^>]*>/g, '')
+    .trim();
+  if (!normalized) return `${currencySymbol}0`;
+
+  return `${currencySymbol}${normalized}`;
 };
 </script>
 
@@ -17,24 +28,16 @@ const setActiveOption = async (id) => {
       v-for="option in options"
       :key="option.id"
       class="flex items-center justify-between option"
-      :class="{ 'active-option': option.id === activeOption }"
-      @click="setActiveOption(option.id)"
-    >
+      :class="{'active-option': option.id === activeOption}"
+      @click="setActiveOption(option.id)">
       <div>
-        <div
-          class="text-sm leading-tight text-gray-500"
-          v-html="option.label"
-        ></div>
+        <div class="text-sm leading-tight text-gray-500" v-html="option.label"></div>
         <div class="font-semibold text-gray-600">
-          {{ currencySymbol }}{{ option.cost }}
+          {{ formatShippingCost(option.cost) }}
         </div>
       </div>
 
-      <icon
-        name="ion:checkmark-circle"
-        size="20"
-        class="ml-auto text-primary checkmark opacity-0"
-      />
+      <icon name="ion:checkmark-circle" size="20" class="ml-auto text-primary checkmark opacity-0" />
     </div>
   </div>
 </template>
