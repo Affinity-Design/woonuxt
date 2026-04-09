@@ -348,6 +348,12 @@ export default defineEventHandler(async (event) => {
             console.log('✅ Final metaData for line item:', lineItem.metaData);
           }
 
+          // Add backorder metadata if flagged (META-01)
+          if (item.isBackorder) {
+            const backorderMeta = {key: 'Backorder', value: 'Yes'};
+            lineItem.metaData = lineItem.metaData ? [...lineItem.metaData, backorderMeta] : [backorderMeta];
+          }
+
           return lineItem;
         }),
 
