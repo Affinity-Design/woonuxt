@@ -9,6 +9,7 @@ const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete} = useCheckout();
 const {exchangeRate} = useExchangeRate();
+const {hasBackorderItems, hasClearanceItems, hasAnyNotices} = useCartNotices();
 const config = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -787,6 +788,19 @@ useSeoMeta({
       </div>
 
       <form v-else class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20" @submit.prevent="payNow">
+        <!-- Backorder / Clearance Notice Banners -->
+        <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
+          <CartNotice
+            v-if="hasBackorderItems"
+            type="warning"
+            message="Your order contains items on backorder. These items will ship when they become available." />
+          <CartNotice
+            v-if="hasClearanceItems"
+            type="warning"
+            icon="ion:pricetag"
+            message="Your order contains clearance items that are not refundable." />
+        </div>
+
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
           <!-- Customer details section -->
           <div v-if="!viewer && customer.billing">
