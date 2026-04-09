@@ -557,9 +557,8 @@ const handleHelcimComplete = (result: any) => {
 
 const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
 
-// Computed property for Helcim amount that includes tax and is reactive
-// Converts USD cart total to CAD using the exchange rate
-// Uses EXACT conversion (no .99 rounding) — payment amounts must be precise
+// Computed property for Helcim amount that includes tax and is reactive.
+// Keep this aligned with the amount the shopper sees in OrderSummary.
 const helcimAmount = computed(() => {
   if (!cart.value?.total) return 0;
 
@@ -571,41 +570,34 @@ const helcimAmount = computed(() => {
     exchangeRate: exchangeRate.value,
   });
 
-  // Prefer rawTotal if available — it's the exact numeric total from WooCommerce
-  // (already in the cart's currency, no formatting/conversion artifacts)
+  const displayAlignedTotal = convertPriceToCADExact(cart.value.total);
+  if (displayAlignedTotal > 0) {
+    console.log(`[DEBUG Checkout] Helcim amount (aligned to displayed total):`, {
+      originalString: cart.value.total,
+      displayAlignedTotal,
+    });
+    return displayAlignedTotal;
+  }
+
   if (cart.value.rawTotal) {
-    const raw = parseFloat(cart.value.rawTotal);
-    if (!isNaN(raw) && raw > 0) {
-      console.log(`[DEBUG Checkout] Helcim amount (from rawTotal):`, {rawTotal: cart.value.rawTotal, amount: raw});
-      return raw;
-    }
-  }
-
-  // Fallback: convert formatted total string to CAD (exact, NO .99 rounding)
-  if (exchangeRate.value) {
-    const cadNumericString = convertToCAD(cart.value.total, exchangeRate.value); // roundTo99=false (default)
-    if (cadNumericString) {
-      const cadAmount = parseFloat(cadNumericString) || 0;
-      console.log(`[DEBUG Checkout] Helcim amount (CAD converted, exact):`, {
-        originalString: cart.value.total,
-        cadNumericString: cadNumericString,
-        cadAmount: cadAmount,
+    const rawFallback = convertPriceToCADExact(cart.value.rawTotal);
+    if (rawFallback > 0) {
+      console.log(`[DEBUG Checkout] Helcim amount (rawTotal fallback):`, {
+        rawTotal: cart.value.rawTotal,
+        rawFallback,
       });
-      return cadAmount;
+      return rawFallback;
     }
   }
 
-  // Fallback: parse the total amount string directly (e.g., "$2.24 CAD" -> 2.24)
-  const totalStr = cart.value.total.replace(/[^\d.-]/g, '');
-  const totalInDollars = parseFloat(totalStr) || 0;
+  const parsedFallback = parsePrice(cart.value.total);
 
   console.log(`[DEBUG Checkout] Helcim amount (fallback - no conversion):`, {
     originalString: cart.value.total,
-    cleanedString: totalStr,
-    parsedDollars: totalInDollars,
+    parsedFallback,
   });
 
-  return totalInDollars;
+  return parsedFallback;
 });
 
 // Helper to parse price strings to numbers (USD values)
@@ -613,6 +605,15 @@ const parsePrice = (priceStr: string | null | undefined): number => {
   if (!priceStr) return 0;
   const cleaned = priceStr.replace(/[^0-9.-]/g, '');
   return parseFloat(cleaned) || 0;
+};
+
+const normalizeShippingLabel = (label: string | null | undefined): string => {
+  if (!label) return '';
+  return String(label)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 };
 
 // Helper to convert a price string to CAD numeric value for PAYMENT processing
@@ -667,15 +668,47 @@ const helcimShippingAmount = computed(() => {
   return convertPriceToCAD(cart.value.shippingTotal);
 });
 
+// Normalize duplicate shipping labels coming back from WooCommerce.
+// If the same label appears multiple times, prefer the selected rate or the lower-cost rate.
+const normalizedShippingRates = computed(() => {
+  const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
+  const activeMethodId = cart.value?.chosenShippingMethods?.[0] || '';
+  const dedupedRates = new Map<string, any>();
+
+  for (const rate of rates) {
+    const labelKey = normalizeShippingLabel(rate?.label);
+    const dedupeKey = labelKey || String(rate?.id || '');
+    const existingRate = dedupedRates.get(dedupeKey);
+
+    if (!existingRate) {
+      dedupedRates.set(dedupeKey, rate);
+      continue;
+    }
+
+    if (rate?.id === activeMethodId) {
+      dedupedRates.set(dedupeKey, rate);
+      continue;
+    }
+
+    if (existingRate?.id === activeMethodId) {
+      continue;
+    }
+
+    if (parsePrice(String(rate?.cost)) < parsePrice(String(existingRate?.cost))) {
+      dedupedRates.set(dedupeKey, rate);
+    }
+  }
+
+  return Array.from(dedupedRates.values());
+});
+
 // Computed property for selected shipping method name
 // Returns the label of the selected shipping method, or empty string if none
 const helcimShippingMethod = computed(() => {
   const chosenMethodId = cart.value?.chosenShippingMethods?.[0];
   if (!chosenMethodId) return '';
 
-  // Find the label from available shipping methods
-  const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
-  const selectedRate = rates.find((rate: any) => rate.id === chosenMethodId);
+  const selectedRate = normalizedShippingRates.value.find((rate: any) => rate.id === chosenMethodId);
   return selectedRate?.label || chosenMethodId; // Fallback to ID if label not found
 });
 
@@ -791,8 +824,8 @@ useSeoMeta({
         <div class="checkout-content">
           <!-- Backorder / Clearance Notice Banners -->
           <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
-            <CartNotice v-if="hasBackorderItems" type="warning" :message="$t('messages.notices.backorderBanner')" />
-            <CartNotice v-if="hasClearanceItems" type="warning" icon="ion:pricetag" :message="$t('messages.notices.clearanceBanner')" />
+            <CartNotice v-if="hasBackorderItems" type="warning" dismissible :message="$t('messages.notices.backorderBanner')" />
+            <CartNotice v-if="hasClearanceItems" type="warning" icon="ion:pricetag" dismissible :message="$t('messages.notices.clearanceBanner')" />
           </div>
 
           <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
@@ -871,10 +904,7 @@ useSeoMeta({
               <h3 class="mb-4 text-xl font-semibold">
                 {{ $t('messages.general.shippingSelect') }}
               </h3>
-              <ShippingOptions
-                :options="cart?.availableShippingMethods?.[0]?.rates || []"
-                :active-option="cart?.chosenShippingMethods?.[0] || ''"
-                @shipping-changed="refreshCart" />
+              <ShippingOptions :options="normalizedShippingRates" :active-option="cart?.chosenShippingMethods?.[0] || ''" @shipping-changed="refreshCart" />
             </div>
             <!-- Shipping loading spinner: shown when address is complete but rates haven't loaded yet -->
             <div v-else-if="isShippingAddressComplete && isUpdatingCart" class="flex items-center gap-2 py-4">
