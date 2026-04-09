@@ -1,5 +1,5 @@
 ---
-title: '7 Best Roller Skates for Women 2026 (Canadian Buyer's Guide)'
+title: "7 Best Roller Skates for Women 2026 (Canadian Buyer's Guide)"
 description: 'Best roller skates for women in Canada 2026. Expert-reviewed quad and inline picks for beginners, fitness skaters, and park riders. Shop in Toronto or order online.'
 category: 'Buying Guides'
 date: 2026-03-31
