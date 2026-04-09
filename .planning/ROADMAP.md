@@ -13,13 +13,13 @@ This roadmap delivers a reusable notice system that warns ProSkaters Place custo
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Cart Data Foundation** - Override CartFragment.gql to expose stockStatus and productCategories on cart product nodes
-- [ ] **Phase 2: Detection Composable** - useCartNotices() composable with computed backorder/clearance detection and null guards
-- [ ] **Phase 3: Notice Component** - Reusable CartNotice.vue accepting condition type, message, and icon with warning styling
-- [ ] **Phase 4: Cart Line Item Badges** - Per-item backorder/clearance badges on cart page and cart drawer
-- [ ] **Phase 5: Checkout Summary Banners** - Summary warning banners at top of checkout page
-- [ ] **Phase 6: Order Metadata Injection** - Line item meta and order notes for both Helcim and GraphQL checkout paths
-- [ ] **Phase 7: Internationalization** - All notice strings in en-CA and fr-CA locale files
+- [x] **Phase 1: Cart Data Foundation** - Override CartFragment.gql to expose stockStatus and productCategories on cart product nodes
+- [x] **Phase 2: Detection Composable** - useCartNotices() composable with computed backorder/clearance detection and null guards
+- [x] **Phase 3: Notice Component** - Reusable CartNotice.vue accepting condition type, message, and icon with warning styling
+- [x] **Phase 4: Cart Line Item Badges** - Per-item backorder/clearance badges on cart page and cart drawer
+- [x] **Phase 5: Checkout Summary Banners** - Summary warning banners at top of checkout page
+- [x] **Phase 6: Order Metadata Injection** - Line item meta and order notes for both Helcim and GraphQL checkout paths
+- [x] **Phase 7: Internationalization** - All notice strings in en-CA and fr-CA locale files
 
 ## Phase Details
 
@@ -37,6 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 1 plan
 
 Plans:
+
 - [ ] 01-01-PLAN.md — Override CartFragment.gql: copy base queries to root, add productCategories to product.node, update documentPaths
 
 ### Phase 2: Detection Composable
@@ -122,12 +123,12 @@ Plans:
 Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 (Phases 3 and 2 can parallelize; Phases 4 and 5 can parallelize after their dependencies)
 
-| Phase                       | Plans Complete | Status      | Completed |
-| --------------------------- | -------------- | ----------- | --------- |
-| 1. Cart Data Foundation     | 0/?            | Not started | -         |
-| 2. Detection Composable     | 0/?            | Not started | -         |
-| 3. Notice Component         | 0/?            | Not started | -         |
-| 4. Cart Line Item Badges    | 0/?            | Not started | -         |
-| 5. Checkout Summary Banners | 0/?            | Not started | -         |
-| 6. Order Metadata Injection | 0/?            | Not started | -         |
-| 7. Internationalization     | 0/?            | Not started | -         |
+| Phase                       | Plans Complete | Status    | Completed  |
+| --------------------------- | -------------- | --------- | ---------- |
+| 1. Cart Data Foundation     | 1/1            | Complete  | 2026-04-09 |
+| 2. Detection Composable     | 1/1            | Complete  | 2026-04-09 |
+| 3. Notice Component         | 1/1            | Complete  | 2026-04-09 |
+| 4. Cart Line Item Badges    | 1/1            | Complete  | 2026-04-09 |
+| 5. Checkout Summary Banners | 1/1            | Complete  | 2026-04-09 |
+| 6. Order Metadata Injection | 1/1            | Complete  | 2026-04-09 |
+| 7. Internationalization     | 1/1            | Complete  | 2026-04-09 |
