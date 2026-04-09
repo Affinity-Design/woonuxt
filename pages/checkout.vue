@@ -787,57 +787,51 @@ useSeoMeta({
         </NuxtLink>
       </div>
 
-      <form v-else class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20" @submit.prevent="payNow">
-        <!-- Backorder / Clearance Notice Banners -->
-        <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
-          <CartNotice
-            v-if="hasBackorderItems"
-            type="warning"
-            :message="$t('messages.notices.backorderBanner')" />
-          <CartNotice
-            v-if="hasClearanceItems"
-            type="warning"
-            icon="ion:pricetag"
-            :message="$t('messages.notices.clearanceBanner')" />
-        </div>
+      <form v-else class="container my-16" @submit.prevent="payNow">
+        <div class="checkout-content">
+          <!-- Backorder / Clearance Notice Banners -->
+          <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
+            <CartNotice v-if="hasBackorderItems" type="warning" :message="$t('messages.notices.backorderBanner')" />
+            <CartNotice v-if="hasClearanceItems" type="warning" icon="ion:pricetag" :message="$t('messages.notices.clearanceBanner')" />
+          </div>
 
-        <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
-          <!-- Customer details section -->
-          <div v-if="!viewer && customer.billing">
-            <h2 class="w-full mb-2 text-2xl font-semibold leading-none">Contact Information</h2>
-            <p class="mt-1 text-sm text-gray-500">
-              Already have an account?
-              <a href="/my-account" class="text-primary text-semibold">Log in</a>.
-            </p>
-            <div class="w-full mt-4">
-              <label for="email">{{ $t('messages.billing.email') }} <span class="text-red-500">*</span></label>
-              <input
-                v-model="customer.billing.email"
-                placeholder="johndoe@email.com"
-                autocomplete="email"
-                type="email"
-                name="email"
-                :class="{'has-error': isInvalidEmail}"
-                @blur="checkEmailOnBlur(customer.billing.email)"
-                @input="checkEmailOnInput(customer.billing.email)"
-                required />
-              <Transition name="scale-y" mode="out-in">
-                <div v-if="isInvalidEmail" class="mt-1 text-sm text-red-500">Invalid email address</div>
-              </Transition>
-            </div>
-            <!-- Account creation section -->
-            <div v-if="orderInput.createAccount">
+          <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
+            <!-- Customer details section -->
+            <div v-if="!viewer && customer.billing">
+              <h2 class="w-full mb-2 text-2xl font-semibold leading-none">Contact Information</h2>
+              <p class="mt-1 text-sm text-gray-500">
+                Already have an account?
+                <a href="/my-account" class="text-primary text-semibold">Log in</a>.
+              </p>
               <div class="w-full mt-4">
-                <label for="username">{{ $t('messages.account.username') }}</label>
-                <input v-model="orderInput.username" placeholder="johndoe" autocomplete="username" type="text" name="username" required />
+                <label for="email">{{ $t('messages.billing.email') }} <span class="text-red-500">*</span></label>
+                <input
+                  v-model="customer.billing.email"
+                  placeholder="johndoe@email.com"
+                  autocomplete="email"
+                  type="email"
+                  name="email"
+                  :class="{'has-error': isInvalidEmail}"
+                  @blur="checkEmailOnBlur(customer.billing.email)"
+                  @input="checkEmailOnInput(customer.billing.email)"
+                  required />
+                <Transition name="scale-y" mode="out-in">
+                  <div v-if="isInvalidEmail" class="mt-1 text-sm text-red-500">Invalid email address</div>
+                </Transition>
               </div>
-              <div class="w-full my-2" v-if="orderInput.createAccount">
-                <label for="password">{{ $t('messages.account.password') }}</label>
-                <PasswordInput id="password" class="my-2" v-model="orderInput.password" placeholder="••••••••••" :required="true" />
+              <!-- Account creation section -->
+              <div v-if="orderInput.createAccount">
+                <div class="w-full mt-4">
+                  <label for="username">{{ $t('messages.account.username') }}</label>
+                  <input v-model="orderInput.username" placeholder="johndoe" autocomplete="username" type="text" name="username" required />
+                </div>
+                <div class="w-full my-2" v-if="orderInput.createAccount">
+                  <label for="password">{{ $t('messages.account.password') }}</label>
+                  <PasswordInput id="password" class="my-2" v-model="orderInput.password" placeholder="••••••••••" :required="true" />
+                </div>
               </div>
-            </div>
-            <!-- Disabled create account due to turnstyle issues on checkout -->
-            <!-- <div v-if="!viewer" class="flex items-center gap-2 my-2">
+              <!-- Disabled create account due to turnstyle issues on checkout -->
+              <!-- <div v-if="!viewer" class="flex items-center gap-2 my-2">
               <label for="creat-account">Create an account?</label>
               <input
                 id="creat-account"
@@ -846,145 +840,146 @@ useSeoMeta({
                 name="creat-account"
               />
             </div> -->
-          </div>
-
-          <!-- Billing details section -->
-          <div>
-            <h2 class="w-full mb-3 text-2xl font-semibold">
-              {{ $t('messages.billing.billingDetails') }}
-            </h2>
-            <BillingDetails v-model="customer.billing" />
-          </div>
-
-          <!-- Ship to different address section -->
-          <label v-if="cart.availableShippingMethods.length > 0" for="shipToDifferentAddress" class="flex items-center gap-2">
-            <span>{{ $t('messages.billing.differentAddress') }}</span>
-            <input id="shipToDifferentAddress" v-model="orderInput.shipToDifferentAddress" type="checkbox" name="shipToDifferentAddress" />
-          </label>
-
-          <!-- Shipping details section -->
-          <Transition name="scale-y" mode="out-in">
-            <div v-if="orderInput.shipToDifferentAddress">
-              <h2 class="mb-4 text-xl font-semibold">
-                {{ $t('messages.general.shippingDetails') }}
-              </h2>
-              <ShippingDetails v-model="customer.shipping" />
             </div>
-          </Transition>
 
-          <!-- Shipping methods section -->
-          <div v-if="cart.availableShippingMethods.length && isShippingAddressComplete">
-            <h3 class="mb-4 text-xl font-semibold">
-              {{ $t('messages.general.shippingSelect') }}
-            </h3>
-            <ShippingOptions
-              :options="cart?.availableShippingMethods?.[0]?.rates || []"
-              :active-option="cart?.chosenShippingMethods?.[0] || ''"
-              @shipping-changed="refreshCart" />
-          </div>
-          <!-- Shipping loading spinner: shown when address is complete but rates haven't loaded yet -->
-          <div v-else-if="isShippingAddressComplete && isUpdatingCart" class="flex items-center gap-2 py-4">
-            <LoadingIcon size="20" />
-          </div>
+            <!-- Billing details section -->
+            <div>
+              <h2 class="w-full mb-3 text-2xl font-semibold">
+                {{ $t('messages.billing.billingDetails') }}
+              </h2>
+              <BillingDetails v-model="customer.billing" />
+            </div>
 
-          <!-- Payment methods section - ALWAYS show since Helcim is required -->
-          <div class="mt-2 col-span-full">
-            <h2 class="mb-4 text-xl font-semibold">
-              {{ $t('messages.billing.paymentOptions') }}
-            </h2>
-            <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways="effectivePaymentGateways" />
+            <!-- Ship to different address section -->
+            <label v-if="cart.availableShippingMethods.length > 0" for="shipToDifferentAddress" class="flex items-center gap-2">
+              <span>{{ $t('messages.billing.differentAddress') }}</span>
+              <input id="shipToDifferentAddress" v-model="orderInput.shipToDifferentAddress" type="checkbox" name="shipToDifferentAddress" />
+            </label>
 
-            <!-- Other payment methods info -->
-            <div
-              v-if="orderInput.paymentMethod?.id && !(orderInput.paymentMethod?.id === 'cod' && orderInput.paymentMethod?.title?.includes('Helcim'))"
-              class="mt-4">
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex items-center gap-3">
-                  <Icon name="ion:information-circle" size="20" class="text-blue-600" />
-                  <div>
-                    <div class="font-medium text-gray-800">
-                      {{ orderInput.paymentMethod.title }}
+            <!-- Shipping details section -->
+            <Transition name="scale-y" mode="out-in">
+              <div v-if="orderInput.shipToDifferentAddress">
+                <h2 class="mb-4 text-xl font-semibold">
+                  {{ $t('messages.general.shippingDetails') }}
+                </h2>
+                <ShippingDetails v-model="customer.shipping" />
+              </div>
+            </Transition>
+
+            <!-- Shipping methods section -->
+            <div v-if="cart.availableShippingMethods.length && isShippingAddressComplete">
+              <h3 class="mb-4 text-xl font-semibold">
+                {{ $t('messages.general.shippingSelect') }}
+              </h3>
+              <ShippingOptions
+                :options="cart?.availableShippingMethods?.[0]?.rates || []"
+                :active-option="cart?.chosenShippingMethods?.[0] || ''"
+                @shipping-changed="refreshCart" />
+            </div>
+            <!-- Shipping loading spinner: shown when address is complete but rates haven't loaded yet -->
+            <div v-else-if="isShippingAddressComplete && isUpdatingCart" class="flex items-center gap-2 py-4">
+              <LoadingIcon size="20" />
+            </div>
+
+            <!-- Payment methods section - ALWAYS show since Helcim is required -->
+            <div class="mt-2 col-span-full">
+              <h2 class="mb-4 text-xl font-semibold">
+                {{ $t('messages.billing.paymentOptions') }}
+              </h2>
+              <PaymentOptions v-model="orderInput.paymentMethod" class="mb-4" :paymentGateways="effectivePaymentGateways" />
+
+              <!-- Other payment methods info -->
+              <div
+                v-if="orderInput.paymentMethod?.id && !(orderInput.paymentMethod?.id === 'cod' && orderInput.paymentMethod?.title?.includes('Helcim'))"
+                class="mt-4">
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div class="flex items-center gap-3">
+                    <Icon name="ion:information-circle" size="20" class="text-blue-600" />
+                    <div>
+                      <div class="font-medium text-gray-800">
+                        {{ orderInput.paymentMethod.title }}
+                      </div>
+                      <div v-if="orderInput.paymentMethod.description" class="text-sm text-gray-600 mt-1" v-html="orderInput.paymentMethod.description"></div>
                     </div>
-                    <div v-if="orderInput.paymentMethod.description" class="text-sm text-gray-600 mt-1" v-html="orderInput.paymentMethod.description"></div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Order note section -->
-          <div>
-            <h2 class="mb-4 text-xl font-semibold">{{ $t('messages.shop.orderNote') }} ({{ $t('messages.general.optional') }})</h2>
-            <textarea
-              id="order-note"
-              v-model="orderInput.customerNote"
-              name="order-note"
-              class="w-full min-h-[100px]"
-              rows="4"
-              :placeholder="$t('messages.shop.orderNotePlaceholder')"></textarea>
-          </div>
-        </div>
-
-        <!-- Order summary section -->
-        <OrderSummary>
-          <div v-if="hasPaymentError" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">
-            {{ paymentError }}
-          </div>
-
-          <!-- Helcim Card Component in Order Summary -->
-          <div v-if="shouldShowHelcimCard" class="mt-4">
-            <HelcimCard
-              ref="helcimCardRef"
-              :amount="helcimAmount"
-              currency="CAD"
-              :line-items="helcimLineItems"
-              :shipping-amount="helcimShippingAmount"
-              :shipping-method="helcimShippingMethod"
-              :tax-amount="helcimTaxAmount"
-              :discount-amount="helcimDiscountAmount"
-              :customer-info="helcimCustomerInfo"
-              @ready="handleHelcimReady"
-              @error="handleHelcimError"
-              @payment-success="handleHelcimSuccess"
-              @payment-failed="handleHelcimFailed"
-              @payment-complete="handleHelcimComplete" />
-          </div>
-
-          <!-- Turnstile security verification - invisible widget -->
-          <div v-if="isTurnstileEnabled && !shouldShowHelcimCard" class="mt-4 mb-4">
-            <ClientOnly>
-              <VueTurnstile
-                ref="turnstileWidget"
-                v-model="turnstileToken"
-                :site-key="config.public.turnstile?.siteKey"
-                theme="light"
-                size="invisible"
-                @verify="
-                  () => {
-                    turnstileError = '';
-                  }
-                "
-                @error="
-                  () => {
-                    turnstileError = 'Security check failed. Please refresh the page.';
-                  }
-                " />
-            </ClientOnly>
-            <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
-              {{ turnstileError }}
+            <!-- Order note section -->
+            <div>
+              <h2 class="mb-4 text-xl font-semibold">{{ $t('messages.shop.orderNote') }} ({{ $t('messages.general.optional') }})</h2>
+              <textarea
+                id="order-note"
+                v-model="orderInput.customerNote"
+                name="order-note"
+                class="w-full min-h-[100px]"
+                rows="4"
+                :placeholder="$t('messages.shop.orderNotePlaceholder')"></textarea>
             </div>
           </div>
 
-          <!-- Standard checkout button - shown for all non-Helcim payments -->
-          <button
-            v-if="!shouldShowHelcimCard"
-            type="submit"
-            class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
-            :disabled="isCheckoutDisabled || isSubmitting">
-            {{ buttonText }}
-            <LoadingIcon v-if="isProcessingOrder || isSubmitting" color="#fff" size="18" />
-          </button>
-        </OrderSummary>
+          <!-- Order summary section -->
+          <OrderSummary>
+            <div v-if="hasPaymentError" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">
+              {{ paymentError }}
+            </div>
+
+            <!-- Helcim Card Component in Order Summary -->
+            <div v-if="shouldShowHelcimCard" class="mt-4">
+              <HelcimCard
+                ref="helcimCardRef"
+                :amount="helcimAmount"
+                currency="CAD"
+                :line-items="helcimLineItems"
+                :shipping-amount="helcimShippingAmount"
+                :shipping-method="helcimShippingMethod"
+                :tax-amount="helcimTaxAmount"
+                :discount-amount="helcimDiscountAmount"
+                :customer-info="helcimCustomerInfo"
+                @ready="handleHelcimReady"
+                @error="handleHelcimError"
+                @payment-success="handleHelcimSuccess"
+                @payment-failed="handleHelcimFailed"
+                @payment-complete="handleHelcimComplete" />
+            </div>
+
+            <!-- Turnstile security verification - invisible widget -->
+            <div v-if="isTurnstileEnabled && !shouldShowHelcimCard" class="mt-4 mb-4">
+              <ClientOnly>
+                <VueTurnstile
+                  ref="turnstileWidget"
+                  v-model="turnstileToken"
+                  :site-key="config.public.turnstile?.siteKey"
+                  theme="light"
+                  size="invisible"
+                  @verify="
+                    () => {
+                      turnstileError = '';
+                    }
+                  "
+                  @error="
+                    () => {
+                      turnstileError = 'Security check failed. Please refresh the page.';
+                    }
+                  " />
+              </ClientOnly>
+              <div v-if="turnstileError" class="text-red-500 text-sm mt-2">
+                {{ turnstileError }}
+              </div>
+            </div>
+
+            <!-- Standard checkout button - shown for all non-Helcim payments -->
+            <button
+              v-if="!shouldShowHelcimCard"
+              type="submit"
+              class="flex items-center justify-center w-full gap-3 p-3 mt-4 font-semibold text-center text-white rounded-lg shadow-md bg-primary hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-gray-400"
+              :disabled="isCheckoutDisabled || isSubmitting">
+              {{ buttonText }}
+              <LoadingIcon v-if="isProcessingOrder || isSubmitting" color="#fff" size="18" />
+            </button>
+          </OrderSummary>
+        </div>
       </form>
     </template>
     <LoadingIcon v-else class="m-auto" />
@@ -1005,6 +1000,11 @@ useSeoMeta({
 .turnstile-checkout-widget iframe {
   margin: 0 auto;
   display: block;
+}
+
+.checkout-content {
+  @apply mx-auto flex w-full flex-wrap items-start justify-evenly gap-8 lg:gap-20;
+  max-width: calc(42rem + 28rem + 5rem);
 }
 
 .checkout-form input[type='text'],
