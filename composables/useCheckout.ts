@@ -187,6 +187,31 @@ export function useCheckout() {
         );
       }
 
+      // Prepare backorder/clearance notice metadata for order (META-01 through META-06)
+      const {backorderItems, clearanceItems} = useCartNotices();
+      const backorderNames = backorderItems.value.map((i) => i.productName || i.productSlug);
+      const clearanceNames = clearanceItems.value.map((i) => i.productName || i.productSlug);
+      const backorderKeys = new Set(backorderItems.value.map((i) => i.key));
+
+      if (backorderNames.length > 0) {
+        enhancedMetaData.push({key: '_backorder_items', value: backorderNames.join(', ')});
+      }
+      if (clearanceNames.length > 0) {
+        enhancedMetaData.push({key: '_clearance_items', value: clearanceNames.join(', ')});
+      }
+
+      // Build order note lines for backorder/clearance
+      const noticeNoteLines: string[] = [];
+      if (backorderNames.length > 0) {
+        noticeNoteLines.push(`Contains backorder items: ${backorderNames.join(', ')}`);
+      }
+      if (clearanceNames.length > 0) {
+        noticeNoteLines.push(`Contains non-refundable clearance items: ${clearanceNames.join(', ')}`);
+      }
+      // Append to existing customer note if present
+      const baseNote = orderInput.value.customerNote || '';
+      const combinedNote = noticeNoteLines.length > 0 ? [baseNote, ...noticeNoteLines].filter(Boolean).join('\n') : baseNote;
+
       // Try admin order creation for Helcim payments to bypass session issues
       if (isHelcimPayment && orderInput.value.transactionId) {
         console.log('[processCheckout] Using admin order creation for Helcim payment:', {
@@ -250,6 +275,8 @@ export function useCheckout() {
                   // Pass tax-exclusive totals
                   total: netTotal.toFixed(2),
                   subtotal: netSubtotal.toFixed(2),
+                  // Backorder line item metadata (META-01)
+                  isBackorder: backorderKeys.has(item.key),
                   // Pass variation attributes (size, color, etc.)
                   variation: item.variation?.node
                     ? {
@@ -280,7 +307,7 @@ export function useCheckout() {
               id: shippingMethod?.[0] || 'flat_rate',
               title: cart.value?.availableShippingMethods?.[0]?.rates?.find((rate: any) => rate.id === shippingMethod?.[0])?.label || 'Shipping',
             },
-            customerNote: orderInput.value.customerNote,
+            customerNote: combinedNote,
             metaData: enhancedMetaData,
             createAccount: orderInput.value.createAccount,
             // Include cardToken for Helcim native refund support in WooCommerce
@@ -353,7 +380,7 @@ export function useCheckout() {
         shippingMethod,
         metaData: enhancedMetaData,
         paymentMethod: effectivePaymentMethod,
-        customerNote: orderInput.value.customerNote,
+        customerNote: combinedNote,
         shipToDifferentAddress,
         transactionId: orderInput.value.transactionId,
         isPaid,
