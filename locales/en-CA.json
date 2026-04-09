@@ -173,6 +173,12 @@
       "invalidPasswordResetLink": "Password reset link is invalid.",
       "general": "Something went wrong",
       "noOrder": "We could not find your order. Please try again later."
+    },
+    "notices": {
+      "backorderBanner": "Your order contains items on backorder. These items will ship when they become available.",
+      "clearanceBanner": "Your order contains clearance items that are not refundable.",
+      "onBackorder": "On Backorder",
+      "nonRefundable": "Non-refundable"
     }
   }
 }

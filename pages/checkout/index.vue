@@ -793,12 +793,12 @@ useSeoMeta({
           <CartNotice
             v-if="hasBackorderItems"
             type="warning"
-            message="Your order contains items on backorder. These items will ship when they become available." />
+            :message="$t('messages.notices.backorderBanner')" />
           <CartNotice
             v-if="hasClearanceItems"
             type="warning"
             icon="ion:pricetag"
-            message="Your order contains clearance items that are not refundable." />
+            :message="$t('messages.notices.clearanceBanner')" />
         </div>
 
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">
