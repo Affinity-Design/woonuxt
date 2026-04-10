@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import {applyAuthoritativePriceOverlayList} from '~/utils/authoritativePricing';
 import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from 'vue';
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
@@ -14,7 +15,31 @@ const {setCategorySEO} = useCategorySEO();
 
 // Get the GQL host for direct $fetch calls (avoids composable context issues in async loops)
 const runtimeConfig = useRuntimeConfig();
-const GQL_HOST = runtimeConfig.public.GQL_HOST || process.env.GQL_HOST;
+const GQL_HOST = runtimeConfig.public.gqlHost || runtimeConfig.public.GQL_HOST || process.env.GQL_HOST;
+
+const overlayAuthoritativeCategoryPrices = async (products: any[]) => {
+  if (!products.length) {
+    return products;
+  }
+
+  try {
+    const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
+      method: 'POST',
+      body: {
+        slugs: products.map((product) => product?.slug).filter(Boolean),
+      },
+    });
+
+    if (!authorityResponse?.enabled || !authorityResponse.products) {
+      return products;
+    }
+
+    return applyAuthoritativePriceOverlayList(products, authorityResponse.products);
+  } catch (authorityError) {
+    console.warn(`[Category Page] Failed to overlay authoritative prices for ${slug}:`, authorityError);
+    return products;
+  }
+};
 
 // GraphQL query for batched fetching (must include fragments inline for $fetch)
 const PRODUCTS_PAGED_QUERY = `
@@ -321,10 +346,11 @@ const {data, pending, error, refresh, status} = await useAsyncData(
   cacheKey,
   async () => {
     const products = await fetchAllProductsInBatches();
+    const productsWithAuthoritativePrices = await overlayAuthoritativeCategoryPrices(products);
     return {
       products: {
         found: productCount.value,
-        nodes: products,
+        nodes: productsWithAuthoritativePrices,
       },
     };
   },

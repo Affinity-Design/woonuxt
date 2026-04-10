@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import {applyAuthoritativePriceOverlay} from '~/utils/authoritativePricing';
 import {
   StockStatusEnum,
   ProductTypesEnum,
@@ -48,6 +49,33 @@ try {
 
 const cacheKey = `product-${slug}`;
 
+const overlayAuthoritativeProductPrice = async (fetchedProduct: Record<string, any> | null) => {
+  if (!fetchedProduct?.slug) {
+    return fetchedProduct;
+  }
+
+  try {
+    const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
+      method: 'POST',
+      body: {
+        slugs: [fetchedProduct.slug],
+      },
+    });
+
+    if (!authorityResponse?.enabled || !authorityResponse.products) {
+      return fetchedProduct;
+    }
+
+    return applyAuthoritativePriceOverlay(
+      fetchedProduct,
+      authorityResponse.products[fetchedProduct.slug] || authorityResponse.products[String(fetchedProduct.slug).toLowerCase()],
+    );
+  } catch (authorityError) {
+    console.warn(`[Product Page] Failed to overlay authoritative pricing for ${fetchedProduct.slug}:`, authorityError);
+    return fetchedProduct;
+  }
+};
+
 // Try KV cache first
 const {getProductFromCache} = useCachedProduct();
 let cachedProduct = null;
@@ -73,7 +101,7 @@ const {data, pending, error, refresh} = await useAsyncData(
   async () => {
     // If we have cached product, use it immediately
     if (cachedProduct) {
-      return cachedProduct;
+      return overlayAuthoritativeProductPrice(cachedProduct);
     }
 
     try {
@@ -83,7 +111,7 @@ const {data, pending, error, refresh} = await useAsyncData(
         console.error(`Product not found: ${slug}`);
         return null;
       }
-      return result.product;
+      return overlayAuthoritativeProductPrice(result.product);
     } catch (err) {
       console.error(`GraphQL error for ${slug}:`, err);
       return null;

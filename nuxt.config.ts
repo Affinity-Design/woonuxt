@@ -69,6 +69,8 @@ export default defineNuxtConfig({
     public: {
       stripePublishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
       wpBaseUrl: process.env.BASE_URL,
+      gqlHost: process.env.GQL_HOST || '',
+      priceAuthorityHost: process.env.NUXT_PUBLIC_PRICE_AUTHORITY_HOST || '',
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || 'default_key',
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
       turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
