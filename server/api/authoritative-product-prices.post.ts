@@ -6,6 +6,65 @@ const AUTHORITY_QUERY_CHUNK_SIZE = 25;
 
 const normalizeHost = (value: string): string => value.trim().toLowerCase().replace(/\/+$/, '');
 
+const extractNumericPrice = (value: unknown): string | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const matches = String(value)
+    .replace(/&nbsp;/gi, ' ')
+    .match(/[0-9]+(?:\.[0-9]+)?/g);
+
+  if (!matches?.length) {
+    return null;
+  }
+
+  return matches.join(', ');
+};
+
+const normalizePriceFields = <T extends Record<string, any>>(node: T | null | undefined): T | null | undefined => {
+  if (!node) {
+    return node;
+  }
+
+  const normalizedNode = {...node};
+
+  if (normalizedNode.rawPrice === undefined || normalizedNode.rawPrice === null || normalizedNode.rawPrice === '') {
+    normalizedNode.rawPrice = normalizedNode.rawSalePrice || normalizedNode.rawRegularPrice || extractNumericPrice(normalizedNode.price);
+  }
+
+  if (normalizedNode.rawRegularPrice === undefined || normalizedNode.rawRegularPrice === null || normalizedNode.rawRegularPrice === '') {
+    normalizedNode.rawRegularPrice = extractNumericPrice(normalizedNode.regularPrice);
+  }
+
+  if (normalizedNode.rawSalePrice === undefined || normalizedNode.rawSalePrice === null || normalizedNode.rawSalePrice === '') {
+    normalizedNode.rawSalePrice = extractNumericPrice(normalizedNode.salePrice);
+  }
+
+  return normalizedNode;
+};
+
+const normalizeAuthorityProduct = (product: Record<string, any> | null | undefined) => {
+  if (!product) {
+    return product;
+  }
+
+  const normalizedProduct = normalizePriceFields(product);
+  const variations = normalizedProduct?.variations?.nodes || [];
+
+  if (!variations.length) {
+    return normalizedProduct;
+  }
+
+  return {
+    ...normalizedProduct,
+    variations: {
+      ...normalizedProduct.variations,
+      nodes: variations.map((variation: Record<string, any>) => normalizePriceFields(variation)),
+    },
+  };
+};
+
 const getConfiguredGraphqlHost = (config: ReturnType<typeof useRuntimeConfig>): string => {
   const runtimeGraphqlHost = String(config.public.gqlHost || '');
   if (runtimeGraphqlHost) {
@@ -38,31 +97,35 @@ const buildAuthorityQuery = (slugs: string[]) => {
   const selections = slugs
     .map(
       (slug, index) => `priceAuthority_${index}: product(id: ${JSON.stringify(slug)}, idType: SLUG) {
+        __typename
         slug
         type
-        price
-        rawPrice: price(format: RAW)
-        regularPrice
-        rawRegularPrice: regularPrice(format: RAW)
-        salePrice
-        rawSalePrice: salePrice(format: RAW)
-        onSale
-        variations(first: 100) {
-          nodes {
-            databaseId
-            slug
+        ... on ProductWithPricing {
             price
-            rawPrice: price(format: RAW)
             regularPrice
+            rawPrice: price(format: RAW)
             rawRegularPrice: regularPrice(format: RAW)
             salePrice
             rawSalePrice: salePrice(format: RAW)
-            attributes {
-              nodes {
-                name
-                value
-                label
-                attributeId
+            onSale
+          }
+        ... on VariableProduct {
+          variations(first: 100) {
+            nodes {
+              databaseId
+              slug
+              price
+              regularPrice
+              rawRegularPrice: regularPrice(format: RAW)
+              salePrice
+              rawSalePrice: salePrice(format: RAW)
+              attributes {
+                nodes {
+                  name
+                  value
+                  label
+                  attributeId
+                }
               }
             }
           }
@@ -128,7 +191,9 @@ export default defineEventHandler(async (event) => {
   );
 
   const products = authorityResponses.reduce<Record<string, any>>((allProducts, responseChunk) => {
-    for (const product of Object.values(responseChunk)) {
+    for (const rawProduct of Object.values(responseChunk)) {
+      const product = normalizeAuthorityProduct(rawProduct as Record<string, any> | null | undefined);
+
       if (product?.slug) {
         allProducts[product.slug] = product;
         allProducts[String(product.slug).toLowerCase()] = product;
