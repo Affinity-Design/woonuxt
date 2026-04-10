@@ -69,6 +69,7 @@ const isVariableProduct = computed(() => {
       </NuxtLink>
       <ProductPrice
         class="text-sm"
+        :price="node.price"
         :sale-price="node.salePrice"
         :regular-price="node.regularPrice"
         :is-variable="isVariableProduct"

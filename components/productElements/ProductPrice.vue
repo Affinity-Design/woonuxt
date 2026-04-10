@@ -1,120 +1,112 @@
 <script setup lang="ts">
 import {computed} from 'vue';
-// Import from the updated price converter utility (price_converter_ts_no_dollar version)
-// import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
+import {cleanAndExtractPriceInfo, convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
 interface ProductPriceProps {
+  price?: string | null;
   regularPrice?: string | null;
   salePrice?: string | null;
+  isVariable?: boolean;
+  showAsRange?: boolean;
+  showBothPrices?: boolean;
 }
 
-const props = defineProps<ProductPriceProps>();
+const props = withDefaults(defineProps<ProductPriceProps>(), {
+  price: null,
+  regularPrice: null,
+  salePrice: null,
+  isVariable: false,
+  showAsRange: false,
+  showBothPrices: true,
+});
+
 const {exchangeRate} = useExchangeRate();
 
-// Determine the raw price string to use (prioritize sale price)
+const normalizePriceText = (rawPrice: string | null | undefined): string => {
+  if (!rawPrice) return '';
+  return String(rawPrice)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&#36;/g, '$')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&ndash;|&mdash;/g, ' - ')
+    .replace(/[–—]/g, ' - ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const toSingleDisplayValue = (rawPrice: string | null | undefined): string => {
+  const normalizedPrice = normalizePriceText(rawPrice).replace(/^from\s+/i, '');
+  if (!normalizedPrice) return '';
+
+  if (exchangeRate.value === null) {
+    const {numericString} = cleanAndExtractPriceInfo(normalizedPrice);
+    return numericString ? `${numericString} CAD` : normalizedPrice;
+  }
+
+  const cadNumericString = convertToCAD(normalizedPrice, exchangeRate.value, true);
+  if (cadNumericString) return formatPriceWithCAD(cadNumericString);
+
+  const {numericString} = cleanAndExtractPriceInfo(normalizedPrice);
+  return numericString ? `${numericString} CAD` : normalizedPrice;
+};
+
+const extractRangeDisplayValues = (rawPrice: string | null | undefined): string[] => {
+  const normalizedPrice = normalizePriceText(rawPrice).replace(/^from\s+/i, '');
+  if (!normalizedPrice) return [];
+
+  const matches = normalizedPrice.match(/(?:US\$|CA\$|\$)?\s*\d+(?:\.\d+)?(?:\s*(?:USD|CAD))?/gi) || [];
+  const uniqueValues = Array.from(new Set(matches.map((match) => toSingleDisplayValue(match)).filter(Boolean)));
+
+  return uniqueValues
+    .map((value) => {
+      const numericValue = parseFloat(value.replace(/[^0-9.]/g, ''));
+      return {value, numericValue};
+    })
+    .filter((entry) => Number.isFinite(entry.numericValue))
+    .sort((left, right) => left.numericValue - right.numericValue)
+    .map((entry) => entry.value);
+};
+
+const variableRangeDisplay = computed(() => {
+  if (!props.isVariable || !props.price) return null;
+
+  const rangeValues = extractRangeDisplayValues(props.price);
+  if (rangeValues.length < 2) return null;
+
+  if (props.showAsRange) {
+    return {
+      priceText: `${rangeValues[0].replace(/\s*CAD$/i, '')} - ${rangeValues[rangeValues.length - 1]}`,
+      isFrom: false,
+    };
+  }
+
+  return {
+    priceText: rangeValues[0],
+    isFrom: true,
+  };
+});
+
 const rawPriceStringToFormat = computed(() => {
+  if (variableRangeDisplay.value) return null;
   if (props.salePrice && String(props.salePrice).trim() !== '') return props.salePrice;
-  return props.regularPrice;
+  return props.regularPrice || props.price;
 });
 
-// Check if the raw price string indicates a "From" price
 const isFromPrice = computed(() => {
+  if (variableRangeDisplay.value) return variableRangeDisplay.value.isFrom;
   const rawPrice = rawPriceStringToFormat.value;
-  return rawPrice && String(rawPrice).trim().toLowerCase().startsWith('from ');
+  return !!rawPrice && normalizePriceText(rawPrice).toLowerCase().startsWith('from ');
 });
 
-// Extracts the core price part (removes "From " if present) for conversion/formatting
-const corePriceStringToFormat = computed(() => {
-  const rawPrice = rawPriceStringToFormat.value;
-  if (!rawPrice) return null;
-  let priceStr = String(rawPrice).trim();
-  if (priceStr.toLowerCase().startsWith('from ')) {
-    // Remove "From " prefix, case-insensitive
-    priceStr = priceStr.substring(5).trim();
-  }
-  return priceStr; // This might be "$XX.XX" or "XX.XX" etc.
-});
-
-// --- Computed property for the numeric/formatted value part (WITHOUT 'From ' or '$') ---
-// This will return like "55.99" (fallback) or "70.99 CAD" (converted)
 const priceValueForTemplate = computed(() => {
-  const corePrice = corePriceStringToFormat.value; // Use the price string without "From "
-
-  if (corePrice === null || corePrice === undefined || String(corePrice).trim() === '') {
-    return ''; // Return empty string if no price
-  }
-
-  // --- Fallback Logic (SSR / Exchange Rate NULL) ---
-  if (exchangeRate.value === null) {
-    const {numericString} = cleanAndExtractPriceInfo(corePrice);
-    // Return JUST the numeric string (e.g., "55.99") or the cleaned original if not numeric
-    return (
-      numericString ||
-      String(corePrice)
-        .replace(/&nbsp;/g, ' ')
-        .trim()
-    );
-  }
-
-  // --- Exchange Rate IS Available ---
-  // Pass the core price (without "From ") to convertToCAD
-  // Use roundTo99=true for product display prices (client wants $12.32 -> $12.99)
-  const cadNumericString = convertToCAD(corePrice, exchangeRate.value, true); // Returns "70.99" or ""
-  if (cadNumericString === '') {
-    const {numericString: cleanedOriginalNumeric} = cleanAndExtractPriceInfo(corePrice);
-    // Return JUST the numeric string fallback
-    return (
-      cleanedOriginalNumeric ||
-      String(corePrice)
-        .replace(/&nbsp;/g, ' ')
-        .trim()
-    );
-  }
-
-  // Format to "XX.YY CAD" (no leading '$') using the version from price_converter_ts_no_dollar
-  return formatPriceWithCAD(cadNumericString);
+  if (variableRangeDisplay.value) return variableRangeDisplay.value.priceText;
+  return toSingleDisplayValue(rawPriceStringToFormat.value);
 });
 
-// --- Computed property for the regular price (strikethrough) value part (WITHOUT 'From ' or '$') ---
 const regularPriceValueForTemplate = computed(() => {
+  if (!props.showBothPrices || variableRangeDisplay.value) return null;
   if (!props.salePrice || !props.regularPrice || props.salePrice === props.regularPrice) return null;
-
-  const rawPrice = props.regularPrice;
-  if (rawPrice === null || rawPrice === undefined || String(rawPrice).trim() === '') return null;
-
-  // Check and remove "From " prefix if present for the regular price as well
-  let coreRegularPrice = String(rawPrice).trim();
-  if (coreRegularPrice.toLowerCase().startsWith('from ')) {
-    coreRegularPrice = coreRegularPrice.substring(5).trim();
-  }
-
-  // --- Fallback Logic (SSR / Exchange Rate NULL) ---
-  if (exchangeRate.value === null) {
-    const {numericString} = cleanAndExtractPriceInfo(coreRegularPrice);
-    // Return JUST the numeric string
-    return (
-      numericString ||
-      String(coreRegularPrice)
-        .replace(/&nbsp;/g, ' ')
-        .trim()
-    );
-  }
-
-  // --- Exchange Rate IS Available ---
-  // Use roundTo99=true for product display prices (client wants $12.32 -> $12.99)
-  const cadNumericString = convertToCAD(coreRegularPrice, exchangeRate.value, true); // Returns "XX.YY" or ""
-  if (cadNumericString === '') {
-    const {numericString: cleanedOriginalNumeric} = cleanAndExtractPriceInfo(coreRegularPrice);
-    // Return JUST the numeric string fallback
-    return (
-      cleanedOriginalNumeric ||
-      String(coreRegularPrice)
-        .replace(/&nbsp;/g, ' ')
-        .trim()
-    );
-  }
-  // Format to "XX.YY CAD" (no leading '$')
-  return formatPriceWithCAD(cadNumericString);
+  return toSingleDisplayValue(props.regularPrice);
 });
 </script>
 
@@ -123,7 +115,7 @@ const regularPriceValueForTemplate = computed(() => {
     <span
       v-if="priceValueForTemplate"
       :class="{
-        'text-red-600': salePrice && regularPrice && salePrice !== regularPrice,
+        'text-red-600': showBothPrices && salePrice && regularPrice && salePrice !== regularPrice,
       }">
       <span v-if="isFromPrice">From </span> ${{ priceValueForTemplate }}
     </span>
