@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
-import {convertToCAD} from '~/utils/priceConverter';
+import {calculateLifecycleCartPricing} from '~/utils/lifecyclePricing';
 
 const {t} = useI18n();
 const {query} = useRoute();
@@ -557,50 +557,7 @@ const handleHelcimComplete = (result: any) => {
 
 const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
 
-// Computed property for Helcim amount that includes tax and is reactive.
-// Keep this aligned with the amount the shopper sees in OrderSummary.
-const helcimAmount = computed(() => {
-  if (!cart.value?.total) return 0;
-
-  console.log(`[DEBUG Checkout] Raw cart values:`, {
-    cartTotal: cart.value.total,
-    cartRawTotal: cart.value.rawTotal,
-    cartSubtotal: cart.value.subtotal,
-    cartTotalTax: cart.value.totalTax,
-    exchangeRate: exchangeRate.value,
-  });
-
-  const displayAlignedTotal = convertPriceToCADExact(cart.value.total);
-  if (displayAlignedTotal > 0) {
-    console.log(`[DEBUG Checkout] Helcim amount (aligned to displayed total):`, {
-      originalString: cart.value.total,
-      displayAlignedTotal,
-    });
-    return displayAlignedTotal;
-  }
-
-  if (cart.value.rawTotal) {
-    const rawFallback = convertPriceToCADExact(cart.value.rawTotal);
-    if (rawFallback > 0) {
-      console.log(`[DEBUG Checkout] Helcim amount (rawTotal fallback):`, {
-        rawTotal: cart.value.rawTotal,
-        rawFallback,
-      });
-      return rawFallback;
-    }
-  }
-
-  const parsedFallback = parsePrice(cart.value.total);
-
-  console.log(`[DEBUG Checkout] Helcim amount (fallback - no conversion):`, {
-    originalString: cart.value.total,
-    parsedFallback,
-  });
-
-  return parsedFallback;
-});
-
-// Helper to parse price strings to numbers (USD values)
+// Helper to parse price strings to numbers for shipping-rate comparisons.
 const parsePrice = (priceStr: string | null | undefined): number => {
   if (!priceStr) return 0;
   const cleaned = priceStr.replace(/[^0-9.-]/g, '');
@@ -616,56 +573,43 @@ const normalizeShippingLabel = (label: string | null | undefined): string => {
     .toLowerCase();
 };
 
-// Helper to convert a price string to CAD numeric value for PAYMENT processing
-// Uses EXACT conversion (no .99 rounding) — payment amounts must match precisely
-const convertPriceToCAD = (priceStr: string | null | undefined): number => {
-  if (!priceStr) return 0;
-  if (exchangeRate.value) {
-    // EXACT conversion — no .99 rounding for payment amounts
-    const cadNumericString = convertToCAD(priceStr, exchangeRate.value); // roundTo99=false (default)
-    if (cadNumericString) {
-      return parseFloat(cadNumericString) || 0;
-    }
-  }
-  // Fallback to parsing without conversion
-  return parsePrice(priceStr);
-};
+const lifecycleCartPricing = computed(() => calculateLifecycleCartPricing(cart.value, exchangeRate.value));
 
-const convertPriceToCADExact = convertPriceToCAD;
+// Computed property for Helcim amount that includes tax and is reactive.
+// Keep this aligned with the advertised merchandise price through checkout.
+const helcimAmount = computed(() => {
+  return lifecycleCartPricing.value.total;
+});
 
 // Computed property for Helcim line items - provides order backup in Helcim if WP fails
-// Converts USD prices to CAD with EXACT conversion (no .99 rounding for payment)
-// IMPORTANT: Uses subtotal (price WITHOUT tax) - tax is passed separately via taxAmount prop
+// Uses advertised merchandise pricing and applies discounts separately.
 const helcimLineItems = computed(() => {
-  if (!cart.value?.contents?.nodes) return [];
+  if (!cart.value?.contents?.nodes?.length) return [];
 
-  const items = cart.value.contents.nodes.map((item: any) => {
+  const items = cart.value.contents.nodes.map((item: any, index: number) => {
     const productNode = item.variation?.node || item.product?.node;
     const name = productNode?.name || 'Product';
     const sku = productNode?.sku || '';
-
-    // Use SUBTOTAL (without tax) - tax is passed separately to Helcim
-    // Exact conversion (no .99 rounding) for payment accuracy
-    const lineSubtotal = convertPriceToCAD(item.subtotal || item.total);
-    const quantity = item.quantity || 1;
-    const unitPrice = quantity > 0 ? lineSubtotal / quantity : lineSubtotal;
+    const lifecycleLine = lifecycleCartPricing.value.lines[index];
+    const quantity = lifecycleLine?.quantity || item.quantity || 1;
+    const unitPrice = lifecycleLine?.advertisedUnitPrice || 0;
+    const lineSubtotal = lifecycleLine?.advertisedSubtotal || 0;
 
     return {
       description: name,
-      quantity: quantity,
-      price: parseFloat(unitPrice.toFixed(2)), // Round to 2 decimal places
-      total: parseFloat(lineSubtotal.toFixed(2)), // Required by Helcim API
+      quantity,
+      price: parseFloat(unitPrice.toFixed(2)),
+      total: parseFloat(lineSubtotal.toFixed(2)),
       ...(sku && {sku: sku}),
     };
   });
 
-  return items;
+  return items.filter((item) => item.total > 0);
 });
 
 // Computed property for shipping amount - converted to CAD (exact)
 const helcimShippingAmount = computed(() => {
-  if (!cart.value?.shippingTotal) return 0;
-  return convertPriceToCAD(cart.value.shippingTotal);
+  return lifecycleCartPricing.value.shipping;
 });
 
 // Normalize duplicate shipping labels coming back from WooCommerce.
@@ -714,14 +658,12 @@ const helcimShippingMethod = computed(() => {
 
 // Computed property for tax amount - converted to CAD (exact)
 const helcimTaxAmount = computed(() => {
-  if (!cart.value?.totalTax) return 0;
-  return convertPriceToCAD(cart.value.totalTax);
+  return lifecycleCartPricing.value.tax;
 });
 
 // Computed property for discount amount - converted to CAD (exact)
 const helcimDiscountAmount = computed(() => {
-  if (!cart.value?.discountTotal) return 0;
-  return convertPriceToCAD(cart.value.discountTotal);
+  return lifecycleCartPricing.value.discount;
 });
 
 // Computed property for customer info to pass to Helcim

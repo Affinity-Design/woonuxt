@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {formatAdvertisedCadPrice} from '~/utils/lifecyclePricing';
+
 const {updateItemQuantity, isUpdatingCart} = useCart();
 const {addToWishlist} = useWishlist();
 const {FALLBACK_IMG} = useHelpers();
@@ -18,26 +20,6 @@ const isBackorder = computed(() => backorderItems.value.some((bi) => bi.key === 
 const isClearance = computed(() => clearanceItems.value.some((ci) => ci.key === item.key));
 const imgScr = computed(() => productType.value.image?.cartSourceUrl || productType.value.image?.sourceUrl || item.product.image?.sourceUrl || FALLBACK_IMG);
 
-// Mirror the product page's getFormattedPriceDisplay() exactly.
-// Takes a WooCommerce formatted price string (e.g. "$28.99", "<span>$49.99</span>")
-// and converts USD → CAD using the same logic as pages/product/[slug].vue
-const formatCartPrice = (priceStr: string | null | undefined): string => {
-  if (!priceStr || String(priceStr).trim() === '') return '';
-
-  if (exchangeRate.value === null) {
-    const {numericString} = cleanAndExtractPriceInfo(priceStr);
-    return numericString ? `${numericString} CAD` : '';
-  }
-
-  // convertToCAD with roundTo99=false — same as product page
-  const cadNumeric = convertToCAD(priceStr, exchangeRate.value);
-  if (cadNumeric === '') {
-    const {numericString} = cleanAndExtractPriceInfo(priceStr);
-    return numericString ? `${numericString} CAD` : '';
-  }
-  return formatPriceWithCAD(cadNumeric);
-};
-
 // Use the same fields the product page uses: salePrice, regularPrice, price
 const isOnSale = computed(() => {
   const sp = productType.value.salePrice;
@@ -47,14 +29,14 @@ const isOnSale = computed(() => {
 
 // Main display price: salePrice if on sale, otherwise regularPrice or price
 const displayPrice = computed(() => {
-  if (isOnSale.value) return formatCartPrice(productType.value.salePrice);
-  return formatCartPrice(productType.value.regularPrice || productType.value.price);
+  if (isOnSale.value) return formatAdvertisedCadPrice(productType.value.salePrice, exchangeRate.value);
+  return formatAdvertisedCadPrice(productType.value.regularPrice || productType.value.price, exchangeRate.value);
 });
 
 // Strikethrough regular price (only when on sale)
 const displayRegularPrice = computed(() => {
   if (!isOnSale.value) return '';
-  return formatCartPrice(productType.value.regularPrice);
+  return formatAdvertisedCadPrice(productType.value.regularPrice, exchangeRate.value);
 });
 
 // Sale percentage from raw numeric values when available

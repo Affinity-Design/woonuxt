@@ -1,4 +1,5 @@
 import type {CreateAccountInput} from '#gql';
+import {calculateLifecycleCartPricing} from '~/utils/lifecyclePricing';
 
 // Detect device type from user agent
 function detectDeviceType(): string {
@@ -14,6 +15,8 @@ function detectDeviceType(): string {
 }
 
 export function useCheckout() {
+  const {exchangeRate} = useExchangeRate();
+
   const orderInput = useState<any>('orderInput', () => {
     // Get current timestamp for session tracking
     const sessionStartTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -221,8 +224,8 @@ export function useCheckout() {
         });
 
         try {
-          // Helper to parse price string to float
-          const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
+          const lifecycleCartPricing = calculateLifecycleCartPricing(cart.value, exchangeRate.value);
+          const lifecycleLinePricingByKey = new Map(lifecycleCartPricing.lines.map((line) => [line.itemKey, line]));
 
           // Prepare admin order data
           const adminOrderData = {
@@ -239,30 +242,18 @@ export function useCheckout() {
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
-                const parsePrice = (str: string) => parseFloat(str?.replace(/[^0-9.]/g, '') || '0');
-
-                // Calculate tax-exclusive totals
-                // We MUST send Tax-Exclusive (Net) prices to createOrder to avoid double-taxation.
-                // Log analysis proved that sending Net Price (0.85) resulted in correct Total (0.96) initially.
-                // The later corruption is due to re-applying coupons in step 2.
-
-                const itemTotal = parsePrice(item.total);
-                const itemTax = parsePrice(item.tax) || 0;
-
-                // Subtract tax to get Net Total
-                // Ensure non-negative
-                const netTotal = Math.max(0, itemTotal - itemTax);
-
-                const itemSubtotal = parsePrice(item.subtotal);
-                // Item subtotal is already tax-exclusive in the cart response
-                // Do NOT subtract tax again, or we get a double-tax-strip
-                const netSubtotal = itemSubtotal;
+                const lifecycleLine = lifecycleLinePricingByKey.get(item.key);
+                const fallbackSubtotal = parseFloat(item.subtotal?.replace(/[^0-9.]/g, '') || '0');
+                const itemTotal = parseFloat(item.total?.replace(/[^0-9.]/g, '') || '0');
+                const itemTax = parseFloat(item.tax?.replace(/[^0-9.]/g, '') || '0') || 0;
+                const fallbackNetTotal = itemTotal > fallbackSubtotal && itemTax > 0 ? Math.max(0, itemTotal - itemTax) : itemTotal || fallbackSubtotal;
+                const netTotal = lifecycleLine?.netTotal ?? fallbackNetTotal;
+                const netSubtotal = lifecycleLine?.advertisedSubtotal ?? fallbackSubtotal;
                 console.log('[processCheckout] Line item tax calculation:', {
                   name: item.product?.node?.name,
-                  totalInclusive: itemTotal,
-                  tax: itemTax,
+                  advertisedSubtotal: netSubtotal.toFixed(2),
+                  lifecycleNetTotal: netTotal.toFixed(2),
                   netTotal: netTotal.toFixed(2),
-                  subtotalRecursive: itemSubtotal,
                   netSubtotal: netSubtotal.toFixed(2),
                 });
 
@@ -295,12 +286,12 @@ export function useCheckout() {
               })) || [],
             // Pass complete cart totals including shipping and tax
             cartTotals: {
-              subtotal: cart.value?.subtotal,
-              total: cart.value?.total,
-              totalTax: cart.value?.totalTax,
-              shippingTotal: cart.value?.shippingTotal,
+              subtotal: lifecycleCartPricing.subtotal.toFixed(2),
+              total: lifecycleCartPricing.total.toFixed(2),
+              totalTax: lifecycleCartPricing.tax.toFixed(2),
+              shippingTotal: lifecycleCartPricing.shipping.toFixed(2),
               shippingTax: cart.value?.shippingTax,
-              discountTotal: cart.value?.discountTotal,
+              discountTotal: lifecycleCartPricing.discount.toFixed(2),
               discountTax: cart.value?.discountTax,
             },
             shippingMethod: {

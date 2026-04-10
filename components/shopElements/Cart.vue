@@ -1,50 +1,15 @@
 <script setup lang="ts">
-import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
+import {calculateLifecycleCartPricing, formatCadCurrency} from '~/utils/lifecyclePricing';
 
 const {cart, toggleCart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
 
-// Parse a WooCommerce price string into a number
-const parseWooPrice = (priceStr: string | null | undefined): number => {
-  if (!priceStr) return 0;
-  let str = String(priceStr);
-  str = str.replace(/<[^>]*>/g, '');
-  str = str.replace(/&#36;/g, '$');
-  str = str.replace(/&nbsp;/g, ' ');
-  str = str.replace(/[^0-9.-]/g, '');
-  return parseFloat(str) || 0;
-};
-
-// Check if a WooCommerce price string is already in CAD (multicurrency plugin)
-const isWooPriceInCAD = (priceStr: string | null | undefined): boolean => {
-  if (!priceStr) return false;
-  const info = cleanAndExtractPriceInfo(priceStr);
-  return info.isCAD;
-};
+const lifecycleCartPricing = computed(() => calculateLifecycleCartPricing(cart.value, exchangeRate.value));
 
 // Cart sidebar shows subtotal only (no shipping — user hasn't entered address yet).
-// Computed from subtotal + tax - discount (NOT total - shippingTotal) because
-// the backend may include stale shipping in total while reporting shippingTotal as $0.
-// Detects if WooCommerce already returns CAD values (multicurrency) to avoid double-conversion.
+// Uses the shopper-facing advertised merchandise price through the cart lifecycle.
 const formattedCartTotal = computed(() => {
-  const subtotalNumeric = parseWooPrice(cart.value?.subtotal);
-  const taxNumeric = parseWooPrice(cart.value?.totalTax);
-  const discountNumeric = parseWooPrice(cart.value?.discountTotal);
-  const totalWithoutShipping = Math.max(0, subtotalNumeric + taxNumeric - discountNumeric);
-  if (totalWithoutShipping === 0) return '$0.00 CAD';
-
-  // If WooCommerce prices are already in CAD (multicurrency plugin), don't convert again
-  if (isWooPriceInCAD(cart.value?.subtotal)) {
-    return '$' + totalWithoutShipping.toFixed(2) + ' CAD';
-  }
-
-  // USD prices — convert to CAD
-  if (exchangeRate.value) {
-    const converted = totalWithoutShipping * exchangeRate.value;
-    return '$' + converted.toFixed(2) + ' CAD';
-  }
-
-  return `$${totalWithoutShipping.toFixed(2)} CAD`;
+  return formatCadCurrency(lifecycleCartPricing.value.totalWithoutShipping);
 });
 </script>
 
