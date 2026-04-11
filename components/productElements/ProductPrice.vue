@@ -67,8 +67,27 @@ const extractRangeDisplayValues = (rawPrice: string | null | undefined): string[
     .map((entry) => entry.value);
 };
 
+const hasDistinctSalePrice = computed(() => {
+  const normalizedSalePrice = normalizePriceText(props.salePrice);
+  const normalizedRegularPrice = normalizePriceText(props.regularPrice);
+  return !!props.showBothPrices && !!normalizedSalePrice && !!normalizedRegularPrice && normalizedSalePrice !== normalizedRegularPrice;
+});
+
+const toRangeOrSingleDisplayValue = (rawPrice: string | null | undefined): string => {
+  const rangeValues = extractRangeDisplayValues(rawPrice);
+  if (rangeValues.length >= 2) {
+    return `${rangeValues[0].replace(/\s*CAD$/i, '')} - ${rangeValues[rangeValues.length - 1]}`;
+  }
+
+  if (rangeValues.length === 1) {
+    return rangeValues[0];
+  }
+
+  return toSingleDisplayValue(rawPrice);
+};
+
 const variableRangeDisplay = computed(() => {
-  if (!props.isVariable || !props.price) return null;
+  if (!props.isVariable || !props.price || hasDistinctSalePrice.value) return null;
 
   const rangeValues = extractRangeDisplayValues(props.price);
   if (rangeValues.length < 2) return null;
@@ -105,8 +124,8 @@ const priceValueForTemplate = computed(() => {
 
 const regularPriceValueForTemplate = computed(() => {
   if (!props.showBothPrices || variableRangeDisplay.value) return null;
-  if (!props.salePrice || !props.regularPrice || props.salePrice === props.regularPrice) return null;
-  return toSingleDisplayValue(props.regularPrice);
+  if (!hasDistinctSalePrice.value || !props.regularPrice) return null;
+  return toRangeOrSingleDisplayValue(props.regularPrice);
 });
 </script>
 

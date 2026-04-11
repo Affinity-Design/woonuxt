@@ -74,7 +74,7 @@ const isVariableProduct = computed(() => {
         :regular-price="node.regularPrice"
         :is-variable="isVariableProduct"
         :show-as-range="false"
-        :show-both-prices="false" />
+        :show-both-prices="true" />
       <div class="p-1"></div>
       <StarRating v-if="storeSettings.showReviews" :rating="node.averageRating" :count="node.reviewCount" />
     </div>

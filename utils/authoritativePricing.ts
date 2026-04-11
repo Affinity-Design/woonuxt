@@ -49,12 +49,88 @@ type PriceableCart = {
   } | null;
 };
 
+type CurrencyCode = 'CAD' | 'USD';
+
 const PRICE_FIELDS = ['price', 'rawPrice', 'regularPrice', 'rawRegularPrice', 'salePrice', 'rawSalePrice'] as const;
 
 const normalizeToken = (value: unknown): string => {
   return String(value ?? '')
     .trim()
     .toLowerCase();
+};
+
+const extractNumericPrice = (value: unknown): string | null => {
+  const matches = String(value ?? '')
+    .replace(/&nbsp;/gi, ' ')
+    .match(/[0-9]+(?:\.[0-9]+)?/);
+
+  return matches?.[0] || null;
+};
+
+const detectExplicitCurrency = (value: unknown): CurrencyCode | null => {
+  const normalizedValue = String(value ?? '').toUpperCase();
+
+  if (normalizedValue.includes('CAD') || normalizedValue.includes('CA$')) {
+    return 'CAD';
+  }
+
+  if (normalizedValue.includes('USD') || normalizedValue.includes('US$')) {
+    return 'USD';
+  }
+
+  return null;
+};
+
+const detectAuthorityCurrency = (product: PriceableProduct | null | undefined): CurrencyCode | null => {
+  const candidates = [product?.salePrice, product?.regularPrice, product?.price, ...(product?.variations?.nodes || []).flatMap((variation) => [variation?.salePrice, variation?.regularPrice, variation?.price])];
+
+  for (const candidate of candidates) {
+    const detectedCurrency = detectExplicitCurrency(candidate);
+    if (detectedCurrency) {
+      return detectedCurrency;
+    }
+  }
+
+  return null;
+};
+
+const formatPriceForCurrency = (numericPrice: string, currency: CurrencyCode): string => {
+  return currency === 'CAD' ? `$${numericPrice}&nbsp;CAD` : `US$${numericPrice}`;
+};
+
+const applyAuthorityCurrencyContext = <T extends Record<string, any>>(target: T, currency: CurrencyCode): T => {
+  const nextTarget = {...target};
+
+  for (const field of ['price', 'regularPrice', 'salePrice'] as const) {
+    const numericPrice = extractNumericPrice(nextTarget[field]);
+
+    if (!numericPrice) {
+      continue;
+    }
+
+    const currentCurrency = detectExplicitCurrency(nextTarget[field]);
+    if (currentCurrency !== currency) {
+      nextTarget[field] = formatPriceForCurrency(numericPrice, currency);
+    }
+  }
+
+  if (!nextTarget.rawPrice) {
+    nextTarget.rawPrice = extractNumericPrice(nextTarget.price);
+  }
+
+  if (!nextTarget.rawRegularPrice) {
+    nextTarget.rawRegularPrice = extractNumericPrice(nextTarget.regularPrice);
+  }
+
+  if (!nextTarget.rawSalePrice) {
+    nextTarget.rawSalePrice = extractNumericPrice(nextTarget.salePrice);
+  }
+
+  if (nextTarget.onSale === undefined) {
+    nextTarget.onSale = !!nextTarget.rawSalePrice && !!nextTarget.rawRegularPrice && nextTarget.rawSalePrice !== nextTarget.rawRegularPrice;
+  }
+
+  return nextTarget;
 };
 
 const normalizeAttributeValue = (value: unknown): string => {
@@ -146,6 +222,7 @@ export const applyAuthoritativePriceOverlay = <T extends PriceableProduct>(
 
   const authorityVariations = authoritativeProduct.variations?.nodes || [];
   const uniformVariationSource = getUniformVariationSource(authoritativeProduct) || authoritativeProduct;
+  const authorityCurrency = detectAuthorityCurrency(authoritativeProduct);
 
   const authoritativeByDatabaseId = new Map<string, VariationNode>();
   const authoritativeBySlug = new Map<string, VariationNode>();
@@ -194,6 +271,8 @@ export const applyAuthoritativePriceOverlay = <T extends PriceableProduct>(
 
     if (authoritativeVariation) {
       copyPriceFields(nextVariation as Record<string, any>, authoritativeVariation as Record<string, any>);
+    } else if (authorityCurrency) {
+      return applyAuthorityCurrencyContext(nextVariation as Record<string, any>, authorityCurrency) as VariationNode;
     }
 
     return nextVariation;
