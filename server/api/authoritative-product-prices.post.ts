@@ -175,6 +175,7 @@ export default defineEventHandler(async (event) => {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'Mozilla/5.0 (compatible; ProSkatersPlacePriceAuthority/1.0)',
+          'CF-IPCountry': 'CA',
           Origin: 'https://proskatersplace.ca',
           Referer: 'https://proskatersplace.ca/',
         },
