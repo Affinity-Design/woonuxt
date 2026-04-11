@@ -1,4 +1,5 @@
 import type {AddToCartInput} from '#gql';
+import {applyAuthoritativeCartPricing} from '~/utils/authoritativePricing';
 
 /**
  * @name useCart
@@ -15,6 +16,34 @@ export function useCart() {
   const paymentGateways = useState<PaymentGateways | null>('paymentGateways', () => null);
   const {logGQLError, clearAllCookies} = useHelpers();
 
+  async function overlayAuthoritativeCartPricing(cartPayload?: Cart | null): Promise<Cart | null> {
+    const slugs = Array.from(
+      new Set((cartPayload?.contents?.nodes || []).map((item) => item?.product?.node?.slug).filter(Boolean) as string[]),
+    );
+
+    if (!cartPayload || !slugs.length) {
+      return cartPayload || null;
+    }
+
+    try {
+      const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
+        method: 'POST',
+        body: {
+          slugs,
+        },
+      });
+
+      if (!authorityResponse?.enabled || !authorityResponse.products) {
+        return cartPayload;
+      }
+
+      return (applyAuthoritativeCartPricing(cartPayload, authorityResponse.products) as Cart) || cartPayload;
+    } catch (error) {
+      console.warn('[useCart] Failed to overlay authoritative cart pricing:', error);
+      return cartPayload;
+    }
+  }
+
   /** Refesh the cart from the server
    * @returns {Promise<boolean>} - A promise that resolves
    * to true if the cart was successfully refreshed
@@ -23,8 +52,9 @@ export function useCart() {
     try {
       const {cart, customer, viewer, paymentGateways, loginClients} = await GqlGetCart();
       const {updateCustomer, updateViewer, updateLoginClients} = useAuth();
+      const authoritativeCart = await overlayAuthoritativeCartPricing(cart);
 
-      if (cart) updateCart(cart);
+      if (authoritativeCart) updateCart(authoritativeCart);
       if (customer) updateCustomer(customer);
       if (viewer) updateViewer(viewer);
       if (paymentGateways) updatePaymentGateways(paymentGateways);
@@ -78,7 +108,7 @@ export function useCart() {
       });
 
       if (response?.cart) {
-        cart.value = response.cart;
+        cart.value = await overlayAuthoritativeCartPricing(response.cart);
       }
 
       // Auto open the cart when an item is added to the cart if the setting is enabled
@@ -144,7 +174,7 @@ export function useCart() {
       });
 
       if (response.success && response.cart) {
-        updateCart(response.cart);
+        updateCart(await overlayAuthoritativeCartPricing(response.cart));
       }
     } catch (error: any) {
       console.error('[removeItem] Error:', error);
@@ -172,7 +202,7 @@ export function useCart() {
       });
 
       if (response.success && response.cart) {
-        updateCart(response.cart);
+        updateCart(await overlayAuthoritativeCartPricing(response.cart));
       }
     } catch (error: any) {
       console.error('[updateItemQuantity] Error:', error);
@@ -188,7 +218,7 @@ export function useCart() {
     try {
       isUpdatingCart.value = true;
       const {emptyCart} = await GqlEmptyCart();
-      updateCart(emptyCart?.cart);
+      updateCart(await overlayAuthoritativeCartPricing(emptyCart?.cart));
     } catch (error: any) {
       logGQLError(error);
     }
@@ -198,7 +228,7 @@ export function useCart() {
   async function updateShippingMethod(shippingMethods: string) {
     isUpdatingCart.value = true;
     const {updateShippingMethod} = await GqlChangeShippingMethod({shippingMethods});
-    updateCart(updateShippingMethod?.cart);
+    updateCart(await overlayAuthoritativeCartPricing(updateShippingMethod?.cart));
   }
 
   // Apply coupon
@@ -206,7 +236,7 @@ export function useCart() {
     try {
       isUpdatingCoupon.value = true;
       const {applyCoupon} = await GqlApplyCoupon({code});
-      updateCart(applyCoupon?.cart);
+      updateCart(await overlayAuthoritativeCartPricing(applyCoupon?.cart));
       isUpdatingCoupon.value = false;
     } catch (error: any) {
       isUpdatingCoupon.value = false;
@@ -220,7 +250,7 @@ export function useCart() {
     try {
       isUpdatingCart.value = true;
       const {removeCoupons} = await GqlRemoveCoupons({codes: [code]});
-      updateCart(removeCoupons?.cart);
+      updateCart(await overlayAuthoritativeCartPricing(removeCoupons?.cart));
     } catch (error) {
       logGQLError(error);
       isUpdatingCart.value = false;

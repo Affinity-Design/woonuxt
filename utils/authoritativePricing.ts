@@ -34,6 +34,21 @@ type PriceableProduct = {
   } | null;
 };
 
+type CartLineNode = {
+  product?: {
+    node?: PriceableProduct | null;
+  } | null;
+  variation?: {
+    node?: VariationNode | null;
+  } | null;
+};
+
+type PriceableCart = {
+  contents?: {
+    nodes?: CartLineNode[] | null;
+  } | null;
+};
+
 const PRICE_FIELDS = ['price', 'rawPrice', 'regularPrice', 'rawRegularPrice', 'salePrice', 'rawSalePrice'] as const;
 
 const normalizeToken = (value: unknown): string => {
@@ -100,6 +115,17 @@ const getUniformVariationSource = (product: PriceableProduct | null | undefined)
   }
 
   return null;
+};
+
+const getAuthoritativeProductMatch = (
+  slug: string | null | undefined,
+  authoritativeProducts: Record<string, PriceableProduct | undefined> | null | undefined,
+): PriceableProduct | undefined => {
+  if (!slug || !authoritativeProducts) {
+    return undefined;
+  }
+
+  return authoritativeProducts[slug] || authoritativeProducts[normalizeToken(slug)];
 };
 
 export const applyAuthoritativePriceOverlay = <T extends PriceableProduct>(
@@ -194,4 +220,58 @@ export const applyAuthoritativePriceOverlayList = <T extends PriceableProduct>(
     const caseInsensitiveMatch = !exactMatch && product?.slug ? authoritativeProducts[normalizeToken(product.slug)] : undefined;
     return (applyAuthoritativePriceOverlay(product, exactMatch || caseInsensitiveMatch) as T) || product;
   });
+};
+
+export const applyAuthoritativeCartPricing = <T extends PriceableCart>(
+  cart: T | null | undefined,
+  authoritativeProducts: Record<string, PriceableProduct | undefined> | null | undefined,
+): T | null | undefined => {
+  const cartItems = cart?.contents?.nodes || [];
+
+  if (!cartItems.length || !authoritativeProducts) {
+    return cart;
+  }
+
+  const nextItems = cartItems.map((item) => {
+    const authoritativeProduct = getAuthoritativeProductMatch(item?.product?.node?.slug, authoritativeProducts);
+
+    if (!authoritativeProduct) {
+      return item;
+    }
+
+    const nextItem: CartLineNode = {...item};
+
+    if (item?.product?.node) {
+      nextItem.product = {
+        ...item.product,
+        node: (applyAuthoritativePriceOverlay(item.product.node, authoritativeProduct) as PriceableProduct) || item.product.node,
+      };
+    }
+
+    if (item?.variation?.node) {
+      const nextVariationContainer = applyAuthoritativePriceOverlay(
+        {
+          variations: {
+            nodes: [item.variation.node],
+          },
+        },
+        authoritativeProduct,
+      );
+
+      nextItem.variation = {
+        ...item.variation,
+        node: nextVariationContainer?.variations?.nodes?.[0] || item.variation.node,
+      };
+    }
+
+    return nextItem;
+  });
+
+  return {
+    ...cart,
+    contents: {
+      ...cart?.contents,
+      nodes: nextItems,
+    },
+  };
 };

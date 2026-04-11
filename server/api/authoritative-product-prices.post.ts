@@ -6,6 +6,10 @@ const AUTHORITY_QUERY_CHUNK_SIZE = 25;
 
 const normalizeHost = (value: string): string => value.trim().toLowerCase().replace(/\/+$/, '');
 
+const isIgnorableAuthorityError = (message: string): boolean => {
+  return /^No product ID was found corresponding to the slug:/i.test(String(message || '').trim());
+};
+
 const extractNumericPrice = (value: unknown): string | null => {
   if (value === null || value === undefined) {
     return null;
@@ -180,10 +184,20 @@ export default defineEventHandler(async (event) => {
       });
 
       if (response?.errors?.length) {
-        throw createError({
-          statusCode: 502,
-          statusMessage: response.errors.map((error) => error.message || 'Unknown GraphQL error').join('; '),
-        });
+        const fatalErrors = response.errors.filter((error) => !isIgnorableAuthorityError(error.message || ''));
+
+        if (fatalErrors.length) {
+          throw createError({
+            statusCode: 502,
+            statusMessage: fatalErrors.map((error) => error.message || 'Unknown GraphQL error').join('; '),
+          });
+        }
+
+        console.warn(
+          `[authoritative-product-prices] Ignoring missing products from authority host: ${response.errors
+            .map((error) => error.message || 'Unknown GraphQL error')
+            .join('; ')}`,
+        );
       }
 
       return response?.data || {};
