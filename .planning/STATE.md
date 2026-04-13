@@ -12,7 +12,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 0 of 8 (none started)
 Plan: None yet
 Status: Planning
-Last activity: 2026-04-09 — Milestone created with 8 phases, 44 requirements
+Last activity: 2026-04-13 — Phase 00 (pricing consistency test) completed; milestone phases 1-8 not yet started
+
+### Standalone Phases (outside milestone)
+
+- **Phase 00: Pricing Consistency Test** — COMPLETE (2026-04-13)
+  - Plan 00-01: 2 tasks, 2 commits (a9b2e48d, 0f34dc2c, c20d4aeb)
+  - Created `scripts/test-pricing-consistency.js` (regression test)
+  - Verified authority overlay fix (b46a5e48) across 3 product types
 
 Progress: [░░░░░░░░░░] 0%
 
