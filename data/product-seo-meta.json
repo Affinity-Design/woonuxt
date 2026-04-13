@@ -11,9 +11,9 @@
       "locale": "en-CA",
       "price": 1.99,
       "currency": "CAD",
-      "availability": "in stock",
+      "availability": "out of stock",
       "category": "Uncategorized",
-      "modified": "2026-01-28T17:25:13+00:00"
+      "modified": "2026-04-09T20:22:05+00:00"
     }
   },
   {
@@ -97,7 +97,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T19:55:34+00:00"
     }
   },
@@ -199,7 +199,7 @@
       "price": 337.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T18:44:11+00:00"
     }
   },
@@ -216,7 +216,7 @@
       "price": 337.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T18:43:19+00:00"
     }
   },
@@ -318,7 +318,7 @@
       "price": 176.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-12T21:04:48+00:00"
     }
   },
@@ -437,7 +437,7 @@
       "price": 216.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-10T23:43:23+00:00"
     }
   },
@@ -454,7 +454,7 @@
       "price": 216.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-10T23:43:53+00:00"
     }
   },
@@ -471,7 +471,7 @@
       "price": 216.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-10T21:59:36+00:00"
     }
   },
@@ -675,7 +675,7 @@
       "price": 393.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-06T21:58:02+00:00"
     }
   },
@@ -811,7 +811,7 @@
       "price": 310.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-10T19:53:10+00:00"
     }
   },
@@ -828,7 +828,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-24T14:33:06+00:00"
     }
   },
@@ -845,7 +845,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-10T19:52:21+00:00"
     }
   },
@@ -862,7 +862,7 @@
       "price": 27.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-26T19:17:14+00:00"
     }
   },
@@ -1287,7 +1287,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T19:00:07+00:00"
     }
   },
@@ -2154,7 +2154,7 @@
       "price": 210.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-13T00:49:02+00:00"
     }
   },
@@ -2222,7 +2222,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-20T17:14:33+00:00"
     }
   },
@@ -2239,7 +2239,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-19T22:00:33+00:00"
     }
   },
@@ -2256,7 +2256,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-19T22:00:44+00:00"
     }
   },
@@ -2273,7 +2273,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-01T15:14:30+00:00"
     }
   },
@@ -2290,7 +2290,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-19T21:48:16+00:00"
     }
   },
@@ -2307,7 +2307,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-19T20:37:36+00:00"
     }
   },
@@ -2324,7 +2324,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-04T04:39:47+00:00"
     }
   },
@@ -2494,7 +2494,7 @@
       "price": 149.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-12T00:24:04+00:00"
     }
   },
@@ -2596,7 +2596,7 @@
       "price": 121.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-17T22:53:02+00:00"
     }
   },
@@ -2664,7 +2664,7 @@
       "price": 121.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-18T17:30:14+00:00"
     }
   },
@@ -2732,7 +2732,7 @@
       "price": 66.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T18:52:44+00:00"
     }
   },
@@ -2749,7 +2749,7 @@
       "price": 66.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-09T01:05:37+00:00"
     }
   },
@@ -2766,7 +2766,7 @@
       "price": 310.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-09T01:04:10+00:00"
     }
   },
@@ -3191,7 +3191,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-05T18:30:46+00:00"
     }
   },
@@ -4191,10 +4191,10 @@
       "imageAlt": "Endless Blading ARC ES UFS Inline Frames",
       "type": "product",
       "locale": "en-CA",
-      "price": 351.99,
+      "price": 350.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T20:08:46+00:00"
     }
   },
@@ -4279,7 +4279,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:02:08+00:00"
     }
   },
@@ -4364,7 +4364,7 @@
       "price": 364.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T18:48:19+00:00"
     }
   },
@@ -4381,7 +4381,7 @@
       "price": 364.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T20:11:59+00:00"
     }
   },
@@ -4398,7 +4398,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-16T21:31:21+00:00"
     }
   },
@@ -4551,7 +4551,7 @@
       "price": 223.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T19:57:28+00:00"
     }
   },
@@ -4568,7 +4568,7 @@
       "price": 88.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-26T17:27:46+00:00"
     }
   },
@@ -4738,7 +4738,7 @@
       "price": 104.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-22T19:43:30+00:00"
     }
   },
@@ -4755,7 +4755,7 @@
       "price": 134.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T17:57:48+00:00"
     }
   },
@@ -5027,7 +5027,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-10T18:23:01+00:00"
     }
   },
@@ -5044,7 +5044,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-13T19:30:04+00:00"
     }
   },
@@ -5061,7 +5061,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-18T16:41:15+00:00"
     }
   },
@@ -5078,7 +5078,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-20T17:16:05+00:00"
     }
   },
@@ -5605,7 +5605,7 @@
       "price": 128.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-13T15:55:07+00:00"
     }
   },
@@ -5622,7 +5622,7 @@
       "price": 128.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-17T18:39:53+00:00"
     }
   },
@@ -5707,7 +5707,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-11T03:53:38+00:00"
     }
   },
@@ -5724,7 +5724,7 @@
       "price": 210.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:12:22+00:00"
     }
   },
@@ -5823,7 +5823,7 @@
       "imageAlt": "Chaya Roller Skates Pro Forged Trucks",
       "type": "product",
       "locale": "en-CA",
-      "price": 84.99,
+      "price": 83.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "New Arrivals",
@@ -5894,7 +5894,7 @@
       "price": 582.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-13T18:55:27+00:00"
     }
   },
@@ -6350,7 +6350,7 @@
       "imageAlt": "Fischer Twin Skin 100 Mohair Wide Replacement Skins",
       "type": "product",
       "locale": "en-CA",
-      "price": 58.99,
+      "price": 57.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -6778,7 +6778,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-18T10:56:18+00:00"
     }
   },
@@ -6914,7 +6914,7 @@
       "price": 298.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-12-12T18:31:32+00:00"
     }
   },
@@ -7305,7 +7305,7 @@
       "price": 189.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-03-27T18:00:07+00:00"
     }
   },
@@ -8274,7 +8274,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T19:59:11+00:00"
     }
   },
@@ -8359,7 +8359,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-08-12T23:40:41+00:00"
     }
   },
@@ -8376,7 +8376,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-30T01:10:16+00:00"
     }
   },
@@ -8512,7 +8512,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T19:54:29+00:00"
     }
   },
@@ -8648,7 +8648,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-07-19T22:27:17+00:00"
     }
   },
@@ -8696,7 +8696,7 @@
       "imageAlt": "Fischer Ranger 115 Walk Alpine Ski Boots",
       "type": "product",
       "locale": "en-CA",
-      "price": 405.99,
+      "price": 404.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Alpine Ski Boots",
@@ -8716,7 +8716,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-14T19:16:06+00:00"
     }
   },
@@ -8750,7 +8750,7 @@
       "price": 189.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-10T22:00:54+00:00"
     }
   },
@@ -10229,7 +10229,7 @@
       "price": 283.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-09T00:29:22+00:00"
     }
   },
@@ -10263,7 +10263,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:09:29+00:00"
     }
   },
@@ -10277,7 +10277,7 @@
       "imageAlt": "Stanley VGUARD K1 Junior Hockey Gear Set",
       "type": "product",
       "locale": "en-CA",
-      "price": 119.99,
+      "price": 118.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Accessories",
@@ -10294,7 +10294,7 @@
       "imageAlt": "Stanley VGUARD V5 Junior Hockey Gear Set",
       "type": "product",
       "locale": "en-CA",
-      "price": 119.99,
+      "price": 118.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Accessories",
@@ -11280,7 +11280,7 @@
       "imageAlt": "Micro Mood Fitness Inline Skates",
       "type": "product",
       "locale": "en-CA",
-      "price": 119.99,
+      "price": 118.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -12181,10 +12181,10 @@
       "imageAlt": "Endless Blading ARC 165 Inline Frames",
       "type": "product",
       "locale": "en-CA",
-      "price": 351.99,
+      "price": 350.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T18:39:52+00:00"
     }
   },
@@ -12320,7 +12320,7 @@
       "price": 210.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-12-26T14:42:15+00:00"
     }
   },
@@ -12337,7 +12337,7 @@
       "price": 223.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T19:57:56+00:00"
     }
   },
@@ -12354,7 +12354,7 @@
       "price": 169.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-12T00:26:45+00:00"
     }
   },
@@ -12473,7 +12473,7 @@
       "price": 459.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-31T18:23:24+00:00"
     }
   },
@@ -12524,7 +12524,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-19T20:38:02+00:00"
     }
   },
@@ -12677,7 +12677,7 @@
       "price": 149.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-10-17T18:35:25+00:00"
     }
   },
@@ -14564,7 +14564,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-03T20:01:17+00:00"
     }
   },
@@ -14581,7 +14581,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-10T05:28:00+00:00"
     }
   },
@@ -14598,7 +14598,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-10-06T04:34:06+00:00"
     }
   },
@@ -14615,7 +14615,7 @@
       "price": 284.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-12T18:13:12+00:00"
     }
   },
@@ -14836,7 +14836,7 @@
       "price": 189.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-04-04T04:15:59+00:00"
     }
   },
@@ -14904,7 +14904,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-03T18:46:21+00:00"
     }
   },
@@ -14921,7 +14921,7 @@
       "price": 296.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-22T00:44:22+00:00"
     }
   },
@@ -14938,7 +14938,7 @@
       "price": 283.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-10-09T16:52:35+00:00"
     }
   },
@@ -15360,7 +15360,7 @@
       "imageAlt": "Powerslide XC Trainer Bronx 150 Off Road Rollerski Skates",
       "type": "product",
       "locale": "en-CA",
-      "price": 447.99,
+      "price": 446.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -15550,7 +15550,7 @@
       "price": 121.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-12T20:43:36+00:00"
     }
   },
@@ -15768,10 +15768,10 @@
       "imageAlt": "Endless Blading ARC CS 165 Inline Frames",
       "type": "product",
       "locale": "en-CA",
-      "price": 351.99,
+      "price": 350.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T20:02:28+00:00"
     }
   },
@@ -15785,7 +15785,7 @@
       "imageAlt": "FR FR1 310 Black Urban Inline Skates",
       "type": "product",
       "locale": "en-CA",
-      "price": 515.99,
+      "price": 514.99,
       "currency": "CAD",
       "availability": "out of stock",
       "category": "Inline Skate Shop",
@@ -16247,7 +16247,7 @@
       "price": 269.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T19:56:27+00:00"
     }
   },
@@ -17536,7 +17536,7 @@
       "imageAlt": "ROSSIGNOL Nova 10 TI On Piste Women Alpine Skis",
       "type": "product",
       "locale": "en-CA",
-      "price": 447.99,
+      "price": 446.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Alpine Skis",
@@ -18508,7 +18508,7 @@
       "price": 283.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-08T19:03:18+00:00"
     }
   },
@@ -19205,7 +19205,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:08:13+00:00"
     }
   },
@@ -19851,7 +19851,7 @@
       "price": 128.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-03T20:15:55+00:00"
     }
   },
@@ -19868,7 +19868,7 @@
       "price": 216.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-28T02:57:24+00:00"
     }
   },
@@ -19885,7 +19885,7 @@
       "price": 216.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-12-31T02:19:48+00:00"
     }
   },
@@ -19902,7 +19902,7 @@
       "price": 189.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-08-28T20:13:39+00:00"
     }
   },
@@ -19919,7 +19919,7 @@
       "price": 92.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-24T00:30:23+00:00"
     }
   },
@@ -20021,7 +20021,7 @@
       "price": 284.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-03-21T00:13:09+00:00"
     }
   },
@@ -20038,7 +20038,7 @@
       "price": 108.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-10-07T18:47:50+00:00"
     }
   },
@@ -20055,7 +20055,7 @@
       "price": 298.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-27T17:06:05+00:00"
     }
   },
@@ -20327,7 +20327,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:05:01+00:00"
     }
   },
@@ -20409,10 +20409,10 @@
       "imageAlt": "Endless Blading ARC UFS Inline Frames",
       "type": "product",
       "locale": "en-CA",
-      "price": 351.99,
+      "price": 350.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T20:16:44+00:00"
     }
   },
@@ -20616,7 +20616,7 @@
       "price": 284.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-03T20:10:11+00:00"
     }
   },
@@ -20701,7 +20701,7 @@
       "price": 119.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T18:15:50+00:00"
     }
   },
@@ -20715,10 +20715,10 @@
       "imageAlt": "Endless Blading ARC ES 165 Inline Frames",
       "type": "product",
       "locale": "en-CA",
-      "price": 351.99,
+      "price": 350.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-01-29T20:18:21+00:00"
     }
   },
@@ -20735,7 +20735,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:06:44+00:00"
     }
   },
@@ -20766,7 +20766,7 @@
       "imageAlt": "Powerslide HC Hardcore Evo Pro Carbon Boots",
       "type": "product",
       "locale": "en-CA",
-      "price": 569.99,
+      "price": 568.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -20871,7 +20871,7 @@
       "price": 311.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-14T22:58:33+00:00"
     }
   },
@@ -21653,7 +21653,7 @@
       "price": 243.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-11-04T01:52:13+00:00"
     }
   },
@@ -21670,7 +21670,7 @@
       "price": 284.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-04-22T21:57:08+00:00"
     }
   },
@@ -21942,7 +21942,7 @@
       "price": 189.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-04-03T20:34:31+00:00"
     }
   },
@@ -22265,7 +22265,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-11T01:19:28+00:00"
     }
   },
@@ -22282,7 +22282,7 @@
       "price": 161.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-01-12T22:25:20+00:00"
     }
   },
@@ -22673,7 +22673,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:04:27+00:00"
     }
   },
@@ -22690,7 +22690,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T19:59:43+00:00"
     }
   },
@@ -22707,7 +22707,7 @@
       "price": 242.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-10T18:22:12+00:00"
     }
   },
@@ -22741,7 +22741,7 @@
       "price": 203.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-10T18:28:45+00:00"
     }
   },
@@ -22758,7 +22758,7 @@
       "price": 201.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2023-12-19T05:33:28+00:00"
     }
   },
@@ -22925,7 +22925,7 @@
       "imageAlt": "Matter Lethal Propel Race 110mm F1 Wheels",
       "type": "product",
       "locale": "en-CA",
-      "price": 58.99,
+      "price": 57.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -23217,7 +23217,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:01:25+00:00"
     }
   },
@@ -23234,7 +23234,7 @@
       "price": 210.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:13:21+00:00"
     }
   },
@@ -23299,7 +23299,7 @@
       "imageAlt": "Powerslide Zoom SUV Renegade 125 Off-Road Skates",
       "type": "product",
       "locale": "en-CA",
-      "price": 527.99,
+      "price": 526.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -23795,7 +23795,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-03T19:38:24+00:00"
     }
   },
@@ -24132,7 +24132,7 @@
       "imageAlt": "Flying Eagle Drift 2 Carbon Inline Skates",
       "type": "product",
       "locale": "en-CA",
-      "price": 405.99,
+      "price": 404.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -24373,7 +24373,7 @@
       "price": 257.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-25T00:16:32+00:00"
     }
   },
@@ -24696,7 +24696,7 @@
       "price": 88.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-22T16:57:23+00:00"
     }
   },
@@ -24849,7 +24849,7 @@
       "price": 311.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-14T23:32:28+00:00"
     }
   },
@@ -25070,7 +25070,7 @@
       "price": 310.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-13T21:57:04+00:00"
     }
   },
@@ -25189,7 +25189,7 @@
       "price": 242.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2023-11-17T18:03:01+00:00"
     }
   },
@@ -25580,7 +25580,7 @@
       "price": 311.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-14T23:30:49+00:00"
     }
   },
@@ -25597,7 +25597,7 @@
       "price": 149.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-03-04T22:01:25+00:00"
     }
   },
@@ -25733,7 +25733,7 @@
       "price": 311.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-02T04:19:10+00:00"
     }
   },
@@ -25750,7 +25750,7 @@
       "price": 162.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-08-13T16:49:01+00:00"
     }
   },
@@ -25920,7 +25920,7 @@
       "price": 298.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-26T18:47:42+00:00"
     }
   },
@@ -25937,7 +25937,7 @@
       "price": 77.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-24T18:27:47+00:00"
     }
   },
@@ -25954,7 +25954,7 @@
       "price": 85.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-04-04T04:19:55+00:00"
     }
   },
@@ -26158,7 +26158,7 @@
       "price": 169.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-27T17:38:57+00:00"
     }
   },
@@ -26175,7 +26175,7 @@
       "price": 128.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:02:49+00:00"
     }
   },
@@ -26243,7 +26243,7 @@
       "price": 298.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-09-14T16:25:18+00:00"
     }
   },
@@ -26634,7 +26634,7 @@
       "price": 311.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-14T22:53:59+00:00"
     }
   },
@@ -26770,7 +26770,7 @@
       "price": 101.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T20:00:30+00:00"
     }
   },
@@ -26821,7 +26821,7 @@
       "price": 298.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-05-03T20:04:15+00:00"
     }
   },
@@ -27535,7 +27535,7 @@
       "price": 271.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-06T17:56:31+00:00"
     }
   },
@@ -27654,7 +27654,7 @@
       "price": 94.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T18:19:30+00:00"
     }
   },
@@ -27688,7 +27688,7 @@
       "price": 149.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-12-15T03:29:14+00:00"
     }
   },
@@ -27705,7 +27705,7 @@
       "price": 176.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2025-02-27T19:56:48+00:00"
     }
   },
@@ -27841,7 +27841,7 @@
       "price": 242.99,
       "currency": "CAD",
       "availability": "in stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2023-12-19T05:59:43+00:00"
     }
   },
@@ -27960,7 +27960,7 @@
       "price": 174.99,
       "currency": "CAD",
       "availability": "out of stock",
-      "category": "Frames",
+      "category": "Inline Frames",
       "modified": "2024-06-27T16:58:30+00:00"
     }
   },
@@ -28229,7 +28229,7 @@
       "imageAlt": "YOKO YXR Classic Race NNN Nordic Ski Boots",
       "type": "product",
       "locale": "en-CA",
-      "price": 119.99,
+      "price": 118.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
@@ -28246,7 +28246,7 @@
       "imageAlt": "YOKO YXR Skate Race NNN Nordic Ski Boots",
       "type": "product",
       "locale": "en-CA",
-      "price": 119.99,
+      "price": 118.99,
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",

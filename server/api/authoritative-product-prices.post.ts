@@ -99,7 +99,8 @@ const buildAuthorityLookups = (body: AuthorityProductRequestBody): AuthorityLook
 };
 
 const isIgnorableAuthorityError = (message: string): boolean => {
-  return /^No product ID was found corresponding to the /i.test(String(message || '').trim());
+  const normalizedMessage = String(message || '').trim();
+  return /^No product (ID was found corresponding to the|exists with the) /i.test(normalizedMessage);
 };
 
 const formatCadDisplayPrice = (value: number): string => {
