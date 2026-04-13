@@ -21,6 +21,7 @@ type VariationNode = {
 };
 
 type PriceableProduct = {
+  databaseId?: number | string | null;
   slug?: string | null;
   price?: PriceValue;
   rawPrice?: PriceValue;
@@ -82,7 +83,12 @@ const detectExplicitCurrency = (value: unknown): CurrencyCode | null => {
 };
 
 const detectAuthorityCurrency = (product: PriceableProduct | null | undefined): CurrencyCode | null => {
-  const candidates = [product?.salePrice, product?.regularPrice, product?.price, ...(product?.variations?.nodes || []).flatMap((variation) => [variation?.salePrice, variation?.regularPrice, variation?.price])];
+  const candidates = [
+    product?.salePrice,
+    product?.regularPrice,
+    product?.price,
+    ...(product?.variations?.nodes || []).flatMap((variation) => [variation?.salePrice, variation?.regularPrice, variation?.price]),
+  ];
 
   for (const candidate of candidates) {
     const detectedCurrency = detectExplicitCurrency(candidate);
@@ -196,12 +202,24 @@ const getUniformVariationSource = (product: PriceableProduct | null | undefined)
 const getAuthoritativeProductMatch = (
   slug: string | null | undefined,
   authoritativeProducts: Record<string, PriceableProduct | undefined> | null | undefined,
+  databaseId?: number | string | null,
 ): PriceableProduct | undefined => {
-  if (!slug || !authoritativeProducts) {
+  if (!authoritativeProducts) {
     return undefined;
   }
 
-  return authoritativeProducts[slug] || authoritativeProducts[normalizeToken(slug)];
+  if (slug) {
+    const exactSlugMatch = authoritativeProducts[slug] || authoritativeProducts[normalizeToken(slug)];
+    if (exactSlugMatch) {
+      return exactSlugMatch;
+    }
+  }
+
+  if (databaseId !== undefined && databaseId !== null) {
+    return authoritativeProducts[String(databaseId)] || authoritativeProducts[normalizeToken(databaseId)];
+  }
+
+  return undefined;
 };
 
 export const applyAuthoritativePriceOverlay = <T extends PriceableProduct>(
@@ -297,7 +315,11 @@ export const applyAuthoritativePriceOverlayList = <T extends PriceableProduct>(
   return products.map((product) => {
     const exactMatch = product?.slug ? authoritativeProducts[product.slug] : undefined;
     const caseInsensitiveMatch = !exactMatch && product?.slug ? authoritativeProducts[normalizeToken(product.slug)] : undefined;
-    return (applyAuthoritativePriceOverlay(product, exactMatch || caseInsensitiveMatch) as T) || product;
+    const databaseIdMatch =
+      !exactMatch && !caseInsensitiveMatch && product?.databaseId !== undefined && product?.databaseId !== null
+        ? authoritativeProducts[String(product.databaseId)]
+        : undefined;
+    return (applyAuthoritativePriceOverlay(product, exactMatch || caseInsensitiveMatch || databaseIdMatch) as T) || product;
   });
 };
 
@@ -312,7 +334,7 @@ export const applyAuthoritativeCartPricing = <T extends PriceableCart>(
   }
 
   const nextItems = cartItems.map((item) => {
-    const authoritativeProduct = getAuthoritativeProductMatch(item?.product?.node?.slug, authoritativeProducts);
+    const authoritativeProduct = getAuthoritativeProductMatch(item?.product?.node?.slug, authoritativeProducts, item?.product?.node?.databaseId);
 
     if (!authoritativeProduct) {
       return item;

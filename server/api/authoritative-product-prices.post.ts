@@ -1,10 +1,94 @@
+type AuthorityProductReference = {
+  slug?: string | null;
+  databaseId?: number | string | null;
+};
+
 type AuthorityProductRequestBody = {
   slugs?: string[];
+  products?: AuthorityProductReference[];
+};
+
+type AuthorityLookup = {
+  idType: 'SLUG' | 'DATABASE_ID';
+  idValue: string;
+  aliases: string[];
 };
 
 const AUTHORITY_QUERY_CHUNK_SIZE = 25;
 
 const normalizeHost = (value: string): string => value.trim().toLowerCase().replace(/\/+$/, '');
+
+const normalizeLookupValue = (value: unknown): string => String(value ?? '').trim();
+
+const addAlias = (aliases: Set<string>, value: unknown) => {
+  const normalizedValue = normalizeLookupValue(value);
+
+  if (!normalizedValue) {
+    return;
+  }
+
+  aliases.add(normalizedValue);
+
+  const lowercasedValue = normalizedValue.toLowerCase();
+  if (lowercasedValue !== normalizedValue) {
+    aliases.add(lowercasedValue);
+  }
+};
+
+const buildAuthorityLookups = (body: AuthorityProductRequestBody): AuthorityLookup[] => {
+  const lookups = new Map<string, AuthorityLookup>();
+
+  const addLookup = (idType: AuthorityLookup['idType'], idValue: unknown, aliases: unknown[] = []) => {
+    const normalizedIdValue = normalizeLookupValue(idValue);
+
+    if (!normalizedIdValue) {
+      return;
+    }
+
+    const lookupKey = `${idType}:${normalizedIdValue}`;
+    const aliasSet = new Set<string>();
+    addAlias(aliasSet, normalizedIdValue);
+
+    for (const alias of aliases) {
+      addAlias(aliasSet, alias);
+    }
+
+    const existingLookup = lookups.get(lookupKey);
+    if (existingLookup) {
+      for (const alias of aliasSet) {
+        addAlias(new Set(existingLookup.aliases), alias);
+      }
+
+      existingLookup.aliases = Array.from(new Set([...existingLookup.aliases, ...aliasSet]));
+      return;
+    }
+
+    lookups.set(lookupKey, {
+      idType,
+      idValue: normalizedIdValue,
+      aliases: Array.from(aliasSet),
+    });
+  };
+
+  for (const slug of body?.slugs || []) {
+    addLookup('SLUG', slug, [slug]);
+  }
+
+  for (const product of body?.products || []) {
+    const slug = normalizeLookupValue(product?.slug);
+    const databaseId = normalizeLookupValue(product?.databaseId);
+
+    if (slug) {
+      addLookup('SLUG', slug, [slug]);
+    }
+
+    if (databaseId) {
+      addLookup('DATABASE_ID', databaseId, [databaseId, slug]);
+    }
+  }
+
+  return Array.from(lookups.values()).slice(0, 250);
+};
 
 const isIgnorableAuthorityError = (message: string): boolean => {
   return /^No product ID was found corresponding to the slug:/i.test(String(message || '').trim());
@@ -97,11 +181,12 @@ const getAuthorityHost = (config: ReturnType<typeof useRuntimeConfig>): string =
   return '';
 };
 
-const buildAuthorityQuery = (slugs: string[]) => {
-  const selections = slugs
+const buildAuthorityQuery = (lookups: AuthorityLookup[]) => {
+  const selections = lookups
     .map(
-      (slug, index) => `priceAuthority_${index}: product(id: ${JSON.stringify(slug)}, idType: SLUG) {
+      (lookup, index) => `priceAuthority_${index}: product(id: ${JSON.stringify(lookup.idValue)}, idType: ${lookup.idType}) {
         __typename
+        databaseId
         slug
         type
         ... on ProductWithPricing {
@@ -143,9 +228,9 @@ const buildAuthorityQuery = (slugs: string[]) => {
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as AuthorityProductRequestBody;
-  const uniqueSlugs = Array.from(new Set((body?.slugs || []).map((slug) => String(slug || '').trim()).filter(Boolean))).slice(0, 250);
+  const authorityLookups = buildAuthorityLookups(body);
 
-  if (!uniqueSlugs.length) {
+  if (!authorityLookups.length) {
     return {
       enabled: false,
       products: {},
@@ -163,13 +248,13 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const slugChunks: string[][] = [];
-  for (let index = 0; index < uniqueSlugs.length; index += AUTHORITY_QUERY_CHUNK_SIZE) {
-    slugChunks.push(uniqueSlugs.slice(index, index + AUTHORITY_QUERY_CHUNK_SIZE));
+  const lookupChunks: AuthorityLookup[][] = [];
+  for (let index = 0; index < authorityLookups.length; index += AUTHORITY_QUERY_CHUNK_SIZE) {
+    lookupChunks.push(authorityLookups.slice(index, index + AUTHORITY_QUERY_CHUNK_SIZE));
   }
 
   const authorityResponses = await Promise.all(
-    slugChunks.map(async (slugChunk) => {
+    lookupChunks.map(async (lookupChunk) => {
       const response = await $fetch<{data?: Record<string, any>; errors?: Array<{message?: string}>}>(authorityHost, {
         method: 'POST',
         headers: {
@@ -180,7 +265,7 @@ export default defineEventHandler(async (event) => {
           Referer: 'https://proskatersplace.ca/',
         },
         body: {
-          query: buildAuthorityQuery(slugChunk),
+          query: buildAuthorityQuery(lookupChunk),
         },
       });
 
@@ -201,17 +286,32 @@ export default defineEventHandler(async (event) => {
         );
       }
 
-      return response?.data || {};
+      return {
+        data: response?.data || {},
+        lookups: lookupChunk,
+      };
     }),
   );
 
   const products = authorityResponses.reduce<Record<string, any>>((allProducts, responseChunk) => {
-    for (const rawProduct of Object.values(responseChunk)) {
+    for (const [index, lookup] of responseChunk.lookups.entries()) {
+      const rawProduct = responseChunk.data?.[`priceAuthority_${index}`];
       const product = normalizeAuthorityProduct(rawProduct as Record<string, any> | null | undefined);
 
-      if (product?.slug) {
-        allProducts[product.slug] = product;
-        allProducts[String(product.slug).toLowerCase()] = product;
+      if (!product) {
+        continue;
+      }
+
+      const productKeys = new Set<string>();
+      addAlias(productKeys, product.slug);
+      addAlias(productKeys, product.databaseId);
+
+      for (const alias of lookup.aliases) {
+        addAlias(productKeys, alias);
+      }
+
+      for (const productKey of productKeys) {
+        allProducts[productKey] = product;
       }
     }
 

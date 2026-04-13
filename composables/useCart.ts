@@ -17,11 +17,29 @@ export function useCart() {
   const {logGQLError, clearAllCookies} = useHelpers();
 
   async function overlayAuthoritativeCartPricing(cartPayload?: Cart | null): Promise<Cart | null> {
-    const slugs = Array.from(
-      new Set((cartPayload?.contents?.nodes || []).map((item) => item?.product?.node?.slug).filter(Boolean) as string[]),
+    const authorityProducts = Array.from(
+      new Map(
+        (cartPayload?.contents?.nodes || [])
+          .map((item) => {
+            const slug = String(item?.product?.node?.slug || '').trim();
+            const databaseId = String(item?.product?.node?.databaseId || '').trim();
+
+            if (!slug && !databaseId) {
+              return null;
+            }
+
+            return {
+              key: databaseId || slug,
+              slug: slug || undefined,
+              databaseId: databaseId || undefined,
+            };
+          })
+          .filter((product): product is {key: string; slug?: string; databaseId?: string} => !!product?.key)
+          .map((product) => [product.key, product]),
+      ).values(),
     );
 
-    if (!cartPayload || !slugs.length) {
+    if (!cartPayload || !authorityProducts.length) {
       return cartPayload || null;
     }
 
@@ -29,7 +47,7 @@ export function useCart() {
       const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
         method: 'POST',
         body: {
-          slugs,
+          products: authorityProducts,
         },
       });
 
