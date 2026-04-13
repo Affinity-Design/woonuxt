@@ -383,16 +383,17 @@ export default defineNuxtConfig({
   },
 
   // i18n configuration - Canadian locale
+  // Only two routed locales: en-CA (default, unprefixed) and fr (prefixed as /fr/).
+  // The 'fr' code produces /fr/... routes; iso 'fr-CA' drives html lang and SEO tags.
+  // en.json and en-US.json remain on disk for fallback chains but are NOT routed locales.
   i18n: {
     locales: [
-      {code: 'en', file: 'en.json', name: 'English (Base)', iso: 'en'},
       {code: 'en-CA', file: 'en-CA.json', name: 'English (Canada) 🇨🇦', iso: 'en-CA'},
-      {code: 'en-US', file: 'en-US.json', name: 'English 🇺🇸', iso: 'en-US'},
-      {code: 'fr-CA', file: 'fr-CA.json', name: 'Français (Canada) 🇨🇦', iso: 'fr-CA'},
+      {code: 'fr', file: 'fr-CA.json', name: 'Français (Canada) 🇨🇦', iso: 'fr-CA'},
     ],
     langDir: './locales',
     defaultLocale: 'en-CA',
-    strategy: 'no_prefix',
+    strategy: 'prefix_except_default',
     detectBrowserLanguage: false,
     compilation: {
       strictMessage: false,

@@ -3,9 +3,8 @@ export default defineI18nConfig(() => ({
   locale: 'en-CA',
   fallbackLocale: {
     'en-CA': ['en'],
-    'en-US': ['en'],
-    'fr-CA': ['en'],
-    default: ['en', 'en-CA'],
+    'fr': ['en-CA', 'en'],
+    default: ['en-CA', 'en'],
   },
   missingWarn: false,
   fallbackWarn: false,
