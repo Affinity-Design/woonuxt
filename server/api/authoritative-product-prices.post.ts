@@ -14,6 +14,14 @@ type AuthorityLookup = {
   aliases: string[];
 };
 
+type ProductSEORecord = {
+  slug?: string;
+  seo?: {
+    price?: number | string | null;
+    currency?: string | null;
+  } | null;
+};
+
 const AUTHORITY_QUERY_CHUNK_SIZE = 25;
 
 const normalizeHost = (value: string): string => value.trim().toLowerCase().replace(/\/+$/, '');
@@ -91,7 +99,93 @@ const buildAuthorityLookups = (body: AuthorityProductRequestBody): AuthorityLook
 };
 
 const isIgnorableAuthorityError = (message: string): boolean => {
-  return /^No product ID was found corresponding to the slug:/i.test(String(message || '').trim());
+  return /^No product ID was found corresponding to the /i.test(String(message || '').trim());
+};
+
+const formatCadDisplayPrice = (value: number): string => {
+  return `$${value.toFixed(2)}&nbsp;CAD`;
+};
+
+const normalizeSeoPrice = (value: number | string | null | undefined): number | null => {
+  const numericValue = typeof value === 'number' ? value : parseFloat(String(value ?? '').trim());
+  if (!Number.isFinite(numericValue) || numericValue <= 0) {
+    return null;
+  }
+
+  return Math.floor(numericValue) + 0.99;
+};
+
+const loadProductSeoRecords = async (): Promise<Record<string, ProductSEORecord>> => {
+  let allProductSEO: Record<string, ProductSEORecord> | ProductSEORecord[] | null = null;
+
+  try {
+    const storage = useStorage('script_data');
+    const seoFromStorage = await storage.getItem('product-seo-meta');
+
+    if (seoFromStorage && typeof seoFromStorage === 'object') {
+      allProductSEO = seoFromStorage as Record<string, ProductSEORecord> | ProductSEORecord[];
+    }
+  } catch (kvError) {
+    console.warn('[authoritative-product-prices] Failed to read product SEO data from KV:', kvError);
+  }
+
+  if (!allProductSEO) {
+    try {
+      const {readFileSync} = await import('fs');
+      const {resolve} = await import('path');
+      const dataPath = resolve(process.cwd(), 'data', 'product-seo-meta.json');
+      allProductSEO = JSON.parse(readFileSync(dataPath, 'utf8')) as Record<string, ProductSEORecord> | ProductSEORecord[];
+    } catch (fileError) {
+      console.warn('[authoritative-product-prices] Failed to read product SEO data from local file:', fileError);
+      return {};
+    }
+  }
+
+  if (Array.isArray(allProductSEO)) {
+    return allProductSEO.reduce<Record<string, ProductSEORecord>>((seoMap, entry) => {
+      if (entry?.slug) {
+        seoMap[entry.slug] = entry;
+        seoMap[entry.slug.toLowerCase()] = entry;
+      }
+
+      return seoMap;
+    }, {});
+  }
+
+  const seoMap = allProductSEO || {};
+  return Object.entries(seoMap).reduce<Record<string, ProductSEORecord>>((normalizedMap, [key, value]) => {
+    normalizedMap[key] = value;
+    normalizedMap[key.toLowerCase()] = value;
+    if (value?.slug) {
+      normalizedMap[value.slug] = value;
+      normalizedMap[value.slug.toLowerCase()] = value;
+    }
+    return normalizedMap;
+  }, {});
+};
+
+const buildSeoFallbackProduct = (slug: string, seoRecord: ProductSEORecord | undefined, databaseIds: Array<number | string | null | undefined> = []) => {
+  const normalizedPrice = normalizeSeoPrice(seoRecord?.seo?.price);
+  const normalizedCurrency = String(seoRecord?.seo?.currency || '').toUpperCase();
+
+  if (!normalizedPrice || normalizedCurrency !== 'CAD') {
+    return null;
+  }
+
+  const fallbackProduct = {
+    __typename: 'ProductWithPricing',
+    slug,
+    databaseId: databaseIds.find((databaseId) => databaseId !== undefined && databaseId !== null) ?? null,
+    price: formatCadDisplayPrice(normalizedPrice),
+    rawPrice: normalizedPrice.toFixed(2),
+    regularPrice: formatCadDisplayPrice(normalizedPrice),
+    rawRegularPrice: normalizedPrice.toFixed(2),
+    salePrice: null,
+    rawSalePrice: null,
+    onSale: false,
+  };
+
+  return normalizeAuthorityProduct(fallbackProduct as Record<string, any>);
 };
 
 const extractNumericPrice = (value: unknown): string | null => {
@@ -229,6 +323,25 @@ const buildAuthorityQuery = (lookups: AuthorityLookup[]) => {
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as AuthorityProductRequestBody;
   const authorityLookups = buildAuthorityLookups(body);
+  const requestedSlugs = Array.from(
+    new Set(
+      [
+        ...(body?.slugs || []).map((slug) => normalizeLookupValue(slug)),
+        ...(body?.products || []).map((product) => normalizeLookupValue(product?.slug)),
+      ].filter(Boolean),
+    ),
+  );
+  const requestedDatabaseIdsBySlug = (body?.products || []).reduce<Record<string, Array<number | string | null | undefined>>>((slugMap, product) => {
+    const normalizedSlug = normalizeLookupValue(product?.slug).toLowerCase();
+
+    if (!normalizedSlug) {
+      return slugMap;
+    }
+
+    slugMap[normalizedSlug] ||= [];
+    slugMap[normalizedSlug].push(product?.databaseId);
+    return slugMap;
+  }, {});
 
   if (!authorityLookups.length) {
     return {
@@ -317,6 +430,39 @@ export default defineEventHandler(async (event) => {
 
     return allProducts;
   }, {});
+
+  if (requestedSlugs.length) {
+    const productSeoRecords = await loadProductSeoRecords();
+
+    for (const requestedSlug of requestedSlugs) {
+      if (products[requestedSlug] || products[requestedSlug.toLowerCase()]) {
+        continue;
+      }
+
+      const fallbackProduct = buildSeoFallbackProduct(
+        requestedSlug,
+        productSeoRecords[requestedSlug] || productSeoRecords[requestedSlug.toLowerCase()],
+        requestedDatabaseIdsBySlug[requestedSlug.toLowerCase()] || [],
+      );
+
+      if (!fallbackProduct) {
+        continue;
+      }
+
+      const fallbackKeys = new Set<string>();
+      addAlias(fallbackKeys, requestedSlug);
+      addAlias(fallbackKeys, fallbackProduct.slug);
+      addAlias(fallbackKeys, fallbackProduct.databaseId);
+
+      for (const databaseId of requestedDatabaseIdsBySlug[requestedSlug.toLowerCase()] || []) {
+        addAlias(fallbackKeys, databaseId);
+      }
+
+      for (const fallbackKey of fallbackKeys) {
+        products[fallbackKey] = fallbackProduct;
+      }
+    }
+  }
 
   return {
     enabled: true,

@@ -58,7 +58,12 @@ const overlayAuthoritativeProductPrice = async (fetchedProduct: Record<string, a
     const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
       method: 'POST',
       body: {
-        slugs: [fetchedProduct.slug],
+        products: [
+          {
+            slug: fetchedProduct.slug,
+            databaseId: fetchedProduct.databaseId,
+          },
+        ],
       },
     });
 

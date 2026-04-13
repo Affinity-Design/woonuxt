@@ -26,7 +26,18 @@ const overlayAuthoritativeCategoryPrices = async (products: any[]) => {
     const authorityResponse = await $fetch<{enabled?: boolean; products?: Record<string, any>}>('/api/authoritative-product-prices', {
       method: 'POST',
       body: {
-        slugs: products.map((product) => product?.slug).filter(Boolean),
+        products: products
+          .map((product) => {
+            if (!product?.slug && (product?.databaseId === undefined || product?.databaseId === null)) {
+              return null;
+            }
+
+            return {
+              slug: product?.slug,
+              databaseId: product?.databaseId,
+            };
+          })
+          .filter(Boolean),
       },
     });
 
