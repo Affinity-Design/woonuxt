@@ -65,9 +65,12 @@ export function useCartNotices() {
     if (!cart.value?.contents?.nodes) return [];
     return cart.value.contents.nodes
       .filter((item: any) => {
+        // For variable products, check variation-level stockStatus first
+        const variationStatus = item.variation?.node?.stockStatus;
+        if (variationStatus) return variationStatus === 'ON_BACKORDER';
+        // Fall back to product-level stockStatus (simple products)
         const node = item.product?.node;
         if (!node) return false;
-        // stockStatus is on SimpleProduct and VariableProduct via fragment spreads
         return node.stockStatus === 'ON_BACKORDER';
       })
       .map((item: any) => ({
