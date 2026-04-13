@@ -273,9 +273,8 @@ export const useCanadianSEO = () => {
     useHead({
       link: [{rel: 'canonical', href: canonicalUrl}, ...hreflangTags],
       meta: metaTags,
-      htmlAttrs: {
-        lang: htmlLang,
-      },
+      // NOTE: htmlAttrs.lang is managed by useLocaleHead() in app.vue
+      // Do NOT set it here — it would override the i18n-driven value
     });
   };
 
