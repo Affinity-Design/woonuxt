@@ -18,8 +18,11 @@ watch(
   () => closeCartAndMenu(),
 );
 
+// Dynamic html lang from Nuxt i18n locale (en-CA or fr-CA via iso field)
+const head = useLocaleHead({addSeoAttributes: {canonicalQueries: []}});
 useHead({
   titleTemplate: `%s - ${siteName}`,
+  htmlAttrs: computed(() => head.value.htmlAttrs || {}),
 });
 </script>
 

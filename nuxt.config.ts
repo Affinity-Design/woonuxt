@@ -217,6 +217,13 @@ export default defineNuxtConfig({
         '/privacy',
         '/blog',
         '/inline-skates-size-calculator',
+        // French-prefixed static pages
+        '/fr',
+        '/fr/contact',
+        '/fr/terms',
+        '/fr/privacy',
+        '/fr/blog',
+        '/fr/inline-skates-size-calculator',
         ...(categoryRoutesToPrerender || []),
         ...(blogRoutesToPrerender || []),
         // Include product routes for prerendering (only if list is reasonable size)
@@ -237,6 +244,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    // ── English (default, unprefixed) ──────────────────────────────
     '/': {prerender: true, cache: {maxAge: 60 * 60 * 24, base: 'cache'}},
     '/blog': {
       prerender: true,
@@ -245,7 +253,7 @@ export default defineNuxtConfig({
     '/blog/**': {
       prerender: true,
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
-    }, // Prerender all blog posts
+    },
 
     // Dynamic blog post redirects (generated at build time)
     ...blogRedirects,
@@ -253,8 +261,8 @@ export default defineNuxtConfig({
     '/product-category/**': {
       prerender: true,
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
-    }, // Rely on prerendering
-    '/product/**': {cache: {maxAge: 60 * 60 * 72, base: 'cache'}}, // Use KV cache for products
+    },
+    '/product/**': {cache: {maxAge: 60 * 60 * 72, base: 'cache'}},
     '/checkout/**': {ssr: false},
     '/cart': {ssr: false},
     '/account/**': {ssr: false},
@@ -264,7 +272,33 @@ export default defineNuxtConfig({
     '/inline-skates-size-calculator': {
       prerender: true,
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
-    }, // Size calculator page
+    },
+
+    // ── French (/fr/ prefix) — mirrors English caching/SSR behaviour ─
+    '/fr': {prerender: true, cache: {maxAge: 60 * 60 * 24, base: 'cache'}},
+    '/fr/blog': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24, base: 'cache'},
+    },
+    '/fr/blog/**': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+    },
+    '/fr/product-category/**': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+    },
+    '/fr/product/**': {cache: {maxAge: 60 * 60 * 72, base: 'cache'}},
+    '/fr/checkout/**': {ssr: false},
+    '/fr/cart': {ssr: false},
+    '/fr/account/**': {ssr: false},
+    '/fr/contact': {prerender: true},
+    '/fr/terms': {prerender: true},
+    '/fr/privacy': {prerender: true},
+    '/fr/inline-skates-size-calculator': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+    },
   },
 
   hooks: {
@@ -274,9 +308,7 @@ export default defineNuxtConfig({
   // ... (rest of your config) ...
   app: {
     head: {
-      htmlAttrs: {
-        lang: 'en-CA', // Canadian English
-      },
+      htmlAttrs: {},
       meta: [
         {charset: 'utf-8'},
         {name: 'viewport', content: 'width=device-width, initial-scale=1'},
