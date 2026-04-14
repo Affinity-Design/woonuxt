@@ -44,7 +44,7 @@ const CONFIG = {
 // GraphQL query (ensure it's correct and matches your backend schema)
 const PRODUCTS_QUERY = `
 query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
-  products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}}) {
+  products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
     pageInfo {
       hasNextPage
       endCursor

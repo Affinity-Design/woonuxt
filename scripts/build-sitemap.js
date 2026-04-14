@@ -43,7 +43,7 @@ const CONFIG = {
 // GraphQL Queries
 const PRODUCTS_QUERY = `
   query GetAllProductsForSitemap($first: Int!, $after: String) {
-    products(first: $first, after: $after, where: { orderby: { field: DATE, order: DESC } }) {
+    products(first: $first, after: $after, where: { orderby: { field: DATE, order: DESC }, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL] }) {
       pageInfo {
         hasNextPage
         endCursor
@@ -155,7 +155,15 @@ async function fetchAllProducts() {
           console.error('❌ No data in GraphQL response — breaking');
           break;
         }
-        console.warn('⚠️  No products data in response');
+        // Try to continue via pageInfo if available (e.g. batch failed due to unsupported product type)
+        if (result.data.products?.pageInfo) {
+          console.warn('⚠️  No products nodes in batch, skipping to next page...');
+          hasNextPage = result.data.products.pageInfo.hasNextPage;
+          endCursor = result.data.products.pageInfo.endCursor;
+          if (hasNextPage && CONFIG.BATCH_DELAY > 0) await delay(CONFIG.BATCH_DELAY);
+          continue;
+        }
+        console.warn('⚠️  No products data in response — breaking');
         break;
       }
 
