@@ -380,6 +380,28 @@ Create in `/pages/` - automatically overrides `woonuxt_base/app/pages/`.
 
 **Example:** `/pages/contact.vue` overrides base contact page.
 
+### ⚠️ CRITICAL: Renaming Pages to Directories (Layer Override Trap)
+
+**NEVER rename a flat page to a directory index without keeping a wrapper file.**
+
+This project uses Nuxt Layers (`extends: './woonuxt_base'`). If the base layer has `woonuxt_base/app/pages/checkout.vue` and you rename your `pages/checkout.vue` to `pages/checkout/index.vue`, Nuxt treats them as **different routes**:
+- Base's `checkout.vue` becomes a **parent layout**
+- Your `checkout/index.vue` becomes a **child** that never renders (because the base has no `<NuxtPage />`)
+
+**Result**: The base layer's page silently takes over. In our case this meant the Stripe-based base checkout replaced the Helcim checkout — breaking all payments in production.
+
+**Correct pattern when converting flat page → directory:**
+```
+pages/checkout.vue          ← Wrapper: <template><NuxtPage /></template>
+pages/checkout/index.vue    ← Your actual page content (Helcim checkout)
+pages/checkout/order-received/[...orderId].vue  ← Nested route
+```
+
+**Before renaming/moving ANY page:**
+1. Check if `woonuxt_base/app/pages/` has a matching file
+2. If yes, keep a wrapper `.vue` file at the original path
+3. Test the page renders YOUR version, not the base layer's
+
 ### Modifying GraphQL Queries
 
 **Location:** `woonuxt_base/app/gql/queries/` (read-only base)
@@ -443,6 +465,20 @@ npm run dev:ssl
    - Check WordPress Application Password is valid
    - Verify admin user has Shop Manager role
    - See `docs/wordpress-app-password-setup.md`
+
+6. **Helcim card not rendering (purple fallback button instead)?**
+   - Check that `pages/checkout.vue` exists as a `<NuxtPage />` wrapper
+   - If missing, the base layer's Stripe checkout renders instead of the Helcim one
+   - Verify `pages/checkout/index.vue` contains the Helcim `shouldShowHelcimCard` logic
+   - Check console for `[shouldShowHelcimCard]` logs — if absent, wrong checkout is loaded
+   - Test: the deployed JS should contain `shouldShowHelcimCard` and `appendHelcim`
+
+7. **Prices showing `$€` or double currency symbols?**
+   - NEVER add client-side currency conversion that prepends symbols to WPGraphQL prices
+   - Prices from GraphQL are already in store currency (CAD) — no conversion needed
+   - If you see `$€109.99`, a pricing interceptor/plugin is prepending an extra symbol
+   - Remove any `authoritativePricing`, `lifecyclePricing`, or price-reformatting middleware
+   - Use only `formatCADPrice()` or `formatPrice()` from `useHelpers()` for display
 
 ## Testing & Debugging
 
@@ -550,11 +586,12 @@ npm run optimize-images  # Optimize images in public/
 ## Key Conventions
 
 - **Canadian spelling:** Use "colour", "centre", "grey" (helper: `toCanadianSpelling()`)
-- **Currency:** Always CAD, format with `formatCADPrice()`
+- **Currency:** Always CAD, format with `formatCADPrice()`. **WPGraphQL prices are the single source of truth** — never layer additional currency symbols or conversion on top
 - **Image optimization:** Use `<NuxtImg>` component
 - **Lazy loading:** Default for images (except hero images)
 - **Route naming:** Products use slug, categories use `/product-category/slug`
 - **GraphQL caching:** Uses `getCachedGqlQuery` from nuxt-graphql-client
+- **Page overrides:** When converting a flat page to a directory, ALWAYS keep a wrapper `.vue` file at the original path (see "Layer Override Trap" above)
 
 ## Known Console Warnings (Safe to Ignore)
 
