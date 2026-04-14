@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {OrderStatusEnum} from '#woo';
 
-const {query, params, name} = useRoute();
+const route = useRoute();
+const {query, params} = route;
 const {customer} = useAuth();
 const {formatDate, formatPrice} = useHelpers();
 const {t} = useI18n();
@@ -14,8 +15,8 @@ const errorMessage = ref('');
 const initialOrderFetchSucceeded = ref(false);
 
 const isGuest = computed(() => !customer.value?.email);
-const isSummaryPage = computed<boolean>(() => name === 'order-summary');
-const isCheckoutPage = computed<boolean>(() => name === 'order-received');
+const isSummaryPage = computed<boolean>(() => route.path.includes('/order-summary'));
+const isCheckoutPage = computed<boolean>(() => route.path.includes('/order-received'));
 const orderIsNotCompleted = computed<boolean>(() => order.value?.status !== OrderStatusEnum.COMPLETED);
 const hasDiscount = computed<boolean>(() => !!parseFloat(order.value?.rawDiscountTotal || '0'));
 const downloadableItems = computed(() => order.value?.downloadableItems?.nodes || []);

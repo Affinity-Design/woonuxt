@@ -21,12 +21,12 @@ key-files:
   modified: [.planning/debug/price-inconsistency-across-surfaces.md]
 
 key-decisions:
-  - "Client-rendered product pages can only be verified via authority API (no SSR price in payload)"
-  - "Test handles both SSR and client-rendered pages with clear reporting"
+  - 'Client-rendered product pages can only be verified via authority API (no SSR price in payload)'
+  - 'Test handles both SSR and client-rendered pages with clear reporting'
 
 patterns-established:
-  - "NUXT_DATA dehydrated payload parsing: flat array where object keys/values are integer references to other array positions"
-  - "Cross-surface pricing test: authority API → PDP payload → rendered HTML"
+  - 'NUXT_DATA dehydrated payload parsing: flat array where object keys/values are integer references to other array positions'
+  - 'Cross-surface pricing test: authority API → PDP payload → rendered HTML'
 
 requirements-completed: [PRICE-01, PRICE-02, PRICE-03]
 
@@ -45,6 +45,7 @@ completed: 2026-04-13
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Created `scripts/test-pricing-consistency.js` — zero-dependency Node.js test that checks 3 surfaces per product
 - Verified the authority overlay fix (commit b46a5e48) works: all 3 test products return correct CAD prices
 - Updated debug log from `fix_deployed` → `verified` with evidence and regression prevention notes
@@ -56,6 +57,7 @@ completed: 2026-04-13
 2. **Task 2: Update debug log with verification results** — `0f34dc2c` (docs)
 
 ## Files Created/Modified
+
 - `scripts/test-pricing-consistency.js` — Automated pricing test across authority, PDP payload, and rendered HTML
 - `.planning/debug/price-inconsistency-across-surfaces.md` — Updated to verified status with test evidence
 

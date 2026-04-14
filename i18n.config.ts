@@ -3,7 +3,7 @@ export default defineI18nConfig(() => ({
   locale: 'en-CA',
   fallbackLocale: {
     'en-CA': ['en'],
-    'fr': ['en-CA', 'en'],
+    fr: ['en-CA', 'en'],
     default: ['en-CA', 'en'],
   },
   missingWarn: false,
