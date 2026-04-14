@@ -48,7 +48,7 @@ npm run optimize-images  # Optimize images with Sharp
 npm run verify-env       # Verify environment variables
 ```
 
-**Package manager**: npm only (enforced by preinstall script). **Node version**: 20.x (see `.nvmrc`).
+**Package manager**: npm only (enforced by preinstall script). **Node version**: 22.x (see `.nvmrc`).
 
 There are no test commands configured. Code formatting uses Prettier (`.prettierrc`).
 

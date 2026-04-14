@@ -8,7 +8,7 @@
   # setup-script.js populates KV with categories and products
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   NPM_VERSION = "10"
 
 # IMPORTANT: Static asset redirects must come BEFORE headers
