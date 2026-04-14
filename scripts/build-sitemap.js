@@ -146,16 +146,20 @@ async function fetchAllProducts() {
       const result = await response.json();
 
       if (result.errors) {
-        console.error('❌ GraphQL errors:', result.errors);
-        break;
+        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
+        // Continue processing — partial errors (e.g. unsupported product types) still return valid data
       }
 
       if (!result.data?.products?.nodes) {
+        if (!result.data) {
+          console.error('❌ No data in GraphQL response — breaking');
+          break;
+        }
         console.warn('⚠️  No products data in response');
         break;
       }
 
-      const products = result.data.products.nodes;
+      const products = result.data.products.nodes.filter(p => p && p.slug);
       allProducts.push(...products);
       console.log(`   Fetched ${products.length} products. Total: ${allProducts.length}`);
 
@@ -204,8 +208,7 @@ async function fetchAllCategories() {
     const result = await response.json();
 
     if (result.errors) {
-      console.error('❌ GraphQL errors:', result.errors);
-      return [];
+      console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
     }
 
     if (!result.data?.productCategories?.nodes) {

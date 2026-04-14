@@ -192,10 +192,8 @@ async function fetchAndProcessProducts() {
       const result = await response.json();
 
       if (result.errors) {
-        console.error('GraphQL query returned errors:', JSON.stringify(result.errors, null, 2));
-        // Depending on the error, you might want to break or continue
-        // For critical errors, it's often best to break.
-        break; // Stop fetching if GraphQL reports errors
+        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
+        // Continue processing — partial errors (e.g. unsupported product types like pw-gift-card) still return valid data
       }
 
       if (!result.data) {
@@ -220,7 +218,7 @@ async function fetchAndProcessProducts() {
       }
       // --- END: Robust Error Handling ---
 
-      const fetchedNodes = result.data.products.nodes || []; // Default to empty array if nodes is null/undefined
+      const fetchedNodes = (result.data.products.nodes || []).filter(p => p && p.slug); // Filter out null nodes from unsupported product types
 
       const productsWithCadPrices = fetchedNodes.map((product) => {
         const convertedProduct = {...product};
