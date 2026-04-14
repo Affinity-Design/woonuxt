@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-03-31
+**Last Updated:** 2026-04-14
 
 ---
 
@@ -137,11 +137,12 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Suggested Post: Supporting content for main inline skates post
   - Status: Available
 
-- [ ] **mens roller skates** (260 sv, 38 kd, $0.43 cpc)
+- [x] **mens roller skates** (260 sv, 38 kd, $0.43 cpc)
   - Intent: Commercial/Transactional
   - Difficulty: Medium
-  - Suggested Post: "Best Men's Roller Skates 2025"
-  - Status: Available
+  - Post: `/blog/best-mens-roller-skates-2026`
+  - Published: 2026-04-14
+  - Status: ✅ Live
 
 ### Niche/Long-tail Keywords (50-100 sv)
 
