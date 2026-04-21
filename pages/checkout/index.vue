@@ -1009,8 +1009,3 @@ useSeoMeta({
   opacity: 0;
 }
 </style>
-========
-<template>
-  <NuxtPage />
-</template>
->>>>>>>> master:pages/checkout.vue
