@@ -48,25 +48,29 @@ npm run optimize-images  # Optimize images with Sharp
 npm run verify-env       # Verify environment variables
 ```
 
-**Package manager**: npm only (enforced by preinstall script). **Node version**: 22.x (see `.nvmrc`).
+**Package manager**: npm only (enforced by preinstall script). **Node version**: 20.x (see `.nvmrc`).
 
 There are no test commands configured. Code formatting uses Prettier (`.prettierrc`).
 
 ## Architecture
 
 ### Two-Layer Nuxt Pattern
+
 - **`woonuxt_base/`** — Base layer (READ-ONLY parent theme). Contains shared components, composables, GraphQL queries, and Tailwind config.
 - **Root `/`** — Custom layer that overrides and extends the base. Override a base component by placing a file with the same name in root `components/`.
 
 This uses Nuxt's Layers feature (`extends: './woonuxt_base'` in `nuxt.config.ts`).
 
 ### Data Sources
+
 1. **GraphQL (WPGraphQL)** — Products, categories, cart, orders, customer data. Queries live in `woonuxt_base/app/queries/**/*.gql`. Client: `nuxt-graphql-client` with auto-generated TypeScript types (`#gql` import alias). Fetching via `useAsyncGql()`.
 2. **Nuxt Content (Markdown)** — Blog posts in `content/blog/{slug}/index.md` with YAML frontmatter.
 3. **Cloudflare KV** — Two namespaces: `NUXT_CACHE` (route cache, product/category data) and `NUXT_SCRIPT_DATA` (build artifacts). Access via `useStorage('cache')`.
 
 ### State Management
+
 No Vuex/Pinia — uses Nuxt composables with `useState`:
+
 - `useCart()` — Cart state and operations (add, remove, refresh)
 - `useAuth()` — Authentication, login/logout, customer data
 - `useCheckout()` — Multi-step checkout, billing/shipping forms, payment selection
@@ -75,19 +79,23 @@ No Vuex/Pinia — uses Nuxt composables with `useState`:
 - `useExchangeRate()` — CAD/USD currency conversion
 
 ### Caching Strategy
+
 1. **Static prerender** (build-time) — Blog posts, categories, home, static pages
 2. **Cloudflare KV route cache** (ISR-style) — Products: 72h TTL, Categories: 7d TTL. Binding: `NUXT_CACHE`
 3. **KV script data** — Product/category lists for cache warmer. Binding: `NUXT_SCRIPT_DATA`
 4. Cache warming (`npm run warm-cache`) is required after deploy to avoid cold starts
 
 ### Payment Integration
+
 - **Stripe/PayPal** — Standard WooCommerce GraphQL integration
 - **Helcim** — Special handling: WooCommerce GraphQL session limitations require admin-level order creation via WordPress REST API. Flow: cart (GraphQL) → Helcim payment → admin order creation (`server/api/create-admin-order.post.ts`). See `docs/helcim-integration.md`.
 
 ### Server API Routes (`server/api/`)
+
 Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (payment processing), `stripe.post.ts` (webhook), `contact.ts` (SendGrid email), `cached-product.ts` (KV retrieval), `sitemap.xml.ts`, `verify-turnstile.post.ts`, `stock-status.get.ts`.
 
 ### Routing
+
 - Product pages: `/product/[slug]`
 - Category pages: `/product-category/[slug]`
 - Blog: `/blog/[slug]` (Nuxt Content auto-routes from `content/blog/`)
@@ -106,6 +114,34 @@ Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (p
 8. **US/CAD boundary** — Treat `wordpress/` as US backend infrastructure scope. Changes there require explicit cross-site impact review (US SEO impact, CAD SEO impact, and shared infrastructure risk).
 9. **Currency and localization integrity** — Preserve USD-origin backend assumptions while enforcing CAD/en-CA/fr-CA presentation behavior in the frontend layer.
 10. **Dual-site SEO safety** — Do not ship changes that improve one market while degrading the other without an explicit decision and mitigation plan.
+11. **NEVER rename a flat page to a directory index without keeping a wrapper** — Moving `pages/foo.vue` → `pages/foo/index.vue` silently breaks the layer override of `woonuxt_base/app/pages/foo.vue`. The base layer's page renders instead. You MUST keep a `pages/foo.vue` with `<template><NuxtPage /></template>` as a pass-through wrapper. See "Layer Override Routing" below.
+12. **NEVER add client-side currency conversion or formatting that prepends symbols** — Prices come from WPGraphQL already in the store currency. Do not create composables/plugins that layer additional currency symbols (e.g. `$€109.99`). Use `formatCADPrice()` for display. Any price-formatting changes must be tested on product pages, cart, and checkout before merging.
+
+### Layer Override Routing (CRITICAL)
+
+This project uses Nuxt Layers (`extends: './woonuxt_base'`). The base layer has its own pages in `woonuxt_base/app/pages/`. Root pages override base pages **only when the file path matches exactly**.
+
+**The trap**: `pages/checkout.vue` (flat file) and `pages/checkout/index.vue` (directory) are NOT the same route. If the base has `checkout.vue` and you only have `checkout/index.vue`, Nuxt treats the base's `checkout.vue` as a **parent layout** and your `checkout/index.vue` as a **child**. Since the base page has no `<NuxtPage />`, your child never renders.
+
+**Rules**:
+
+- When converting any flat page to a directory (e.g. for nested routes like `checkout/order-received/`), ALWAYS keep a `pages/<name>.vue` wrapper with just `<NuxtPage />`
+- Current examples: `pages/checkout.vue` → wrapper → renders `pages/checkout/index.vue` (Helcim) and `pages/checkout/order-received/`
+- Before renaming/moving any page, check if `woonuxt_base/app/pages/` has a matching file
+- **Test checkout after ANY page restructuring** — Helcim is the only payment method
+
+### Currency & Price Formatting (CRITICAL)
+
+**WPGraphQL is the single source of truth for prices.** All product prices arrive pre-formatted from WooCommerce in the store's currency (CAD for proskatersplace.ca).
+
+**Rules**:
+
+- Use `formatCADPrice()` or `formatPrice()` from `useHelpers()` for display formatting
+- NEVER create middleware, plugins, or composables that intercept and reformat prices with additional currency symbols
+- NEVER add a second currency conversion layer on top of WPGraphQL prices (caused `$€109.99` in production)
+- The `useExchangeRate()` composable is for informational USD↔CAD display only, NOT for reformatting product prices
+- `i18n` number formatting must not prepend currency symbols to already-formatted price strings
+- Any pricing changes must be visually verified on: product cards, product pages, cart line items, cart totals, and checkout summary
 
 ## Key Config Files
 
