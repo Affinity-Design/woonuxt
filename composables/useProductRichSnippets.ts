@@ -313,14 +313,22 @@ export const useProductRichSnippets = () => {
    * Generate default FAQ items based on product category
    * These can be customized per product or category
    */
-  const getDefaultFAQs = (product: any): Array<{question: string; answer: string}> => {
+  const getDefaultFAQs = (product: any, preFormattedPrice?: string): Array<{question: string; answer: string}> => {
     const category = product.productCategories?.nodes?.[0]?.slug || '';
     const productName = product.name;
 
-    // Safely parse price and handle NaN cases
-    const rawPrice = product.price || product.regularPrice || product.salePrice || '0';
-    const price = parseFloat(String(rawPrice).replace(/[^0-9.]/g, ''));
-    const hasValidPrice = !isNaN(price) && price > 0;
+    // Use pre-formatted CAD display price if provided, otherwise parse raw price
+    let priceDisplay: string | null = null;
+    if (preFormattedPrice && preFormattedPrice.trim() && !preFormattedPrice.includes('unavailable')) {
+      priceDisplay = preFormattedPrice.trim();
+    } else {
+      const rawPrice = product.price || product.regularPrice || product.salePrice || '0';
+      const price = parseFloat(String(rawPrice).replace(/[^0-9.]/g, ''));
+      if (!isNaN(price) && price > 0) {
+        priceDisplay = formatCADPrice(price);
+      }
+    }
+    const hasValidPrice = priceDisplay !== null;
 
     // Default FAQs applicable to all products
     const defaultFAQs = [
@@ -334,7 +342,7 @@ export const useProductRichSnippets = () => {
     if (hasValidPrice) {
       defaultFAQs.push({
         question: `What is the price of ${productName} in CAD?`,
-        answer: `${productName} is priced at ${formatCADPrice(price)}. We display all prices in Canadian dollars for your convenience.`,
+        answer: `${productName} is priced at ${priceDisplay}. We display all prices in Canadian dollars for your convenience.`,
       });
     }
 

@@ -117,24 +117,25 @@ function psp_filter_shipping_methods_by_role($rates, $package) {
             continue;
         }
         
-        // For non-table-rate methods, check if it's a POS method type with matching instance
+        // Detect if this is a POS-specific label (applies to all non-table-rate methods)
+        $is_pos_label = strpos($label, 'pos |') !== false
+            || strpos($label, 'local store purchase') !== false
+            || strpos($label, 'pos local') !== false;
+
+        // For non-table-rate methods, hide ONLY if it's both a POS method type AND has a POS-specific label.
+        // This ensures customer-facing "Local Pickup" ($0) is never hidden just because it shares instance ID 8.
         if (in_array($rate_method_type, $pos_method_types) || in_array($method_id, $pos_method_types)) {
-            // Hide by instance ID (only for POS method types)
-            if ($instance_id === $pos_instance_id) {
-                unset($rates[$rate_id]);
-                continue;
-            }
-            
-            // Hide by rate_id pattern for POS methods (e.g., local_pickup:8, flat_rate:8)
-            if (strpos($rate_id, ':' . $pos_instance_id) !== false) {
-                unset($rates[$rate_id]);
-                continue;
+            // Only remove if the label is explicitly a POS method label
+            if ($is_pos_label) {
+                if ($instance_id === $pos_instance_id || strpos($rate_id, ':' . $pos_instance_id) !== false) {
+                    unset($rates[$rate_id]);
+                    continue;
+                }
             }
         }
-        
-        // Fallback: Check for very specific POS keywords in label (applies to all methods)
-        // Using more specific patterns to avoid false positives
-        if (strpos($label, 'pos |') !== false || strpos($label, 'local store purchase') !== false) {
+
+        // Fallback: hide any method (regardless of type or instance) that has a POS-specific label
+        if ($is_pos_label) {
             unset($rates[$rate_id]);
         }
     }

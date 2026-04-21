@@ -18,6 +18,7 @@ interface Props {
   product: any;
   customFAQs?: FAQItem[];
   maxItems?: number;
+  displayPrice?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -31,7 +32,7 @@ const faqItems = computed(() => {
   if (props.customFAQs && props.customFAQs.length > 0) {
     return props.customFAQs.slice(0, props.maxItems);
   }
-  return getDefaultFAQs(props.product).slice(0, props.maxItems);
+  return getDefaultFAQs(props.product, props.displayPrice).slice(0, props.maxItems);
 });
 
 // Track which FAQ items are expanded

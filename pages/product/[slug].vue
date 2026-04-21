@@ -627,7 +627,7 @@ watch(
 
         <!-- ENHANCED: Product FAQ with Rich Snippets -->
         <div class="my-32">
-          <ProductFAQ :product="product" />
+          <ProductFAQ :product="product" :display-price="displayPrice" />
         </div>
 
         <!-- OPTIONAL: Product Video (uncomment and configure if video available) -->
