@@ -11,12 +11,12 @@ const setActiveOption = async (id) => {
 };
 
 const formatShippingCost = (cost) => {
-  if (cost === null || cost === undefined) return `${currencySymbol}0`;
+  if (cost === null || cost === undefined) return 'Free';
 
   const normalized = String(cost)
     .replace(/<[^>]*>/g, '')
     .trim();
-  if (!normalized) return `${currencySymbol}0`;
+  if (!normalized || normalized === '0' || parseFloat(normalized) === 0) return 'Free';
 
   return `${currencySymbol}${normalized}`;
 };
