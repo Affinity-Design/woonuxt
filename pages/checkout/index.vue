@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:pages/checkout/index.vue
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
@@ -1008,3 +1009,8 @@ useSeoMeta({
   opacity: 0;
 }
 </style>
+========
+<template>
+  <NuxtPage />
+</template>
+>>>>>>>> master:pages/checkout.vue
