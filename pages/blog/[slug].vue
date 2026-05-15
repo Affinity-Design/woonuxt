@@ -216,7 +216,7 @@ const productCategories = computed(() => {
               <h3 class="text-white font-bold text-lg mb-2">About {{ post.author || 'the Author' }}</h3>
               <p class="text-gray-300 mb-3">
                 {{
-                  post.authorBio || `Expert skating advice from Canada's most trusted inline skate specialists in Toronto. Serving Canadian skaters since 1995.`
+                  post.authorBio || `Expert skating advice from Canada's most trusted inline skate specialists in Toronto. Serving Canadian skaters since 2011.`
                 }}
               </p>
               <div class="flex flex-wrap gap-2 text-sm text-gray-400">

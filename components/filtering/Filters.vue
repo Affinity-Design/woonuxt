@@ -78,7 +78,7 @@ const extractTermsFromProducts = (products: any[], attributeSlug: string) => {
     for (const attr of attrs) {
       // Match by slug or name (e.g., "pa_manufacturer" or "Manufacturer")
       if (attr.slug === attributeSlug || attr.name === attributeSlug) {
-        // Options are the values like ["Bauer", "CCM", "Rollerblade"]
+        // Options are the values like ["FR Skates", "Powerslide", "Rollerblade"]
         const options = attr.options || [];
         for (const option of options) {
           const slug = option

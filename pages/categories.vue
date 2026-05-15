@@ -374,7 +374,7 @@ onMounted(() => {
           <div class="prose prose-invert max-w-none">
             <p class="text-gray-300 mb-4">
               ProSkaters Place is Canada's premier online destination for skating equipment and accessories. Based in Toronto, Ontario, we've been serving
-              Canadian skaters since 1995 with expert product selection, competitive pricing, and exceptional customer service.
+              Canadian skaters since 2011 with expert product selection, competitive pricing, and exceptional customer service.
             </p>
             <p class="text-gray-300 mb-4">Browse our comprehensive categories to find exactly what you need:</p>
             <ul class="text-gray-300 space-y-2 mb-4">

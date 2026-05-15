@@ -2,6 +2,97 @@
 import VueTurnstile from 'vue-turnstile';
 
 const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
+const businessStartYear = 2011;
+const brandSearchLinks = [
+  {name: 'Rollerblade', to: '/search?q=Rollerblade'},
+  {name: 'K2 Skates', to: '/search?q=K2%20Skates'},
+  {name: 'Powerslide', to: '/search?q=Powerslide'},
+  {name: 'Seba', to: '/search?q=Seba'},
+  {name: 'FR Skates', to: '/search?q=FR%20Skates'},
+  {name: 'Moxi', to: '/search?q=Moxi'},
+  {name: 'Riedell', to: '/search?q=Riedell'},
+  {name: 'Impala', to: '/search?q=Impala'},
+  {name: 'Rio Roller', to: '/search?q=Rio%20Roller'},
+  {name: 'Chaya', to: '/search?q=Chaya'},
+];
+const brandSeparator = (index: number, total: number) => {
+  if (index === total - 1) return '.';
+  return index === total - 2 ? ', and ' : ', ';
+};
+const contactBrandList = brandSearchLinks
+  .map((brand) => brand.name)
+  .join(', ')
+  .replace(/, ([^,]*)$/, ', and $1');
+const inStoreShoppingHours = [
+  {day: 'Monday', hours: 'Closed'},
+  {day: 'Tuesday', hours: 'Closed'},
+  {day: 'Wednesday', hours: '2-7pm'},
+  {day: 'Thursday', hours: 'Closed'},
+  {day: 'Friday', hours: 'Closed'},
+  {day: 'Saturday', hours: '12-7pm'},
+  {day: 'Sunday', hours: 'Closed'},
+];
+const orderPickupHours = [
+  {day: 'Monday', hours: '12-4pm'},
+  {day: 'Tuesday', hours: '12-4pm'},
+  {day: 'Wednesday', hours: '12-7pm'},
+  {day: 'Thursday', hours: '12-4pm'},
+  {day: 'Friday', hours: '12-4pm'},
+  {day: 'Saturday', hours: '12-7pm'},
+  {day: 'Sunday', hours: 'Closed'},
+];
+const inStoreOpeningHoursSpecification = [
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Wednesday',
+    opens: '14:00',
+    closes: '19:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Saturday',
+    opens: '12:00',
+    closes: '19:00',
+  },
+];
+const orderPickupOpeningHoursSpecification = [
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Monday',
+    opens: '12:00',
+    closes: '16:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Tuesday',
+    opens: '12:00',
+    closes: '16:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Wednesday',
+    opens: '12:00',
+    closes: '19:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Thursday',
+    opens: '12:00',
+    closes: '16:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Friday',
+    opens: '12:00',
+    closes: '16:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Saturday',
+    opens: '12:00',
+    closes: '19:00',
+  },
+];
 
 const {setCanadianSEO} = useCanadianSEO();
 
@@ -10,7 +101,7 @@ setCanadianSEO({
   title: 'Contact ProSkaters Place | Toronto Skate Shop | Expert Help',
   description:
     'Contact ProSkaters Place Toronto for expert advice on inline skates, roller skates & protective gear. Visit our Etobicoke shop, call, or message us. Free shipping across Canada!',
-  image: '/images/proskaters-place-toronto-store.jpg',
+  image: '/images/blog/posted/canadas-premier-roller-skates-store.jpg',
   type: 'website',
 });
 
@@ -24,62 +115,31 @@ useHead({
         '@type': 'LocalBusiness',
         '@id': 'https://proskatersplace.ca/#business',
         name: 'ProSkaters Place Skate and Ski Shop',
-        image: 'https://proskatersplace.ca/images/proskaters-place-toronto-store.jpg',
-        description:
-          "Toronto's premier inline skate and roller skate shop. Expert fitting, top brands, and skating accessories. Serving Toronto, GTA, and all of Canada since 1995.",
+        image: 'https://proskatersplace.ca/images/blog/posted/canadas-premier-roller-skates-store.jpg',
+        description: `Toronto's premier inline skate and roller skate shop. Expert fitting, top brands, and skating accessories. Serving Toronto, GTA, and all of Canada since ${businessStartYear}.`,
         url: 'https://proskatersplace.ca',
         telephone: '+1-416-739-2929',
         email: 'info@proskatersplace.ca',
         priceRange: '$$',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: '3600 Langstaff Road',
+          streetAddress: '110 Galaxy Blvd',
           addressLocality: 'Etobicoke',
           addressRegion: 'ON',
-          postalCode: 'M9W 5S4',
+          postalCode: 'M9W 4Y6',
           addressCountry: 'CA',
         },
         geo: {
           '@type': 'GeoCoordinates',
-          latitude: 43.679955,
-          longitude: -79.589456,
+          latitude: 43.6799552,
+          longitude: -79.5868812,
         },
-        openingHoursSpecification: [
+        openingHoursSpecification: inStoreOpeningHoursSpecification,
+        department: [
           {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Monday',
-            opens: '12:00',
-            closes: '16:00',
-          },
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Tuesday',
-            opens: '12:00',
-            closes: '16:00',
-          },
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Wednesday',
-            opens: '12:00',
-            closes: '19:00',
-          },
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Thursday',
-            opens: '12:00',
-            closes: '16:00',
-          },
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Friday',
-            opens: '12:00',
-            closes: '16:00',
-          },
-          {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: 'Saturday',
-            opens: '14:00',
-            closes: '19:00',
+            '@type': 'LocalBusiness',
+            name: 'ProSkaters Place Order Pickup',
+            openingHoursSpecification: orderPickupOpeningHoursSpecification,
           },
         ],
         areaServed: [
@@ -106,8 +166,8 @@ useHead({
         ],
         aggregateRating: {
           '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          reviewCount: '250',
+          ratingValue: '4.7',
+          reviewCount: '522',
           bestRating: '5',
           worstRating: '1',
         },
@@ -281,7 +341,7 @@ async function submitForm() {
         <p class="text-gray-700 mb-2">
           <strong>ProSkaters Place</strong><br />
           110 Galaxy Blvd<br />
-          Etobicoke, ON M9W 6A4<br />
+          Etobicoke, ON M9W 4Y6<br />
           Canada
         </p>
       </div>
@@ -314,17 +374,30 @@ async function submitForm() {
       <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
         <div class="flex items-center mb-3">
           <Icon name="mdi:clock-outline" class="w-8 h-8 text-primary mr-3" />
-          <h2 class="text-xl font-semibold">Store Hours</h2>
+          <h2 class="text-xl font-semibold">Shopping & Pickup Hours</h2>
         </div>
-        <p class="text-sm text-gray-700">
-          <strong>In-Person Pickup:</strong><br />
-          Mon, Tue, Thu, Fri: 12-4pm<br />
-          Wed: 12-7pm<br />
-          Sat: 2-7pm<br />
-          Sun: Closed
-        </p>
+        <div class="space-y-4 text-sm text-gray-700">
+          <div>
+            <strong>In-Store Shopping:</strong>
+            <dl class="mt-2 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+              <template v-for="item in inStoreShoppingHours" :key="`shopping-${item.day}`">
+                <dt>{{ item.day }}</dt>
+                <dd class="font-medium">{{ item.hours }}</dd>
+              </template>
+            </dl>
+          </div>
+          <div>
+            <strong>Order Pickup:</strong>
+            <dl class="mt-2 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+              <template v-for="item in orderPickupHours" :key="`pickup-${item.day}`">
+                <dt>{{ item.day }}</dt>
+                <dd class="font-medium">{{ item.hours }}</dd>
+              </template>
+            </dl>
+          </div>
+        </div>
         <p class="text-xs text-primary mt-3 font-semibold">
-          💻 Online: 24/7<br />
+          Online: 24/7<br />
           Shop anytime!
         </p>
       </div>
@@ -463,7 +536,7 @@ async function submitForm() {
           <ul class="space-y-2 text-sm text-gray-700">
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-              <span><strong>Expert Fitting:</strong> Over 25 years of experience helping Canadians find the perfect skates</span>
+              <span><strong>Expert Fitting:</strong> Toronto skate specialists helping Canadians find the perfect skates since {{ businessStartYear }}</span>
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
@@ -471,7 +544,7 @@ async function submitForm() {
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-              <span><strong>Top Brands:</strong> Rollerblade, K2, Bauer, Moxi, and more</span>
+              <span><strong>Top Brands:</strong> {{ contactBrandList }}</span>
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
@@ -495,18 +568,22 @@ async function submitForm() {
       <h2 class="text-2xl font-semibold mb-4 text-primary">Your Toronto Inline Skate & Roller Skate Experts</h2>
       <div class="prose prose-lg max-w-none text-gray-700">
         <p>
-          ProSkaters Place has been Toronto's trusted skate shop since 1995, serving customers from across the GTA, Ontario, and all of Canada. Located in
-          Etobicoke near Highway 427 and Langstaff Road, our store specializes in inline skates, roller skates, protective gear, wheels, bearings, and skating
-          accessories.
+          ProSkaters Place has been Toronto's trusted skate shop since {{ businessStartYear }}, serving customers from across the GTA, Ontario, and all of
+          Canada. Located in Etobicoke near Highway 427 and Galaxy Boulevard, our store specializes in inline skates, roller skates, protective gear, wheels,
+          bearings, and skating accessories.
         </p>
         <p class="mt-4">
           Whether you're shopping online or visiting our physical location, our team provides expert advice on skate sizing, brand selection, and skating
-          techniques. We carry premium brands including Rollerblade, K2, Bauer, Powerslide, FR Skates, Moxi, Riedell, and Sure-Grip. From recreational fitness
-          skating to aggressive inline skating and artistic roller skating, we have the equipment and expertise to help you succeed.
+          techniques. We carry premium brands including
+          <template v-for="(brand, index) in brandSearchLinks" :key="brand.name">
+            <NuxtLink :to="brand.to" class="text-primary font-semibold hover:underline">{{ brand.name }}</NuxtLink
+            ><span>{{ brandSeparator(index, brandSearchLinks.length) }}</span>
+          </template>
+          From recreational fitness skating to aggressive inline skating and artistic roller skating, we have the equipment and expertise to help you succeed.
         </p>
         <p class="mt-4">
           <strong>Contact us today</strong> by phone at <a href="tel:+14167392929" class="text-primary hover:underline">(416) 739-2929</a>, visit our Etobicoke
-          store at 110 Galaxy Blvd, Etobicoke, ON M9W 6A4, or send us a message using the form above. We're here to help you enjoy the thrill of skating!
+          store at 110 Galaxy Blvd, Etobicoke, ON M9W 4Y6, or send us a message using the form above. We're here to help you enjoy the thrill of skating!
         </p>
       </div>
     </div>

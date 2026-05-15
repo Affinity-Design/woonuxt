@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted} from 'vue';
 
+const googleReviewSummary = {
+  rating: '4.7',
+  linkText: 'Google reviews',
+  linkUrl: 'https://g.co/kgs/cTNie7W',
+};
+
 const reviews = [
   {
     name: 'Zach Anderson',
@@ -97,19 +103,21 @@ const setupCarouselInterval = () => {
   }
 };
 
+const handleReviewResize = () => {
+  updateItemsPerView();
+  setupCarouselInterval();
+};
+
 onMounted(() => {
   updateItemsPerView(); // Determine correct itemsPerView based on client's window size
   isMounted.value = true; // Signal that client-side setup is complete
 
-  window.addEventListener('resize', () => {
-    updateItemsPerView();
-    setupCarouselInterval(); // Re-setup interval if itemsPerView changes visibility of controls
-  });
+  window.addEventListener('resize', handleReviewResize);
   setupCarouselInterval(); // Initial setup
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateItemsPerView);
+  window.removeEventListener('resize', handleReviewResize);
   if (interval) clearInterval(interval);
 });
 </script>
@@ -120,12 +128,14 @@ onUnmounted(() => {
     <div class="text-center mb-8 px-4">
       <h2 class="text-3xl font-bold mb-3 text-gray-800">ProSkaters Place Canada Reviews</h2>
       <div class="flex items-center justify-center text-lg mb-3">
-        <span class="font-bold mr-2 text-gray-700">4.6</span>
+        <span class="font-bold mr-2 text-gray-700">{{ googleReviewSummary.rating }}</span>
         <div class="flex items-center mr-2">
           <!-- Loop for 5 stars -->
           <span v-for="s in 5" :key="s" class="text-yellow-400 text-xl">★</span>
         </div>
-        <a href="https://g.co/kgs/cTNie7W" target="_blank" rel="noopener" class="text-sm text-green-600 hover:text-green-700 underline">522 Google reviews</a>
+        <a :href="googleReviewSummary.linkUrl" target="_blank" rel="noopener" class="text-sm text-green-600 hover:text-green-700 underline">
+          {{ googleReviewSummary.linkText }}
+        </a>
       </div>
       <div class="text-md text-gray-600">Inline Skates Toronto, Ontario</div>
     </div>
@@ -179,7 +189,7 @@ onUnmounted(() => {
     </div>
 
     <div class="text-center mt-6">
-      <a href="https://g.co/kgs/cTNie7W" target="_blank" rel="noopener" class="text-primary underline text-sm">Read more reviews on Google</a>
+      <a :href="googleReviewSummary.linkUrl" target="_blank" rel="noopener" class="text-primary underline text-sm">Read more reviews on Google</a>
     </div>
   </section>
 </template>

@@ -688,7 +688,7 @@ const productCategories = computed(() => {
         <Icon name="mdi:help-circle" class="text-6xl text-yellow-500 mx-auto mb-4" />
         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Still Unsure About Your Size?</h2>
         <p class="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-          Our expert staff has been fitting skaters since 1995. We're here to help you find the perfect size for your needs. Contact us for personalized
+          Our expert staff has been fitting skaters since 2011. We're here to help you find the perfect size for your needs. Contact us for personalized
           recommendations!
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">

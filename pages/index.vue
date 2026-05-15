@@ -2,6 +2,26 @@
 import {ProductsOrderByEnum} from '#woo';
 
 const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
+const brandSearchLinks = [
+  {name: 'Rollerblade', to: '/search?q=Rollerblade'},
+  {name: 'K2 Skates', to: '/search?q=K2%20Skates'},
+  {name: 'Powerslide', to: '/search?q=Powerslide'},
+  {name: 'Seba', to: '/search?q=Seba'},
+  {name: 'FR Skates', to: '/search?q=FR%20Skates'},
+  {name: 'Moxi', to: '/search?q=Moxi'},
+  {name: 'Riedell', to: '/search?q=Riedell'},
+  {name: 'Impala', to: '/search?q=Impala'},
+  {name: 'Rio Roller', to: '/search?q=Rio%20Roller'},
+  {name: 'Chaya', to: '/search?q=Chaya'},
+];
+const brandSeparator = (index: number, total: number) => {
+  if (index === total - 1) return '.';
+  return index === total - 2 ? ', and ' : ', ';
+};
+const homepageBrandList = brandSearchLinks
+  .map((brand) => brand.name)
+  .join(', ')
+  .replace(/, ([^,]*)$/, ', and $1');
 
 // Canadian SEO Optimization
 const {setCanadianSEO} = useCanadianSEO();
@@ -26,13 +46,13 @@ useHead({
         url: 'https://proskatersplace.ca',
         logo: 'https://proskatersplace.ca/icon.png',
         description:
-          "Canada's most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 1995.",
+          "Canada's most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 2011.",
         address: {
           '@type': 'PostalAddress',
-          streetAddress: '3600 Langstaff Road',
+          streetAddress: '110 Galaxy Blvd',
           addressLocality: 'Etobicoke',
           addressRegion: 'ON',
-          postalCode: 'M9W 5S4',
+          postalCode: 'M9W 4Y6',
           addressCountry: 'CA',
         },
         contactPoint: {
@@ -124,8 +144,7 @@ const {data: latestPosts} = await useAsyncData('latest-blog-posts', () => queryC
 const homepageFAQs = [
   {
     question: 'What types of roller skates and inline skates do you sell?',
-    answer:
-      'We carry a comprehensive selection of inline skates (rollerblades), quad roller skates, speed skates, recreational skates, fitness skates, aggressive skates, artistic roller skates, and roller derby skates. Top brands include Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.',
+    answer: `We carry a comprehensive selection of inline skates (rollerblades), quad roller skates, speed skates, recreational skates, fitness skates, aggressive skates, artistic roller skates, and roller derby skates. Top brands include ${homepageBrandList}.`,
   },
   {
     question: 'Do you ship roller skates across Canada?',
@@ -149,12 +168,11 @@ const homepageFAQs = [
   {
     question: 'Do you have a physical store in Toronto?',
     answer:
-      'Yes! Our Toronto showroom is located at 3600 Langstaff Road in Etobicoke. Visit us for in-person fitting, expert advice, and to see our full selection. Store hours: Mon-Fri 12-4pm, Wed 12-7pm, Sat 2-7pm. We also serve customers online across Canada 24/7.',
+      'Yes! Our Toronto showroom is located at 110 Galaxy Blvd in Etobicoke. In-store shopping hours are Wednesday 2-7pm and Saturday 12-7pm. Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm, plus Wednesday and Saturday 12-7pm. We also serve customers online across Canada 24/7.',
   },
   {
     question: 'What brands of roller skates and inline skates do you carry?',
-    answer:
-      'We stock premium brands including Rollerblade, K2 Skates, Bauer, Powerslide, FR Skates, Moxi, Riedell, Sure-Grip, Impala, Rio Roller, Chaya, and more. Whether you need recreational skates, performance inline skates, or artistic quad skates, we have trusted brands for every skating style.',
+    answer: `We stock premium brands including ${homepageBrandList}. Whether you need recreational skates, performance inline skates, or artistic quad skates, we have trusted brands for every skating style.`,
   },
   {
     question: 'Are roller skates suitable for adults or just kids?',
@@ -329,8 +347,12 @@ const homepageFAQs = [
             <h2 class="text-3xl md:text-4xl font-bold text-primary">Canada's Premier Roller Skates & Inline Skates Store</h2>
             <p class="text-gray-700 leading-relaxed text-lg">
               Welcome to <strong>ProSkaters Place</strong> - Canada's most trusted destination for roller skates, inline skates, and skating equipment since
-              1995. Based in Toronto, Ontario, we serve skaters across Canada with an unmatched selection of over 1,000 models from world-renowned brands
-              including Rollerblade, K2, Bauer, Powerslide, Moxi, Riedell, and Sure-Grip.
+              2011. Based in Toronto, Ontario, we serve skaters across Canada with an unmatched selection of over 1,000 models from world-renowned brands
+              including
+              <template v-for="(brand, index) in brandSearchLinks" :key="brand.name">
+                <NuxtLink :to="brand.to" class="text-primary font-semibold hover:underline">{{ brand.name }}</NuxtLink
+                ><span>{{ brandSeparator(index, brandSearchLinks.length) }}</span>
+              </template>
             </p>
             <p class="text-gray-700 leading-relaxed text-lg">
               Whether you're searching for
@@ -422,11 +444,11 @@ const homepageFAQs = [
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Text Content -->
           <div class="order-2 lg:order-1 space-y-6">
-            <h2 class="text-3xl md:text-4xl font-bold text-primary">Trusted by Canadian Skaters Since 1995</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-primary">Trusted by Canadian Skaters Since 2011</h2>
             <p class="text-gray-700 leading-relaxed text-lg">
-              With decades of experience serving the Canadian skating community, ProSkaters Place has earned a reputation for quality products, competitive
-              pricing, and exceptional customer service. Our customers in Toronto, Vancouver, Montreal, Calgary, Ottawa, and every corner of Canada trust us for
-              authentic products, expert guidance, and reliable shipping.
+              Since 2011, ProSkaters Place has earned a reputation in the Canadian skating community for quality products, competitive pricing, and exceptional
+              customer service. Our customers in Toronto, Vancouver, Montreal, Calgary, Ottawa, and every corner of Canada trust us for authentic products,
+              expert guidance, and reliable shipping.
             </p>
             <p class="text-gray-700 leading-relaxed text-lg">
               Beyond skates, we stock everything you need for a safe and enjoyable skating experience. Browse our comprehensive selection of

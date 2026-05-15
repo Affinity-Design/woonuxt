@@ -61,6 +61,7 @@ const {wishlistLink} = useAuth();
           {{ $t('messages.general.customerService') }}
         </div>
         <div class="text-sm">
+          <NuxtLink to="/about" class="py-1.5 block">About Us</NuxtLink>
           <NuxtLink to="/contact" class="py-1.5 block">Contact Us</NuxtLink>
           <NuxtLink to="/terms" class="py-1.5 block">Terms & Conditions</NuxtLink>
           <NuxtLink to="/privacy" class="py-1.5 block">Privacy Policy</NuxtLink>
