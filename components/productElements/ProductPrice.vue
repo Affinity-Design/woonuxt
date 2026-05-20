@@ -75,6 +75,7 @@ const hasDistinctSalePrice = computed(() => {
 
 const rawPriceStringToDisplay = computed(() => {
   if (variableRangeDisplay.value) return null;
+  if (!props.showBothPrices && props.price && String(props.price).trim() !== '') return props.price;
   if (props.salePrice && String(props.salePrice).trim() !== '') return props.salePrice;
   return props.regularPrice || props.price;
 });
