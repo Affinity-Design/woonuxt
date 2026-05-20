@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-03-31
+**Last Updated:** 2026-05-20
 
 ---
 
@@ -123,12 +123,12 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Status: Available
   - Note: Higher competition, may need multiple posts
 
-- [ ] **online skate shop canada** (390 sv, 6 kd, $0.49 cpc)
+- [x] **online skate shop canada** (390 sv, 6 kd, $0.49 cpc)
 
-  - Intent: Commercial/Transactional
-  - Difficulty: Easy
-  - Suggested Post: "Best Online Skate Shops in Canada"
-  - Status: Available
+  - Post: `/blog/online-skate-shop-canada`
+  - Published: 2026-05-20
+  - Status: ✅ Live
+  - Performance: Monitoring
 
 - [ ] **inline roller skates** (320 sv, 55 kd, $0.30 cpc)
 
