@@ -30,6 +30,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     'Content-Type': 'application/json',
     'X-Frontend-Type': 'woonuxt',
     'X-Requested-With': 'XMLHttpRequest',
+    'Accept-Language': 'en-CA,en;q=0.9',
+    // The WordPress currency layer keys off this header, including during Cloudflare Pages builds.
+    'CF-IPCountry': 'CA',
   };
 
   // Server-side specific headers (for SSR)
