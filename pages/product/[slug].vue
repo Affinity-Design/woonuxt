@@ -527,6 +527,7 @@ watch(
             <div class="mb-6">
               <ProductPrice
                 class="text-4xl font-bold"
+                :price="activeVariation ? activeVariation.price : product.price"
                 :sale-price="activeVariation ? activeVariation.salePrice : product.salePrice"
                 :regular-price="activeVariation ? activeVariation.regularPrice : product.regularPrice" />
             </div>
