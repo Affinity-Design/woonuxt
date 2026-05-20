@@ -45,6 +45,15 @@ export default defineNuxtConfig({
     clients: {
       default: {
         host: process.env.GQL_HOST || '',
+        corsOptions: {mode: 'cors', credentials: 'include'},
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Frontend-Type': 'woonuxt',
+          'X-Requested-With': 'XMLHttpRequest',
+          // The WordPress currency layer keys off this header, including during Cloudflare Pages builds.
+          'CF-IPCountry': 'CA',
+          'Accept-Language': 'en-CA,en;q=0.9',
+        },
         proxyCookies: true,
         proxy: true, // Force proxying through Nuxt server
       },
