@@ -88,6 +88,7 @@ export default defineNuxtConfig({
       // Provide a default value (e.g., 1.0) if the env var isn't set during build
       buildTimeExchangeRate: process.env.NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE || '1.37',
       freeShippingThreshold: process.env.NUXT_PUBLIC_FREE_SHIPPING_THRESHOLD || '135',
+      calculatorGraphqlEndpoint: process.env.NUXT_PUBLIC_CALCULATOR_GRAPHQL_ENDPOINT || 'https://proskatersplace.com/graphql',
 
       // --- Product Attribute Filters Configuration ---
       // These appear as filter options on category pages
@@ -224,6 +225,7 @@ export default defineNuxtConfig({
         '/privacy',
         '/blog',
         '/inline-skates-size-calculator',
+        '/roller-skates-size-calculator',
         ...(categoryRoutesToPrerender || []),
         ...(blogRoutesToPrerender || []),
         // Include product routes for prerendering (only if list is reasonable size)
@@ -272,6 +274,10 @@ export default defineNuxtConfig({
       prerender: true,
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
     }, // Size calculator page
+    '/roller-skates-size-calculator': {
+      prerender: true,
+      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+    }, // Size calculator v2 page
   },
 
   hooks: {

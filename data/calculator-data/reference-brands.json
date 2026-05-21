@@ -1,0 +1,786 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-21T20:43:21.042Z",
+  "brands": [
+    {
+      "id": "ref_rollerblade_001",
+      "name": "Rollerblade",
+      "category": "inline_skates",
+      "sizes": [
+        {
+          "mm": 165,
+          "eu": 27
+        },
+        {
+          "mm": 170,
+          "eu": 28
+        },
+        {
+          "mm": 175,
+          "eu": 29
+        },
+        {
+          "mm": 180,
+          "eu": 30
+        },
+        {
+          "mm": 185,
+          "eu": 31
+        },
+        {
+          "mm": 190,
+          "eu": 32
+        },
+        {
+          "mm": 195,
+          "eu": 33
+        },
+        {
+          "mm": 200,
+          "eu": 34
+        },
+        {
+          "mm": 205,
+          "eu": 34,
+          "usMen": 1,
+          "usWomen": 2
+        },
+        {
+          "mm": 210,
+          "eu": 35,
+          "usMen": 1.5,
+          "usWomen": 3
+        },
+        {
+          "mm": 215,
+          "eu": 35.5,
+          "usMen": 2,
+          "usWomen": 3.5
+        },
+        {
+          "mm": 220,
+          "eu": 36,
+          "usMen": 3,
+          "usWomen": 4.5
+        },
+        {
+          "mm": 225,
+          "eu": 36.5,
+          "usMen": 3.5,
+          "usWomen": 5
+        },
+        {
+          "mm": 230,
+          "eu": 37,
+          "usMen": 4,
+          "usWomen": 5.5
+        },
+        {
+          "mm": 235,
+          "eu": 38,
+          "usMen": 5,
+          "usWomen": 6.5
+        },
+        {
+          "mm": 240,
+          "eu": 38.5,
+          "usMen": 5.5,
+          "usWomen": 7
+        },
+        {
+          "mm": 245,
+          "eu": 39,
+          "usMen": 6,
+          "usWomen": 7.5
+        },
+        {
+          "mm": 250,
+          "eu": 39.5,
+          "usMen": 6.5,
+          "usWomen": 8
+        },
+        {
+          "mm": 255,
+          "eu": 40,
+          "usMen": 7,
+          "usWomen": 8.5
+        },
+        {
+          "mm": 260,
+          "eu": 40.5,
+          "usMen": 7.5,
+          "usWomen": 9
+        },
+        {
+          "mm": 265,
+          "eu": 41,
+          "usMen": 8,
+          "usWomen": 9.5
+        },
+        {
+          "mm": 270,
+          "eu": 41.5,
+          "usMen": 8.5,
+          "usWomen": 10
+        },
+        {
+          "mm": 275,
+          "eu": 42,
+          "usMen": 9,
+          "usWomen": 10.5
+        },
+        {
+          "mm": 280,
+          "eu": 42.5,
+          "usMen": 9.5,
+          "usWomen": 11
+        },
+        {
+          "mm": 285,
+          "eu": 43,
+          "usMen": 10,
+          "usWomen": 11.5
+        },
+        {
+          "mm": 290,
+          "eu": 43.5,
+          "usMen": 10.5,
+          "usWomen": 12
+        },
+        {
+          "mm": 295,
+          "eu": 44,
+          "usMen": 11,
+          "usWomen": 12.5
+        },
+        {
+          "mm": 300,
+          "eu": 44.5,
+          "usMen": 11.5,
+          "usWomen": 13
+        },
+        {
+          "mm": 305,
+          "eu": 45,
+          "usMen": 12,
+          "usWomen": 13.5
+        },
+        {
+          "mm": 310,
+          "eu": 45.5,
+          "usMen": 12.5
+        },
+        {
+          "mm": 315,
+          "eu": 46,
+          "usMen": 13
+        },
+        {
+          "mm": 320,
+          "eu": 47,
+          "usMen": 13.5
+        },
+        {
+          "mm": 325,
+          "eu": 47.5,
+          "usMen": 14
+        },
+        {
+          "mm": 330,
+          "eu": 48,
+          "usMen": 14.5
+        },
+        {
+          "mm": 335,
+          "eu": 49,
+          "usMen": 15
+        }
+      ]
+    },
+    {
+      "id": "ref_chaya_002",
+      "name": "CHAYA",
+      "category": "roller_skates",
+      "sizes": [
+        {
+          "mm": 165,
+          "eu": 27
+        },
+        {
+          "mm": 170,
+          "eu": 28
+        },
+        {
+          "mm": 175,
+          "eu": 29
+        },
+        {
+          "mm": 180,
+          "eu": 30
+        },
+        {
+          "mm": 185,
+          "eu": 31
+        },
+        {
+          "mm": 190,
+          "eu": 32
+        },
+        {
+          "mm": 195,
+          "eu": 33
+        },
+        {
+          "mm": 200,
+          "eu": 34
+        },
+        {
+          "mm": 205,
+          "eu": 34,
+          "usMen": 1,
+          "usWomen": 2
+        },
+        {
+          "mm": 210,
+          "eu": 35,
+          "usMen": 1.5,
+          "usWomen": 3
+        },
+        {
+          "mm": 215,
+          "eu": 35.5,
+          "usMen": 2,
+          "usWomen": 3.5
+        },
+        {
+          "mm": 220,
+          "eu": 36,
+          "usMen": 3,
+          "usWomen": 4.5
+        },
+        {
+          "mm": 225,
+          "eu": 36.5,
+          "usMen": 3.5,
+          "usWomen": 5
+        },
+        {
+          "mm": 230,
+          "eu": 37,
+          "usMen": 4,
+          "usWomen": 5.5
+        },
+        {
+          "mm": 235,
+          "eu": 38,
+          "usMen": 5,
+          "usWomen": 6.5
+        },
+        {
+          "mm": 240,
+          "eu": 38.5,
+          "usMen": 5.5,
+          "usWomen": 7
+        },
+        {
+          "mm": 245,
+          "eu": 39,
+          "usMen": 6,
+          "usWomen": 7.5
+        },
+        {
+          "mm": 250,
+          "eu": 39.5,
+          "usMen": 6.5,
+          "usWomen": 8
+        },
+        {
+          "mm": 255,
+          "eu": 40,
+          "usMen": 7,
+          "usWomen": 8.5
+        },
+        {
+          "mm": 260,
+          "eu": 40.5,
+          "usMen": 7.5,
+          "usWomen": 9
+        },
+        {
+          "mm": 265,
+          "eu": 41,
+          "usMen": 8,
+          "usWomen": 9.5
+        },
+        {
+          "mm": 270,
+          "eu": 41.5,
+          "usMen": 8.5,
+          "usWomen": 10
+        },
+        {
+          "mm": 275,
+          "eu": 42,
+          "usMen": 9,
+          "usWomen": 10.5
+        },
+        {
+          "mm": 280,
+          "eu": 42.5,
+          "usMen": 9.5,
+          "usWomen": 11
+        },
+        {
+          "mm": 285,
+          "eu": 43,
+          "usMen": 10,
+          "usWomen": 11.5
+        },
+        {
+          "mm": 290,
+          "eu": 43.5,
+          "usMen": 10.5,
+          "usWomen": 12
+        },
+        {
+          "mm": 295,
+          "eu": 44,
+          "usMen": 11,
+          "usWomen": 12.5
+        },
+        {
+          "mm": 300,
+          "eu": 44.5,
+          "usMen": 11.5,
+          "usWomen": 13
+        },
+        {
+          "mm": 305,
+          "eu": 45,
+          "usMen": 12,
+          "usWomen": 13.5
+        },
+        {
+          "mm": 310,
+          "eu": 45.5,
+          "usMen": 12.5
+        },
+        {
+          "mm": 315,
+          "eu": 46,
+          "usMen": 13
+        },
+        {
+          "mm": 320,
+          "eu": 47,
+          "usMen": 13.5
+        },
+        {
+          "mm": 325,
+          "eu": 47.5,
+          "usMen": 14
+        },
+        {
+          "mm": 330,
+          "eu": 48,
+          "usMen": 14.5
+        },
+        {
+          "mm": 335,
+          "eu": 49,
+          "usMen": 15
+        }
+      ]
+    },
+    {
+      "id": "ref_bauer_003",
+      "name": "Bauer",
+      "category": "ice_skates",
+      "sizes": [
+        {
+          "mm": 165,
+          "eu": 27
+        },
+        {
+          "mm": 170,
+          "eu": 28
+        },
+        {
+          "mm": 175,
+          "eu": 29
+        },
+        {
+          "mm": 180,
+          "eu": 30
+        },
+        {
+          "mm": 185,
+          "eu": 31
+        },
+        {
+          "mm": 190,
+          "eu": 32
+        },
+        {
+          "mm": 195,
+          "eu": 33
+        },
+        {
+          "mm": 200,
+          "eu": 34
+        },
+        {
+          "mm": 205,
+          "eu": 34,
+          "usMen": 1,
+          "usWomen": 2
+        },
+        {
+          "mm": 210,
+          "eu": 35,
+          "usMen": 1.5,
+          "usWomen": 3
+        },
+        {
+          "mm": 215,
+          "eu": 35.5,
+          "usMen": 2,
+          "usWomen": 3.5
+        },
+        {
+          "mm": 220,
+          "eu": 36,
+          "usMen": 3,
+          "usWomen": 4.5
+        },
+        {
+          "mm": 225,
+          "eu": 36.5,
+          "usMen": 3.5,
+          "usWomen": 5
+        },
+        {
+          "mm": 230,
+          "eu": 37,
+          "usMen": 4,
+          "usWomen": 5.5
+        },
+        {
+          "mm": 235,
+          "eu": 38,
+          "usMen": 5,
+          "usWomen": 6.5
+        },
+        {
+          "mm": 240,
+          "eu": 38.5,
+          "usMen": 5.5,
+          "usWomen": 7
+        },
+        {
+          "mm": 245,
+          "eu": 39,
+          "usMen": 6,
+          "usWomen": 7.5
+        },
+        {
+          "mm": 250,
+          "eu": 39.5,
+          "usMen": 6.5,
+          "usWomen": 8
+        },
+        {
+          "mm": 255,
+          "eu": 40,
+          "usMen": 7,
+          "usWomen": 8.5
+        },
+        {
+          "mm": 260,
+          "eu": 40.5,
+          "usMen": 7.5,
+          "usWomen": 9
+        },
+        {
+          "mm": 265,
+          "eu": 41,
+          "usMen": 8,
+          "usWomen": 9.5
+        },
+        {
+          "mm": 270,
+          "eu": 41.5,
+          "usMen": 8.5,
+          "usWomen": 10
+        },
+        {
+          "mm": 275,
+          "eu": 42,
+          "usMen": 9,
+          "usWomen": 10.5
+        },
+        {
+          "mm": 280,
+          "eu": 42.5,
+          "usMen": 9.5,
+          "usWomen": 11
+        },
+        {
+          "mm": 285,
+          "eu": 43,
+          "usMen": 10,
+          "usWomen": 11.5
+        },
+        {
+          "mm": 290,
+          "eu": 43.5,
+          "usMen": 10.5,
+          "usWomen": 12
+        },
+        {
+          "mm": 295,
+          "eu": 44,
+          "usMen": 11,
+          "usWomen": 12.5
+        },
+        {
+          "mm": 300,
+          "eu": 44.5,
+          "usMen": 11.5,
+          "usWomen": 13
+        },
+        {
+          "mm": 305,
+          "eu": 45,
+          "usMen": 12,
+          "usWomen": 13.5
+        },
+        {
+          "mm": 310,
+          "eu": 45.5,
+          "usMen": 12.5
+        },
+        {
+          "mm": 315,
+          "eu": 46,
+          "usMen": 13
+        },
+        {
+          "mm": 320,
+          "eu": 47,
+          "usMen": 13.5
+        },
+        {
+          "mm": 325,
+          "eu": 47.5,
+          "usMen": 14
+        },
+        {
+          "mm": 330,
+          "eu": 48,
+          "usMen": 14.5
+        },
+        {
+          "mm": 335,
+          "eu": 49,
+          "usMen": 15
+        }
+      ]
+    },
+    {
+      "id": "ref_generic_sports_shoe_004",
+      "name": "Generic Sports Shoe",
+      "category": "sports_shoes",
+      "sizes": [
+        {
+          "mm": 165,
+          "eu": 27
+        },
+        {
+          "mm": 170,
+          "eu": 28
+        },
+        {
+          "mm": 175,
+          "eu": 29
+        },
+        {
+          "mm": 180,
+          "eu": 30
+        },
+        {
+          "mm": 185,
+          "eu": 31
+        },
+        {
+          "mm": 190,
+          "eu": 32
+        },
+        {
+          "mm": 195,
+          "eu": 33
+        },
+        {
+          "mm": 200,
+          "eu": 34
+        },
+        {
+          "mm": 205,
+          "eu": 34,
+          "usMen": 1,
+          "usWomen": 2
+        },
+        {
+          "mm": 210,
+          "eu": 35,
+          "usMen": 1.5,
+          "usWomen": 3
+        },
+        {
+          "mm": 215,
+          "eu": 35.5,
+          "usMen": 2,
+          "usWomen": 3.5
+        },
+        {
+          "mm": 220,
+          "eu": 36,
+          "usMen": 3,
+          "usWomen": 4.5
+        },
+        {
+          "mm": 225,
+          "eu": 36.5,
+          "usMen": 3.5,
+          "usWomen": 5
+        },
+        {
+          "mm": 230,
+          "eu": 37,
+          "usMen": 4,
+          "usWomen": 5.5
+        },
+        {
+          "mm": 235,
+          "eu": 38,
+          "usMen": 5,
+          "usWomen": 6.5
+        },
+        {
+          "mm": 240,
+          "eu": 38.5,
+          "usMen": 5.5,
+          "usWomen": 7
+        },
+        {
+          "mm": 245,
+          "eu": 39,
+          "usMen": 6,
+          "usWomen": 7.5
+        },
+        {
+          "mm": 250,
+          "eu": 39.5,
+          "usMen": 6.5,
+          "usWomen": 8
+        },
+        {
+          "mm": 255,
+          "eu": 40,
+          "usMen": 7,
+          "usWomen": 8.5
+        },
+        {
+          "mm": 260,
+          "eu": 40.5,
+          "usMen": 7.5,
+          "usWomen": 9
+        },
+        {
+          "mm": 265,
+          "eu": 41,
+          "usMen": 8,
+          "usWomen": 9.5
+        },
+        {
+          "mm": 270,
+          "eu": 41.5,
+          "usMen": 8.5,
+          "usWomen": 10
+        },
+        {
+          "mm": 275,
+          "eu": 42,
+          "usMen": 9,
+          "usWomen": 10.5
+        },
+        {
+          "mm": 280,
+          "eu": 42.5,
+          "usMen": 9.5,
+          "usWomen": 11
+        },
+        {
+          "mm": 285,
+          "eu": 43,
+          "usMen": 10,
+          "usWomen": 11.5
+        },
+        {
+          "mm": 290,
+          "eu": 43.5,
+          "usMen": 10.5,
+          "usWomen": 12
+        },
+        {
+          "mm": 295,
+          "eu": 44,
+          "usMen": 11,
+          "usWomen": 12.5
+        },
+        {
+          "mm": 300,
+          "eu": 44.5,
+          "usMen": 11.5,
+          "usWomen": 13
+        },
+        {
+          "mm": 305,
+          "eu": 45,
+          "usMen": 12,
+          "usWomen": 13.5
+        },
+        {
+          "mm": 310,
+          "eu": 45.5,
+          "usMen": 12.5
+        },
+        {
+          "mm": 315,
+          "eu": 46,
+          "usMen": 13
+        },
+        {
+          "mm": 320,
+          "eu": 47,
+          "usMen": 13.5
+        },
+        {
+          "mm": 325,
+          "eu": 47.5,
+          "usMen": 14
+        },
+        {
+          "mm": 330,
+          "eu": 48,
+          "usMen": 14.5
+        },
+        {
+          "mm": 335,
+          "eu": 49,
+          "usMen": 15
+        }
+      ]
+    }
+  ]
+}

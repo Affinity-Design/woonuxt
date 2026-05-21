@@ -1,0 +1,675 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-21T20:43:21.043Z",
+  "brands": [
+    {
+      "id": "car_fr_skates_001",
+      "name": "FR Skates",
+      "productCategory": "inline_skates",
+      "widthProfile": "wide",
+      "widthDisclaimer": "FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "frskates",
+        "categorySlug": "inline-skates"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 163,
+          "mmMax": 167,
+          "recommendedLabel": "EU 27",
+          "sizeAttributeValue": "27eu"
+        },
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 203,
+          "mmMax": 207,
+          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 323,
+          "mmMax": 327,
+          "recommendedLabel": "EU 47.5 / US Men 14",
+          "sizeAttributeValue": "47-5eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_chaya_002",
+      "name": "CHAYA",
+      "productCategory": "roller_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "chaya",
+        "categorySlug": "roller-skates"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 163,
+          "mmMax": 167,
+          "recommendedLabel": "EU 27",
+          "sizeAttributeValue": "27eu"
+        },
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 203,
+          "mmMax": 207,
+          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 323,
+          "mmMax": 327,
+          "recommendedLabel": "EU 47.5 / US Men 14",
+          "sizeAttributeValue": "47-5eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_rossignol_003",
+      "name": "Rossignol",
+      "productCategory": "ski_boots",
+      "widthProfile": "average",
+      "widthDisclaimer": "Rossignol ski boots should be checked against mondopoint first. Use this recommendation as a starting point and confirm binding and boot model notes before purchase.",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "rossignol-ski",
+        "categorySlug": "nordic-ski-boots"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 163,
+          "mmMax": 167,
+          "recommendedLabel": "EU 27",
+          "sizeAttributeValue": "27eu"
+        },
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 203,
+          "mmMax": 207,
+          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 323,
+          "mmMax": 327,
+          "recommendedLabel": "EU 47.5 / US Men 14",
+          "sizeAttributeValue": "47-5eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    }
+  ]
+}
