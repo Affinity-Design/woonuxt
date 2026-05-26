@@ -89,6 +89,7 @@ const BRAND_WEBSITE_MAP = {
   'dream-wheels': 'https://www.dreamwheelco.com/',
   'mini-logo': 'https://minilogoskateboards.com/',
   'lang-boots': 'https://www.langboots.com/',
+  kastle: 'https://www.kaestle.com/',
 };
 
 // ─── extractBrandContext ──────────────────────────────────────────────────────
