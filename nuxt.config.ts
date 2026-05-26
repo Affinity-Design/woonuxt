@@ -222,7 +222,6 @@ export default defineNuxtConfig({
         '/terms',
         '/privacy',
         '/blog',
-        '/inline-skates-size-calculator',
         '/roller-skates-size-calculator',
         ...(categoryRoutesToPrerender || []),
         ...(blogRoutesToPrerender || []),
@@ -268,14 +267,11 @@ export default defineNuxtConfig({
     '/contact': {prerender: true},
     '/terms': {prerender: true},
     '/privacy': {prerender: true},
-    '/inline-skates-size-calculator': {
-      prerender: true,
-      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
-    }, // Size calculator page
+    '/inline-skates-size-calculator': {redirect: {to: '/roller-skates-size-calculator', statusCode: 301}},
     '/roller-skates-size-calculator': {
       prerender: true,
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
-    }, // Size calculator v2 page
+    },
   },
 
   hooks: {

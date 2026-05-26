@@ -27,8 +27,8 @@ const homepageBrandList = brandSearchLinks
 const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
-  title: 'Best Roller Skates & Inline Skates Canada | ProSkaters Place Toronto',
-  description: `Shop Canada's #1 roller skates & inline skates store. ⭐ 1000+ models ⭐ Free shipping $${freeShipThreshold}+ ⭐ Expert fitting ⭐ Toronto-based. Inline skates, quad roller skates, protective gear & more!`,
+  title: 'Inline Skates Canada | Buy Rollerblades & Roller Skates | ProSkaters Place',
+  description: `Buy inline skates & rollerblades in Canada. ⭐ 1000+ models ⭐ Free shipping $${freeShipThreshold}+ ⭐ Expert fitting ⭐ Toronto-based. Canada's top-rated skate shop since 2011.`,
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',
 });
@@ -184,11 +184,6 @@ const homepageFAQs = [
 
 <template>
   <main>
-    <!-- SEO H1 Section (Hidden but indexed) -->
-    <div class="sr-only">
-      <h1>Best Roller Skates and Inline Skates Canada | ProSkaters Place Toronto Online Skate Shop</h1>
-    </div>
-
     <HeroBanner />
     <!-- Catagories -->
     <section class="container my-16">
