@@ -122,9 +122,9 @@ The Final Click: The user clicks an appealing skate model.
 
 The Dynamic Redirection:
 
-If the system detects they are browsing from Canada, a new browser tab opens directly to the product search results page on proskatersplace.ca.
+If they selected Canada at the start, a new browser tab opens to the Canadian product destination on proskatersplace.ca.
 
-If they are browsing from the US or Internationally, that new tab opens up the search results on proskatersplace.com.
+If they selected USA or International, that new tab opens to the product destination on proskatersplace.com.
 
 Result: The user checks the price and checks out in their local currency, while the primary calculator tab remains completely intact on their screen so they don't lose their metrics.
 
@@ -139,11 +139,15 @@ ProSkaters Place currently has one WooCommerce/WordPress backend, and that backe
 Required behavior:
 - Do not show prices in the calculator.
 - Use the backend or a generated catalog from the backend to identify matching product cards.
-- If the shopper is in Canada, the "Click to find price" button should prefer the `.ca` product permalink from the headless route/search/KV map.
-- If the shopper is in the US or international, the button should use the `.com` product URL from the backend slug.
+- Ask the shopper which storefront they want product links to open in before sizing starts: Canada, USA, or International.
+- Do not use IP lookup, Cloudflare country headers, visitor tracking, or inferred geolocation for this decision.
+- If the shopper chooses Canada, the "Click to find price" button should prefer the `.ca` product permalink from the headless route/search/KV map.
+- If the shopper chooses USA or International, the button should use the `.com` product URL from the backend slug.
 - If a precise `.ca` product link cannot be mapped, fall back to a `.ca` brand/category page first, then to the `.com` product URL only when that is the only real product destination.
 
 The card remains simple: product image, product name, and a button labeled "Click to find price." The destination storefront owns price, currency, cart, and checkout.
+
+The storefront selector is deliberately manual. It should not read or mutate cart cookies, WooCommerce session headers, checkout state, add-to-cart behavior, or global visitor-tracking state.
 
 ### Data Extraction And Sheet Fill Plan
 

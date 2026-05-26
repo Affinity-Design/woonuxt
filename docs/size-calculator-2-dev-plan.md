@@ -8,7 +8,8 @@
 **Location**: Lives on `proskatersplace.ca`. Replaces the current single-page calculator at [`/inline-skates-size-calculator`](../pages/inline-skates-size-calculator.vue). New canonical URL: **`/roller-skates-size-calculator`** (see § 9).
 
 **Current MVP gap ledger**:
-- Product candidates currently come from the single backend, but destination URLs still need a resolver that chooses `.ca` permalink vs `.com` product URL by region.
+- Product candidates currently come from the single backend, but destination URLs still need a resolver that chooses `.ca` permalink vs `.com` product URL from the shopper's explicit storefront selection.
+- Replace the MVP's IP/Cloudflare-region detection with a first-screen storefront selector: Canada, USA, or International.
 - The MVP dataset is intentionally small; the chart assets and backend catalog need to be extracted into a fuller reviewable dataset.
 - The old `/inline-skates-size-calculator` page still needs redirect/migration cleanup.
 - The spec includes a CM/Mondo input path; the MVP has MM/EU/US Men/US Women/UK and should add CM before launch.
@@ -42,9 +43,9 @@
 | Source of truth for sizing data | **Bundled JSON** under [`data/calculator-data/*.json`](../data/calculator-data/) | Matches existing patterns ([`data/brand-master-list.json`](../data/brand-master-list.json), [`data/product-routes.json`](../data/product-routes.json)). Built at compile time, prerendered, no runtime cost, version-controlled. |
 | Baseline metric | **Millimeters (integer)** | Per spec § 1. All conversion math hits mm before lookup. |
 | Commerce backend truth | **One USD WooCommerce / WordPress backend** | The `.ca` site is the modern headless Canadian storefront with CAD conversion, Cloudflare/KV caching, and SEO-friendly permalinks. It is not a second product database. Product identity, images, attributes, and stock signals come from the existing backend unless a build-time cache already contains the same normalized record. |
-| Geo detection | **Cloudflare `CF-IPCountry` request header via `/api/region.json`** | Free on Cloudflare Pages. Region affects only the outbound storefront URL for the "Click to find price" button. It must not alter sizing math or show price in the calculator. |
-| Product URL resolver | **Resolve candidates once, choose destination URL by region** | Product cards can be found from backend GraphQL or from a generated/search/KV catalog derived from that backend. Canadian users should click to the `.ca` SEO permalink when available. US/international users should click to the `.com` product URL. Missing `.ca` mappings degrade to a logged fallback, not a dead end. |
-| Price display | **Always hidden**. "Click to find price" badge → `target="_blank"` to geo-resolved product URL. | Per spec § 3. Even though GraphQL can return price, we deliberately suppress it in our render — price reveals on the destination store. |
+| Storefront selection | **User-selected flag, not IP tracking** | The calculator starts with a simple Canada / USA / International choice. This avoids fragile visitor-IP logic and keeps Cloudflare headers away from cart/session/add-to-cart behavior. The choice affects only the outbound "Click to find price" href. |
+| Product URL resolver | **Resolve candidates once, choose destination URL by selected storefront** | Product cards can be found from backend GraphQL or from a generated/search/KV catalog derived from that backend. Canada should click to the `.ca` SEO permalink when available. USA and International should click to the `.com` product URL. Missing `.ca` mappings degrade to a logged fallback, not a dead end. |
+| Price display | **Always hidden**. "Click to find price" badge → `target="_blank"` to the selected storefront URL. | Per spec § 3. Even though GraphQL can return price, we deliberately suppress it in our render — price reveals on the destination store. |
 | Calculator URL | **`/roller-skates-size-calculator`** (new canonical). Slug parameterized so it can be changed again without component rewrite. Old `/inline-skates-size-calculator` 301s to new. | Per Q2 answer. Targets "roller skates size calculator" keyword. Page is a thin route shell that consumes the `SizeCalculator/Calculator.vue` component, so slug ≠ implementation. |
 | Layer | **Root layer** (NOT `woonuxt_base/`) | Project rule #1: never modify base. New components live in root [`components/`](../components/) and [`pages/`](../pages/). |
 | State management | **Single page-scoped composable** `useCalculator()` (no global state — calculator session dies on tab close, by design per spec § 3 "Tab State Persistence"). | Matches existing useState pattern from CLAUDE.md. |
@@ -213,7 +214,7 @@ Already in repo:
    - XLSX: parse directly with a Node script.
    - PDF: try text/table extraction first; use page screenshots plus AI vision only where text extraction fails.
    - JPG/PNG: use AI vision to identify headers, rows, units, size ranges, and foot-length columns.
-3. **Write normalized draft JSON/CSV per brand** under a generated review folder. Keep source file name, page/image region, confidence, and notes per row so a human can audit where each value came from.
+3. **Write normalized draft JSON/CSV per brand** under a generated review folder. Keep source file name, page/image area, confidence, and notes per row so a human can audit where each value came from.
 4. **Run a validation script** over extracted rows: required mm values, no overlapping target ranges, monotonic size progression, no impossible jumps, category enums valid, width profile present.
 5. **Build a coverage matrix**: brand x size range covered x fields available (mm? cm/mondo? EU? US Men? US Women? UK? width? source confidence?). This is the punch list for the client sheet.
 6. **Width profile audit**: for each carried brand, document narrow/average/wide based on chart notes, official copy, product descriptions, or PSP retail knowledge. This populates `widthProfile`.
@@ -296,48 +297,61 @@ Integrates into [`package.json`](../package.json) build chain alongside the exis
 
 ---
 
-## 6. Phase 2 — Geo-Detection Infrastructure
+## 6. Phase 2 - Storefront Selector
 
 ### 6.1 The constraint
 
-The calculator page is **prerendered at build time** ([`nuxt.config.ts:271`](../nuxt.config.ts#L271)), so its HTML is identical for every user — there's no per-request SSR pass to read `CF-IPCountry` from. Region must be resolved **on the client after hydration**, before any "Click to find price" link can be clicked.
+The calculator must send shoppers to the correct storefront, but it should not infer that choice from visitor IP, Cloudflare headers, or request middleware. Earlier IP-based visitor tracking created risk for unrelated storefront behavior, including cart/add-to-cart flows. The calculator should instead ask the shopper directly at the beginning.
 
 ### 6.2 The mechanism
 
-Two new files:
+Add a first-screen storefront selector before the sizing flow:
 
-- **`server/api/region.json.get.ts`** — a tiny Nitro API route. Reads the `CF-IPCountry` header from the incoming request, returns `{ countryCode: 'CA' | 'US' | ... }`. This endpoint is **not prerendered** — it executes per request on the edge, so the header is always fresh. In dev (no header), defaults to `'CA'`.
-- **`composables/useRegion.ts`** — exposes `useRegion()`. On mount, fires a single `$fetch('/api/region.json')`, memoizes the result in a `useState('region', ...)`, and exposes a reactive `region` object. Subsequent calls in the same session hit the cache, no re-fetch.
+- Canada
+- USA
+- International
 
-Existing [`server/middleware/forward-client-ip.ts`](../server/middleware/forward-client-ip.ts) handles IP forwarding for other purposes — unchanged.
+Use familiar flag icons or compact country labels. This is a storefront preference, not a legal residency check. The selector should include a small "Change" control near the final recommendation so a shopper can switch destinations without restarting the sizing math.
 
-### 6.3 Why not a third-party IP API?
-- Adds an external runtime dependency.
-- Cloudflare's `CF-IPCountry` is free, sub-millisecond at the edge, and as accurate as commercial GeoIP databases.
+Implementation notes:
+- Persist the choice in page state and optionally `localStorage` for the next calculator visit.
+- Default to Canada only as a UI default, not as an inferred country.
+- Do not read or write cart cookies, WooCommerce session headers, checkout state, or global visitor-tracking state.
+- Do not depend on `CF-IPCountry`, forwarded IP middleware, or `/api/region.json` for calculator link routing.
 
-### 6.4 The composable contract
+### 6.3 The composable contract
 
 ```ts
-interface Region {
-  countryCode: string;        // 'CA', 'US', 'GB', etc.
-  isCanadian: boolean;
-  storeBaseUrl: string;       // 'https://proskatersplace.ca' | 'https://proskatersplace.com'
-  graphqlEndpoint: string;    // `${storeBaseUrl}/graphql`
-  loading: boolean;           // true until /api/region.json resolves
+type StorefrontChoice = 'canada' | 'usa' | 'international';
+
+interface StorefrontSelection {
+  choice: StorefrontChoice;
+  label: 'Canada' | 'USA' | 'International';
+  productHost: 'https://proskatersplace.ca' | 'https://proskatersplace.com';
+  usesCanadianPermalinks: boolean;
 }
 
-const region = useRegion();   // reactive, auto-fetched on first call
+const storefront = useStorefrontSelection();
 ```
 
-`storeBaseUrl` resolves to `.ca` only when `countryCode === 'CA'`. Everyone else (US + international) gets `.com`.
+Routing:
+- `canada` -> prefer `.ca` product permalink.
+- `usa` -> use `.com` product URL.
+- `international` -> use `.com` product URL.
 
-### 6.5 The 1-RTT delay
+The GraphQL/catalog candidate source remains the single backend or a generated catalog from that backend. The storefront choice only changes which outbound URL the product card uses.
 
-There's a ~30-100ms window between page hydration and `/api/region.json` resolving. During that window, "Click to find price" links should be either:
-- **Disabled** with a subtle "Detecting region..." indicator (cleaner UX), OR
-- **Pre-rendered with `storeBaseUrl = '.ca'`** and live-updated when region resolves (faster apparent UX, but a US user clicking in that ~30ms window would briefly land on `.ca`).
+### 6.4 UI placement
 
-Recommendation: **disabled-during-load**. The user can't reach Step 6 (where price-reveal lives) in under several seconds anyway, so the region call has long completed by the time it matters. Loading state matters only for the rare back-button case.
+The selector can be Step 0 or the first panel inside Step 1. It should appear before reference-category selection so the shopper understands why the final product links may open `.ca` or `.com`.
+
+Recommended copy:
+- "Where do you want product links to open?"
+- Canada
+- USA
+- International
+
+Avoid language like "detecting your location" or "tracking your region." The user is choosing a storefront destination.
 
 ---
 
@@ -353,6 +367,7 @@ pages/
 components/
   SizeCalculator/
     Calculator.vue                     # Top-level orchestrator. Owns step state.
+    Step0StorefrontSelector.vue        # Canada / USA / International product-link destination choice
     Step1ReferenceCategory.vue         # 4 cards: Inline / Roller / Ice / Sports Shoes
     Step2ReferenceBrand.vue            # Dropdown filtered by Step 1 selection
     Step3SizeInput.vue                 # 5-field mutually-exclusive input
@@ -364,13 +379,9 @@ components/
 
 composables/
   useCalculator.ts                     # Step state, mm conversion, brand lookup, validation
-  useRegion.ts                         # (Phase 2)
+  useStorefrontSelection.ts            # User-selected storefront destination; replaces IP/CF region detection
   useCalculatorProducts.ts             # Candidate lookup or generated product-link map read
   useCalculatorProductLinks.ts         # Preferred Phase 4 resolver for .ca/.com href selection
-
-server/
-  api/
-    region.json.get.ts                 # (Phase 2) Returns { countryCode } from CF-IPCountry header
 
 types/
   calculator-data.ts                   # AUTO-GENERATED by scripts/build-calculator-data.js (do not edit)
@@ -387,7 +398,8 @@ The calculator is a 6-step linear funnel with backtracking. State shape:
 
 ```ts
 interface CalculatorState {
-  step: 1 | 2 | 3 | 4 | 5 | 6;
+  step: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  storefrontChoice: 'canada' | 'usa' | 'international' | null;
   referenceCategory: ReferenceCategory | null;
   referenceBrandId: string | null;
   inputs: {
@@ -439,9 +451,9 @@ There is one WooCommerce / WordPress backend, and it is USD-oriented. The `.ca` 
 For the calculator, that means:
 - Product identity comes from the single backend or from build/KV/search artifacts generated from that backend.
 - The calculator card shows product image, product name, and a button only.
-- The button destination depends on the shopper's detected region:
+- The button destination depends on the shopper's selected storefront:
   - Canada -> `.ca` product permalink when the headless route map has one.
-  - US/international -> `.com` backend product URL.
+  - USA/International -> `.com` backend product URL.
 - The calculator never shows price, currency, exchange rate, cart state, or checkout state.
 
 ### 8.2 Product candidate sources
@@ -494,8 +506,8 @@ Step 6 should not build URLs by concatenating `storeBaseUrl + /product/ + slug` 
 Expected shape:
 
 ```ts
-function resolveCalculatorHref(product: CalculatorProductLink, region: string) {
-  if (region === 'CA') {
+function resolveCalculatorHref(product: CalculatorProductLink, storefront: StorefrontChoice) {
+  if (storefront === 'canada') {
     return product.caPath
       ? `https://proskatersplace.ca${product.caPath}`
       : product.comPath
@@ -533,8 +545,8 @@ The product-link flow can fail in several ways. Each needs an explicit UI state:
 
 | Failure | UI behavior |
 |---|---|
-| `/api/region.json` has not resolved yet | Step 6 product grid shows skeleton placeholders; price-reveal buttons disabled |
-| Backend GraphQL request times out or returns 5xx | Show "Live product data unavailable" with a region-appropriate brand/category browse link |
+| Storefront is not selected | Keep the product grid hidden and ask the shopper to choose Canada, USA, or International |
+| Backend GraphQL request times out or returns 5xx | Show "Live product data unavailable" with a selected-storefront brand/category browse link |
 | No matching products for the selected size | Show "No live results for size {recommendedLabel}" with a browse-all link for the target brand/category |
 | `.ca` URL mapping missing for a Canadian shopper | Use `.ca` brand/category fallback first; log the miss. Use `.com` product link only if that is the only real product destination available |
 | Image URL is missing or 404s | Render a placeholder; broken images must not block click-through |
@@ -588,7 +600,7 @@ Trade-off: pointing en-US hreflang at our `.ca` URL means Google may show the `.
 1. Ship the new page on a staging branch / preview deployment first.
 2. Internal QA: smoke-test every reference category, a sampling of brands per category, every target brand, and at least one size at each end of each brand's range.
 3. Verify all five analytics events fire correctly (see § 11.3) on staging.
-4. Verify `/api/region.json` returns correct `countryCode` from at least one Canadian and one non-Canadian VPN.
+4. Verify the storefront selector defaults cleanly, can be changed without losing the calculator state, persists only as a storefront preference, and never touches cart/session/add-to-cart behavior.
 5. Soft-launch: deploy new URL, leave old URL **NOT yet redirected** for 24h to compare analytics baseline.
 6. Hard-cutover: enable the 301 from old to new in `nuxt.config.ts` routeRules.
 7. Resubmit sitemap to Google Search Console; monitor Coverage report for 2 weeks.
@@ -626,11 +638,11 @@ Current page uses [`/images/inline-skates-size-calculator.jpg`](../public/images
 
 | # | Question | Resolution |
 |---|---|---|
-| Q1 | Cross-domain product linking | Query or cache product candidates from the single USD Woo backend, then resolve the outbound button URL by region: `.ca` SEO permalink for Canadian shoppers when mapped, `.com` product URL for US/international shoppers (see § 8) |
+| Q1 | Cross-domain product linking | Query or cache product candidates from the single USD Woo backend, then resolve the outbound button URL from the shopper's explicit storefront choice: `.ca` SEO permalink for Canada when mapped, `.com` product URL for USA/International (see § 8) |
 | Q2 | New calculator URL | `/roller-skates-size-calculator` + 301 from old. Slug treated as config (see § 9.1) |
 | Q3 | Reference-brand dropdown lists | Pre-populate proposed § 5.2 lists in the Sheet; client edits/extends during Phase 1 review |
 | Q4 | Google Sheet access | **Public CSV export URL** — Sheet set to "anyone with link can view", build script reads via the exported CSV link. No OAuth, no credentials. **Sheet URL provided**: see § 13 |
-| Q5 | Geo resolution | Frontend hydration call to `/api/region.json`; region changes only the outbound storefront link, not product lookup math or price display |
+| Q5 | Storefront choice | No IP/Cloudflare/header-based detection. The first screen asks the shopper to choose Canada, USA, or International. That choice changes only the outbound product link, not sizing math, product lookup, cart, or price display. |
 | Q6 | Size not in reference table | **Snap to nearest table row + show warning** — e.g. _"Snapped to EU 42 — your entered size was between charted values"_. User sees the snap and can adjust |
 | Q7 | Sample products source | Live backend GraphQL for MVP, with a build-time catalog/search-KV resolver as the preferred hardened launch path |
 | Q8 | Localization at launch | **English-only v1**. French (fr-CA) is a Phase 1.5 follow-up. UI string count is small (~30); retrofit is cheap. Calculator page still emits hreflang via `useCanadianSEO()` even before French content exists |
@@ -656,9 +668,10 @@ All four event categories tracked. Use existing analytics layer (confirm wiring 
 | `calc_reference_selected` | Step 2 brand chosen | `{ category, brandId, brandName }` |
 | `calc_target_selected` | Step 5 brand chosen | `{ intent, brandId, brandName, resolvedMm }` |
 | `calc_recommendation` | Step 6 result rendered | `{ referenceBrandId, referenceSize, resolvedMm, targetBrandId, recommendedLabel }` |
-| `calc_price_reveal_click` | "Click to find price" badge clicked | `{ region, storeBaseUrl, targetBrandId, productSlug }` |
+| `calc_storefront_selected` | Shopper chooses Canada, USA, or International | `{ storefrontChoice }` |
+| `calc_price_reveal_click` | "Click to find price" badge clicked | `{ storefrontChoice, storeBaseUrl, targetBrandId, productSlug }` |
 
-Privacy note: no PII in any payload. Brand IDs and millimeter values only.
+Privacy note: no PII in any payload. The storefront choice is user-selected and must not include IP address, inferred location, cart session, or checkout identifiers.
 
 ---
 
@@ -669,7 +682,7 @@ Privacy note: no PII in any payload. Brand IDs and millimeter values only.
 | 0 | Planning (this doc) + client sign-off | ✅ done (in review) |
 | 0.5 | **Q10 + Q11 + Q12 technical audits** | 0.5-1 day |
 | 1 | Chart extraction + backend catalog pull + Sheet scaffold + import script | **3-6 dev days** + client mm/fit review turnaround |
-| 2 | `/api/region.json` + `useRegion()` composable | 0.5 day |
+| 2 | Storefront selector + `useStorefrontSelection()` composable | 0.5 day |
 | 3 | Component rewrite (6 step components + state machine) | 3-4 days |
 | 4 | Product candidate resolver + `.ca` URL map + PriceRevealCard + error states + miss reports | 1.5-2.5 days |
 | 5 | Migration + SEO + a11y + OG asset + launch | 1 day |
@@ -689,10 +702,10 @@ Privacy note: no PII in any payload. Brand IDs and millimeter values only.
 - **PRD / spec / UX flow**: [`docs/size-calulator-2-upgrade.md`](./size-calulator-2-upgrade.md) — June 2026 user path is canonical
 - **Client Google Sheet (data entry)**: [Master Sizing Sheet](https://docs.google.com/spreadsheets/d/1j4XDYpStEpGmhGGlV9aTJmL9BD3iQfBCk0IwRsx_LNg/edit?usp=sharing) — two tabs (Reference Brands + Carried Brands), public-read CSV exports feed the importer
 - **Current MVP implementation**: `pages/roller-skates-size-calculator.vue`, `components/SizeCalculator/`, `composables/useCalculator.ts`, `composables/useRegion.ts`, and `composables/useCalculatorProducts.ts`
+- **Launch correction**: replace `useRegion.ts` / `/api/region.json` calculator usage with `useStorefrontSelection()` and a Canada / USA / International selector. Keep IP middleware out of the calculator flow.
 - **Legacy implementation / migration target**: `pages/inline-skates-size-calculator.vue` — to be redirected or removed during Phase 5
 - **Raw sizing chart source files**: [`data/calculator-data/`](../data/calculator-data/) — 17 files
 - **Existing JSON patterns**: [`data/brand-master-list.json`](../data/brand-master-list.json), [`data/product-routes.json`](../data/product-routes.json)
 - **Routing reference**: [`pages/search.vue`](../pages/search.vue)
 - **SEO composable**: [`composables/useCanadianSEO.ts`](../composables/useCanadianSEO.ts)
-- **IP middleware reference**: [`server/middleware/forward-client-ip.ts`](../server/middleware/forward-client-ip.ts)
 - **Build config**: [`nuxt.config.ts`](../nuxt.config.ts) (route rules at L246-L275)
