@@ -127,3 +127,36 @@ If the system detects they are browsing from Canada, a new browser tab opens dir
 If they are browsing from the US or Internationally, that new tab opens up the search results on proskatersplace.com.
 
 Result: The user checks the price and checks out in their local currency, while the primary calculator tab remains completely intact on their screen so they don't lose their metrics.
+
+## Implementation Addendum - Current Storefront Architecture
+
+This addendum supersedes the older routing language above where it implies two independent WooCommerce backends or generic search-result redirects.
+
+### One Backend, Two Storefront Destinations
+
+ProSkaters Place currently has one WooCommerce/WordPress backend, and that backend is USD-oriented. The `.ca` experience is a headless Canadian storefront built for CAD presentation, speed, cacheability, and stronger Canadian SEO/permalink coverage. The calculator should therefore stay country-agnostic for sizing math and country-aware only at the final product-link step.
+
+Required behavior:
+- Do not show prices in the calculator.
+- Use the backend or a generated catalog from the backend to identify matching product cards.
+- If the shopper is in Canada, the "Click to find price" button should prefer the `.ca` product permalink from the headless route/search/KV map.
+- If the shopper is in the US or international, the button should use the `.com` product URL from the backend slug.
+- If a precise `.ca` product link cannot be mapped, fall back to a `.ca` brand/category page first, then to the `.com` product URL only when that is the only real product destination.
+
+The card remains simple: product image, product name, and a button labeled "Click to find price." The destination storefront owns price, currency, cart, and checkout.
+
+### Data Extraction And Sheet Fill Plan
+
+The client is working through millimeter values in the Google Sheet, but engineering should prefill as much as possible from existing assets and backend data.
+
+Extraction phases:
+1. Inventory every sizing asset by brand, file type, chart quality, and target category.
+2. Parse spreadsheet assets directly.
+3. Use PDF text/table extraction first; use page images plus AI vision only where table extraction fails.
+4. Use AI vision for JPG/PNG charts to identify headers, rows, units, size ranges, and width/fit notes.
+5. Store extracted rows as reviewable JSON/CSV with source file, confidence, and notes.
+6. Validate rows for required mm values, monotonic sizing, no overlapping carried-brand ranges, and valid category enums.
+7. Query the backend for product names, slugs, SKUs, categories, manufacturer/brand terms, size attribute values, image URLs, and stock/visibility status.
+8. Match backend products to `.ca` product routes using database ID, SKU, slug, then normalized name.
+9. Prefill the Google Sheet from extracted data so client review focuses on corrections, missing mm values, and fit nuance.
+10. Emit miss reports for unmapped chart rows, product URLs, and questionable AI-vision extraction rows.

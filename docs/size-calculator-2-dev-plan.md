@@ -3,9 +3,16 @@
 > **Companion to** [`size-calulator-2-upgrade.md`](./size-calulator-2-upgrade.md) (the PRD / spec doc).
 > That doc defines _what_ we're building. This doc defines _how_ — phase by phase, file by file, grounded in this codebase's actual architecture.
 
-**Status**: Planning complete. No code written yet. All client decisions resolved (§ 11.1). Two dev-owned technical audits remain (§ 11.2). Ready for Phase 1 kickoff after audits.
+**Status**: Stage 6 MVP exists in code, but this plan is being realigned to the real commerce architecture before launch. The calculator should be treated as country-agnostic for sizing math, with country-aware outbound product links only. The remaining work is data completion, chart extraction, URL-resolution hardening, routing cleanup, and QA.
 
 **Location**: Lives on `proskatersplace.ca`. Replaces the current single-page calculator at [`/inline-skates-size-calculator`](../pages/inline-skates-size-calculator.vue). New canonical URL: **`/roller-skates-size-calculator`** (see § 9).
+
+**Current MVP gap ledger**:
+- Product candidates currently come from the single backend, but destination URLs still need a resolver that chooses `.ca` permalink vs `.com` product URL by region.
+- The MVP dataset is intentionally small; the chart assets and backend catalog need to be extracted into a fuller reviewable dataset.
+- The old `/inline-skates-size-calculator` page still needs redirect/migration cleanup.
+- The spec includes a CM/Mondo input path; the MVP has MM/EU/US Men/US Women/UK and should add CM before launch.
+- Official sizing URLs are supported by the UI but are not populated in the current generated reference data.
 
 ---
 
@@ -13,7 +20,7 @@
 
 ### Goals
 1. Convert any user-known footwear size (from their existing skates or shoes) into an absolute **millimeter baseline**, then match that baseline against a brand-specific catalog table to produce a recommended skate size.
-2. Serve **both** Canadian and US/international traffic from the `.ca` host without forcing US users to view CAD pricing — by deferring all price reveal to the destination store via search-URL routing.
+2. Serve **both** Canadian and US/international traffic from the `.ca` host without forcing the wrong storefront or currency. The calculator does not show price; it resolves a product card and sends the shopper to the correct `.ca` or `.com` product page where the local storefront owns price display.
 3. Establish a **data-driven, client-editable** brand reference + carried-brand catalog so the source of truth lives outside the component code.
 4. Maintain prerender + KV cache compatibility (current calculator is prerendered with a 7-day cache — see [`nuxt.config.ts:271-274`](../nuxt.config.ts#L271-L274)).
 5. Preserve current page's SEO equity (rankings, backlinks) through controlled URL migration.
@@ -24,7 +31,7 @@
 - ❌ Real-time price lookup / cross-store inventory sync. Calculator never shows prices.
 - ❌ Account-bound size profile persistence (no user accounts hit).
 - ❌ Category archive page mega-menu redesign — flagged in spec doc § "Side Action Item" as a separate workstream (see § 10 below).
-- ❌ Adding US-store product data to the `.ca` repo. Cross-store linking is **live WPGraphQL** against the destination store's endpoint — no product mirroring, no shared database.
+- ❌ Adding a second product backend or trying to synchronize live currency/inventory in the calculator. The USD WooCommerce backend remains the product source of truth; the `.ca` headless layer owns Canadian SEO URLs and CAD presentation.
 
 ---
 
@@ -34,8 +41,9 @@
 |---|---|---|
 | Source of truth for sizing data | **Bundled JSON** under [`data/calculator-data/*.json`](../data/calculator-data/) | Matches existing patterns ([`data/brand-master-list.json`](../data/brand-master-list.json), [`data/product-routes.json`](../data/product-routes.json)). Built at compile time, prerendered, no runtime cost, version-controlled. |
 | Baseline metric | **Millimeters (integer)** | Per spec § 1. All conversion math hits mm before lookup. |
-| Geo detection | **Cloudflare `CF-IPCountry` request header** | Free on Cloudflare Pages (this site's hosting platform). Server-side, no third-party API, no client-side delay. Cached-friendly. |
-| Cross-domain routing | **WPGraphQL product lookup** on both stores → open direct `${storeBaseUrl}/product/{slug}` in new tab. No `?s=` search URLs. | Per Q1 answer. Real product data (title, image, slug) — better UX than a search-results landing page. Both stores expose WPGraphQL. Frontend-only, no server proxy. |
+| Commerce backend truth | **One USD WooCommerce / WordPress backend** | The `.ca` site is the modern headless Canadian storefront with CAD conversion, Cloudflare/KV caching, and SEO-friendly permalinks. It is not a second product database. Product identity, images, attributes, and stock signals come from the existing backend unless a build-time cache already contains the same normalized record. |
+| Geo detection | **Cloudflare `CF-IPCountry` request header via `/api/region.json`** | Free on Cloudflare Pages. Region affects only the outbound storefront URL for the "Click to find price" button. It must not alter sizing math or show price in the calculator. |
+| Product URL resolver | **Resolve candidates once, choose destination URL by region** | Product cards can be found from backend GraphQL or from a generated/search/KV catalog derived from that backend. Canadian users should click to the `.ca` SEO permalink when available. US/international users should click to the `.com` product URL. Missing `.ca` mappings degrade to a logged fallback, not a dead end. |
 | Price display | **Always hidden**. "Click to find price" badge → `target="_blank"` to geo-resolved product URL. | Per spec § 3. Even though GraphQL can return price, we deliberately suppress it in our render — price reveals on the destination store. |
 | Calculator URL | **`/roller-skates-size-calculator`** (new canonical). Slug parameterized so it can be changed again without component rewrite. Old `/inline-skates-size-calculator` 301s to new. | Per Q2 answer. Targets "roller skates size calculator" keyword. Page is a thin route shell that consumes the `SizeCalculator/Calculator.vue` component, so slug ≠ implementation. |
 | Layer | **Root layer** (NOT `woonuxt_base/`) | Project rule #1: never modify base. New components live in root [`components/`](../components/) and [`pages/`](../pages/). |
@@ -121,10 +129,34 @@ Used to translate a millimeter baseline into a recommended size for a specific s
 - `widthDisclaimer`: per-brand override. Long text. Rendered verbatim under the recommended size.
 - `sizeRanges[]`: every range must satisfy `mmMin <= mmMax`. Ranges within a brand **must not overlap** — importer enforces this.
 - `recommendedLabel`: human-readable string shown to user (e.g. `"EU 42 / US 9"`).
-- `graphqlLookup`: the keys used to find this brand's products via WPGraphQL on either store. `productAttributeBrandSlug` matches WooCommerce's `pa_brand` taxonomy slug; `categorySlug` matches the product category. **Both stores must use the same slugs** for this to work cross-domain — confirm in Phase 1.5 audit.
+- `graphqlLookup`: the keys used to find this brand's products in the single WooCommerce backend or in a cache generated from that backend. `productAttributeBrandSlug` matches the backend manufacturer/brand taxonomy slug; `categorySlug` matches the backend product category used for candidate filtering. The `.ca` click URL is resolved later from the headless permalink map/search cache, not by querying a second `.ca` GraphQL backend.
 - `sizeAttributeValue`: the WooCommerce `pa_size` (or equivalent size attribute) value to filter by when fetching products at this range. Used in the GraphQL `where: { attributes: [...] }` clause.
 
-### 3.3 Generated TypeScript types
+### 3.3 Product link resolver data
+
+Step 6 needs product cards, not prices. The normalized card record should carry enough information to render the card and send the shopper to the right storefront:
+
+```ts
+interface CalculatorProductLink {
+  backendId: string;
+  sku?: string;
+  name: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  backendSlug: string;
+  caPath?: string;
+  comPath: string;
+  source: 'graphql' | 'kv_catalog' | 'search_cache';
+}
+```
+
+Resolution rules:
+- `comPath` is normally `/product/{backendSlug}` from the WooCommerce backend.
+- `caPath` should come from the `.ca` generated product route map, sitemap data, cached product catalog, or search/KV index. This preserves the Canadian high-speed permalink structure and SEO coverage.
+- If a Canadian `caPath` is missing, log the miss and fall back in this order: known `.ca` product slug, matching brand/category page, then `.com` product page. The button should always lead somewhere useful.
+- The calculator never stores or renders price from this record.
+
+### 3.4 Generated TypeScript types
 
 A build step emits `types/calculator-data.ts` from these JSON files so the calculator component has typed access. Single source of truth = the JSON.
 
@@ -136,8 +168,8 @@ A build step emits `types/calculator-data.ts` from these JSON files so the calcu
 - [x] Architecture decisions locked (§ 2)
 - [x] Data schema drafted (§ 3)
 - [x] Client decisions Q1–Q9 resolved (§ 11.1)
-- [ ] Q10 CORS audit complete (§ 11.2) — **blocking Phase 4**
-- [ ] Q11 slug-parity audit complete (§ 11.2) — **blocking Phase 1 Sheet structure** (a slug mismatch adds 2 columns to Tab 2)
+- [x] Q10 CORS audit complete for the real backend (§ 11.2) — `.com` GraphQL allows requests from `.ca`
+- [ ] Q11 `.ca` URL-map audit complete (§ 11.2) — **blocking Phase 4 URL resolver** (confirms which generated/KV/search artifact is the best source for Canadian product permalinks)
 - [ ] PSP sign-off on the June 2026 user path in the spec doc
 - [ ] Phase 1 (data sift) kicked off
 
@@ -145,9 +177,11 @@ A build step emits `types/calculator-data.ts` from these JSON files so the calcu
 
 ## 5. Phase 1 — Data Sift & Schema Population
 
-This phase has **two streams running in parallel**:
-- **Stream A — Carried brands** (what PSP sells). Source: the 17 existing files in [`data/calculator-data/`](../data/calculator-data/).
-- **Stream B — Reference brands** (what users own). Source: client-provided Google Sheet for skate brands + curated sports-shoe brand list compiled by us.
+This phase has **four streams running in parallel**:
+- **Stream A - chart extraction**: extract every usable size row from the 17 image/PDF/XLSX chart assets already in the repo.
+- **Stream B - backend catalog enrichment**: query the single WooCommerce backend to pull product names, slugs, SKUs, categories, manufacturer terms, size attribute values, image URLs, and stock visibility for calculator candidate matching.
+- **Stream C - `.ca` permalink mapping**: match backend product identity to the headless `.ca` product path from generated route data, sitemap data, cached product data, or the search/KV index.
+- **Stream D - client sheet completion**: PSP/client fills or reviews the mm values and fit notes in the Google Sheet. The app must not wait on manual entry for data we can extract from charts or backend records ourselves.
 
 ### 5.1 Stream A — Audit existing 17 chart files
 
@@ -174,10 +208,19 @@ Already in repo:
 | USD Sizing Chart.jpg | Inline | carried-brands |
 
 **Work items**:
-1. **Transcribe each chart** (image OCR + manual verification) into a row-per-size CSV per brand. Store transcriptions under `data/calculator-data/_transcribed/{brand}.csv` — kept in repo as audit trail.
-2. **Build a coverage matrix**: brand × size range covered × fields available (mm? EU? US? width?). Goal: identify gaps before sending to client.
-3. **Width profile audit**: for each carried brand, document narrow/average/wide based on chart notes or our retail experience. This populates `widthProfile`.
-4. **Disclaimer authoring**: 1-3 sentences of "this brand fits X" text per carried brand. Pulled from current brand-master copy where possible.
+1. **Inventory each chart asset** with file type, brand, product category, likely table orientation, and extraction method (`xlsx`, PDF table/text, image OCR, or vision). This becomes the extraction manifest.
+2. **Extract machine-readable rows**:
+   - XLSX: parse directly with a Node script.
+   - PDF: try text/table extraction first; use page screenshots plus AI vision only where text extraction fails.
+   - JPG/PNG: use AI vision to identify headers, rows, units, size ranges, and foot-length columns.
+3. **Write normalized draft JSON/CSV per brand** under a generated review folder. Keep source file name, page/image region, confidence, and notes per row so a human can audit where each value came from.
+4. **Run a validation script** over extracted rows: required mm values, no overlapping target ranges, monotonic size progression, no impossible jumps, category enums valid, width profile present.
+5. **Build a coverage matrix**: brand x size range covered x fields available (mm? cm/mondo? EU? US Men? US Women? UK? width? source confidence?). This is the punch list for the client sheet.
+6. **Width profile audit**: for each carried brand, document narrow/average/wide based on chart notes, official copy, product descriptions, or PSP retail knowledge. This populates `widthProfile`.
+7. **Disclaimer authoring**: 1-3 sentences of "this brand fits X" text per carried brand. Pull from current brand-master copy where possible, then flag uncertain brands for client review.
+8. **Backend catalog pull**: query the WooCommerce GraphQL backend for calculator-scope products only (`inline_skates`, `roller_skates`, `ski_boots`) and store a generated catalog with `databaseId`, `sku`, `name`, `slug`, `manufacturer/brand`, `size attribute values`, `categories`, `stockStatus`, and image.
+9. **`.ca` route match**: join the backend catalog to `.ca` route/search data by stable keys in this order: `databaseId` if present, SKU, exact slug, normalized name. Output `caPath` confidence and misses.
+10. **Sheet sync**: prefill the Google Sheet from extracted/validated data; client work should focus on mm corrections, fit nuance, and edge cases rather than manual transcription from scratch.
 
 ### 5.2 Stream B — Reference brands the user owns
 
@@ -219,8 +262,8 @@ The Sheet ([linked](https://docs.google.com/spreadsheets/d/1j4XDYpStEpGmhGGlV9aT
 | Product Category | ✅ | dropdown | enum: `inline_skates` \| `roller_skates` \| `ski_boots` |
 | Width Profile | ✅ | dropdown | enum: `narrow` \| `average` \| `wide` |
 | Width Disclaimer Text | optional | long text | Per-brand override; if blank, default from Width Profile |
-| GraphQL Brand Slug | ✅ | text | WP `pa_brand` taxonomy slug (e.g. `fr-skates`). **Pending Q11 audit** — if slugs differ between `.ca` and `.com`, this becomes two columns: "GraphQL Brand Slug (CA)" + "GraphQL Brand Slug (COM)" |
-| GraphQL Category Slug | ✅ | text | WP product category slug (e.g. `inline-skates`). Same Q11 caveat — may split into two columns |
+| GraphQL Brand Slug | ✅ | text | Single backend manufacturer/brand taxonomy slug used to find product candidates. This is not a `.ca` vs `.com` split. |
+| GraphQL Category Slug | ✅ | text | Single backend product category slug used to constrain product candidates. The `.ca` destination URL is resolved from the product-link map, not from this field. |
 | mm Min | ✅ | integer | Start of the size range |
 | mm Max | ✅ | integer | End of the size range. Must satisfy `mmMin ≤ mmMax`; ranges within a brand must not overlap |
 | Recommended Label | ✅ | text | Human-readable size shown to user (e.g. `EU 42 / US 9`) |
@@ -229,6 +272,8 @@ The Sheet ([linked](https://docs.google.com/spreadsheets/d/1j4XDYpStEpGmhGGlV9aT
 Both tabs use Sheet's **Data Validation** dropdowns for enum columns. Dropdown values must match the JSON enums **exactly** (lowercase, underscore-separated).
 
 We pre-populate the Sheet with everything we transcribe from Stream A so the client only fills **gaps**, not the full table.
+
+Product-card URLs do **not** belong in the manual sizing sheet unless a product needs an override. They are generated from the backend catalog and `.ca` route/search cache so the sheet stays focused on sizing truth. If an override is needed, add a third optional tab, **Product Link Overrides**, with `sku`, `backendSlug`, `caPath`, `comPath`, and `reason`.
 
 ### 5.4 Sheet → JSON conversion script
 
@@ -315,15 +360,13 @@ components/
     Step5TargetBrand.vue               # Carried brand dropdown filtered by Step 4 intent
     Step6Output.vue                    # Recommended size + width disclaimer + product grid
     PriceRevealCard.vue                # Single sample-product card with "Click to find price" CTA
-    BrandSizingLink.vue                # Outbound trust link (used in Step 2)
+    BrandSizingLink.vue                # Optional extraction if Step 2 trust link needs reuse
 
 composables/
   useCalculator.ts                     # Step state, mm conversion, brand lookup, validation
   useRegion.ts                         # (Phase 2)
-  useCalculatorData.ts                 # Loads + memoizes the two JSON files
-
-queries/
-  getCalculatorProducts.gql            # WPGraphQL query for Step 6 product grid (Phase 4)
+  useCalculatorProducts.ts             # Candidate lookup or generated product-link map read
+  useCalculatorProductLinks.ts         # Preferred Phase 4 resolver for .ca/.com href selection
 
 server/
   api/
@@ -331,7 +374,11 @@ server/
 
 types/
   calculator-data.ts                   # AUTO-GENERATED by scripts/build-calculator-data.js (do not edit)
-  SampleProduct.ts                     # { name, slug, image } returned by the cross-domain GraphQL query
+  calculator-product-link.ts           # Normalized product card/link type if generated outside the composable
+
+scripts/
+  build-calculator-data.js             # Sheet -> sizing JSON
+  build-calculator-product-links.js    # Backend catalog + .ca route/search cache -> product-link map
 ```
 
 ### 7.2 State machine
@@ -383,173 +430,116 @@ Given `resolvedMm` + selected `targetBrandId`:
 
 ---
 
-## 8. Phase 4 — Cross-Domain GraphQL Resolution & Price Reveal
+## 8. Phase 4 - Product Link Resolution & Price Reveal
 
-### 8.1 The cross-domain GraphQL model
+### 8.1 The real commerce model
 
-Both stores expose WPGraphQL. The `.ca` frontend (this app) queries **whichever store's GraphQL endpoint matches the user's region** to retrieve real product cards (title, image, slug). Click opens the direct `/product/{slug}` page on that store.
+There is one WooCommerce / WordPress backend, and it is USD-oriented. The `.ca` site is a headless Canadian storefront that consumes that backend, converts/presents pricing in CAD elsewhere in the app, and builds faster SEO-focused Canadian product URLs.
 
-```
-User region (CF-IPCountry → window.__pspRegion)
-    │
-    ├─ 'CA' → query https://proskatersplace.ca/graphql
-    │         link target https://proskatersplace.ca/product/{slug}
-    │
-    └─ other → query https://proskatersplace.com/graphql
-              link target https://proskatersplace.com/product/{slug}
-```
+For the calculator, that means:
+- Product identity comes from the single backend or from build/KV/search artifacts generated from that backend.
+- The calculator card shows product image, product name, and a button only.
+- The button destination depends on the shopper's detected region:
+  - Canada -> `.ca` product permalink when the headless route map has one.
+  - US/international -> `.com` backend product URL.
+- The calculator never shows price, currency, exchange rate, cart state, or checkout state.
 
-**Critical prerequisite (Phase 1.5 audit)**:
-- The `.com` WPGraphQL endpoint must permit CORS from `proskatersplace.ca` origin.
-- Both stores must use **matching `pa_brand` and category slugs** for the lookup to resolve on either side. Mismatches → graceful "Not available on this store, [link to alt store]" fallback.
+### 8.2 Product candidate sources
 
-### 8.2 The GraphQL query
+Use whichever source is most reliable and fastest, but normalize every path into `CalculatorProductLink` from § 3.3.
 
-Base layer is read-only (CLAUDE.md rule #1), so the query goes in root [`queries/getCalculatorProducts.gql`](../queries/) (new file).
+| Source | Use | Pros | Risk |
+|---|---|---|---|
+| Live backend GraphQL | Runtime candidate lookup for selected brand + size | Fresh product names/images; already available from `.com` | Runtime dependency; must handle timeout/empty states |
+| Build-time catalog JSON | Preferred long-term source for the calculator card grid | Fast, cacheable, no runtime GraphQL delay | Needs a build script and regular refresh |
+| `.ca` search/KV/product route data | Canadian URL resolution | Preserves the headless `.ca` SEO permalink structure | Needs matching by stable ID/SKU/slug/name and miss reporting |
+| Manual override tab | Only for misses or special redirects | Gives PSP control over edge cases | Should stay small or it becomes a second catalog |
 
-**Schema audit finding**: the existing installed WPGraphQL schema (see [`woonuxt_base/app/queries/getProductsWithCursor.gql`](../woonuxt_base/app/queries/getProductsWithCursor.gql)) supports `where: { categoryIn, search, visibility, status, orderby, ... }` but **does NOT expose multi-taxonomy AND filtering** for `pa_brand` + `pa_size` in one call. To filter precisely we need to extend the schema.
+### 8.3 Backend GraphQL lookup
 
-**Two approaches** — A ships day one, B is the long-term precise solution:
+The current backend schema exposes product `attributes`, `categoryIn`, `visibility`, `status`, and related filters. A live check on May 26, 2026 showed `.com` GraphQL accepts CORS from `https://proskatersplace.ca` and supports the precise attribute filter already used by the MVP. The older custom `taxFilter` mu-plugin plan is not required unless a later backend change removes or breaks the existing attribute filter.
 
-**Approach A — `search` parameter (zero backend changes, fuzzy)**
+The runtime query should:
+- Query only the single backend endpoint.
+- Filter to calculator-scope categories: inline skates, roller skates, and ski boots.
+- Filter by manufacturer/brand and size attribute when available.
+- Return only fields needed for cards and link matching: id/databaseId, SKU, slug, name, image, categories, stock/visibility signals.
+- Never request or render price.
 
-```graphql
-query getCalculatorProducts(
-  $categorySlug: [String]
-  $search: String!
-  $first: Int = 6
-) {
-  products(
-    first: $first
-    where: {
-      categoryIn: $categorySlug
-      search: $search
-      visibility: VISIBLE
-      status: "publish"
-    }
-  ) {
-    nodes {
-      id
-      slug
-      name
-      image { sourceUrl altText }
-    }
+If live GraphQL is too slow or brittle, move this same query into a build script and serve Step 6 from generated calculator product-link JSON.
+
+### 8.4 Canadian URL resolver
+
+Canadian users should not be sent to a generic search page when a real `.ca` product page exists. The resolver should try these inputs in order:
+
+1. Generated `.ca` product route map or sitemap data.
+2. Cached products/search index in the Cloudflare/KV-backed catalog.
+3. Local generated product list files created during build.
+4. Optional Product Link Overrides sheet tab.
+5. Brand/category fallback page on `.ca`.
+
+Matching priority:
+1. Backend database ID if present in the `.ca` artifact.
+2. SKU.
+3. Exact slug.
+4. Normalized product name.
+5. Brand + category fallback.
+
+Every miss should be captured in a generated report such as `calculator-link-misses.json` so we can fix the mapping without guessing.
+
+### 8.5 Runtime URL contract
+
+Step 6 should not build URLs by concatenating `storeBaseUrl + /product/ + slug` unless the resolver has confirmed that slug is valid for the target storefront.
+
+Expected shape:
+
+```ts
+function resolveCalculatorHref(product: CalculatorProductLink, region: string) {
+  if (region === 'CA') {
+    return product.caPath
+      ? `https://proskatersplace.ca${product.caPath}`
+      : product.comPath
+        ? `https://proskatersplace.com${product.comPath}`
+        : null;
   }
+
+  return product.comPath ? `https://proskatersplace.com${product.comPath}` : null;
 }
 ```
 
-Caller passes `search: "FR Skates 42"` (concatenating `graphqlLookup.productAttributeBrandSlug` + `sizeAttributeValue` from `carried-brands.json`). Ships immediately. Risk: false positives from products whose title incidentally contains both terms.
+If this returns `null`, hide that card and show the brand/category fallback CTA. Do not render a broken product link.
 
-**Approach B — custom WP snippet adding a `taxFilter` arg (precise, ~30 lines of PHP)**
+### 8.6 The "Click to find price" card
 
-**Build target**: [`wordpress/mu-plugins/psp-graphql-tax-filter.php`](../wordpress/mu-plugins/) — to be created during Phase 4. Lives alongside the existing [`psp-brand-content-field.php`](../wordpress/mu-plugins/psp-brand-content-field.php) and [`helcim-refund-error-handler.php`](../wordpress/mu-plugins/helcim-refund-error-handler.php) and follows the same header/style convention.
-
-**Deployment target**: both `proskatersplace.ca` AND `proskatersplace.com` WP backends. Per CLAUDE.md rule #8 (US/CAD boundary), this is a flagged cross-site change — coordinate with PSP's WP team for install on both sites.
-
-No third-party plugin dependency — pure WPGraphQL + WP_Query hooks.
-
-```php
-<?php
-// File: wp-content/mu-plugins/proskaters-graphql-tax-filter.php
-
-add_action('graphql_register_types', function () {
-  register_graphql_input_type('TaxFilterInput', [
-    'fields' => [
-      'taxonomy' => ['type' => ['non_null' => 'String']],
-      'terms'    => ['type' => ['non_null' => ['list_of' => 'String']]],
-    ],
-  ]);
-
-  register_graphql_field('RootQueryToProductUnionConnectionWhereArgs', 'taxFilter', [
-    'type'        => ['list_of' => 'TaxFilterInput'],
-    'description' => 'AND-filter products by multiple taxonomies (e.g. pa_brand + pa_size).',
-  ]);
-});
-
-add_filter('graphql_product_connection_query_args', function ($args, $source, $input) {
-  if (empty($input['where']['taxFilter'])) return $args;
-  $tax_query = ['relation' => 'AND'];
-  foreach ($input['where']['taxFilter'] as $f) {
-    $tax_query[] = [
-      'taxonomy' => sanitize_key($f['taxonomy']),
-      'field'    => 'slug',
-      'terms'    => array_map('sanitize_title', $f['terms']),
-      'operator' => 'IN',
-    ];
-  }
-  $args['tax_query'] = isset($args['tax_query'])
-    ? array_merge($args['tax_query'], $tax_query)
-    : $tax_query;
-  return $args;
-}, 10, 3);
-```
-
-Once installed, the calculator query becomes:
-
-```graphql
-query getCalculatorProducts($brandSlug: String!, $sizeAttr: String!, $first: Int = 6) {
-  products(first: $first, where: {
-    taxFilter: [
-      { taxonomy: "pa_brand", terms: [$brandSlug] }
-      { taxonomy: "pa_size",  terms: [$sizeAttr] }
-    ]
-    status: "publish"
-    visibility: VISIBLE
-  }) {
-    nodes { id slug name image { sourceUrl altText } }
-  }
-}
-```
-
-Why snippet over third-party plugin:
-- Zero plugin-update risk; pure WPGraphQL hooks have been stable for years
-- ~30 lines of code, one file, trivially auditable by PSP's backend team
-- No naming collision risk — `taxFilter` is ours
-- Removal = delete one file
-
-**Decision**: ship Approach A in v1 to unblock launch. In parallel, submit the snippet to PSP's WP team for review/install on both backends. Once snippet is live, swap the query body to Approach B — only the `.gql` file changes (same component, same composable, same JSON).
-
-### 8.3 The runtime client switch
-
-Default `nuxt-graphql-client` is configured for `.ca` only. For Step 6, we need a **second endpoint** — either:
-- **Option A**: register a second `nuxt-graphql-client` client (one for `.ca`, one for `.com`) and pick at query time
-- **Option B**: bypass the auto-client and use raw `$fetch` against the appropriate `/graphql` endpoint
-
-Option B is simpler (no module reconfig, no codegen drift) and fits a one-off cross-domain use case. Decision: **Option B**.
-
-### 8.4 The "Click to find price" card
-
-`PriceRevealCard.vue` props:
-- `name: string`
-- `image: string`
-- `slug: string`
-- `storeBaseUrl: string` (from `useRegion()`)
+`PriceRevealCard.vue` props should be based on the normalized product link, not raw backend slug concatenation:
+- `name`
+- `imageUrl`
+- `imageAlt`
+- `href`
+- `source`
 
 Render:
-- Image
-- Product name
-- **No price** — even if GraphQL returned one (per spec § 3 "Zero Price Render")
-- Badge button: **"Click to find price"** → `target="_blank" rel="noopener"` → `${storeBaseUrl}/product/${slug}`
+- Image.
+- Product name.
+- No price.
+- Button text: **"Click to find price"**.
+- `target="_blank" rel="noopener"`.
 
-### 8.5 Sample products grid (Step 6)
+The primary calculator tab remains intact so the shopper does not lose their size recommendation.
 
-After Step 5 resolves the recommended size for the chosen brand, the page fires the GraphQL query above (against the region-matched endpoint) with that brand's `graphqlLookup.productAttributeBrandSlug`, `categorySlug`, and the matching `sizeAttributeValue` from the resolved range. Renders up to 6 `PriceRevealCard`s.
+### 8.7 Error & empty states
 
-If the query returns zero results (out of stock, cross-store mismatch), show a fallback: _"No live results — [browse {brand} on {store}]"_ pointing to the brand category page.
-
-### 8.6 Error & empty states
-
-The cross-domain GraphQL call can fail in several ways. Each needs an explicit UI state:
+The product-link flow can fail in several ways. Each needs an explicit UI state:
 
 | Failure | UI behavior |
 |---|---|
-| `/api/region.json` hasn't resolved yet | Step 6 product grid shows skeleton placeholders; "Click to find price" buttons disabled |
-| GraphQL request times out (>5s) or returns 5xx | Show: _"Live product data unavailable. [Browse {brand} on {store}]"_ → falls back to a static category-page link, not a search URL |
-| GraphQL returns CORS error (Q10 blocker) | Same fallback as above; log to error monitoring |
-| Query succeeds with zero matching products (e.g. out of stock) | Show: _"No live results for size {recommendedLabel}. [Browse all {brand}]"_ pointing to brand category page on the destination store |
-| Query succeeds with results but image URLs 404 | Render with a placeholder image; broken images don't block the click-through |
+| `/api/region.json` has not resolved yet | Step 6 product grid shows skeleton placeholders; price-reveal buttons disabled |
+| Backend GraphQL request times out or returns 5xx | Show "Live product data unavailable" with a region-appropriate brand/category browse link |
+| No matching products for the selected size | Show "No live results for size {recommendedLabel}" with a browse-all link for the target brand/category |
+| `.ca` URL mapping missing for a Canadian shopper | Use `.ca` brand/category fallback first; log the miss. Use `.com` product link only if that is the only real product destination available |
+| Image URL is missing or 404s | Render a placeholder; broken images must not block click-through |
 
-All failure paths must still allow the user to reach a usable destination on the correct store. **The calculator must never dead-end.**
+All failure paths must still allow the user to reach a useful destination. **The calculator must never dead-end.**
 
 ---
 
@@ -636,25 +626,25 @@ Current page uses [`/images/inline-skates-size-calculator.jpg`](../public/images
 
 | # | Question | Resolution |
 |---|---|---|
-| Q1 | Cross-domain product linking | WPGraphQL query against region-matched store endpoint → open `${storeBaseUrl}/product/{slug}` (see § 8) |
+| Q1 | Cross-domain product linking | Query or cache product candidates from the single USD Woo backend, then resolve the outbound button URL by region: `.ca` SEO permalink for Canadian shoppers when mapped, `.com` product URL for US/international shoppers (see § 8) |
 | Q2 | New calculator URL | `/roller-skates-size-calculator` + 301 from old. Slug treated as config (see § 9.1) |
 | Q3 | Reference-brand dropdown lists | Pre-populate proposed § 5.2 lists in the Sheet; client edits/extends during Phase 1 review |
 | Q4 | Google Sheet access | **Public CSV export URL** — Sheet set to "anyone with link can view", build script reads via the exported CSV link. No OAuth, no credentials. **Sheet URL provided**: see § 13 |
-| Q5 | Geo resolution | Path A — frontend-only `window.__pspRegion` via hydration call to `/api/region.json` (see § 8.6) |
+| Q5 | Geo resolution | Frontend hydration call to `/api/region.json`; region changes only the outbound storefront link, not product lookup math or price display |
 | Q6 | Size not in reference table | **Snap to nearest table row + show warning** — e.g. _"Snapped to EU 42 — your entered size was between charted values"_. User sees the snap and can adjust |
-| Q7 | Sample products source | Live WPGraphQL (per Q1) |
+| Q7 | Sample products source | Live backend GraphQL for MVP, with a build-time catalog/search-KV resolver as the preferred hardened launch path |
 | Q8 | Localization at launch | **English-only v1**. French (fr-CA) is a Phase 1.5 follow-up. UI string count is small (~30); retrofit is cheap. Calculator page still emits hreflang via `useCanadianSEO()` even before French content exists |
 | Q9 | Analytics | Track **all four** event categories — see § 11.3 below |
 
 ### 11.2 Technical audit items (blocking, dev-owned — not client decisions)
 
-Both audits should run **before Phase 1 Sheet scaffolding** — Q11's outcome directly determines Tab 2's column count.
+These audits should run before launch hardening. Q11 decides the Canadian URL resolver source; Q12 decides whether the current backend attribute filter is enough or whether a fallback query/build path is needed.
 
 | # | Question | Blocks | Owner | Test |
 |---|---|---|---|---|
-| Q10 | Does `proskatersplace.com`'s WPGraphQL endpoint allow CORS from `proskatersplace.ca` origin? | Phase 4 (architecture) | Dev | `curl -H "Origin: https://proskatersplace.ca" -i https://proskatersplace.com/graphql` and inspect `Access-Control-Allow-Origin` in response headers. **If blocked**: WP admin adds CORS allow-list (preferred), OR we proxy through `server/api/cross-store-graphql.post.ts` (breaks the "frontend-only" principle but viable fallback) |
-| Q11 | Do `.ca` and `.com` use identical `pa_brand` and product-category slugs? | Phase 1 (Sheet structure: 1 column vs 2 per slug) | Dev | Query both `/graphql` endpoints' taxonomy term lists; diff them. **If identical**: keep Tab 2 single-column for each slug. **If they differ**: split into "GraphQL Brand Slug (CA)" + "GraphQL Brand Slug (COM)" columns, schema gets `graphqlLookup.ca` + `graphqlLookup.com` |
-| Q12 (new) | Is the custom `taxFilter` snippet (§ 8.2 Approach B) installed on either backend? | Phase 4 (which approach we render) | Dev + PSP WP team | Run introspection on each `/graphql` endpoint and check for `TaxFilterInput` in `__schema.types`. **If absent on both**: ship Approach A and, during Phase 4, create the mu-plugin at `wordpress/mu-plugins/psp-graphql-tax-filter.php` and submit to PSP's WP team for install on both backends. **If present on both**: ship Approach B directly. **If split**: ship A everywhere until both are installed (avoids divergent query bodies per region) |
+| Q10 | Does `proskatersplace.com`'s WPGraphQL endpoint allow CORS from `proskatersplace.ca` origin? | Phase 4 (runtime GraphQL option) | Dev | Live check on May 26, 2026: yes, response includes `Access-Control-Allow-Origin: https://proskatersplace.ca`. Re-check before launch. If blocked later, move candidate lookup to build time or proxy through a server route. |
+| Q11 | Which artifact gives the most reliable `.ca` product permalink map? | Phase 4 URL resolver | Dev | Compare product identity across generated routes, sitemap data, cached product data, and search/KV data. Pick the source with stable ID/SKU/slug coverage and emit a miss report. |
+| Q12 | Does the backend support precise manufacturer + size filtering without a custom plugin? | Phase 4 candidate lookup | Dev | Live check on May 26, 2026: backend schema exposes `attributes` and the current MVP attribute query returns product nodes. Keep the custom `taxFilter` plugin as a contingency only if this filter breaks or produces unreliable matches. |
 
 ### 11.3 Analytics event schema (Q9 resolution)
 
@@ -677,16 +667,16 @@ Privacy note: no PII in any payload. Brand IDs and millimeter values only.
 | Phase | Work | Estimate |
 |---|---|---|
 | 0 | Planning (this doc) + client sign-off | ✅ done (in review) |
-| 0.5 | **Q10 + Q11 + Q12 technical audits** | 0.5 day |
-| 1 | Data sift + Sheet scaffold + 17-chart transcription + import script | **3-5 dev days** + ⏳ client gap-fill turnaround |
+| 0.5 | **Q10 + Q11 + Q12 technical audits** | 0.5-1 day |
+| 1 | Chart extraction + backend catalog pull + Sheet scaffold + import script | **3-6 dev days** + client mm/fit review turnaround |
 | 2 | `/api/region.json` + `useRegion()` composable | 0.5 day |
 | 3 | Component rewrite (6 step components + state machine) | 3-4 days |
-| 4 | Cross-domain GraphQL query + PriceRevealCard + error states + author `wordpress/mu-plugins/psp-graphql-tax-filter.php` snippet for backend install | 1.5 days |
+| 4 | Product candidate resolver + `.ca` URL map + PriceRevealCard + error states + miss reports | 1.5-2.5 days |
 | 5 | Migration + SEO + a11y + OG asset + launch | 1 day |
-| **Total dev** | | **~10-13 dev days** |
+| **Total dev** | | **~10-14 dev days** |
 | **Wall-clock** | | gated by client Sheet-fill turnaround (Phase 1 gap-fill) and asset design (OG image) |
 
-**Critical path**: Phase 1 data entry. Phases 2 + 3 can run in parallel with client filling gaps in the Sheet — the importer fails the build gracefully on missing data, so dev can iterate against partial JSON.
+**Critical path**: Phase 1 extraction and review. The client is working on mm values in the Sheet, but the engineering path should aggressively prefill from chart vision/OCR and backend catalog pulls so client review is correction-focused, not blank-sheet transcription. Phases 2 + 3 can run in parallel against partial validated JSON.
 
 **Out-of-band work to start early**:
 - Confirm error-monitoring wiring (Sentry or equivalent — TBD whether this project has it). The Step 6 GraphQL failures need somewhere to log.
@@ -698,7 +688,8 @@ Privacy note: no PII in any payload. Brand IDs and millimeter values only.
 
 - **PRD / spec / UX flow**: [`docs/size-calulator-2-upgrade.md`](./size-calulator-2-upgrade.md) — June 2026 user path is canonical
 - **Client Google Sheet (data entry)**: [Master Sizing Sheet](https://docs.google.com/spreadsheets/d/1j4XDYpStEpGmhGGlV9aTJmL9BD3iQfBCk0IwRsx_LNg/edit?usp=sharing) — two tabs (Reference Brands + Carried Brands), public-read CSV exports feed the importer
-- **Existing implementation**: [`pages/inline-skates-size-calculator.vue`](../pages/inline-skates-size-calculator.vue) — to be replaced
+- **Current MVP implementation**: `pages/roller-skates-size-calculator.vue`, `components/SizeCalculator/`, `composables/useCalculator.ts`, `composables/useRegion.ts`, and `composables/useCalculatorProducts.ts`
+- **Legacy implementation / migration target**: `pages/inline-skates-size-calculator.vue` — to be redirected or removed during Phase 5
 - **Raw sizing chart source files**: [`data/calculator-data/`](../data/calculator-data/) — 17 files
 - **Existing JSON patterns**: [`data/brand-master-list.json`](../data/brand-master-list.json), [`data/product-routes.json`](../data/product-routes.json)
 - **Routing reference**: [`pages/search.vue`](../pages/search.vue)
