@@ -31,12 +31,13 @@ export default defineNuxtPlugin((nuxtApp) => {
     'X-Frontend-Type': 'woonuxt',
     'X-Requested-With': 'XMLHttpRequest',
     'Accept-Language': 'en-CA,en;q=0.9',
-    // The WordPress currency layer keys off this header, including during Cloudflare Pages builds.
-    'CF-IPCountry': 'CA',
   };
 
   // Server-side specific headers (for SSR)
   if (import.meta.server) {
+    // Keep Canadian pricing context on server-side GraphQL requests only.
+    headers['CF-IPCountry'] = 'CA';
+
     // Add User-Agent for server-side requests
     // This helps WordPress identify the request source and can prevent 403 errors
     headers['User-Agent'] = 'WooNuxt/3.0 (Nuxt SSR)';
