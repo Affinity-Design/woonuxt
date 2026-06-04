@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue';
+import {cleanAndExtractPriceInfo, convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
 
 interface ProductPriceProps {
   price?: string | null;
@@ -19,6 +20,8 @@ const props = withDefaults(defineProps<ProductPriceProps>(), {
   showBothPrices: true,
 });
 
+const {exchangeRate} = useExchangeRate();
+
 const normalizeWooPriceText = (rawPrice: string | null | undefined): string => {
   if (!rawPrice) return '';
 
@@ -34,9 +37,29 @@ const normalizeWooPriceText = (rawPrice: string | null | undefined): string => {
 
 const removeFromPrefix = (priceText: string): string => priceText.replace(/^from\s+/i, '').trim();
 
+const isUsdMarkedPrice = (rawPrice: string | null | undefined): boolean => {
+  const priceText = normalizeWooPriceText(rawPrice).toUpperCase();
+  return priceText.includes('US$') || priceText.includes('USD');
+};
+
 const hasFromPrefix = (rawPrice: string | null | undefined): boolean => normalizeWooPriceText(rawPrice).toLowerCase().startsWith('from ');
 
-const displayPriceText = (rawPrice: string | null | undefined): string => removeFromPrefix(normalizeWooPriceText(rawPrice));
+const formatUsdMarkedPriceAsCad = (priceText: string): string => {
+  if (exchangeRate.value !== null) {
+    const cadNumericString = convertToCAD(priceText, exchangeRate.value);
+    if (cadNumericString) return `$${formatPriceWithCAD(cadNumericString)}`;
+  }
+
+  const {numericString} = cleanAndExtractPriceInfo(priceText);
+  return numericString ? `$${numericString}` : priceText.replace(/US\$/gi, '$').replace(/\s*USD\b/gi, '').trim();
+};
+
+const displayPriceText = (rawPrice: string | null | undefined): string => {
+  const priceText = removeFromPrefix(normalizeWooPriceText(rawPrice));
+  if (!priceText) return '';
+  if (isUsdMarkedPrice(rawPrice)) return formatUsdMarkedPriceAsCad(priceText);
+  return priceText;
+};
 
 const splitPriceRange = (rawPrice: string | null | undefined): string[] => {
   const priceText = displayPriceText(rawPrice);
