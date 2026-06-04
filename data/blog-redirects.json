@@ -17,6 +17,12 @@
       "statusCode": 301
     }
   },
+  "/best-mens-roller-skates-2026": {
+    "redirect": {
+      "to": "/blog/best-mens-roller-skates-2026",
+      "statusCode": 301
+    }
+  },
   "/complete-beginners-guide-inline-quad-skating": {
     "redirect": {
       "to": "/blog/complete-beginners-guide-inline-quad-skating",
@@ -32,6 +38,18 @@
   "/inline-skates-vs-roller-skates": {
     "redirect": {
       "to": "/blog/inline-skates-vs-roller-skates",
+      "statusCode": 301
+    }
+  },
+  "/inline-skating-guide": {
+    "redirect": {
+      "to": "/blog/inline-skating-guide",
+      "statusCode": 301
+    }
+  },
+  "/online-skate-shop-canada": {
+    "redirect": {
+      "to": "/blog/online-skate-shop-canada",
       "statusCode": 301
     }
   },

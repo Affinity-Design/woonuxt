@@ -2,13 +2,20 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-05-20
+**Last Updated:** 2026-06-04
 
 ---
 
 ## ✅ Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **inline skating** (880 sv, 17 kd, $0.00 cpc)
+
+  - Post: `/blog/inline-skating-guide`
+  - Published: 2026-06-04
+  - Status: ✅ Live
+  - Performance: Monitoring (was ranking ~#74 with no dedicated page — clear gap)
 
 - [x] **roller skates** (9900 sv, 0 kd, $0.52 cpc)
 
