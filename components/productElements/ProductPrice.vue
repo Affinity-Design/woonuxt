@@ -51,7 +51,12 @@ const formatUsdMarkedPriceAsCad = (priceText: string): string => {
   }
 
   const {numericString} = cleanAndExtractPriceInfo(priceText);
-  return numericString ? `$${numericString}` : priceText.replace(/US\$/gi, '$').replace(/\s*USD\b/gi, '').trim();
+  return numericString
+    ? `$${numericString}`
+    : priceText
+        .replace(/US\$/gi, '$')
+        .replace(/\s*USD\b/gi, '')
+        .trim();
 };
 
 const displayPriceText = (rawPrice: string | null | undefined): string => {
@@ -98,7 +103,11 @@ const hasDistinctSalePrice = computed(() => {
 
 const rawPriceStringToDisplay = computed(() => {
   if (variableRangeDisplay.value) return null;
-  if (!props.showBothPrices && props.price && String(props.price).trim() !== '') return props.price;
+  if (!props.showBothPrices) {
+    if (props.salePrice && String(props.salePrice).trim() !== '') return props.salePrice;
+    if (props.regularPrice && String(props.regularPrice).trim() !== '') return props.regularPrice;
+    if (props.price && String(props.price).trim() !== '') return props.price;
+  }
   if (props.salePrice && String(props.salePrice).trim() !== '') return props.salePrice;
   return props.regularPrice || props.price;
 });
