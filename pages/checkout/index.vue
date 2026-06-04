@@ -793,11 +793,13 @@ useSeoMeta({
           <CartNotice
             v-if="hasBackorderItems"
             type="warning"
+            dismissible
             :message="$t('messages.notices.backorderBanner')" />
           <CartNotice
             v-if="hasClearanceItems"
             type="warning"
             icon="ion:pricetag"
+            dismissible
             :message="$t('messages.notices.clearanceBanner')" />
         </div>
 
