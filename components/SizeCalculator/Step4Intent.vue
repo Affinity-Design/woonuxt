@@ -3,11 +3,11 @@ const calculator = useCalculator();
 </script>
 
 <template>
-  <section class="grid gap-4">
+  <section class="grid gap-4 border-t border-zinc-200 pt-8">
     <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       <div>
-        <h2 class="text-2xl font-black text-zinc-950">What would you like to buy?</h2>
-        <p class="mt-1 text-sm leading-6 text-zinc-500">We'll convert your baseline into the right size for this category.</p>
+        <p class="text-sm font-bold uppercase tracking-wide text-zinc-500">Step 4</p>
+        <h2 class="text-2xl font-black text-zinc-950">What would you like to buy today?</h2>
       </div>
 
       <div v-if="calculator.resolvedReferenceSize.value" class="rounded-lg bg-zinc-950 px-4 py-3 text-white">

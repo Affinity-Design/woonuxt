@@ -5,8 +5,8 @@ const calculator = useCalculator();
 <template>
   <section class="grid gap-4">
     <div>
+      <p class="text-sm font-bold uppercase tracking-wide text-zinc-500">Step 1</p>
       <h2 class="text-2xl font-black text-zinc-950">What size do you already know?</h2>
-      <p class="mt-1 text-sm leading-6 text-zinc-500">Pick the type of footwear whose size you already know well.</p>
     </div>
 
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

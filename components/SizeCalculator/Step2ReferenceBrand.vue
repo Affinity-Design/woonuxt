@@ -8,10 +8,10 @@ const handleBrandChange = (event: Event) => {
 </script>
 
 <template>
-  <section class="grid gap-4">
+  <section class="grid gap-4 border-t border-zinc-200 pt-8">
     <div>
-      <h2 class="text-2xl font-black text-zinc-950">Which brand are you sizing from?</h2>
-      <p class="mt-1 text-sm leading-6 text-zinc-500">Select the brand whose sizing chart you already trust.</p>
+      <p class="text-sm font-bold uppercase tracking-wide text-zinc-500">Step 2</p>
+      <h2 class="text-2xl font-black text-zinc-950">Choose the reference brand</h2>
     </div>
 
     <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">

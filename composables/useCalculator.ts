@@ -25,10 +25,8 @@ interface CalculatorState {
   referenceCategory: ReferenceCategory | null;
   referenceBrandId: string | null;
   sizeInput: SizeInputState;
-  sizeConfirmed: boolean; // user clicked Continue in step 3 to lock in their mm baseline
   targetCategory: ProductCategory | null;
   targetBrandId: string | null;
-  browseMode: boolean; // user chose "not sure — show all" in step 5
   stepStartedAt: number;
 }
 
@@ -87,11 +85,15 @@ const sizeFieldLabels: Record<SizeInputField, string> = {
 const defaultState = (): CalculatorState => ({
   referenceCategory: null,
   referenceBrandId: null,
-  sizeInput: {mm: '', eu: '', usMen: '', usWomen: '', uk: ''},
-  sizeConfirmed: false,
+  sizeInput: {
+    mm: '',
+    eu: '',
+    usMen: '',
+    usWomen: '',
+    uk: '',
+  },
   targetCategory: null,
   targetBrandId: null,
-  browseMode: false,
   stepStartedAt: Date.now(),
 });
 
@@ -234,9 +236,9 @@ export const useCalculator = () => {
   const currentStep = computed(() => {
     if (!state.value.referenceCategory) return 1;
     if (!state.value.referenceBrandId) return 2;
-    if (!resolvedReferenceSize.value || !state.value.sizeConfirmed) return 3;
+    if (!resolvedReferenceSize.value) return 3;
     if (!state.value.targetCategory) return 4;
-    if (!state.value.targetBrandId && !state.value.browseMode) return 5;
+    if (!state.value.targetBrandId) return 5;
     return 6;
   });
 
@@ -268,10 +270,8 @@ export const useCalculator = () => {
     const from = currentStep.value;
     state.value.referenceBrandId = brandId;
     state.value.sizeInput = defaultState().sizeInput;
-    state.value.sizeConfirmed = false;
     state.value.targetCategory = null;
     state.value.targetBrandId = null;
-    state.value.browseMode = false;
     markStepAdvance(from, 3);
     trackCalculatorEvent('calc_reference_selected', {
       category: brand.category,
@@ -290,43 +290,14 @@ export const useCalculator = () => {
 
   const clearSizeInput = () => {
     state.value.sizeInput = defaultState().sizeInput;
-    state.value.sizeConfirmed = false;
     state.value.targetCategory = null;
     state.value.targetBrandId = null;
-    state.value.browseMode = false;
   };
 
   const continueFromSize = () => {
     if (!resolvedReferenceSize.value) return;
     const from = currentStep.value;
-    state.value.sizeConfirmed = true;
     markStepAdvance(from, 4);
-  };
-
-  const setBrowseMode = () => {
-    state.value.targetBrandId = null;
-    state.value.browseMode = true;
-    markStepAdvance(5, 6);
-    trackCalculatorEvent('calc_browse_mode', {targetCategory: state.value.targetCategory});
-  };
-
-  // Go back one step from current position
-  const goBack = () => {
-    const step = currentStep.value;
-    if (step >= 6) {state.value.targetBrandId = null; state.value.browseMode = false;}
-    else if (step >= 5) {state.value.targetCategory = null; state.value.targetBrandId = null; state.value.browseMode = false;}
-    else if (step >= 4) {state.value.sizeConfirmed = false; state.value.targetCategory = null; state.value.targetBrandId = null; state.value.browseMode = false;}
-    else if (step >= 3) {state.value.referenceBrandId = null; state.value.sizeInput = defaultState().sizeInput; state.value.sizeConfirmed = false; state.value.targetCategory = null; state.value.targetBrandId = null; state.value.browseMode = false;}
-    else if (step >= 2) {state.value.referenceCategory = null; state.value.referenceBrandId = null; state.value.sizeInput = defaultState().sizeInput; state.value.sizeConfirmed = false; state.value.targetCategory = null; state.value.targetBrandId = null; state.value.browseMode = false;}
-  };
-
-  // Jump to a specific step by clearing state from that step onwards
-  const goToStep = (targetStep: number) => {
-    if (targetStep <= 1) state.value.referenceCategory = null;
-    if (targetStep <= 2) {state.value.referenceBrandId = null; state.value.sizeInput = defaultState().sizeInput; state.value.sizeConfirmed = false;}
-    if (targetStep <= 3) {state.value.sizeConfirmed = false; state.value.sizeInput = defaultState().sizeInput;}
-    if (targetStep <= 4) state.value.targetCategory = null;
-    if (targetStep <= 5) {state.value.targetBrandId = null; state.value.browseMode = false;}
   };
 
   const setTargetCategory = (category: ProductCategory) => {
@@ -405,9 +376,6 @@ export const useCalculator = () => {
     continueFromSize,
     setTargetCategory,
     setTargetBrand,
-    setBrowseMode,
-    goBack,
-    goToStep,
     trackRecommendation,
     trackPriceRevealClick,
     resetCalculator,

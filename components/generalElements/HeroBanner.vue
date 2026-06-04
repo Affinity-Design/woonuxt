@@ -4,7 +4,6 @@ import {ref, onMounted, onUnmounted} from 'vue';
 
 const currentSlideIndex = ref(0);
 const direction = ref('next');
-const videoRef = ref(null);
 let intervalId;
 
 const nextSlide = () => {
@@ -28,12 +27,6 @@ const stopAutoRotate = () => {
 
 onMounted(() => {
   startAutoRotate();
-  // Defer video load until after page paint — poster image is the LCP element
-  if (videoRef.value) {
-    videoRef.value.src = '/videos/Inline-Skates-Canada.mp4';
-    videoRef.value.load();
-    videoRef.value.play().catch(() => {});
-  }
 });
 
 onUnmounted(() => {
@@ -43,15 +36,8 @@ onUnmounted(() => {
 
 <template>
   <div class="relative mx-auto h-[550px] md:h-[600px] lg:h-[560px] xl:h-[640px] group" @mouseenter="stopAutoRotate" @mouseleave="startAutoRotate">
-    <!-- Video Background — src set in onMounted to avoid render-blocking; poster is the LCP element -->
-    <video
-      ref="videoRef"
-      class="absolute inset-0 w-full h-full object-cover"
-      poster="/images/Inline-Skates.jpeg"
-      loop
-      muted
-      playsinline
-      preload="none"></video>
+    <!-- Video Background -->
+    <video class="absolute inset-0 w-full h-full object-cover" src="/videos/Inline-Skates-Canada.mp4" autoplay loop muted playsinline preload="auto"></video>
 
     <!-- Black Overlay -->
     <div class="absolute inset-0 bg-black opacity-60"></div>
@@ -73,8 +59,8 @@ onUnmounted(() => {
     <!-- Text Content -->
     <div class="container relative z-10 h-full flex flex-col items-start justify-center text-white px-6 overflow-hidden">
       <Transition :name="direction === 'next' ? 'slide-left' : 'slide-right'" mode="out-in">
-        <div :key="currentSlideIndex" class="w-full md:max-w-[52%] flex flex-col items-start">
-          <h1 class="text-2xl font-bold mb-3 md:mb-4 md:text-4xl lg:text-5xl text-shadow animate-stagger-1">
+        <div :key="currentSlideIndex" class="w-full flex flex-col items-start">
+          <h1 class="text-2xl font-bold md:mb-4 md:text-4xl lg:text-6xl text-shadow animate-stagger-1">
             {{ heroSlides[currentSlideIndex].title }}
           </h1>
           <h2 class="text-lg font-bold max-w-md mb-6 lg:text-3xl text-shadow animate-stagger-2">
