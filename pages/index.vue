@@ -117,21 +117,22 @@ const productCategories = computed(() => {
 });
 
 // Get products for new
-const {data: newProductsData} = await useAsyncGql('getProducts', {
+// getProductsForCards == getProducts + productCategories slugs (drives card badges)
+const {data: newProductsData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   orderby: ProductsOrderByEnum.DATE,
 });
 const newProducts = newProductsData.value.products?.nodes || [];
 
 // Get products for clearance
-const {data: clearanceProductsData} = await useAsyncGql('getProducts', {
+const {data: clearanceProductsData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   slug: 'clearance-items',
 });
 const clearanceProducts = clearanceProductsData.value.products?.nodes || [];
 
 // Get products for POP
-const {data: productData} = await useAsyncGql('getProducts', {
+const {data: productData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   orderby: ProductsOrderByEnum.POPULARITY,
 });

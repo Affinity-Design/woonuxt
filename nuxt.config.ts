@@ -56,7 +56,9 @@ export default defineNuxtConfig({
         proxy: true, // Force proxying through Nuxt server
       },
     },
-    documentPaths: ['./woonuxt_base/app/queries'],
+    // Base-layer queries plus root-layer overrides/additions (e.g. getProductsForCards.gql,
+    // which adds badge category slugs without editing woonuxt_base/).
+    documentPaths: ['./woonuxt_base/app/queries', './queries'],
   },
 
   runtimeConfig: {

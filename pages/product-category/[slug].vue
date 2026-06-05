@@ -37,6 +37,11 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
       id
       averageRating
       reviewCount
+      productCategories(first: 100) {
+        nodes {
+          slug
+        }
+      }
       ... on SimpleProduct {
         name
         slug

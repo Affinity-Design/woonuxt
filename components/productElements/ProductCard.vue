@@ -47,6 +47,7 @@ const isVariableProduct = computed(() => {
 <template>
   <div class="relative group overflow-hidden">
     <NuxtLink v-if="node.slug" :to="`/product/${decodeURIComponent(node.slug)}`" :title="node.name">
+      <ProductBadges :node="node" class="absolute top-2 left-2 z-10" />
       <SaleBadge :node class="absolute top-2 right-2 z-10" />
       <div class="relative w-full pt-[100%] overflow-hidden bg-white rounded-lg">
         <!-- The pt-[100%] creates a perfect square aspect ratio container -->

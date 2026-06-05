@@ -8,8 +8,8 @@ const { isQueryEmpty } = useHelpers();
 const { data, status } = await useAsyncData(
   "products",
   async () => {
-    // Your existing GraphQL query logic
-    const { data: queryData } = await useAsyncGql("getProducts");
+    // getProductsForCards == getProducts + productCategories slugs (drives card badges)
+    const { data: queryData } = await useAsyncGql("getProductsForCards");
     return queryData.value?.products?.nodes || [];
   },
   {

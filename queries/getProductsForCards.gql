@@ -1,0 +1,30 @@
+# Root-layer query. Mirrors woonuxt_base getProducts.gql exactly, but adds the
+# hidden category slugs that drive the NEW / Clearance! product-card badges.
+# Kept as a separate operation (not an edit of the base file) per the
+# "never modify woonuxt_base/" rule. The graphql-client documentPaths in
+# nuxt.config.ts includes ./queries so this gets picked up by codegen.
+query getProductsForCards($after: String, $slug: [String], $first: Int, $orderby: ProductsOrderByEnum = DATE) {
+  products(
+    first: $first
+    after: $after
+    where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: { field: $orderby, order: DESC }, status: "publish" }
+  ) {
+    found
+    nodes {
+      name
+      slug
+      type
+      databaseId
+      id
+      averageRating
+      reviewCount
+      productCategories(first: 100) {
+        nodes {
+          slug
+        }
+      }
+      ...SimpleProduct
+      ...VariableProduct
+    }
+  }
+}
