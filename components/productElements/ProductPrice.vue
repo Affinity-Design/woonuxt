@@ -46,7 +46,10 @@ const hasFromPrefix = (rawPrice: string | null | undefined): boolean => normaliz
 
 const formatUsdMarkedPriceAsCad = (priceText: string): string => {
   if (exchangeRate.value !== null) {
-    const cadNumericString = convertToCAD(priceText, exchangeRate.value);
+    // roundTo99: match the build-time cache (build-products-cache.js) which rounds
+    // converted prices up to the nearest .99. Without this, live-converted card prices
+    // drift (e.g. $34.46) versus the cached product page price ($34.99).
+    const cadNumericString = convertToCAD(priceText, exchangeRate.value, true);
     if (cadNumericString) return `$${formatPriceWithCAD(cadNumericString)}`;
   }
 
