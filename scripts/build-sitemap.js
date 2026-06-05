@@ -420,7 +420,7 @@ async function generateCompleteSitemap() {
   const productSEO = generateProductSEOMetadata(products);
 
   // Static routes
-  const staticRoutes = ['/', '/about', '/blog', '/categories', '/products', '/contact', '/terms', '/privacy'];
+  const staticRoutes = ['/', '/about', '/blog', '/categories', '/products', '/contact', '/terms', '/privacy', '/roller-skates-size-calculator'];
 
   // Build product routes
   const productRoutes = products.map((product) => ({

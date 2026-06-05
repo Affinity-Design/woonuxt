@@ -171,7 +171,7 @@ The high informational percentage is partly driven by the blog content strategy 
 
 **Trust signals — present:**
 
-- Contact page with real email address (info@proskatersplace.com) ✓
+- Contact page with real email address (customerservice@proskatersplace.com) ✓
 - Physical warehouse location implied (Toronto) ✓
 - "450+ five-star reviews" claimed on About page ✓
 - Return policy, exchange policy, sizing help documented ✓

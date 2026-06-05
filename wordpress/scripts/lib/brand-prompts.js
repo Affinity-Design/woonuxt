@@ -44,6 +44,45 @@ const USP_POINTS = [
   'knowledgeable staff with decades of skating experience',
 ];
 
+// Customer-facing contact address. ProSkaters Place routes all brand-page
+// inquiries to customer service — info@ is unmonitored, so support never saw
+// those messages. Use this everywhere a contact email is surfaced.
+const CONTACT_EMAIL = 'customerservice@proskatersplace.com';
+
+// Size calculator lives on the Canadian (.ca) headless site and is designed to
+// serve US/international traffic too (it resolves the destination product URL by
+// storefront). Brand pages — even on .com — link here. Cross-domain on purpose.
+const SIZE_CALCULATOR_URL = 'https://proskatersplace.ca/roller-skates-size-calculator';
+
+// Product categories are classified by keyword so the logic is robust to both
+// human names ("Inline Skate Wheels") and slugs ("inline-skate-wheels"), and to
+// site-specific category vocabularies. Footwear/protective gear = fit matters;
+// wheels/bearings/frames/wax/parts/boards = components (never footwear-sized).
+// A category is "fitted" only if it matches FITTED and NOT COMPONENT, so
+// "skate wheels" → component while "skate boots" → fitted.
+const COMPONENT_PRODUCT_RE = /(wheel|bearing|frame|\bwax\b|pole|tool|\bpart|accessor|\bbag|cleaner|board|bushing|axle|brake)/i;
+const FITTED_PRODUCT_RE = /(skate|boot|shoe|helmet|\bpad|protection|protective|glove|apparel|clothing|jersey|jacket)/i;
+
+/** True if a single category name/slug represents a fitted/sized product. */
+function isFittedCategory(category) {
+  return !COMPONENT_PRODUCT_RE.test(category) && FITTED_PRODUCT_RE.test(category);
+}
+
+/**
+ * Decide whether a brand sells fitted/sized products from its product categories
+ * (accepts human names OR slugs).
+ *   true  → makes skates/boots/shoes/protective gear (sizing FAQs are relevant)
+ *   false → components only (suppress sizing/fitting questions)
+ *   null  → unknown (no category data) — do not force a sizing question
+ *
+ * @param {string[]} categories - Category names or slugs
+ * @returns {boolean|null}
+ */
+function brandMakesSizedProducts(categories = []) {
+  if (!Array.isArray(categories) || categories.length === 0) return null;
+  return categories.some(isFittedCategory);
+}
+
 // ─── Known Brand Websites (fallback when not in taxonomy description) ─────────
 // Key = brand slug (as it appears on proskatersplace.com)
 // These are only used when extractBrandContext() can't find a URL in the existing description.
@@ -216,6 +255,9 @@ function brandDescriptionPrompt(brand, keywords, brandContext, options = {}) {
   const isAuthorized = options.isAuthorized ?? false;
   const productCount = options.productCount ?? brand.taxonomy?.count ?? 0;
   const productCategories = options.productCategories || [];
+  // An explicit makesSized verdict (from the reliable classification) wins over the
+  // scrape-derived guess, which is unreliable on some archive templates.
+  const sizedProducts = options.makesSized !== undefined ? options.makesSized : brandMakesSizedProducts(productCategories);
 
   // Build brand context block for Gemini grounding
   const contextLines = [];
@@ -274,7 +316,10 @@ first sentence or two of that first paragraph.
 - Only state facts about the brand that are in the BRAND CONTEXT above or that you are CERTAIN about
 - If you include founding year, country, or founder names — they MUST come from the BRAND CONTEXT section
 - Do NOT invent brand history, founding stories, or specific claims you're not sure about
-- If the brand context is limited, focus on the brand's reputation, product quality, and what type of skater it serves${brandContext.websiteUrl ? `\n- INCLUDE this outbound link in the About section: <a href="${brandContext.websiteUrl}" target="_blank" rel="noopener">${brand.name} official site</a>` : ''}
+- If the brand context is limited, focus on the brand's reputation, product quality, and what type of skater it serves${sizedProducts === false ? `\n- ${brand.name} does NOT make skates, boots, or other fitted footwear — based on the products we carry it makes components/accessories (e.g. bearings, wheels, frames). Do NOT discuss skate sizing, boot fit, or shoe sizes; focus on specs, compatibility, materials, and performance.` : ''}${brandContext.websiteUrl ? `\n- INCLUDE this outbound link in the About section: <a href="${brandContext.websiteUrl}" target="_blank" rel="noopener">${brand.name} official site</a>` : ''}
+
+⚠️  CRITICAL — BRAND NAME CAPITALIZATION:
+Always write the brand name exactly as "${brand.name}" with proper capitalization — even when it appears inside a keyword phrase. The keywords above may be supplied in lowercase (e.g. "${primary}"); never reproduce the brand name in all-lowercase. Write "${brand.name}", not "${(brand.name || '').toLowerCase()}".
 
 CONTENT REQUIREMENTS — use ALL three H2 sections below (and ONLY these three):
 
@@ -282,7 +327,7 @@ CONTENT REQUIREMENTS — use ALL three H2 sections below (and ONLY these three):
 
 2. <h2>Why Buy ${brand.name} at ${SITE_NAME}?</h2> (1-2 paragraphs): ${dealerGuidance} ${categoryContext}
 
-3. <h2>Expert Advice & ${brand.name} Support</h2> (1 paragraph CTA): Invite visitors to contact us at info@proskatersplace.com for personalized ${brand.name} recommendations, sizing help, or questions about specific products. Mention our team has hands-on experience with the ${brand.name} product line.
+3. <h2>Expert Advice & ${brand.name} Support</h2> (1 paragraph CTA): Invite visitors to contact us at ${CONTACT_EMAIL} for personalized ${brand.name} recommendations${sizedProducts === false ? '' : ', sizing help,'} or questions about specific products. Mention our team has hands-on experience with the ${brand.name} product line.
 
 ⚠️  DO NOT include a "Products at ProSkaters Place" or "Featured Products" section — product links are handled separately and will be added below your content automatically.
 
@@ -321,19 +366,33 @@ OUTPUT: HTML only — no intro, no explanation. Start with the first <h2>.`;
  * @param {object} [brandContext] - From extractBrandContext()
  * @returns {string} - Prompt string
  */
-function brandFAQPrompt(brand, faqQuestions = [], brandContext = {}) {
-  const questionList =
-    faqQuestions.length > 0
-      ? faqQuestions
-          .slice(0, 8)
-          .map((q, i) => `${i + 1}. ${q}`)
-          .join('\n')
+function brandFAQPrompt(brand, faqQuestions = [], brandContext = {}, options = {}) {
+  const sizedProducts = options.makesSized !== undefined ? options.makesSized : brandMakesSizedProducts(options.productCategories || []);
+
+  // Component-only brands (bearings, wheels, frames) must not get sizing/fitting
+  // questions. Swap the two sizing fallbacks for compatibility/selection ones.
+  const fallbackQuestions =
+    sizedProducts === false
+      ? `1. Where can I buy ${brand.name} products in the US?
+2. Is ProSkaters Place an authorized ${brand.name} dealer?
+3. Do ${brand.name} products come with a warranty when bought at ProSkaters Place?
+4. What should I look for when choosing ${brand.name} products?
+5. Are ${brand.name} products compatible with my current setup?
+6. What makes ${brand.name} different from other brands?`
       : `1. Where can I buy ${brand.name} products in the US?
 2. Is ProSkaters Place an authorized ${brand.name} dealer?
 3. Do ${brand.name} products come with a warranty when bought at ProSkaters Place?
 4. How do I choose the right size for ${brand.name} products?
 5. Does ProSkaters Place offer ${brand.name} fitting assistance?
 6. What makes ${brand.name} different from other brands?`;
+
+  const questionList =
+    faqQuestions.length > 0
+      ? faqQuestions
+          .slice(0, 8)
+          .map((q, i) => `${i + 1}. ${q}`)
+          .join('\n')
+      : fallbackQuestions;
 
   const brandFacts = brandContext?.rawText ? `\nBRAND FACTS TO REFERENCE: "${brandContext.rawText.slice(0, 300)}"` : '';
 
@@ -344,7 +403,7 @@ ${brandFacts}
 
 REQUIRED: At least one Q&A MUST target the "where to buy" / "authorized dealer" intent — this targets high-converting local purchase intent searches.
 
-REQUIRED: Every question MUST mention "${brand.name}" by name — no generic questions like "What size skates should I get?" (too generic). Instead: "How do I find my ${brand.name} size?"
+REQUIRED: Every question MUST mention "${brand.name}" by name — no generic questions like "What size skates should I get?" (too generic). Instead: "${sizedProducts === false ? `What sets ${brand.name} apart from other brands?` : `How do I find my ${brand.name} size?`}"
 
 BASE REMAINING QUESTIONS ON (answer the most relevant ones):
 ${questionList}
@@ -354,7 +413,8 @@ GUIDELINES:
 - Mention ${SITE_NAME} or "we" naturally in 2-3 answers
 - US-focused context (USD pricing, ships to USA and worldwide, free shipping over $150 USD)
 - Use American English spelling
-- Answers should be genuinely useful — not marketing fluff
+- Always capitalize "${brand.name}" correctly — never write the brand name in lowercase
+${sizedProducts === false ? `- IMPORTANT: ${brand.name} does NOT make skates, boots, or fitted footwear — based on the products we carry it makes components/accessories. Do NOT ask about sizing, fit, or "what size to buy." Focus on compatibility, specs, materials, performance, and where to buy.\n` : ''}- Answers should be genuinely useful — not marketing fluff
 - Do not repeat information already covered in the brand description
 - If you reference brand facts (founding, country, product types), use ONLY the BRAND FACTS above
 
@@ -389,6 +449,8 @@ TARGET KEYWORD: "${primaryKeyword}"
 BRAND: ${brand.name}
 SITE: ${SITE_NAME}
 CONTEXT: ${brand.taxonomy?.count || 'multiple'} ${brand.name} products in stock, ${isAuthorized ? 'authorized US dealer' : 'trusted US retailer'}
+
+IMPORTANT: Always write the brand name as "${brand.name}" with correct capitalization in BOTH the title and description — never lowercase it, even though the focus keyword "${primaryKeyword}" may be supplied in lowercase.
 
 TITLE REQUIREMENTS (Rank Math will flag violations):
 - MUST be 50–60 characters including spaces — this is a hard range, not a suggestion
@@ -504,7 +566,7 @@ ${productLinks}
 
   // Always add a guide link
   parts.push(
-    `<p class="brand-guide-link">Need help choosing? Try our <a href="https://${baseDomain}/inline-skates-size-calculator/" title="Find your perfect inline skate size">Inline Skate Size Calculator</a> or <a href="mailto:info@proskatersplace.com">contact our team</a> for personalized recommendations.</p>`,
+    `<p class="brand-guide-link">Need help choosing? Try our <a href="${SIZE_CALCULATOR_URL}" title="Find your perfect skate size">Skate Size Calculator</a> or <a href="mailto:${CONTACT_EMAIL}">contact our team</a> for personalized recommendations.</p>`,
   );
 
   return parts.join('\n');
@@ -602,7 +664,13 @@ module.exports = {
   buildInternalLinks,
   extractBrandContext,
   extractFAQQuestionsFromKeywords,
+  brandMakesSizedProducts,
+  isFittedCategory,
+  COMPONENT_PRODUCT_RE,
+  FITTED_PRODUCT_RE,
   BRAND_WEBSITE_MAP,
+  CONTACT_EMAIL,
+  SIZE_CALCULATOR_URL,
   SITE_NAME,
   SITE_URL,
   USP_POINTS,

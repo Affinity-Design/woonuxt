@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     if (!sitemapData) {
       console.warn('[sitemap.xml] Using fallback routes (minimal sitemap)');
 
-      const staticRoutes = ['/', '/blog', '/categories', '/contact', '/terms', '/privacy'];
+      const staticRoutes = ['/', '/blog', '/categories', '/contact', '/terms', '/privacy', '/roller-skates-size-calculator'];
 
       const fallbackBlogRoutes = ['/blog/best-inline-skates-2025', '/blog/roller-skating-toronto-guide', '/blog/skate-maintenance-winter'];
 

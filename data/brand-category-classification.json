@@ -1,0 +1,1712 @@
+[
+  {
+    "slug": "adapt",
+    "name": "Adapt Brand",
+    "count": 6,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "inline-skates",
+      "inline-skating",
+      "inline-boots",
+      "inline-frames",
+      "replacement-parts",
+      "backpacks-bags-carriers",
+      "inline-skate-wheels"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "inline-boots"
+    ],
+    "componentCats": [
+      "inline-frames",
+      "replacement-parts",
+      "backpacks-bags-carriers",
+      "inline-skate-wheels"
+    ],
+    "matched": 16,
+    "note": ""
+  },
+  {
+    "slug": "anarchy-aggressive",
+    "name": "Anarchy",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "replacement-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "replacement-parts"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "bones",
+    "name": "Bones",
+    "count": 16,
+    "verdict": "component",
+    "categories": [
+      "accessories",
+      "skate-tools",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "board-components-parts",
+      "discount-products",
+      "board-wheels",
+      "clearance-items",
+      "scooter-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "accessories",
+      "skate-tools",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "board-components-parts",
+      "board-wheels",
+      "scooter-parts"
+    ],
+    "matched": 15,
+    "note": ""
+  },
+  {
+    "slug": "chaya-skates",
+    "name": "Chaya Skates",
+    "count": 95,
+    "verdict": "sized",
+    "categories": [
+      "backpacks-bags-carriers",
+      "roller-skate-parts",
+      "roller-derby",
+      "roller-skate-wheels",
+      "clearance-items",
+      "discount-products",
+      "new-arrivals",
+      "roller-skates",
+      "roller-skating",
+      "accessories",
+      "roller-skate-tool",
+      "ice-skates",
+      "winter-sports",
+      "children-products",
+      "socks-foot-care"
+    ],
+    "sizedCats": [
+      "roller-skates",
+      "ice-skates"
+    ],
+    "componentCats": [
+      "backpacks-bags-carriers",
+      "roller-skate-parts",
+      "roller-skate-wheels",
+      "accessories",
+      "roller-skate-tool"
+    ],
+    "matched": 100,
+    "note": ""
+  },
+  {
+    "slug": "choke",
+    "name": "Choke",
+    "count": 14,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "penny-boards",
+      "children-products",
+      "skateboards-and-longboards",
+      "vinylboards",
+      "board-components-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "penny-boards",
+      "skateboards-and-longboards",
+      "vinylboards",
+      "board-components-parts"
+    ],
+    "matched": 10,
+    "note": ""
+  },
+  {
+    "slug": "daehlie",
+    "name": "Daehlie",
+    "count": 21,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "nordic-clothing"
+    ],
+    "sizedCats": [
+      "nordic-clothing"
+    ],
+    "componentCats": [],
+    "matched": 21,
+    "note": ""
+  },
+  {
+    "slug": "doop",
+    "name": "DOOP",
+    "count": 3,
+    "verdict": "sized",
+    "categories": [
+      "inline-skates",
+      "inline-skating",
+      "new-arrivals",
+      "replacement-parts"
+    ],
+    "sizedCats": [
+      "inline-skates"
+    ],
+    "componentCats": [
+      "replacement-parts"
+    ],
+    "matched": 6,
+    "note": ""
+  },
+  {
+    "slug": "dream-wheels",
+    "name": "Dream Wheels",
+    "count": 6,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "inline-skate-wheels"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 4,
+    "note": ""
+  },
+  {
+    "slug": "dynastar-ski",
+    "name": "Dynastar",
+    "count": 2,
+    "verdict": "review",
+    "categories": [
+      "alpine-skis",
+      "clearance-items",
+      "discount-products",
+      "winter-sports"
+    ],
+    "sizedCats": [],
+    "componentCats": [],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "endless-blading",
+    "name": "Endless",
+    "count": 77,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-wheels",
+      "new-arrivals",
+      "inline-frames",
+      "discount-products",
+      "clearance-items"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels",
+      "inline-frames"
+    ],
+    "matched": 66,
+    "note": ""
+  },
+  {
+    "slug": "ennui",
+    "name": "ENNUI",
+    "count": 44,
+    "verdict": "sized",
+    "categories": [
+      "knee-and-elbow-pads",
+      "new-arrivals",
+      "protection-gear-and-apparel",
+      "clearance-items",
+      "discount-products",
+      "socks-foot-care",
+      "roller-derby",
+      "protective-helmets",
+      "children-products",
+      "gloves-wrist-protection",
+      "protective-shorts",
+      "protection-packs"
+    ],
+    "sizedCats": [
+      "knee-and-elbow-pads",
+      "protection-gear-and-apparel",
+      "protective-helmets",
+      "gloves-wrist-protection",
+      "protective-shorts",
+      "protection-packs"
+    ],
+    "componentCats": [],
+    "matched": 33,
+    "note": ""
+  },
+  {
+    "slug": "enuff-skateboards",
+    "name": "Enuff",
+    "count": 57,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "shortboard-skateboards",
+      "skateboards-and-longboards",
+      "board-components-parts",
+      "alpine-protection",
+      "board-tools",
+      "board-wheels"
+    ],
+    "sizedCats": [
+      "alpine-protection"
+    ],
+    "componentCats": [
+      "shortboard-skateboards",
+      "skateboards-and-longboards",
+      "board-components-parts",
+      "board-tools",
+      "board-wheels"
+    ],
+    "matched": 62,
+    "note": ""
+  },
+  {
+    "slug": "epic-grindshoes",
+    "name": "Epic",
+    "count": 7,
+    "verdict": "sized",
+    "categories": [
+      "inline-skates",
+      "inline-skating",
+      "inline-boots"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "inline-boots"
+    ],
+    "componentCats": [],
+    "matched": 7,
+    "note": ""
+  },
+  {
+    "slug": "fischer",
+    "name": "Fischer",
+    "count": 60,
+    "verdict": "sized",
+    "categories": [
+      "inline-skates",
+      "new-arrivals",
+      "roller-skis",
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "alpine-skis",
+      "bindings-and-parts",
+      "clearance-items",
+      "discount-products",
+      "nordic-accessories",
+      "cross-country-skis",
+      "winter-sports",
+      "nordic-ski-boots",
+      "children-products",
+      "protection-gear-and-apparel",
+      "alpine-ski-boots",
+      "rollerski-parts-accessoires"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "nordic-ski-boots",
+      "protection-gear-and-apparel",
+      "alpine-ski-boots"
+    ],
+    "componentCats": [
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "bindings-and-parts",
+      "nordic-accessories",
+      "rollerski-parts-accessoires"
+    ],
+    "matched": 77,
+    "note": ""
+  },
+  {
+    "slug": "flying-eagle",
+    "name": "Flying Eagle",
+    "count": 40,
+    "verdict": "sized",
+    "categories": [
+      "discount-products",
+      "inline-skate-wheels",
+      "inline-frames",
+      "clearance-items",
+      "inline-skates",
+      "inline-skating",
+      "accessories",
+      "ice-skates",
+      "winter-sports",
+      "children-products",
+      "skate-heel-brakes",
+      "backpacks-bags-carriers",
+      "replacement-parts",
+      "inline-boots",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "color-kits-laces",
+      "complete-frame-sets",
+      "off-road-skates"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "ice-skates",
+      "inline-boots",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "off-road-skates"
+    ],
+    "componentCats": [
+      "inline-skate-wheels",
+      "inline-frames",
+      "accessories",
+      "skate-heel-brakes",
+      "backpacks-bags-carriers",
+      "replacement-parts",
+      "complete-frame-sets"
+    ],
+    "matched": 61,
+    "note": ""
+  },
+  {
+    "slug": "fr-skates",
+    "name": "FR Skates",
+    "count": 86,
+    "verdict": "sized",
+    "categories": [
+      "backpacks-bags-carriers",
+      "inline-skates",
+      "inline-skating",
+      "new-arrivals",
+      "clearance-items",
+      "discount-products",
+      "replacement-parts",
+      "skate-heel-brakes",
+      "inline-frames",
+      "inline-boots",
+      "roller-skis",
+      "inline-skate-wheels",
+      "roller-skate-wheels",
+      "accessories",
+      "children-products",
+      "color-kits-laces"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "inline-boots"
+    ],
+    "componentCats": [
+      "backpacks-bags-carriers",
+      "replacement-parts",
+      "skate-heel-brakes",
+      "inline-frames",
+      "inline-skate-wheels",
+      "roller-skate-wheels",
+      "accessories"
+    ],
+    "matched": 73,
+    "note": ""
+  },
+  {
+    "slug": "gawds",
+    "name": "Gawds",
+    "count": 7,
+    "verdict": "sized",
+    "categories": [
+      "inline-skates",
+      "inline-skating",
+      "inline-skate-wheels",
+      "clearance-items",
+      "discount-products",
+      "new-arrivals"
+    ],
+    "sizedCats": [
+      "inline-skates"
+    ],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 7,
+    "note": ""
+  },
+  {
+    "slug": "gyro",
+    "name": "Gyro",
+    "count": 7,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-wheels",
+      "clearance-items",
+      "discount-products",
+      "scooter-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels",
+      "scooter-parts"
+    ],
+    "matched": 9,
+    "note": ""
+  },
+  {
+    "slug": "iqon",
+    "name": "IQON",
+    "count": 67,
+    "verdict": "sized",
+    "categories": [
+      "inline-skate-bearings",
+      "new-arrivals",
+      "inline-skate-wheels",
+      "clearance-items",
+      "discount-products",
+      "inline-skating",
+      "inline-boots",
+      "inline-skates",
+      "inline-frames",
+      "complete-frame-sets"
+    ],
+    "sizedCats": [
+      "inline-boots",
+      "inline-skates"
+    ],
+    "componentCats": [
+      "inline-skate-bearings",
+      "inline-skate-wheels",
+      "inline-frames",
+      "complete-frame-sets"
+    ],
+    "matched": 36,
+    "note": ""
+  },
+  {
+    "slug": "kastle",
+    "name": "Kastle",
+    "count": 6,
+    "verdict": "review",
+    "categories": [],
+    "matched": 0,
+    "note": "no products in catalog"
+  },
+  {
+    "slug": "kizer",
+    "name": "Kizer",
+    "count": 39,
+    "verdict": "sized",
+    "categories": [
+      "inline-frames",
+      "new-arrivals",
+      "replacement-parts",
+      "backpacks-bags-carriers",
+      "inline-skate-wheels",
+      "complete-frame-sets",
+      "off-road-skates",
+      "clearance-items",
+      "discount-products"
+    ],
+    "sizedCats": [
+      "off-road-skates"
+    ],
+    "componentCats": [
+      "inline-frames",
+      "replacement-parts",
+      "backpacks-bags-carriers",
+      "inline-skate-wheels",
+      "complete-frame-sets"
+    ],
+    "matched": 31,
+    "note": ""
+  },
+  {
+    "slug": "lange-boots",
+    "name": "Lange",
+    "count": 3,
+    "verdict": "sized",
+    "categories": [
+      "alpine-ski-boots",
+      "clearance-items",
+      "discount-products",
+      "winter-sports"
+    ],
+    "sizedCats": [
+      "alpine-ski-boots"
+    ],
+    "componentCats": [],
+    "matched": 3,
+    "note": ""
+  },
+  {
+    "slug": "luminous",
+    "name": "Luminous",
+    "count": 27,
+    "verdict": "sized",
+    "categories": [
+      "inline-skate-wheels",
+      "new-arrivals",
+      "children-products",
+      "clearance-items",
+      "discount-products",
+      "roller-skate-wheels",
+      "replacement-parts",
+      "inline-skates",
+      "inline-skating",
+      "board-wheels"
+    ],
+    "sizedCats": [
+      "inline-skates"
+    ],
+    "componentCats": [
+      "inline-skate-wheels",
+      "roller-skate-wheels",
+      "replacement-parts",
+      "board-wheels"
+    ],
+    "matched": 20,
+    "note": ""
+  },
+  {
+    "slug": "madd-gear",
+    "name": "Madd Gear",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "scooter-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "scooter-parts"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "matter",
+    "name": "Matter",
+    "count": 6,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-wheels",
+      "clearance-items",
+      "discount-products"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 6,
+    "note": ""
+  },
+  {
+    "slug": "mesmer",
+    "name": "Mesmer Skates",
+    "count": 6,
+    "verdict": "sized",
+    "categories": [
+      "inline-skate-wheels",
+      "inline-skates",
+      "inline-skating",
+      "backpacks-bags-carriers",
+      "new-arrivals"
+    ],
+    "sizedCats": [
+      "inline-skates"
+    ],
+    "componentCats": [
+      "inline-skate-wheels",
+      "backpacks-bags-carriers"
+    ],
+    "matched": 3,
+    "note": ""
+  },
+  {
+    "slug": "micro",
+    "name": "Micro Skate",
+    "count": 12,
+    "verdict": "sized",
+    "categories": [
+      "backpacks-bags-carriers",
+      "clearance-items",
+      "discount-products",
+      "children-products",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "inline-skates",
+      "inline-skating",
+      "inline-frames",
+      "2023-products"
+    ],
+    "sizedCats": [
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "inline-skates"
+    ],
+    "componentCats": [
+      "backpacks-bags-carriers",
+      "inline-frames"
+    ],
+    "matched": 14,
+    "note": ""
+  },
+  {
+    "slug": "mindless",
+    "name": "Mindless",
+    "count": 13,
+    "verdict": "component",
+    "categories": [
+      "board-wheels",
+      "clearance-items",
+      "discount-products",
+      "longboards",
+      "skateboards-and-longboards",
+      "board-components-parts",
+      "children-products",
+      "shortboard-skateboards"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "board-wheels",
+      "longboards",
+      "skateboards-and-longboards",
+      "board-components-parts",
+      "shortboard-skateboards"
+    ],
+    "matched": 16,
+    "note": ""
+  },
+  {
+    "slug": "mini-logo",
+    "name": "Mini Logo",
+    "count": 2,
+    "verdict": "component",
+    "categories": [
+      "board-components-parts",
+      "children-products",
+      "shortboard-skateboards",
+      "skateboards-and-longboards"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "board-components-parts",
+      "shortboard-skateboards",
+      "skateboards-and-longboards"
+    ],
+    "matched": 2,
+    "note": ""
+  },
+  {
+    "slug": "moxi-skates",
+    "name": "Moxi Skates",
+    "count": 6,
+    "verdict": "component",
+    "categories": [
+      "roller-skate-wheels"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "roller-skate-wheels"
+    ],
+    "matched": 2,
+    "note": ""
+  },
+  {
+    "slug": "mpc",
+    "name": "MPC",
+    "count": 3,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-wheels"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 6,
+    "note": ""
+  },
+  {
+    "slug": "myfit",
+    "name": "MYFIT",
+    "count": 34,
+    "verdict": "sized",
+    "categories": [
+      "inline-skate-liners",
+      "new-arrivals",
+      "replacement-parts",
+      "accessories",
+      "socks-foot-care",
+      "protection-gear-and-apparel",
+      "clearance-items",
+      "discount-products",
+      "inline-skating",
+      "color-kits-laces",
+      "roller-derby",
+      "race-clothing",
+      "roller-skate-parts"
+    ],
+    "sizedCats": [
+      "inline-skate-liners",
+      "protection-gear-and-apparel",
+      "race-clothing"
+    ],
+    "componentCats": [
+      "replacement-parts",
+      "accessories",
+      "roller-skate-parts"
+    ],
+    "matched": 37,
+    "note": ""
+  },
+  {
+    "slug": "nn-skates",
+    "name": "NN Skates",
+    "count": 20,
+    "verdict": "component",
+    "categories": [
+      "inline-frames",
+      "inline-skate-wheels",
+      "new-arrivals"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-frames",
+      "inline-skate-wheels"
+    ],
+    "matched": 17,
+    "note": ""
+  },
+  {
+    "slug": "optiwax",
+    "name": "Optiwax",
+    "count": 9,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "ski-wax"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "ski-wax"
+    ],
+    "matched": 12,
+    "note": ""
+  },
+  {
+    "slug": "oysi",
+    "name": "Oysi",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "inline-frames",
+      "inline-skating"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-frames"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "pills-wheels",
+    "name": "Pills",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "inline-skate-wheels"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 2,
+    "note": ""
+  },
+  {
+    "slug": "playlife",
+    "name": "PlayLife",
+    "count": 16,
+    "verdict": "sized",
+    "categories": [
+      "inline-skates",
+      "inline-skating",
+      "skate-heel-brakes",
+      "clearance-items",
+      "discount-products",
+      "children-products",
+      "scooters",
+      "trick-scooters",
+      "shortboard-skateboards",
+      "skateboards-and-longboards",
+      "roller-derby",
+      "roller-skates",
+      "roller-skating",
+      "roller-skate-parts"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "roller-skates"
+    ],
+    "componentCats": [
+      "skate-heel-brakes",
+      "shortboard-skateboards",
+      "skateboards-and-longboards",
+      "roller-skate-parts"
+    ],
+    "matched": 14,
+    "note": ""
+  },
+  {
+    "slug": "powerslide",
+    "name": "Powerslide",
+    "count": 397,
+    "verdict": "sized",
+    "categories": [
+      "accessories",
+      "backpacks-bags-carriers",
+      "inline-frames",
+      "new-arrivals",
+      "discount-products",
+      "skate-heel-brakes",
+      "replacement-parts",
+      "knee-and-elbow-pads",
+      "protection-gear-and-apparel",
+      "ice-skates",
+      "winter-sports",
+      "protective-helmets",
+      "clearance-items",
+      "inline-skates",
+      "inline-skating",
+      "inline-boots",
+      "gloves-wrist-protection",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "children-products",
+      "off-road-skates",
+      "inline-skate-wheels",
+      "roller-derby",
+      "protective-shorts",
+      "protection-packs",
+      "nordic-accessories",
+      "cross-country-poles",
+      "skate-tools",
+      "roller-skis",
+      "rollerski-parts-accessoires",
+      "nordic-clothing",
+      "complete-frame-sets",
+      "socks-foot-care",
+      "board-wheels",
+      "color-kits-laces"
+    ],
+    "sizedCats": [
+      "knee-and-elbow-pads",
+      "protection-gear-and-apparel",
+      "ice-skates",
+      "protective-helmets",
+      "inline-skates",
+      "inline-boots",
+      "gloves-wrist-protection",
+      "off-road-skates",
+      "protective-shorts",
+      "protection-packs",
+      "nordic-clothing"
+    ],
+    "componentCats": [
+      "accessories",
+      "backpacks-bags-carriers",
+      "inline-frames",
+      "skate-heel-brakes",
+      "replacement-parts",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "inline-skate-wheels",
+      "nordic-accessories",
+      "cross-country-poles",
+      "skate-tools",
+      "rollerski-parts-accessoires",
+      "complete-frame-sets",
+      "board-wheels"
+    ],
+    "matched": 346,
+    "note": ""
+  },
+  {
+    "slug": "proskaters",
+    "name": "ProSkaters",
+    "count": 6,
+    "verdict": "component",
+    "categories": [
+      "accessories",
+      "backpacks-bags-carriers"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "accessories",
+      "backpacks-bags-carriers"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "reign-hockey",
+    "name": "Reign Hockey",
+    "count": 6,
+    "verdict": "sized",
+    "categories": [
+      "complete-frame-sets",
+      "ice-skates",
+      "winter-sports",
+      "accessories",
+      "children-products"
+    ],
+    "sizedCats": [
+      "ice-skates"
+    ],
+    "componentCats": [
+      "complete-frame-sets",
+      "accessories"
+    ],
+    "matched": 2,
+    "note": ""
+  },
+  {
+    "slug": "rekd",
+    "name": "Rekd",
+    "count": 5,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "gloves-wrist-protection",
+      "protection-gear-and-apparel",
+      "protective-helmets",
+      "children-products",
+      "knee-and-elbow-pads",
+      "scooters",
+      "alpine-protection"
+    ],
+    "sizedCats": [
+      "gloves-wrist-protection",
+      "protection-gear-and-apparel",
+      "protective-helmets",
+      "knee-and-elbow-pads",
+      "alpine-protection"
+    ],
+    "componentCats": [],
+    "matched": 5,
+    "note": ""
+  },
+  {
+    "slug": "reusch",
+    "name": "Reusch",
+    "count": 6,
+    "verdict": "sized",
+    "categories": [
+      "alpine-clothing",
+      "clearance-items",
+      "discount-products",
+      "children-products"
+    ],
+    "sizedCats": [
+      "alpine-clothing"
+    ],
+    "componentCats": [],
+    "matched": 6,
+    "note": ""
+  },
+  {
+    "slug": "revision-hockey",
+    "name": "Revision",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "inline-skate-wheels"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "riedell-skates",
+    "name": "Riedell Skates",
+    "count": 8,
+    "verdict": "review",
+    "categories": [],
+    "matched": 0,
+    "note": "no products in catalog"
+  },
+  {
+    "slug": "rio-roller",
+    "name": "Rio Roller",
+    "count": 19,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "roller-skates",
+      "roller-skating",
+      "accessories",
+      "children-products",
+      "roller-skate-parts",
+      "color-kits-laces",
+      "replacement-parts",
+      "roller-skate-wheels"
+    ],
+    "sizedCats": [
+      "roller-skates"
+    ],
+    "componentCats": [
+      "accessories",
+      "roller-skate-parts",
+      "replacement-parts",
+      "roller-skate-wheels"
+    ],
+    "matched": 20,
+    "note": ""
+  },
+  {
+    "slug": "rollerblade",
+    "name": "Rollerblade",
+    "count": 34,
+    "verdict": "sized",
+    "categories": [
+      "skate-tools",
+      "inline-frames",
+      "new-arrivals",
+      "replacement-parts",
+      "inline-skate-wheels",
+      "inline-skates",
+      "inline-skating",
+      "backpacks-bags-carriers",
+      "accessories",
+      "clearance-items",
+      "discount-products",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "children-products",
+      "skate-heel-brakes"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "protection-gear-and-apparel",
+      "protection-packs"
+    ],
+    "componentCats": [
+      "skate-tools",
+      "inline-frames",
+      "replacement-parts",
+      "inline-skate-wheels",
+      "backpacks-bags-carriers",
+      "accessories",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "skate-heel-brakes"
+    ],
+    "matched": 29,
+    "note": ""
+  },
+  {
+    "slug": "rossignol-ski",
+    "name": "Rossignol",
+    "count": 48,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "nordic-ski-boots",
+      "winter-sports",
+      "cross-country-poles",
+      "children-products",
+      "bindings-and-parts",
+      "nordic-accessories",
+      "cross-country-skis",
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "alpine-poles",
+      "alpine-skis",
+      "alpine-ski-boots"
+    ],
+    "sizedCats": [
+      "nordic-ski-boots",
+      "alpine-ski-boots"
+    ],
+    "componentCats": [
+      "cross-country-poles",
+      "bindings-and-parts",
+      "nordic-accessories",
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "alpine-poles"
+    ],
+    "matched": 59,
+    "note": ""
+  },
+  {
+    "slug": "rottefella",
+    "name": "Rottefella",
+    "count": 3,
+    "verdict": "component",
+    "categories": [
+      "bindings-and-parts",
+      "clearance-items",
+      "discount-products",
+      "winter-sports"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "bindings-and-parts"
+    ],
+    "matched": 1,
+    "note": ""
+  },
+  {
+    "slug": "seba",
+    "name": "SEBA Skates",
+    "count": 33,
+    "verdict": "sized",
+    "categories": [
+      "backpacks-bags-carriers",
+      "replacement-parts",
+      "clearance-items",
+      "discount-products",
+      "inline-skates",
+      "inline-skating",
+      "skate-tools",
+      "inline-frames",
+      "new-arrivals",
+      "gloves-wrist-protection",
+      "protection-gear-and-apparel",
+      "skate-heel-brakes",
+      "color-kits-laces",
+      "accessories",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "gloves-wrist-protection",
+      "protection-gear-and-apparel"
+    ],
+    "componentCats": [
+      "backpacks-bags-carriers",
+      "replacement-parts",
+      "skate-tools",
+      "inline-frames",
+      "skate-heel-brakes",
+      "accessories",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings"
+    ],
+    "matched": 39,
+    "note": ""
+  },
+  {
+    "slug": "sfr-skates",
+    "name": "SFR Skates",
+    "count": 5,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "inline-skate-wheels",
+      "children-products",
+      "roller-skates",
+      "roller-skating"
+    ],
+    "sizedCats": [
+      "roller-skates"
+    ],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 6,
+    "note": ""
+  },
+  {
+    "slug": "shred",
+    "name": "SHRED",
+    "count": 7,
+    "verdict": "sized",
+    "categories": [
+      "alpine-protection",
+      "clearance-items",
+      "discount-products",
+      "protective-helmets",
+      "winter-sports",
+      "children-products"
+    ],
+    "sizedCats": [
+      "alpine-protection",
+      "protective-helmets"
+    ],
+    "componentCats": [],
+    "matched": 7,
+    "note": ""
+  },
+  {
+    "slug": "sidas",
+    "name": "SIDAS",
+    "count": 5,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "protection-gear-and-apparel",
+      "socks-foot-care",
+      "nordic-accessories",
+      "winter-sports",
+      "alpine-accessories"
+    ],
+    "sizedCats": [
+      "protection-gear-and-apparel"
+    ],
+    "componentCats": [
+      "nordic-accessories",
+      "alpine-accessories"
+    ],
+    "matched": 5,
+    "note": ""
+  },
+  {
+    "slug": "slamm-scooters",
+    "name": "Slamm",
+    "count": 14,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "scooter-parts",
+      "children-products",
+      "scooters",
+      "trick-scooters"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "scooter-parts"
+    ],
+    "matched": 15,
+    "note": ""
+  },
+  {
+    "slug": "snow-white",
+    "name": "Snow White",
+    "count": 1,
+    "verdict": "component",
+    "categories": [
+      "roller-skate-parts",
+      "clearance-items",
+      "discount-products",
+      "inline-skate-wheels",
+      "complete-frame-sets",
+      "inline-skating",
+      "children-products"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "roller-skate-parts",
+      "inline-skate-wheels",
+      "complete-frame-sets"
+    ],
+    "matched": 3,
+    "note": ""
+  },
+  {
+    "slug": "sonic",
+    "name": "Sonic",
+    "count": 22,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "skate-tools",
+      "board-tools",
+      "accessories",
+      "replacement-parts",
+      "roller-skate-tool",
+      "skate-heel-brakes",
+      "scooter-parts",
+      "inline-skating"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "skate-tools",
+      "board-tools",
+      "accessories",
+      "replacement-parts",
+      "roller-skate-tool",
+      "skate-heel-brakes",
+      "scooter-parts"
+    ],
+    "matched": 24,
+    "note": ""
+  },
+  {
+    "slug": "stanley",
+    "name": "Stanley",
+    "count": 9,
+    "verdict": "sized",
+    "categories": [
+      "accessories",
+      "clearance-items",
+      "discount-products",
+      "ice-skates",
+      "children-products",
+      "protection-gear-and-apparel",
+      "protective-shorts",
+      "inline-skates",
+      "inline-skating",
+      "inline-frames"
+    ],
+    "sizedCats": [
+      "ice-skates",
+      "protection-gear-and-apparel",
+      "protective-shorts",
+      "inline-skates"
+    ],
+    "componentCats": [
+      "accessories",
+      "inline-frames"
+    ],
+    "matched": 11,
+    "note": ""
+  },
+  {
+    "slug": "summit-skiboards",
+    "name": "Summit Skiboards",
+    "count": 19,
+    "verdict": "review",
+    "categories": [],
+    "matched": 0,
+    "note": "no products in catalog"
+  },
+  {
+    "slug": "sweet-protection",
+    "name": "Sweet",
+    "count": 5,
+    "verdict": "sized",
+    "categories": [
+      "alpine-protection",
+      "clearance-items",
+      "discount-products",
+      "protective-helmets",
+      "children-products",
+      "protection-gear-and-apparel"
+    ],
+    "sizedCats": [
+      "alpine-protection",
+      "protective-helmets",
+      "protection-gear-and-apparel"
+    ],
+    "componentCats": [],
+    "matched": 5,
+    "note": ""
+  },
+  {
+    "slug": "swings",
+    "name": "Swings",
+    "count": 4,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-bearings",
+      "new-arrivals",
+      "replacement-parts",
+      "inline-frames",
+      "backpacks-bags-carriers"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-bearings",
+      "replacement-parts",
+      "inline-frames",
+      "backpacks-bags-carriers"
+    ],
+    "matched": 4,
+    "note": ""
+  },
+  {
+    "slug": "swix",
+    "name": "Swix",
+    "count": 71,
+    "verdict": "sized",
+    "categories": [
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "clearance-items",
+      "discount-products",
+      "winter-sports",
+      "nordic-accessories",
+      "nordic-clothing",
+      "alpine-poles",
+      "ski-wax",
+      "children-products",
+      "cross-country-poles"
+    ],
+    "sizedCats": [
+      "nordic-clothing"
+    ],
+    "componentCats": [
+      "alpine-accessories",
+      "backpacks-bags-carriers",
+      "nordic-accessories",
+      "alpine-poles",
+      "ski-wax",
+      "cross-country-poles"
+    ],
+    "matched": 84,
+    "note": ""
+  },
+  {
+    "slug": "symetrics",
+    "name": "Symetrics Brand",
+    "count": 33,
+    "verdict": "component",
+    "categories": [
+      "inline-frames",
+      "inline-skate-wheels",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "backpacks-bags-carriers",
+      "new-arrivals"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-frames",
+      "inline-skate-wheels",
+      "board-components-parts",
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "backpacks-bags-carriers"
+    ],
+    "matched": 17,
+    "note": ""
+  },
+  {
+    "slug": "toko",
+    "name": "Toko",
+    "count": 23,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "ski-wax",
+      "nordic-accessories",
+      "accessories",
+      "alpine-accessories"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "ski-wax",
+      "nordic-accessories",
+      "accessories",
+      "alpine-accessories"
+    ],
+    "matched": 29,
+    "note": ""
+  },
+  {
+    "slug": "transformer-ice-blades",
+    "name": "Transformer",
+    "count": 6,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "ice-skates",
+      "winter-sports",
+      "inline-skates",
+      "inline-skating",
+      "children-products"
+    ],
+    "sizedCats": [
+      "ice-skates",
+      "inline-skates"
+    ],
+    "componentCats": [],
+    "matched": 7,
+    "note": ""
+  },
+  {
+    "slug": "twincam",
+    "name": "TWINCAM",
+    "count": 9,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "board-components-parts",
+      "scooter-parts"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-bearings",
+      "roller-skate-bearings",
+      "board-components-parts",
+      "scooter-parts"
+    ],
+    "matched": 9,
+    "note": ""
+  },
+  {
+    "slug": "undercover-wheels",
+    "name": "Undercover Wheels",
+    "count": 55,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-wheels",
+      "new-arrivals",
+      "clearance-items",
+      "discount-products"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-wheels"
+    ],
+    "matched": 48,
+    "note": ""
+  },
+  {
+    "slug": "usd-skates",
+    "name": "USD",
+    "count": 15,
+    "verdict": "sized",
+    "categories": [
+      "inline-skate-wheels",
+      "discount-products",
+      "inline-skates",
+      "inline-skating",
+      "children-products",
+      "clearance-items",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "inline-skate-liners",
+      "replacement-parts"
+    ],
+    "sizedCats": [
+      "inline-skates",
+      "protection-gear-and-apparel",
+      "protection-packs",
+      "inline-skate-liners"
+    ],
+    "componentCats": [
+      "inline-skate-wheels",
+      "replacement-parts"
+    ],
+    "matched": 16,
+    "note": ""
+  },
+  {
+    "slug": "volten",
+    "name": "Volten",
+    "count": 3,
+    "verdict": "component",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "penny-boards",
+      "skateboards-and-longboards",
+      "children-products",
+      "vinylboards"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "penny-boards",
+      "skateboards-and-longboards",
+      "vinylboards"
+    ],
+    "matched": 3,
+    "note": ""
+  },
+  {
+    "slug": "wicked",
+    "name": "WICKED",
+    "count": 27,
+    "verdict": "component",
+    "categories": [
+      "inline-skate-bearings",
+      "replacement-parts",
+      "skate-tools",
+      "board-components-parts",
+      "scooter-parts",
+      "roller-skate-bearings",
+      "roller-skate-tool",
+      "board-tools",
+      "clearance-items",
+      "discount-products"
+    ],
+    "sizedCats": [],
+    "componentCats": [
+      "inline-skate-bearings",
+      "replacement-parts",
+      "skate-tools",
+      "board-components-parts",
+      "scooter-parts",
+      "roller-skate-bearings",
+      "roller-skate-tool",
+      "board-tools"
+    ],
+    "matched": 22,
+    "note": ""
+  },
+  {
+    "slug": "yoko",
+    "name": "Yoko",
+    "count": 47,
+    "verdict": "sized",
+    "categories": [
+      "clearance-items",
+      "discount-products",
+      "nordic-accessories",
+      "cross-country-poles",
+      "nordic-clothing",
+      "children-products",
+      "winter-sports",
+      "new-arrivals",
+      "cross-country-skis",
+      "nordic-ski-boots"
+    ],
+    "sizedCats": [
+      "nordic-clothing",
+      "nordic-ski-boots"
+    ],
+    "componentCats": [
+      "nordic-accessories",
+      "cross-country-poles"
+    ],
+    "matched": 48,
+    "note": ""
+  }
+]

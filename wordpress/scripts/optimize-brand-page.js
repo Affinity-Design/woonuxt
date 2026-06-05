@@ -52,6 +52,8 @@ const {
   buildInternalLinks,
   extractBrandContext,
   extractFAQQuestionsFromKeywords,
+  brandMakesSizedProducts,
+  isFittedCategory,
   BRAND_WEBSITE_MAP,
   SITE_URL,
 } = require('./lib/brand-prompts');
@@ -123,9 +125,9 @@ const CATEGORY_LINKS = [
 // Guide / resource pages — non-category internal links always included
 const GUIDE_LINKS = [
   {
-    name: 'Inline Skate Size Guide',
-    url: '/inline-skates-size-calculator/',
-    title: 'Find your perfect inline skate size',
+    name: 'Skate Size Calculator',
+    url: '/roller-skates-size-calculator/',
+    title: 'Find your perfect skate size',
   },
 ];
 
@@ -168,6 +170,35 @@ if (!TARGET_SLUG && !RUN_ALL && !TOP_N && !BATCH_FILE) {
 
 const MASTER_LIST_PATH = path.resolve(__dirname, '../../data/brand-master-list.json');
 const LOG_PATH = path.resolve(__dirname, '../../data/brand-optimization-log.json');
+const CLASSIFICATION_PATH = path.resolve(__dirname, '../../data/brand-category-classification.json');
+
+// Reliable sized/component verdict per brand (from classify-brands.js). The live
+// brand-archive scrape can be unreliable on Elementor-templated pages, so prefer
+// this when present to decide whether sizing FAQs are appropriate.
+function loadClassification() {
+  try {
+    const arr = JSON.parse(fs.readFileSync(CLASSIFICATION_PATH, 'utf8'));
+    const map = {};
+    for (const r of arr) map[r.slug] = r;
+    return map;
+  } catch {
+    return {};
+  }
+}
+const CLASSIFICATION = loadClassification();
+
+/** Pick a product noun for keyword seeding from a component brand's categories. */
+function dominantProductNoun(categoryHints = []) {
+  const j = categoryHints.join(' ').toLowerCase();
+  if (/bearing/.test(j)) return 'bearings';
+  if (/wheel/.test(j)) return 'wheels';
+  if (/frame/.test(j)) return 'frames';
+  if (/\bwax\b/.test(j)) return 'wax';
+  if (/pole/.test(j)) return 'poles';
+  if (/board/.test(j)) return 'skateboards';
+  if (/scooter/.test(j)) return 'scooters';
+  return ''; // unknown → just the brand name (no invented product type)
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -441,17 +472,16 @@ function extractProductCategories(products) {
 
 // ─── Step D: Get DataForSEO keyword data for content targeting ─────────────────
 
-async function getKeywordsForContent(brand) {
+async function getKeywordsForContent(brand, opts = {}) {
+  // Product noun for keyword seeding/fallback. "skates" for footwear brands;
+  // "bearings"/"wheels"/etc. for component brands so we never invent "<brand> skates".
+  const noun = opts.productNoun || 'skates';
   if (SKIP_DATAFORSEO) {
     // Fall back to keywords already in master list
-    return buildKeywordsFromMasterList(brand);
+    return buildKeywordsFromMasterList(brand, opts);
   }
 
-  const brandKeyword =
-    brand.name
-      .toLowerCase()
-      .replace(/\s+skates?$/i, '')
-      .trim() + ' skates';
+  const brandKeyword = (brand.name.toLowerCase().replace(/\s+skates?$/i, '').trim() + ' ' + noun).trim();
   const allItems = [];
 
   try {
@@ -478,11 +508,11 @@ async function getKeywordsForContent(brand) {
     console.warn(`    ⚠️  keywordSuggestions failed: ${err.message}`);
   }
 
-  if (allItems.length === 0) return buildKeywordsFromMasterList(brand);
+  if (allItems.length === 0) return buildKeywordsFromMasterList(brand, opts);
 
   // Filter for quality: volume > 10, deduplicate
   const seen = new Set();
-  const filtered = allItems
+  let filtered = allItems
     .filter((item) => {
       const kw = item.keyword_data?.keyword;
       const vol = item.keyword_data?.keyword_info?.search_volume || 0;
@@ -491,6 +521,12 @@ async function getKeywordsForContent(brand) {
       return true;
     })
     .sort((a, b) => (b.keyword_data?.keyword_info?.search_volume || 0) - (a.keyword_data?.keyword_info?.search_volume || 0));
+
+  // Component brands: drop footwear keywords (e.g. "anarchy skates") so we never
+  // title/meta a parts page as "<brand> skates". Keeps component terms like "anarchy wheels".
+  if (opts.makesSized === false) {
+    filtered = filtered.filter((k) => !isFittedCategory(k.keyword_data?.keyword || ''));
+  }
 
   // v2: Primary keyword must be brand-specific — never a generic term like "inline skates"
   const brandNameLower = brand.name.toLowerCase();
@@ -505,7 +541,7 @@ async function getKeywordsForContent(brand) {
   const primary =
     brandedKeywords[0]?.keyword_data?.keyword ||
     filtered.find((k) => (k.keyword_data?.keyword || '').toLowerCase().includes(brandBase))?.keyword_data?.keyword ||
-    `${brandBase} skates`;
+    `${brandBase} ${noun}`.trim();
 
   const secondary = filtered
     .filter((k) => k.keyword_data?.keyword !== primary)
@@ -538,12 +574,18 @@ async function getKeywordsForContent(brand) {
 }
 
 /** Build keyword targeting from master list data (no DataForSEO call) */
-function buildKeywordsFromMasterList(brand) {
+function buildKeywordsFromMasterList(brand, opts = {}) {
+  const noun = opts.productNoun || 'skates';
   const ranked = brand.liveKeywords?.keywords || [];
   const opps = brand.opportunityKeywords?.items || [];
   const cannibal = brand.cannibalizationKeywords || [];
 
-  const allKws = [...ranked, ...opps, ...cannibal].sort((a, b) => (b.searchVolume || b.volume || 0) - (a.searchVolume || a.volume || 0));
+  let allKws = [...ranked, ...opps, ...cannibal].sort((a, b) => (b.searchVolume || b.volume || 0) - (a.searchVolume || a.volume || 0));
+
+  // Component brands: drop footwear keywords so we never invent "<brand> skates".
+  if (opts.makesSized === false) {
+    allKws = allKws.filter((k) => !isFittedCategory(k.keyword || ''));
+  }
 
   // v2: Primary keyword must mention the brand name — never a generic term
   const brandBase = brand.name
@@ -551,7 +593,7 @@ function buildKeywordsFromMasterList(brand) {
     .replace(/\s+skates?$/i, '')
     .trim();
   const brandedKw = allKws.find((k) => (k.keyword || '').toLowerCase().includes(brandBase));
-  const primary = brandedKw?.keyword || `${brandBase} skates`;
+  const primary = brandedKw?.keyword || `${brandBase} ${noun}`.trim();
 
   const secondary = allKws
     .filter((k) => k.keyword !== primary)
@@ -601,6 +643,7 @@ async function generateBrandContent(brand, keywords, brandContext, options = {})
       isAuthorized,
       productCount: options.productCount || 0,
       productCategories: options.productCategories || [],
+      makesSized: options.makesSized,
     });
     results.description = await generateContent(descPrompt);
     const wc = wordCount(stripHtml(results.description));
@@ -614,7 +657,10 @@ async function generateBrandContent(brand, keywords, brandContext, options = {})
   // 3. FAQ questions and answers — with brand context for grounding
   console.log('    🤖 Generating FAQs...');
   try {
-    const faqPrompt = brandFAQPrompt(brand, keywords.faqQuestions, brandContext);
+    const faqPrompt = brandFAQPrompt(brand, keywords.faqQuestions, brandContext, {
+      productCategories: options.productCategories || [],
+      makesSized: options.makesSized,
+    });
     const faqRaw = await generateContent(faqPrompt);
     results.faqs = parseGeminiJSON(faqRaw);
     if (!Array.isArray(results.faqs)) throw new Error('Expected array');
@@ -970,21 +1016,34 @@ async function processBrand(brand, taxEndpoint, taxSlug, isWC) {
     console.log(`       Categories found: ${productCategories.map((c) => c.name).join(', ')}`);
   }
 
+  // Decide sizing relevance reliably: prebuilt classification first, scrape fallback.
+  const classified = CLASSIFICATION[brand.slug];
+  let makesSized;
+  if (classified && classified.verdict === 'sized') makesSized = true;
+  else if (classified && classified.verdict === 'component') makesSized = false;
+  else makesSized = brandMakesSizedProducts(productCategories.map((c) => c.name));
+  console.log(`       Sized products: ${makesSized === null ? 'unknown' : makesSized}${classified ? ` (classification: ${classified.verdict})` : ' (scrape)'}`);
+
+  // For component brands, seed keywords with the real product noun (bearings/wheels/…)
+  // so we never invent "<brand> skates" in titles, meta, and copy.
+  const productNoun = makesSized === false ? dominantProductNoun([...productCategories.map((c) => c.name), ...(classified?.categories || [])]) : 'skates';
+
   // ── C. Get DataForSEO keywords ───────────────────────────────────────────
   let keywords;
   try {
-    keywords = await getKeywordsForContent(brand);
+    keywords = await getKeywordsForContent(brand, {productNoun, makesSized});
     console.log(`       Primary keyword: "${keywords.primary}"`);
     console.log(`       Secondary count: ${keywords.secondary.length} | FAQ questions: ${keywords.faqQuestions.length}`);
   } catch (err) {
     console.warn(`    ⚠️  Keyword fetch failed: ${err.message}. Using fallback.`);
-    keywords = buildKeywordsFromMasterList(brand);
+    keywords = buildKeywordsFromMasterList(brand, {productNoun, makesSized});
   }
 
   // ── D. Generate content via Gemini (with brand context) ──────────────────
   const generated = await generateBrandContent(brand, keywords, brandContext, {
     productCount: scrapedProducts.length || brand.taxonomy?.count || 0,
     productCategories: productCategories.map((c) => c.name),
+    makesSized,
   });
 
   // ── D2. Validate Rank Math meta lengths (warn before write, not after) ──

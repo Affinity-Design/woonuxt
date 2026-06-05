@@ -101,7 +101,7 @@ Moxi sizes run large enough for most men up to size 12, and the suede boot earns
 
 Wide-footed skaters know the frustration of cramped toe boxes. The Boardwalk solves this with a generous, padded boot that runs a full width wider than most competitors. The vinyl construction keeps the price reasonable, the aluminium plate is reliable, and the classic design looks good at any rink night.
 
-**Sizing tip:** Use our [inline skates size calculator](/inline-skates-size-calculator) to measure your foot precisely before ordering. Even a half-size error matters in skating.
+**Sizing tip:** Use our [skate size calculator](/roller-skates-size-calculator) to measure your foot precisely before ordering. Even a half-size error matters in skating.
 
 ---
 
