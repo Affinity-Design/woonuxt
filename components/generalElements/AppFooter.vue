@@ -63,6 +63,8 @@ const {wishlistLink} = useAuth();
         <div class="text-sm">
           <NuxtLink to="/about" class="py-1.5 block">About Us</NuxtLink>
           <NuxtLink to="/contact" class="py-1.5 block">Contact Us</NuxtLink>
+          <NuxtLink to="/blog" class="py-1.5 block">Blog</NuxtLink>
+          <NuxtLink to="/roller-skates-size-calculator" class="py-1.5 block">Skate Size Calculator</NuxtLink>
           <NuxtLink to="/terms" class="py-1.5 block">Terms & Conditions</NuxtLink>
           <NuxtLink to="/privacy" class="py-1.5 block">Privacy Policy</NuxtLink>
           <NuxtLink to="/terms" class="py-1.5 block">Shipping & Returns</NuxtLink>
