@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, onMounted} from 'vue';
+import {computed} from 'vue';
 
 // Define ProductCategory type
 interface ProductCategoryFromGraphQL {
@@ -19,13 +19,7 @@ interface ProductCategoryProcessed extends ProductCategoryFromGraphQL {
 
 // Attempt to fetch category data from a data source (e.g., CMS via GraphQL)
 // This data (like name, slug, count) is still used, but not for image URLs directly.
-const {data, error: gqlError} = await useAsyncGql('getProductCategories');
-
-if (gqlError.value) {
-  console.error('[DEBUG V3] Error fetching category data (e.g., from GraphQL/CMS):', JSON.parse(JSON.stringify(gqlError.value)));
-} else {
-  console.log('[DEBUG V3] Raw category data (e.g., from GraphQL/CMS):', JSON.parse(JSON.stringify(data.value)));
-}
+const {data} = await useAsyncGql('getProductCategories');
 
 // Defines the desired categories, their display names, slugs, and specific image filenames if needed.
 const categoryMapping = [
@@ -87,89 +81,42 @@ const categoryMapping = [
   },
 ];
 
-const pillCategories = [
-  {name: 'New Arrivals', slug: 'new-arrivals'},
-  {name: 'Frames', slug: 'inline-frames'},
-  {name: 'Inline Skate Wheels', slug: 'inline-skate-wheels'},
-  {name: 'Winter Sports', slug: 'winter-sports'},
-  {name: 'Clearance', slug: 'clearance-items'},
-  {name: 'Accessories', slug: 'accessories'},
-];
-
 // Computed property to process and prepare categories for the template
 const allNodes = computed(() => data.value?.productCategories?.nodes || []);
 
 const productCategories = computed((): ProductCategoryProcessed[] => {
-  console.log('[DEBUG V3] Computing productCategories...');
-
-  // Use category data from GraphQL/CMS if available, otherwise expect it to be handled by mapping alone
+  // Use category data from GraphQL/CMS if available, otherwise fall back to the mapping alone.
   const nodesFromDataSource: ProductCategoryFromGraphQL[] = allNodes.value;
-
-  if (!nodesFromDataSource.length && data.value) {
-    // data.value exists but nodes are empty or not found
-    console.warn('[DEBUG V3] productCategories.nodes not found or empty in data from CMS/GraphQL. Proceeding with mapping only for slugs/displayNames.');
-  }
-
   const categoriesMap = new Map(nodesFromDataSource.map((cat: ProductCategoryFromGraphQL) => [cat.slug, cat]));
 
-  const result = categoryMapping
+  return categoryMapping
     .map((categoryToMap) => {
       const categoryDataFromSource = categoriesMap.get(categoryToMap.slug);
 
-      if (!categoryDataFromSource && nodesFromDataSource.length > 0) {
-        // Only warn if we expected data from the source but didn't find it for a mapped slug
-        console.warn(`[DEBUG V3] WARN: No data found in CMS/GraphQL for slug: "${categoryToMap.slug}" (Display: "${categoryToMap.display}")`);
-      }
-
-      // Base object with data from mapping (slug, displayName, imageFilename)
+      // Base object from the mapping (slug, displayName, imageFilename).
       let processedCategory: Partial<ProductCategoryProcessed> = {
         slug: categoryToMap.slug,
         displayName: categoryToMap.display,
-        imageFilename: categoryToMap.imageFilename, // Use the explicitly defined filename
+        imageFilename: categoryToMap.imageFilename,
         name: categoryToMap.display, // Default name to displayName if no source data
       };
 
-      // If data exists from the source (CMS/GraphQL), spread it,
-      // allowing mapped properties (like displayName) to take precedence if needed,
-      // and ensuring our imageFilename is preserved.
+      // Merge in source data (count, image, id) while keeping our mapped values.
       if (categoryDataFromSource) {
         processedCategory = {
-          ...categoryDataFromSource, // Data from CMS (e.g., count, original name, id)
-          ...processedCategory, // Our mapped values, including imageFilename and displayName
+          ...categoryDataFromSource,
+          ...processedCategory,
         };
-      } else {
-        // If no data from source, ensure essential fields like 'name' (for keying or alt text) are set.
-        // 'slug' and 'displayName' are already set from categoryToMap.
-        // No 'count' or 'id' would be available here.
-      }
-
-      // For the problematic category, log what's being prepared
-      if (categoryToMap.slug === 'skateboards-and-longboards') {
-        console.log('[DEBUG V3] Preparing data for "Skateboards and Longboards":', JSON.parse(JSON.stringify(processedCategory)));
       }
 
       return processedCategory as ProductCategoryProcessed;
     })
     .filter((category): category is ProductCategoryProcessed => {
-      // Ensure category is not undefined and has a slug (basic validity)
-      if (!category || !category.slug) {
-        console.warn('[DEBUG V3] Filtering out an invalid category object:', category);
-        return false;
-      }
-      // Filter out empty categories if data is available
-      if (category.count !== undefined && category.count === 0) {
-        return false;
-      }
+      if (!category || !category.slug) return false;
+      // Filter out empty categories when count is known.
+      if (category.count !== undefined && category.count === 0) return false;
       return true;
     });
-
-  console.log('[DEBUG V3] Final processed productCategories for template:', JSON.parse(JSON.stringify(result)));
-  return result;
-});
-
-const otherCategories = computed(() => {
-  const highlightedSlugs = categoryMapping.map((c) => c.slug);
-  return allNodes.value.filter((n: any) => !highlightedSlugs.includes(n.slug) && n.count > 0).sort((a: any, b: any) => a.name.localeCompare(b.name));
 });
 
 // Canadian SEO Optimization
@@ -254,34 +201,21 @@ useHead({
   ],
 });
 
-onMounted(() => {
-  console.log('[DEBUG V3] productCategories value on client mount:', JSON.parse(JSON.stringify(productCategories.value)));
-});
 </script>
 
 <template>
   <main class="min-h-screen" style="background-color: #1a1a1a">
     <!-- Main Container -->
     <div class="mx-auto" style="max-width: 1320px; padding: clamp(24px, 5vw, 64px)">
-      <!-- Header Section -->
-      <header class="mb-12">
-        <div class="flex items-end justify-between mb-8">
-          <h1 class="text-white font-bold tracking-tight" style="font-size: clamp(48px, 6vw, 88px); letter-spacing: -0.02em; line-height: 1.1">
-            Featured Categories
-          </h1>
-          <a href="#all-categories" class="text-white hover:underline font-medium" style="font-size: 0.875rem"> All Categories </a>
-        </div>
+      <!-- Searchable nested category directory (top-level → subcategories) -->
+      <CategoryDirectory :category-nodes="allNodes" />
 
-        <!-- Category Pills -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <NuxtLink
-            v-for="pill in pillCategories"
-            :key="pill.slug"
-            :to="`/product-category/${pill.slug}`"
-            class="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 bg-gray-800 text-white border border-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
-            style="border-radius: 24px; padding: 4px 12px">
-            {{ pill.name }}
-          </NuxtLink>
+      <!-- Featured Categories hero -->
+      <header class="mt-16 mb-12">
+        <div class="flex items-end justify-between mb-8">
+          <h2 class="text-white font-bold tracking-tight" style="font-size: clamp(48px, 6vw, 88px); letter-spacing: -0.02em; line-height: 1.1">
+            Featured Categories
+          </h2>
         </div>
       </header>
 
@@ -349,21 +283,6 @@ onMounted(() => {
             <h3 class="text-xl font-semibold text-white mb-2">Fast Shipping</h3>
             <p class="text-gray-300">Free shipping on orders ${{ freeShipThreshold }}+ across Canada with fast delivery</p>
           </div>
-        </div>
-      </div>
-
-      <!-- More Categories Section -->
-      <div v-if="otherCategories.length" id="all-categories" class="mt-16">
-        <h2 class="text-2xl font-bold text-white mb-6">More Categories</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <NuxtLink
-            v-for="cat in otherCategories"
-            :key="cat.slug"
-            :to="`/product-category/${cat.slug}`"
-            class="bg-gray-800 p-4 rounded hover:bg-gray-700 transition-colors flex flex-col justify-between h-full">
-            <div class="font-semibold text-white mb-2">{{ cat.name }}</div>
-            <div class="text-sm text-gray-400">{{ cat.count }} products</div>
-          </NuxtLink>
         </div>
       </div>
 

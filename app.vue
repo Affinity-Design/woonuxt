@@ -25,7 +25,7 @@ useHead({
 
 <template>
   <NuxtLoadingIndicator />
-  <div class="flex flex-col min-h-screen">
+  <div class="flex flex-col min-h-screen pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
     <TopBanner />
     <AppHeader />
 
@@ -33,18 +33,19 @@ useHead({
       <LazyCart v-if="isShowingCart" />
     </Transition>
 
-    <Transition name="slide-from-left">
-      <MobileMenu v-if="isShowingMobileMenu" />
-    </Transition>
+    <MobileNavDrawer />
     <NuxtLoadingIndicator color="#3B82F6" />
     <NuxtPage />
 
     <Transition name="fade">
-      <div v-if="isShowingCart || isShowingMobileMenu" class="bg-black opacity-25 inset-0 z-40 fixed" @click="closeCartAndMenu" />
+      <div v-if="isShowingCart" class="bg-black opacity-25 inset-0 z-40 fixed" @click="closeCartAndMenu" />
     </Transition>
 
     <AppFooter />
   </div>
+
+  <!-- Mobile-only bottom bar (visible < lg) -->
+  <MobileBottomBar />
 
   <!-- Toast notifications -->
   <ToastContainer />
