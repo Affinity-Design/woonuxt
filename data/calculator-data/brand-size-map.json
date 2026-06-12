@@ -1,0 +1,250 @@
+{
+  "Adapt": {
+    "category": "inline_skates",
+    "sourceFile": "Adapt Sizing Chart.jpg",
+    "euToChartMm": {
+      "36": 245,
+      "37": 250,
+      "38": 255,
+      "39": 260,
+      "40": 265,
+      "41": 270,
+      "42": 280,
+      "43": 285,
+      "44": 290,
+      "45": 295,
+      "46": 300,
+      "47": 310
+    }
+  },
+  "FR Skates": {
+    "category": "inline_skates",
+    "sourceFile": "FR Brand Sizing Chart.jpg",
+    "euToChartMm": {
+      "34": 220,
+      "35": 225,
+      "36": 230,
+      "37": 235,
+      "38": 245,
+      "39": 255,
+      "40": 260,
+      "41": 265,
+      "42": 270,
+      "43": 275,
+      "44": 280,
+      "45": 285,
+      "46": 295,
+      "47": 300
+    }
+  },
+  "SEBA": {
+    "category": "inline_skates",
+    "sourceFile": "SEBA Sizing Chart.jpg",
+    "euToChartMm": {
+      "35": 225,
+      "36": 230,
+      "37": 235,
+      "38": 245,
+      "39": 255,
+      "40": 260,
+      "41": 265,
+      "42": 270,
+      "43": 275,
+      "44": 280,
+      "45": 285,
+      "46": 295,
+      "47": 300,
+      "48": 305
+    }
+  },
+  "Gawds": {
+    "category": "inline_skates",
+    "sourceFile": "Gawds Sizing Chart.jpg",
+    "euToChartMm": {
+      "39": 250,
+      "40": 258,
+      "41": 264,
+      "42": 270,
+      "43": 277,
+      "44": 284,
+      "45": 290,
+      "46": 296
+    }
+  },
+  "Iqon": {
+    "category": "inline_skates",
+    "sourceFile": "Iqon Sizing Chart.jpg",
+    "euToChartMm": {
+      "37": 236,
+      "38": 242,
+      "39": 250,
+      "40": 258,
+      "41": 264,
+      "42": 270,
+      "43": 277,
+      "44": 284,
+      "45": 290,
+      "46": 296,
+      "47": 300
+    }
+  },
+  "Powerslide": {
+    "category": "inline_skates",
+    "sourceFile": "Powerslide Sizing Chart.jpg",
+    "euToChartMm": {
+      "36": 229,
+      "37": 236,
+      "38": 242,
+      "39": 248,
+      "40": 255,
+      "41": 261,
+      "42": 268,
+      "43": 275,
+      "44": 282,
+      "45": 289,
+      "46": 296,
+      "47": 303
+    }
+  },
+  "Razors": {
+    "category": "inline_skates",
+    "sourceFile": "Razor Sizing Chart.jpg",
+    "euToChartMm": {
+      "37": 220,
+      "38": 230,
+      "39": 240,
+      "40": 250,
+      "41": 260,
+      "42": 270,
+      "43": 280,
+      "44": 285,
+      "45": 290,
+      "46": 300,
+      "47": 310,
+      "48": 320,
+      "49": 340
+    }
+  },
+  "Luminous": {
+    "category": "inline_skates",
+    "sourceFile": "Luminous Sizing Chart.jpg",
+    "euToChartMm": {
+      "36": 230,
+      "37": 235,
+      "38": 245,
+      "39": 255,
+      "40": 260,
+      "41": 265,
+      "42": 270,
+      "43": 275,
+      "44": 280,
+      "45": 285,
+      "46": 295
+    }
+  },
+  "Rio Roller": {
+    "category": "roller_skates",
+    "sourceFile": "Rio Roller Sizing Chart.jpg",
+    "euToChartMm": {
+      "33": 220,
+      "34": 227,
+      "37": 240,
+      "38": 253,
+      "42": 272,
+      "43": 279,
+      "46": 293,
+      "47": 300,
+      "35.5": 233,
+      "39.5": 260,
+      "40.5": 266,
+      "44.5": 286
+    }
+  },
+  "Reign": {
+    "category": "ice_skates",
+    "sourceFile": "Reign Hockey Sizing Chart.jpg",
+    "euToChartMm": {
+      "36": 228,
+      "37": 234,
+      "38": 241,
+      "39": 248,
+      "40": 257,
+      "41": 264,
+      "42": 271,
+      "43": 278,
+      "44": 285,
+      "45": 292,
+      "46": 299,
+      "47": 305
+    }
+  },
+  "USD": {
+    "category": "inline_skates",
+    "sourceFile": "USD Sizing Chart.jpg",
+    "euToChartMm": {
+      "36": 229,
+      "38": 242,
+      "39": 248,
+      "40": 255,
+      "41": 261,
+      "42": 268,
+      "43": 275,
+      "44": 282,
+      "45": 289,
+      "46": 296
+    }
+  },
+  "Playlife": {
+    "category": "inline_skates",
+    "sourceFile": "PlayLife Sizing Chart.jpg",
+    "euToChartMm": {
+      "37": 236,
+      "38": 242,
+      "39": 248,
+      "40": 255,
+      "41": 261,
+      "42": 268,
+      "43": 275,
+      "44": 282,
+      "45": 289,
+      "46": 296
+    }
+  },
+  "Mesmer": {
+    "category": "inline_skates",
+    "sourceFile": "Mesmer Sizing Chart.jpg",
+    "euToChartMm": {
+      "35": 252,
+      "37": 252,
+      "38": 268,
+      "40": 268,
+      "41": 284,
+      "42": 284,
+      "43": 298,
+      "44": 298,
+      "45": 312,
+      "46": 312
+    }
+  },
+  "Flying Eagle": {
+    "category": "inline_skates",
+    "sourceFile": "Flying Eagle Sizing Chart.xlsx",
+    "euToChartMm": {
+      "29": 179,
+      "31": 192,
+      "33": 205,
+      "35": 219,
+      "36": 225,
+      "37": 232,
+      "38": 239,
+      "39": 245,
+      "40": 252,
+      "41": 259,
+      "42": 265,
+      "43": 272,
+      "44": 279,
+      "45": 285,
+      "46": 292
+    }
+  }
+}

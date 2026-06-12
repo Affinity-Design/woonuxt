@@ -147,6 +147,19 @@ function integerValue(value, label, rowNumber) {
   return parsed;
 }
 
+// US Youth sizes are alphanumeric (US kids scale): "8C".."13C" for toddler/child
+// and "1Y".."13Y" for youth. Stored as a normalized uppercase string. A bare number
+// (e.g. "3") is accepted and normalized as a youth size ("3Y").
+function youthValue(value, rowNumber) {
+  if (value === '' || value === undefined) return undefined;
+  const normalized = value.trim().toUpperCase();
+  const match = normalized.match(/^(\d+(?:\.5)?)(C|Y)?$/);
+  if (!match) {
+    throw new Error(`Row ${rowNumber}: "US Youth" must be a US kids size like "8C", "1Y", or "3".`);
+  }
+  return match[2] ? normalized : `${match[1]}Y`;
+}
+
 function slugForId(value) {
   return value
     .toLowerCase()
@@ -160,9 +173,12 @@ function buildBrandId(prefix, brandName, index) {
   return `${prefix}_${slugForId(brandName)}_${String(index + 1).padStart(3, '0')}`;
 }
 
-function groupedRows(rows, nameField) {
+// Groups rows by `nameField`, optionally also splitting on `extraKeyFields`. Carried brands
+// are grouped by Brand Name + Product Category so a brand we sell in two forms (e.g. Powerslide
+// or MYFIT in both inline and roller skates) becomes one entry per category, not a merged group.
+function groupedRows(rows, nameField, extraKeyFields = []) {
   const groups = [];
-  const indexByName = new Map();
+  const indexByKey = new Map();
 
   for (const row of rows) {
     const name = row[nameField];
@@ -170,13 +186,13 @@ function groupedRows(rows, nameField) {
       throw new Error(`Row ${row.__rowNumber}: "${nameField}" is required.`);
     }
 
-    const key = name.toLowerCase();
-    if (!indexByName.has(key)) {
-      indexByName.set(key, groups.length);
+    const key = [name.toLowerCase(), ...extraKeyFields.map((field) => (row[field] || '').toLowerCase())].join('||');
+    if (!indexByKey.has(key)) {
+      indexByKey.set(key, groups.length);
       groups.push({name, rows: []});
     }
 
-    groups[indexByName.get(key)].rows.push(row);
+    groups[indexByKey.get(key)].rows.push(row);
   }
 
   return groups;
@@ -203,10 +219,13 @@ function buildReferenceData(rows) {
         const eu = numberValue(row.EU, 'EU', row.__rowNumber, false);
         const usMen = numberValue(row['US Men'], 'US Men', row.__rowNumber, false);
         const usWomen = numberValue(row['US Women'], 'US Women', row.__rowNumber, false);
+        // US Youth uses the alphanumeric US kids scale (e.g. "8C"..."13C", "1Y"), so it is
+        // stored as a normalized string rather than a number.
+        const usYouth = youthValue(row['US Youth'], row.__rowNumber);
         const uk = numberValue(row.UK, 'UK', row.__rowNumber, false);
 
-        if ([eu, usMen, usWomen, uk].every((value) => value === undefined)) {
-          throw new Error(`Row ${row.__rowNumber}: at least one of EU, US Men, US Women, or UK is required.`);
+        if ([eu, usMen, usWomen, usYouth, uk].every((value) => value === undefined)) {
+          throw new Error(`Row ${row.__rowNumber}: at least one of EU, US Men, US Women, US Youth, or UK is required.`);
         }
 
         return {
@@ -214,6 +233,7 @@ function buildReferenceData(rows) {
           ...(eu !== undefined ? {eu} : {}),
           ...(usMen !== undefined ? {usMen} : {}),
           ...(usWomen !== undefined ? {usWomen} : {}),
+          ...(usYouth !== undefined ? {usYouth} : {}),
           ...(uk !== undefined ? {uk} : {}),
         };
       })
@@ -236,7 +256,7 @@ function buildReferenceData(rows) {
 }
 
 function buildCarriedData(rows) {
-  const brandGroups = groupedRows(rows, 'Brand Name');
+  const brandGroups = groupedRows(rows, 'Brand Name', ['Product Category']);
 
   const brands = brandGroups.map((group, brandIndex) => {
     const firstRow = group.rows[0];
@@ -350,6 +370,7 @@ export interface CalculatorReferenceSize {
   eu?: number;
   usMen?: number;
   usWomen?: number;
+  usYouth?: string;
   uk?: number;
 }
 

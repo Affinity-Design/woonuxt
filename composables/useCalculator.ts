@@ -11,13 +11,14 @@ import type {
   ReferenceCategory,
 } from '~/types/calculator-data';
 
-type SizeInputField = 'mm' | 'eu' | 'usMen' | 'usWomen' | 'uk';
+type SizeInputField = 'mm' | 'eu' | 'usMen' | 'usWomen' | 'usYouth' | 'uk';
 
 interface SizeInputState {
   mm: string;
   eu: string;
   usMen: string;
   usWomen: string;
+  usYouth: string;
   uk: string;
 }
 
@@ -35,8 +36,8 @@ interface CalculatorState {
 interface ResolvedReferenceSize {
   mm: number;
   field: SizeInputField;
-  enteredValue: number;
-  matchedValue: number;
+  enteredValue: number | string;
+  matchedValue: number | string;
   snapped: boolean;
   warning: string | null;
   sourceLabel: string;
@@ -45,6 +46,7 @@ interface ResolvedReferenceSize {
     eu?: number;
     usMen?: number;
     usWomen?: number;
+    usYouth?: string;
     uk?: number;
   };
 }
@@ -81,13 +83,14 @@ const sizeFieldLabels: Record<SizeInputField, string> = {
   eu: 'EU',
   usMen: 'US Men',
   usWomen: 'US Women',
+  usYouth: 'US Youth',
   uk: 'UK',
 };
 
 const defaultState = (): CalculatorState => ({
   referenceCategory: null,
   referenceBrandId: null,
-  sizeInput: {mm: '', eu: '', usMen: '', usWomen: '', uk: ''},
+  sizeInput: {mm: '', eu: '', usMen: '', usWomen: '', usYouth: '', uk: ''},
   sizeConfirmed: false,
   targetCategory: null,
   targetBrandId: null,
@@ -129,12 +132,24 @@ function sizeValue(size: ResolvedReferenceSize['size'], field: SizeInputField) {
   return field === 'mm' ? size.mm : size[field];
 }
 
+// Maps a US kids size ("8C".."13C", "1Y"...) to a monotonic ordinal so the alphanumeric
+// US Youth scale can snap to the nearest charted value. Child ("C") and bare numbers stay
+// at their face value; youth ("Y") sizes sort above them.
+function kidsSizeOrdinal(value: number | string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const match = String(value).trim().toUpperCase().match(/^(\d+(?:\.5)?)(C|Y)?$/);
+  if (!match) return undefined;
+  const base = parseFloat(match[1]);
+  return match[2] === 'Y' ? base + 50 : base;
+}
+
 function formatSizeSource(size: ResolvedReferenceSize['size']) {
   const labels = [
     `MM ${size.mm}`,
     size.eu !== undefined ? `EU ${size.eu}` : null,
     size.usMen !== undefined ? `US Men ${size.usMen}` : null,
     size.usWomen !== undefined ? `US Women ${size.usWomen}` : null,
+    size.usYouth !== undefined ? `US Youth ${size.usYouth}` : null,
     size.uk !== undefined ? `UK ${size.uk}` : null,
   ].filter(Boolean);
 
@@ -176,21 +191,50 @@ export const useCalculator = () => {
     const field = activeSizeField.value;
     if (!brand || !field) return null;
 
-    const enteredValue = Number(state.value.sizeInput[field]);
+    const rawInput = state.value.sizeInput[field].trim();
+    if (!rawInput) return null;
+
+    // US Youth is alphanumeric (e.g. "13C", "1Y") — match by normalized string, then fall
+    // back to the nearest charted value by kids-size ordinal.
+    if (field === 'usYouth') {
+      const normalized = rawInput.toUpperCase();
+      const exactMatch = brand.sizes.find((size) => String(sizeValue(size, field) ?? '').toUpperCase() === normalized);
+      const target = kidsSizeOrdinal(normalized);
+      const matchedSize =
+        exactMatch ||
+        (target === undefined ? null : nearestByValue(brand.sizes, target, (size) => kidsSizeOrdinal(sizeValue(size, field))));
+      if (!matchedSize) return null;
+
+      const matchedValue = String(sizeValue(matchedSize, field) ?? '');
+      const snapped = matchedValue.toUpperCase() !== normalized;
+
+      return {
+        mm: matchedSize.mm,
+        field,
+        enteredValue: normalized,
+        matchedValue,
+        snapped,
+        warning: snapped ? `Snapped to ${sizeFieldLabels[field]} ${matchedValue} because that is the closest charted value.` : null,
+        sourceLabel: formatSizeSource(matchedSize),
+        size: matchedSize,
+      };
+    }
+
+    const enteredValue = Number(rawInput);
     if (!Number.isFinite(enteredValue) || enteredValue <= 0) return null;
 
     const exactMatch = brand.sizes.find((size) => sizeValue(size, field) === enteredValue);
-    const matchedSize = exactMatch || nearestByValue(brand.sizes, enteredValue, (size) => sizeValue(size, field));
+    const matchedSize = exactMatch || nearestByValue(brand.sizes, enteredValue, (size) => sizeValue(size, field) as number | undefined);
     if (!matchedSize) return null;
 
-    const matchedValue = sizeValue(matchedSize, field);
+    const matchedValue = sizeValue(matchedSize, field) as number | undefined;
     const snapped = matchedValue !== enteredValue;
 
     return {
       mm: matchedSize.mm,
       field,
       enteredValue,
-      matchedValue: matchedValue || matchedSize.mm,
+      matchedValue: matchedValue ?? matchedSize.mm,
       snapped,
       warning: snapped ? `Snapped to ${sizeFieldLabels[field]} ${matchedValue} because that is the closest charted value.` : null,
       sourceLabel: formatSizeSource(matchedSize),
@@ -281,7 +325,8 @@ export const useCalculator = () => {
   };
 
   const setSizeInput = (field: SizeInputField, value: string) => {
-    const cleanedValue = value.replace(/[^\d.]/g, '');
+    // US Youth accepts the alphanumeric kids scale (e.g. "13C", "1Y"); all other fields are numeric.
+    const cleanedValue = field === 'usYouth' ? value.replace(/[^\dcyCY.]/g, '').toUpperCase() : value.replace(/[^\d.]/g, '');
     const currentActiveField = activeSizeField.value;
 
     if (currentActiveField && currentActiveField !== field && cleanedValue !== '') return;

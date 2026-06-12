@@ -18,6 +18,8 @@
     "build-category-cache": "node scripts/build-categories-cache.js",
     "build-blog-routes": "node scripts/build-blog-routes.js",
     "build-calculator-data": "node scripts/build-calculator-data.js",
+    "build-calculator-charts": "node scripts/build-calculator-charts.js",
+    "build-calculator-carried": "node scripts/build-calculator-carried.js",
     "build-all-routes": "node scripts/build-all-routes.js",
     "build-sitemap": "node scripts/build-sitemap.js",
     "build-sitemap:local": "node scripts/build-sitemap.js",

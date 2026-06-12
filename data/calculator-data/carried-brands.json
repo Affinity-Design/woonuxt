@@ -1,1139 +1,284 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-26T20:54:13.782Z",
+  "generatedAt": "2026-06-12T15:23:18.301Z",
   "brands": [
     {
-      "id": "car_fr_skates_001",
-      "name": "FR Skates",
-      "productCategory": "inline_skates",
-      "widthProfile": "wide",
-      "widthDisclaimer": "FR Skates feature a wide shell profile. If you are between sizes, stay true to size or go half a size down for more control.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "frskates",
-        "categorySlug": "inline-skates"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 172,
-          "recommendedLabel": "EU 28",
-          "sizeAttributeValue": "28eu"
-        },
-        {
-          "mmMin": 173,
-          "mmMax": 177,
-          "recommendedLabel": "EU 29",
-          "sizeAttributeValue": "29eu"
-        },
-        {
-          "mmMin": 178,
-          "mmMax": 182,
-          "recommendedLabel": "EU 30",
-          "sizeAttributeValue": "30eu"
-        },
-        {
-          "mmMin": 183,
-          "mmMax": 187,
-          "recommendedLabel": "EU 31",
-          "sizeAttributeValue": "31eu"
-        },
-        {
-          "mmMin": 188,
-          "mmMax": 192,
-          "recommendedLabel": "EU 32",
-          "sizeAttributeValue": "32eu"
-        },
-        {
-          "mmMin": 193,
-          "mmMax": 197,
-          "recommendedLabel": "EU 33",
-          "sizeAttributeValue": "33eu"
-        },
-        {
-          "mmMin": 198,
-          "mmMax": 202,
-          "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 208,
-          "mmMax": 212,
-          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
-          "sizeAttributeValue": "35eu"
-        },
-        {
-          "mmMin": 213,
-          "mmMax": 217,
-          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
-          "sizeAttributeValue": "35-5eu"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 222,
-          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
-          "sizeAttributeValue": "36eu"
-        },
-        {
-          "mmMin": 223,
-          "mmMax": 227,
-          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
-          "sizeAttributeValue": "36-5eu"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 232,
-          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
-          "sizeAttributeValue": "37eu"
-        },
-        {
-          "mmMin": 233,
-          "mmMax": 237,
-          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
-          "sizeAttributeValue": "38eu"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 242,
-          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
-          "sizeAttributeValue": "38-5eu"
-        },
-        {
-          "mmMin": 243,
-          "mmMax": 247,
-          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
-          "sizeAttributeValue": "39eu"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 252,
-          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
-          "sizeAttributeValue": "39-5eu"
-        },
-        {
-          "mmMin": 253,
-          "mmMax": 257,
-          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
-          "sizeAttributeValue": "40eu"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 262,
-          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
-          "sizeAttributeValue": "40-5eu"
-        },
-        {
-          "mmMin": 263,
-          "mmMax": 267,
-          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
-          "sizeAttributeValue": "41eu"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 272,
-          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
-          "sizeAttributeValue": "41-5eu"
-        },
-        {
-          "mmMin": 273,
-          "mmMax": 277,
-          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
-          "sizeAttributeValue": "42eu"
-        },
-        {
-          "mmMin": 278,
-          "mmMax": 282,
-          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
-          "sizeAttributeValue": "42-5eu"
-        },
-        {
-          "mmMin": 283,
-          "mmMax": 287,
-          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
-          "sizeAttributeValue": "43eu"
-        },
-        {
-          "mmMin": 288,
-          "mmMax": 292,
-          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
-          "sizeAttributeValue": "43-5eu"
-        },
-        {
-          "mmMin": 293,
-          "mmMax": 297,
-          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
-          "sizeAttributeValue": "44eu"
-        },
-        {
-          "mmMin": 298,
-          "mmMax": 302,
-          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
-          "sizeAttributeValue": "44-5eu"
-        },
-        {
-          "mmMin": 303,
-          "mmMax": 307,
-          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
-          "sizeAttributeValue": "45eu"
-        },
-        {
-          "mmMin": 308,
-          "mmMax": 312,
-          "recommendedLabel": "EU 45.5 / US Men 12.5",
-          "sizeAttributeValue": "45-5eu"
-        },
-        {
-          "mmMin": 313,
-          "mmMax": 317,
-          "recommendedLabel": "EU 46 / US Men 13",
-          "sizeAttributeValue": "46eu"
-        },
-        {
-          "mmMin": 318,
-          "mmMax": 322,
-          "recommendedLabel": "EU 47 / US Men 13.5",
-          "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_seba_002",
-      "name": "SEBA",
-      "productCategory": "inline_skates",
-      "widthProfile": "narrow",
-      "widthDisclaimer": "SEBA boots run narrow. If you have a wide foot, go half a size up from your mm recommendation. If you are average or narrow width, size true.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "seba",
-        "categorySlug": "inline-skates"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 172,
-          "recommendedLabel": "EU 28",
-          "sizeAttributeValue": "28eu"
-        },
-        {
-          "mmMin": 173,
-          "mmMax": 177,
-          "recommendedLabel": "EU 29",
-          "sizeAttributeValue": "29eu"
-        },
-        {
-          "mmMin": 178,
-          "mmMax": 182,
-          "recommendedLabel": "EU 30",
-          "sizeAttributeValue": "30eu"
-        },
-        {
-          "mmMin": 183,
-          "mmMax": 187,
-          "recommendedLabel": "EU 31",
-          "sizeAttributeValue": "31eu"
-        },
-        {
-          "mmMin": 188,
-          "mmMax": 192,
-          "recommendedLabel": "EU 32",
-          "sizeAttributeValue": "32eu"
-        },
-        {
-          "mmMin": 193,
-          "mmMax": 197,
-          "recommendedLabel": "EU 33",
-          "sizeAttributeValue": "33eu"
-        },
-        {
-          "mmMin": 198,
-          "mmMax": 202,
-          "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 208,
-          "mmMax": 212,
-          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
-          "sizeAttributeValue": "35eu"
-        },
-        {
-          "mmMin": 213,
-          "mmMax": 217,
-          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
-          "sizeAttributeValue": "35-5eu"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 222,
-          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
-          "sizeAttributeValue": "36eu"
-        },
-        {
-          "mmMin": 223,
-          "mmMax": 227,
-          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
-          "sizeAttributeValue": "36-5eu"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 232,
-          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
-          "sizeAttributeValue": "37eu"
-        },
-        {
-          "mmMin": 233,
-          "mmMax": 237,
-          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
-          "sizeAttributeValue": "38eu"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 242,
-          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
-          "sizeAttributeValue": "38-5eu"
-        },
-        {
-          "mmMin": 243,
-          "mmMax": 247,
-          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
-          "sizeAttributeValue": "39eu"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 252,
-          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
-          "sizeAttributeValue": "39-5eu"
-        },
-        {
-          "mmMin": 253,
-          "mmMax": 257,
-          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
-          "sizeAttributeValue": "40eu"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 262,
-          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
-          "sizeAttributeValue": "40-5eu"
-        },
-        {
-          "mmMin": 263,
-          "mmMax": 267,
-          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
-          "sizeAttributeValue": "41eu"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 272,
-          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
-          "sizeAttributeValue": "41-5eu"
-        },
-        {
-          "mmMin": 273,
-          "mmMax": 277,
-          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
-          "sizeAttributeValue": "42eu"
-        },
-        {
-          "mmMin": 278,
-          "mmMax": 282,
-          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
-          "sizeAttributeValue": "42-5eu"
-        },
-        {
-          "mmMin": 283,
-          "mmMax": 287,
-          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
-          "sizeAttributeValue": "43eu"
-        },
-        {
-          "mmMin": 288,
-          "mmMax": 292,
-          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
-          "sizeAttributeValue": "43-5eu"
-        },
-        {
-          "mmMin": 293,
-          "mmMax": 297,
-          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
-          "sizeAttributeValue": "44eu"
-        },
-        {
-          "mmMin": 298,
-          "mmMax": 302,
-          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
-          "sizeAttributeValue": "44-5eu"
-        },
-        {
-          "mmMin": 303,
-          "mmMax": 307,
-          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
-          "sizeAttributeValue": "45eu"
-        },
-        {
-          "mmMin": 308,
-          "mmMax": 312,
-          "recommendedLabel": "EU 45.5 / US Men 12.5",
-          "sizeAttributeValue": "45-5eu"
-        },
-        {
-          "mmMin": 313,
-          "mmMax": 317,
-          "recommendedLabel": "EU 46 / US Men 13",
-          "sizeAttributeValue": "46eu"
-        },
-        {
-          "mmMin": 318,
-          "mmMax": 322,
-          "recommendedLabel": "EU 47 / US Men 13.5",
-          "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_usd_003",
-      "name": "USD Skates",
-      "productCategory": "inline_skates",
-      "widthProfile": "average",
-      "widthDisclaimer": "USD aggressive skates fit an average-width foot. Size true to your mm measurement. Check the specific model page for shell differences between the Aeon and Carbon ranges.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "usd-skates",
-        "categorySlug": "inline-skates"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 172,
-          "recommendedLabel": "EU 28",
-          "sizeAttributeValue": "28eu"
-        },
-        {
-          "mmMin": 173,
-          "mmMax": 177,
-          "recommendedLabel": "EU 29",
-          "sizeAttributeValue": "29eu"
-        },
-        {
-          "mmMin": 178,
-          "mmMax": 182,
-          "recommendedLabel": "EU 30",
-          "sizeAttributeValue": "30eu"
-        },
-        {
-          "mmMin": 183,
-          "mmMax": 187,
-          "recommendedLabel": "EU 31",
-          "sizeAttributeValue": "31eu"
-        },
-        {
-          "mmMin": 188,
-          "mmMax": 192,
-          "recommendedLabel": "EU 32",
-          "sizeAttributeValue": "32eu"
-        },
-        {
-          "mmMin": 193,
-          "mmMax": 197,
-          "recommendedLabel": "EU 33",
-          "sizeAttributeValue": "33eu"
-        },
-        {
-          "mmMin": 198,
-          "mmMax": 202,
-          "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 208,
-          "mmMax": 212,
-          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
-          "sizeAttributeValue": "35eu"
-        },
-        {
-          "mmMin": 213,
-          "mmMax": 217,
-          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
-          "sizeAttributeValue": "35-5eu"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 222,
-          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
-          "sizeAttributeValue": "36eu"
-        },
-        {
-          "mmMin": 223,
-          "mmMax": 227,
-          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
-          "sizeAttributeValue": "36-5eu"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 232,
-          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
-          "sizeAttributeValue": "37eu"
-        },
-        {
-          "mmMin": 233,
-          "mmMax": 237,
-          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
-          "sizeAttributeValue": "38eu"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 242,
-          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
-          "sizeAttributeValue": "38-5eu"
-        },
-        {
-          "mmMin": 243,
-          "mmMax": 247,
-          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
-          "sizeAttributeValue": "39eu"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 252,
-          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
-          "sizeAttributeValue": "39-5eu"
-        },
-        {
-          "mmMin": 253,
-          "mmMax": 257,
-          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
-          "sizeAttributeValue": "40eu"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 262,
-          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
-          "sizeAttributeValue": "40-5eu"
-        },
-        {
-          "mmMin": 263,
-          "mmMax": 267,
-          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
-          "sizeAttributeValue": "41eu"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 272,
-          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
-          "sizeAttributeValue": "41-5eu"
-        },
-        {
-          "mmMin": 273,
-          "mmMax": 277,
-          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
-          "sizeAttributeValue": "42eu"
-        },
-        {
-          "mmMin": 278,
-          "mmMax": 282,
-          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
-          "sizeAttributeValue": "42-5eu"
-        },
-        {
-          "mmMin": 283,
-          "mmMax": 287,
-          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
-          "sizeAttributeValue": "43eu"
-        },
-        {
-          "mmMin": 288,
-          "mmMax": 292,
-          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
-          "sizeAttributeValue": "43-5eu"
-        },
-        {
-          "mmMin": 293,
-          "mmMax": 297,
-          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
-          "sizeAttributeValue": "44eu"
-        },
-        {
-          "mmMin": 298,
-          "mmMax": 302,
-          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
-          "sizeAttributeValue": "44-5eu"
-        },
-        {
-          "mmMin": 303,
-          "mmMax": 307,
-          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
-          "sizeAttributeValue": "45eu"
-        },
-        {
-          "mmMin": 308,
-          "mmMax": 312,
-          "recommendedLabel": "EU 45.5 / US Men 12.5",
-          "sizeAttributeValue": "45-5eu"
-        },
-        {
-          "mmMin": 313,
-          "mmMax": 317,
-          "recommendedLabel": "EU 46 / US Men 13",
-          "sizeAttributeValue": "46eu"
-        },
-        {
-          "mmMin": 318,
-          "mmMax": 322,
-          "recommendedLabel": "EU 47 / US Men 13.5",
-          "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_rollerblade_004",
-      "name": "Rollerblade",
-      "productCategory": "inline_skates",
-      "widthProfile": "average",
-      "widthDisclaimer": "Rollerblade uses a standard medium-width last across most models. Size true to your mm recommendation. Wider models (e.g. Zetrablade) may give more room if you are borderline wide.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "rollerblade",
-        "categorySlug": "inline-skates"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 172,
-          "recommendedLabel": "EU 28",
-          "sizeAttributeValue": "28eu"
-        },
-        {
-          "mmMin": 173,
-          "mmMax": 177,
-          "recommendedLabel": "EU 29",
-          "sizeAttributeValue": "29eu"
-        },
-        {
-          "mmMin": 178,
-          "mmMax": 182,
-          "recommendedLabel": "EU 30",
-          "sizeAttributeValue": "30eu"
-        },
-        {
-          "mmMin": 183,
-          "mmMax": 187,
-          "recommendedLabel": "EU 31",
-          "sizeAttributeValue": "31eu"
-        },
-        {
-          "mmMin": 188,
-          "mmMax": 192,
-          "recommendedLabel": "EU 32",
-          "sizeAttributeValue": "32eu"
-        },
-        {
-          "mmMin": 193,
-          "mmMax": 197,
-          "recommendedLabel": "EU 33",
-          "sizeAttributeValue": "33eu"
-        },
-        {
-          "mmMin": 198,
-          "mmMax": 202,
-          "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 208,
-          "mmMax": 212,
-          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
-          "sizeAttributeValue": "35eu"
-        },
-        {
-          "mmMin": 213,
-          "mmMax": 217,
-          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
-          "sizeAttributeValue": "35-5eu"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 222,
-          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
-          "sizeAttributeValue": "36eu"
-        },
-        {
-          "mmMin": 223,
-          "mmMax": 227,
-          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
-          "sizeAttributeValue": "36-5eu"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 232,
-          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
-          "sizeAttributeValue": "37eu"
-        },
-        {
-          "mmMin": 233,
-          "mmMax": 237,
-          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
-          "sizeAttributeValue": "38eu"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 242,
-          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
-          "sizeAttributeValue": "38-5eu"
-        },
-        {
-          "mmMin": 243,
-          "mmMax": 247,
-          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
-          "sizeAttributeValue": "39eu"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 252,
-          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
-          "sizeAttributeValue": "39-5eu"
-        },
-        {
-          "mmMin": 253,
-          "mmMax": 257,
-          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
-          "sizeAttributeValue": "40eu"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 262,
-          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
-          "sizeAttributeValue": "40-5eu"
-        },
-        {
-          "mmMin": 263,
-          "mmMax": 267,
-          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
-          "sizeAttributeValue": "41eu"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 272,
-          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
-          "sizeAttributeValue": "41-5eu"
-        },
-        {
-          "mmMin": 273,
-          "mmMax": 277,
-          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
-          "sizeAttributeValue": "42eu"
-        },
-        {
-          "mmMin": 278,
-          "mmMax": 282,
-          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
-          "sizeAttributeValue": "42-5eu"
-        },
-        {
-          "mmMin": 283,
-          "mmMax": 287,
-          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
-          "sizeAttributeValue": "43eu"
-        },
-        {
-          "mmMin": 288,
-          "mmMax": 292,
-          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
-          "sizeAttributeValue": "43-5eu"
-        },
-        {
-          "mmMin": 293,
-          "mmMax": 297,
-          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
-          "sizeAttributeValue": "44eu"
-        },
-        {
-          "mmMin": 298,
-          "mmMax": 302,
-          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
-          "sizeAttributeValue": "44-5eu"
-        },
-        {
-          "mmMin": 303,
-          "mmMax": 307,
-          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
-          "sizeAttributeValue": "45eu"
-        },
-        {
-          "mmMin": 308,
-          "mmMax": 312,
-          "recommendedLabel": "EU 45.5 / US Men 12.5",
-          "sizeAttributeValue": "45-5eu"
-        },
-        {
-          "mmMin": 313,
-          "mmMax": 317,
-          "recommendedLabel": "EU 46 / US Men 13",
-          "sizeAttributeValue": "46eu"
-        },
-        {
-          "mmMin": 318,
-          "mmMax": 322,
-          "recommendedLabel": "EU 47 / US Men 13.5",
-          "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_powerslide_005",
-      "name": "Powerslide",
-      "productCategory": "inline_skates",
-      "widthProfile": "average",
-      "widthDisclaimer": "Powerslide offers models in both narrow (Next, Trinity) and wide (Megacruiser) last profiles. Size true to your mm recommendation and verify the specific model width on the product page.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "powerslide",
-        "categorySlug": "inline-skates"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 172,
-          "recommendedLabel": "EU 28",
-          "sizeAttributeValue": "28eu"
-        },
-        {
-          "mmMin": 173,
-          "mmMax": 177,
-          "recommendedLabel": "EU 29",
-          "sizeAttributeValue": "29eu"
-        },
-        {
-          "mmMin": 178,
-          "mmMax": 182,
-          "recommendedLabel": "EU 30",
-          "sizeAttributeValue": "30eu"
-        },
-        {
-          "mmMin": 183,
-          "mmMax": 187,
-          "recommendedLabel": "EU 31",
-          "sizeAttributeValue": "31eu"
-        },
-        {
-          "mmMin": 188,
-          "mmMax": 192,
-          "recommendedLabel": "EU 32",
-          "sizeAttributeValue": "32eu"
-        },
-        {
-          "mmMin": 193,
-          "mmMax": 197,
-          "recommendedLabel": "EU 33",
-          "sizeAttributeValue": "33eu"
-        },
-        {
-          "mmMin": 198,
-          "mmMax": 202,
-          "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 208,
-          "mmMax": 212,
-          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
-          "sizeAttributeValue": "35eu"
-        },
-        {
-          "mmMin": 213,
-          "mmMax": 217,
-          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
-          "sizeAttributeValue": "35-5eu"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 222,
-          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
-          "sizeAttributeValue": "36eu"
-        },
-        {
-          "mmMin": 223,
-          "mmMax": 227,
-          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
-          "sizeAttributeValue": "36-5eu"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 232,
-          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
-          "sizeAttributeValue": "37eu"
-        },
-        {
-          "mmMin": 233,
-          "mmMax": 237,
-          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
-          "sizeAttributeValue": "38eu"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 242,
-          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
-          "sizeAttributeValue": "38-5eu"
-        },
-        {
-          "mmMin": 243,
-          "mmMax": 247,
-          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
-          "sizeAttributeValue": "39eu"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 252,
-          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
-          "sizeAttributeValue": "39-5eu"
-        },
-        {
-          "mmMin": 253,
-          "mmMax": 257,
-          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
-          "sizeAttributeValue": "40eu"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 262,
-          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
-          "sizeAttributeValue": "40-5eu"
-        },
-        {
-          "mmMin": 263,
-          "mmMax": 267,
-          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
-          "sizeAttributeValue": "41eu"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 272,
-          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
-          "sizeAttributeValue": "41-5eu"
-        },
-        {
-          "mmMin": 273,
-          "mmMax": 277,
-          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
-          "sizeAttributeValue": "42eu"
-        },
-        {
-          "mmMin": 278,
-          "mmMax": 282,
-          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
-          "sizeAttributeValue": "42-5eu"
-        },
-        {
-          "mmMin": 283,
-          "mmMax": 287,
-          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
-          "sizeAttributeValue": "43eu"
-        },
-        {
-          "mmMin": 288,
-          "mmMax": 292,
-          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
-          "sizeAttributeValue": "43-5eu"
-        },
-        {
-          "mmMin": 293,
-          "mmMax": 297,
-          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
-          "sizeAttributeValue": "44eu"
-        },
-        {
-          "mmMin": 298,
-          "mmMax": 302,
-          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
-          "sizeAttributeValue": "44-5eu"
-        },
-        {
-          "mmMin": 303,
-          "mmMax": 307,
-          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
-          "sizeAttributeValue": "45eu"
-        },
-        {
-          "mmMin": 308,
-          "mmMax": 312,
-          "recommendedLabel": "EU 45.5 / US Men 12.5",
-          "sizeAttributeValue": "45-5eu"
-        },
-        {
-          "mmMin": 313,
-          "mmMax": 317,
-          "recommendedLabel": "EU 46 / US Men 13",
-          "sizeAttributeValue": "46eu"
-        },
-        {
-          "mmMin": 318,
-          "mmMax": 322,
-          "recommendedLabel": "EU 47 / US Men 13.5",
-          "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_chaya_006",
+      "id": "car_chaya_001",
       "name": "CHAYA",
       "productCategory": "roller_skates",
       "widthProfile": "average",
-      "widthDisclaimer": "CHAYA roller skates fit an average foot width. If you are between sizes, go half a size up for more comfort or half a size down for tighter control.",
+      "widthDisclaimer": "CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.",
       "graphqlLookup": {
         "productAttributeBrandSlug": "chaya",
-        "categorySlug": "roller-skates"
+        "categorySlug": "roller-skating"
       },
       "sizeRanges": [
         {
-          "mmMin": 163,
-          "mmMax": 167,
-          "recommendedLabel": "EU 27",
-          "sizeAttributeValue": "27eu"
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
         },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        }
+      ]
+    },
+    {
+      "id": "car_doop_002",
+      "name": "DOOP",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "doop",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_flying_eagle_003",
+      "name": "Flying Eagle",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "flyingeagle",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
         {
           "mmMin": 168,
           "mmMax": 172,
@@ -1177,12 +322,6 @@
           "sizeAttributeValue": "34eu"
         },
         {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
-          "sizeAttributeValue": "34eu"
-        },
-        {
           "mmMin": 208,
           "mmMax": 212,
           "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
@@ -1194,6 +333,297 @@
           "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
           "sizeAttributeValue": "35-5eu"
         },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_fr_skates_004",
+      "name": "FR Skates",
+      "productCategory": "inline_skates",
+      "widthProfile": "wide",
+      "widthDisclaimer": "FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "frskates",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 323,
+          "mmMax": 327,
+          "recommendedLabel": "EU 47.5 / US Men 14",
+          "sizeAttributeValue": "47-5eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        }
+      ]
+    },
+    {
+      "id": "car_gawds_005",
+      "name": "Gawds",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "gawds",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_iqon_006",
+      "name": "IQON",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "iqon",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
         {
           "mmMin": 218,
           "mmMax": 222,
@@ -1319,36 +749,963 @@
           "mmMax": 322,
           "recommendedLabel": "EU 47 / US Men 13.5",
           "sizeAttributeValue": "47eu"
-        },
-        {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
-        },
-        {
-          "mmMin": 328,
-          "mmMax": 332,
-          "recommendedLabel": "EU 48 / US Men 14.5",
-          "sizeAttributeValue": "48eu"
-        },
-        {
-          "mmMin": 333,
-          "mmMax": 337,
-          "recommendedLabel": "EU 49 / US Men 15",
-          "sizeAttributeValue": "49eu"
         }
       ]
     },
     {
-      "id": "car_moxi_007",
+      "id": "car_luminous_007",
+      "name": "Luminous",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "luminous",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_mesmer_skates_008",
+      "name": "Mesmer Skates",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "mesmer",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        }
+      ]
+    },
+    {
+      "id": "car_micro_009",
+      "name": "Micro",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "micro",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_moxi_skates_010",
       "name": "Moxi Skates",
       "productCategory": "roller_skates",
-      "widthProfile": "wide",
-      "widthDisclaimer": "Moxi skates are known for a roomy toe box and suit average to wide feet well. Narrow-footed skaters may want to go half a size down.",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
       "graphqlLookup": {
         "productAttributeBrandSlug": "moxi-skates",
-        "categorySlug": "roller-skates"
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        }
+      ]
+    },
+    {
+      "id": "car_myfit_011",
+      "name": "MYFIT",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "myfit",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_myfit_012",
+      "name": "MYFIT",
+      "productCategory": "roller_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "myfit",
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        }
+      ]
+    },
+    {
+      "id": "car_nn_skates_013",
+      "name": "NN Skates",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "nn-skates",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        },
+        {
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_playlife_014",
+      "name": "PlayLife",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "playlife",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 288,
+          "mmMax": 292,
+          "recommendedLabel": "EU 43.5 / US Men 10.5 / US Women 12",
+          "sizeAttributeValue": "43-5eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        }
+      ]
+    },
+    {
+      "id": "car_playlife_015",
+      "name": "PlayLife",
+      "productCategory": "roller_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "playlife",
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        }
+      ]
+    },
+    {
+      "id": "car_powerslide_016",
+      "name": "Powerslide",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "powerslide",
+        "categorySlug": "inline-skating"
       },
       "sizeRanges": [
         {
@@ -1397,12 +1754,6 @@
           "mmMin": 198,
           "mmMax": 202,
           "recommendedLabel": "EU 34",
-          "sizeAttributeValue": "34eu"
-        },
-        {
-          "mmMin": 203,
-          "mmMax": 207,
-          "recommendedLabel": "EU 34 / US Men 1 / US Women 2",
           "sizeAttributeValue": "34eu"
         },
         {
@@ -1544,10 +1895,168 @@
           "sizeAttributeValue": "47eu"
         },
         {
-          "mmMin": 323,
-          "mmMax": 327,
-          "recommendedLabel": "EU 47.5 / US Men 14",
-          "sizeAttributeValue": "47-5eu"
+          "mmMin": 328,
+          "mmMax": 332,
+          "recommendedLabel": "EU 48 / US Men 14.5",
+          "sizeAttributeValue": "48eu"
+        },
+        {
+          "mmMin": 333,
+          "mmMax": 337,
+          "recommendedLabel": "EU 49 / US Men 15",
+          "sizeAttributeValue": "49eu"
+        }
+      ]
+    },
+    {
+      "id": "car_powerslide_017",
+      "name": "Powerslide",
+      "productCategory": "roller_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "powerslide",
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        }
+      ]
+    },
+    {
+      "id": "car_proskaters_018",
+      "name": "ProSkaters",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "proskaters",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
         },
         {
           "mmMin": 328,
@@ -1564,14 +2073,699 @@
       ]
     },
     {
-      "id": "car_rio_roller_008",
+      "id": "car_reign_hockey_019",
+      "name": "Reign Hockey",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "reignhockey",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        }
+      ]
+    },
+    {
+      "id": "car_riedell_skates_020",
+      "name": "Riedell Skates",
+      "productCategory": "roller_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "riedell-skates",
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        }
+      ]
+    },
+    {
+      "id": "car_rio_roller_021",
       "name": "Rio Roller",
       "productCategory": "roller_skates",
       "widthProfile": "average",
-      "widthDisclaimer": "Rio Roller skates suit average-width feet. Size true to your mm measurement. The Classic models tend to run slightly narrow compared to the Style range.",
+      "widthDisclaimer": "",
       "graphqlLookup": {
         "productAttributeBrandSlug": "rio-roller",
-        "categorySlug": "roller-skates"
+        "categorySlug": "roller-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        }
+      ]
+    },
+    {
+      "id": "car_rollerblade_022",
+      "name": "Rollerblade",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "rollerblade",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 168,
+          "mmMax": 172,
+          "recommendedLabel": "EU 28",
+          "sizeAttributeValue": "28eu"
+        },
+        {
+          "mmMin": 173,
+          "mmMax": 177,
+          "recommendedLabel": "EU 29",
+          "sizeAttributeValue": "29eu"
+        },
+        {
+          "mmMin": 178,
+          "mmMax": 182,
+          "recommendedLabel": "EU 30",
+          "sizeAttributeValue": "30eu"
+        },
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 258,
+          "mmMax": 262,
+          "recommendedLabel": "EU 40.5 / US Men 7.5 / US Women 9",
+          "sizeAttributeValue": "40-5eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 278,
+          "mmMax": 282,
+          "recommendedLabel": "EU 42.5 / US Men 9.5 / US Women 11",
+          "sizeAttributeValue": "42-5eu"
+        },
+        {
+          "mmMin": 298,
+          "mmMax": 302,
+          "recommendedLabel": "EU 44.5 / US Men 11.5 / US Women 13",
+          "sizeAttributeValue": "44-5eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_seba_023",
+      "name": "SEBA",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "seba",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 283,
+          "mmMax": 287,
+          "recommendedLabel": "EU 43 / US Men 10 / US Women 11.5",
+          "sizeAttributeValue": "43eu"
+        },
+        {
+          "mmMin": 293,
+          "mmMax": 297,
+          "recommendedLabel": "EU 44 / US Men 11 / US Women 12.5",
+          "sizeAttributeValue": "44eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        },
+        {
+          "mmMin": 318,
+          "mmMax": 322,
+          "recommendedLabel": "EU 47 / US Men 13.5",
+          "sizeAttributeValue": "47eu"
+        }
+      ]
+    },
+    {
+      "id": "car_stanley_024",
+      "name": "Stanley",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "stanley",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        }
+      ]
+    },
+    {
+      "id": "car_usd_025",
+      "name": "USD",
+      "productCategory": "inline_skates",
+      "widthProfile": "average",
+      "widthDisclaimer": "",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "usd-skates",
+        "categorySlug": "inline-skating"
+      },
+      "sizeRanges": [
+        {
+          "mmMin": 183,
+          "mmMax": 187,
+          "recommendedLabel": "EU 31",
+          "sizeAttributeValue": "31eu"
+        },
+        {
+          "mmMin": 188,
+          "mmMax": 192,
+          "recommendedLabel": "EU 32",
+          "sizeAttributeValue": "32eu"
+        },
+        {
+          "mmMin": 193,
+          "mmMax": 197,
+          "recommendedLabel": "EU 33",
+          "sizeAttributeValue": "33eu"
+        },
+        {
+          "mmMin": 198,
+          "mmMax": 202,
+          "recommendedLabel": "EU 34",
+          "sizeAttributeValue": "34eu"
+        },
+        {
+          "mmMin": 208,
+          "mmMax": 212,
+          "recommendedLabel": "EU 35 / US Men 1.5 / US Women 3",
+          "sizeAttributeValue": "35eu"
+        },
+        {
+          "mmMin": 213,
+          "mmMax": 217,
+          "recommendedLabel": "EU 35.5 / US Men 2 / US Women 3.5",
+          "sizeAttributeValue": "35-5eu"
+        },
+        {
+          "mmMin": 218,
+          "mmMax": 222,
+          "recommendedLabel": "EU 36 / US Men 3 / US Women 4.5",
+          "sizeAttributeValue": "36eu"
+        },
+        {
+          "mmMin": 223,
+          "mmMax": 227,
+          "recommendedLabel": "EU 36.5 / US Men 3.5 / US Women 5",
+          "sizeAttributeValue": "36-5eu"
+        },
+        {
+          "mmMin": 228,
+          "mmMax": 232,
+          "recommendedLabel": "EU 37 / US Men 4 / US Women 5.5",
+          "sizeAttributeValue": "37eu"
+        },
+        {
+          "mmMin": 233,
+          "mmMax": 237,
+          "recommendedLabel": "EU 38 / US Men 5 / US Women 6.5",
+          "sizeAttributeValue": "38eu"
+        },
+        {
+          "mmMin": 238,
+          "mmMax": 242,
+          "recommendedLabel": "EU 38.5 / US Men 5.5 / US Women 7",
+          "sizeAttributeValue": "38-5eu"
+        },
+        {
+          "mmMin": 243,
+          "mmMax": 247,
+          "recommendedLabel": "EU 39 / US Men 6 / US Women 7.5",
+          "sizeAttributeValue": "39eu"
+        },
+        {
+          "mmMin": 248,
+          "mmMax": 252,
+          "recommendedLabel": "EU 39.5 / US Men 6.5 / US Women 8",
+          "sizeAttributeValue": "39-5eu"
+        },
+        {
+          "mmMin": 253,
+          "mmMax": 257,
+          "recommendedLabel": "EU 40 / US Men 7 / US Women 8.5",
+          "sizeAttributeValue": "40eu"
+        },
+        {
+          "mmMin": 263,
+          "mmMax": 267,
+          "recommendedLabel": "EU 41 / US Men 8 / US Women 9.5",
+          "sizeAttributeValue": "41eu"
+        },
+        {
+          "mmMin": 268,
+          "mmMax": 272,
+          "recommendedLabel": "EU 41.5 / US Men 8.5 / US Women 10",
+          "sizeAttributeValue": "41-5eu"
+        },
+        {
+          "mmMin": 273,
+          "mmMax": 277,
+          "recommendedLabel": "EU 42 / US Men 9 / US Women 10.5",
+          "sizeAttributeValue": "42eu"
+        },
+        {
+          "mmMin": 303,
+          "mmMax": 307,
+          "recommendedLabel": "EU 45 / US Men 12 / US Women 13.5",
+          "sizeAttributeValue": "45eu"
+        },
+        {
+          "mmMin": 308,
+          "mmMax": 312,
+          "recommendedLabel": "EU 45.5 / US Men 12.5",
+          "sizeAttributeValue": "45-5eu"
+        },
+        {
+          "mmMin": 313,
+          "mmMax": 317,
+          "recommendedLabel": "EU 46 / US Men 13",
+          "sizeAttributeValue": "46eu"
+        }
+      ]
+    },
+    {
+      "id": "car_rossignol_026",
+      "name": "Rossignol",
+      "productCategory": "ski_boots",
+      "widthProfile": "average",
+      "widthDisclaimer": "Rossignol ski boots should be checked against mondopoint first. Use this recommendation as a starting point and confirm binding and boot model notes before purchase.",
+      "graphqlLookup": {
+        "productAttributeBrandSlug": "rossignol-ski",
+        "categorySlug": "nordic-ski-boots"
       },
       "sizeRanges": [
         {
@@ -1783,189 +2977,6 @@
           "mmMax": 337,
           "recommendedLabel": "EU 49 / US Men 15",
           "sizeAttributeValue": "49eu"
-        }
-      ]
-    },
-    {
-      "id": "car_rossignol_009",
-      "name": "Rossignol",
-      "productCategory": "ski_boots",
-      "widthProfile": "average",
-      "widthDisclaimer": "Rossignol alpine boots use a standard medium-width last. If you have a wide foot, consider sizing half a Mondopoint up or trying the Lange LX range.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "rossignol-ski",
-        "categorySlug": "alpine-ski-boots"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 160,
-          "mmMax": 167,
-          "recommendedLabel": "16.5 MP (Kids EU ~25)",
-          "sizeAttributeValue": "16-5cm"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 177,
-          "recommendedLabel": "17.5 MP (Kids EU ~27)",
-          "sizeAttributeValue": "17-5"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 227,
-          "recommendedLabel": "22.5 MP / EU ~36",
-          "sizeAttributeValue": "22-5cm"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 237,
-          "recommendedLabel": "23.5 MP / EU ~38",
-          "sizeAttributeValue": "23-5cm"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 247,
-          "recommendedLabel": "24.5 MP / EU ~39",
-          "sizeAttributeValue": "24-5cm"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 257,
-          "recommendedLabel": "25.5 MP / EU ~40.5",
-          "sizeAttributeValue": "25-5cm"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 267,
-          "recommendedLabel": "26.5 MP / EU ~42",
-          "sizeAttributeValue": "26-5cm"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 277,
-          "recommendedLabel": "27.5 MP / EU ~43",
-          "sizeAttributeValue": "27-5cm"
-        }
-      ]
-    },
-    {
-      "id": "car_lange_010",
-      "name": "Lange",
-      "productCategory": "ski_boots",
-      "widthProfile": "narrow",
-      "widthDisclaimer": "Lange boots traditionally run narrow. If you have an average or wide foot, go half a Mondopoint size up from your foot measurement.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "lange-boots",
-        "categorySlug": "alpine-ski-boots"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 160,
-          "mmMax": 167,
-          "recommendedLabel": "16.5 MP (Kids EU ~25)",
-          "sizeAttributeValue": "16-5cm"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 177,
-          "recommendedLabel": "17.5 MP (Kids EU ~27)",
-          "sizeAttributeValue": "17-5"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 227,
-          "recommendedLabel": "22.5 MP / EU ~36",
-          "sizeAttributeValue": "22-5cm"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 237,
-          "recommendedLabel": "23.5 MP / EU ~38",
-          "sizeAttributeValue": "23-5cm"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 247,
-          "recommendedLabel": "24.5 MP / EU ~39",
-          "sizeAttributeValue": "24-5cm"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 257,
-          "recommendedLabel": "25.5 MP / EU ~40.5",
-          "sizeAttributeValue": "25-5cm"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 267,
-          "recommendedLabel": "26.5 MP / EU ~42",
-          "sizeAttributeValue": "26-5cm"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 277,
-          "recommendedLabel": "27.5 MP / EU ~43",
-          "sizeAttributeValue": "27-5cm"
-        }
-      ]
-    },
-    {
-      "id": "car_fischer_011",
-      "name": "Fischer",
-      "productCategory": "ski_boots",
-      "widthProfile": "average",
-      "widthDisclaimer": "Fischer boots suit average to medium-wide feet. Use your foot measurement directly; if you are between Mondopoint sizes, go half a size up.",
-      "graphqlLookup": {
-        "productAttributeBrandSlug": "fischer",
-        "categorySlug": "alpine-ski-boots"
-      },
-      "sizeRanges": [
-        {
-          "mmMin": 160,
-          "mmMax": 167,
-          "recommendedLabel": "16.5 MP (Kids EU ~25)",
-          "sizeAttributeValue": "16-5cm"
-        },
-        {
-          "mmMin": 168,
-          "mmMax": 177,
-          "recommendedLabel": "17.5 MP (Kids EU ~27)",
-          "sizeAttributeValue": "17-5"
-        },
-        {
-          "mmMin": 218,
-          "mmMax": 227,
-          "recommendedLabel": "22.5 MP / EU ~36",
-          "sizeAttributeValue": "22-5cm"
-        },
-        {
-          "mmMin": 228,
-          "mmMax": 237,
-          "recommendedLabel": "23.5 MP / EU ~38",
-          "sizeAttributeValue": "23-5cm"
-        },
-        {
-          "mmMin": 238,
-          "mmMax": 247,
-          "recommendedLabel": "24.5 MP / EU ~39",
-          "sizeAttributeValue": "24-5cm"
-        },
-        {
-          "mmMin": 248,
-          "mmMax": 257,
-          "recommendedLabel": "25.5 MP / EU ~40.5",
-          "sizeAttributeValue": "25-5cm"
-        },
-        {
-          "mmMin": 258,
-          "mmMax": 267,
-          "recommendedLabel": "26.5 MP / EU ~42",
-          "sizeAttributeValue": "26-5cm"
-        },
-        {
-          "mmMin": 268,
-          "mmMax": 277,
-          "recommendedLabel": "27.5 MP / EU ~43",
-          "sizeAttributeValue": "27-5cm"
         }
       ]
     }

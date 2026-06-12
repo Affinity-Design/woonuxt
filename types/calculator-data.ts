@@ -7,6 +7,7 @@ export interface CalculatorReferenceSize {
   eu?: number;
   usMen?: number;
   usWomen?: number;
+  usYouth?: string;
   uk?: number;
 }
 

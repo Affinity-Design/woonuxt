@@ -1,0 +1,272 @@
+{
+  "generatedAt": "2026-06-12T14:51:49.003Z",
+  "backend": "https://proskatersplace.com/graphql",
+  "brandsEmitted": 25,
+  "rows": 405,
+  "review": [
+    {
+      "brand": "Adapt Brand",
+      "slug": "adapt",
+      "productCategory": "inline_skates",
+      "skipped": true,
+      "reason": "only 2 EU size(s) — below 4 threshold (likely accessory)"
+    },
+    {
+      "brand": "CHAYA",
+      "slug": "chaya",
+      "productCategory": "roller_skates",
+      "sizes": 21,
+      "widthProfile": "average",
+      "widthConfidence": "existing-sheet",
+      "widthSource": "existing-sheet",
+      "flags": []
+    },
+    {
+      "brand": "DOOP",
+      "slug": "doop",
+      "productCategory": "inline_skates",
+      "sizes": 19,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Flying Eagle",
+      "slug": "flyingeagle",
+      "productCategory": "inline_skates",
+      "sizes": 21,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "FR Skates",
+      "slug": "frskates",
+      "productCategory": "inline_skates",
+      "sizes": 21,
+      "widthProfile": "wide",
+      "widthConfidence": "existing-sheet",
+      "widthSource": "existing-sheet",
+      "flags": []
+    },
+    {
+      "brand": "Gawds",
+      "slug": "gawds",
+      "productCategory": "inline_skates",
+      "sizes": 9,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "IQON",
+      "slug": "iqon",
+      "productCategory": "inline_skates",
+      "sizes": 21,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Luminous",
+      "slug": "luminous",
+      "productCategory": "inline_skates",
+      "sizes": 17,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Mesmer Skates",
+      "slug": "mesmer",
+      "productCategory": "inline_skates",
+      "sizes": 11,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Micro",
+      "slug": "micro",
+      "productCategory": "inline_skates",
+      "sizes": 23,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Moxi Skates",
+      "slug": "moxi-skates",
+      "productCategory": "roller_skates",
+      "sizes": 7,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "MYFIT",
+      "slug": "myfit",
+      "productCategory": "inline_skates",
+      "sizes": 22,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "MYFIT",
+      "slug": "myfit",
+      "productCategory": "roller_skates",
+      "sizes": 7,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "NN Skates",
+      "slug": "nn-skates",
+      "productCategory": "inline_skates",
+      "sizes": 16,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "PlayLife",
+      "slug": "playlife",
+      "productCategory": "inline_skates",
+      "sizes": 19,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "PlayLife",
+      "slug": "playlife",
+      "productCategory": "roller_skates",
+      "sizes": 16,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Powerslide",
+      "slug": "powerslide",
+      "productCategory": "inline_skates",
+      "sizes": 33,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Powerslide",
+      "slug": "powerslide",
+      "productCategory": "roller_skates",
+      "sizes": 7,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "ProSkaters",
+      "slug": "proskaters",
+      "productCategory": "inline_skates",
+      "sizes": 16,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Reign Hockey",
+      "slug": "reignhockey",
+      "productCategory": "inline_skates",
+      "sizes": 16,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Riedell Skates",
+      "slug": "riedell-skates",
+      "productCategory": "roller_skates",
+      "sizes": 11,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Rio Roller",
+      "slug": "rio-roller",
+      "productCategory": "roller_skates",
+      "sizes": 10,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "Rollerblade",
+      "slug": "rollerblade",
+      "productCategory": "inline_skates",
+      "sizes": 24,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "SEBA",
+      "slug": "seba",
+      "productCategory": "inline_skates",
+      "sizes": 10,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "SFR Skates",
+      "slug": "sfr-skates",
+      "productCategory": "roller_skates",
+      "skipped": true,
+      "reason": "only 3 EU size(s) — below 4 threshold (likely accessory)"
+    },
+    {
+      "brand": "Stanley",
+      "slug": "stanley",
+      "productCategory": "inline_skates",
+      "sizes": 8,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    },
+    {
+      "brand": "USD",
+      "slug": "usd-skates",
+      "productCategory": "inline_skates",
+      "sizes": 20,
+      "widthProfile": "average",
+      "widthConfidence": "default",
+      "widthSource": "brand-copy",
+      "flags": []
+    }
+  ]
+}

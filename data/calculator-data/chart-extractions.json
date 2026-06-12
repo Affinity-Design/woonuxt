@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "note": "Vision-transcribed sizing-chart data from the brand chart assets in this folder. Each chart contributes a per-brand cross-unit map (EU <-> US Men / US Women / UK, plus the chart's own foot-length mm for audit in `mmChart`). scripts/build-calculator-charts.js consumes this file: it emits Reference-tab rows where the output `mm` is taken from the GENERIC EU->mm crosswalk (Generic Sports Shoe in reference-brands.json) so every brand shares one mm axis with the carried-brand ranges. `mmChart` is kept only for auditing / brand-size-map.json. Charts the boss already entered in the sheet (Rollerblade, CHAYA, Bauer, Nike, Generic Sports Shoe) are intentionally excluded. Re-run / refresh with `node scripts/build-calculator-charts.js --rescan` (vision API) if a chart image changes.",
+  "charts": [
+    {
+      "brand": "Adapt",
+      "category": "inline_skates",
+      "sourceFile": "Adapt Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "EU / UK / US / Insole mm. US column is unisex (treated as US Men).",
+      "rows": [
+        {"eu": 36, "usMen": 4.5, "uk": 4, "mmChart": 245},
+        {"eu": 37, "usMen": 5, "uk": 4.5, "mmChart": 250},
+        {"eu": 38, "usMen": 5.5, "uk": 5, "mmChart": 255},
+        {"eu": 39, "usMen": 6, "uk": 5.5, "mmChart": 260},
+        {"eu": 40, "usMen": 7, "uk": 6, "mmChart": 265},
+        {"eu": 41, "usMen": 8, "uk": 7, "mmChart": 270},
+        {"eu": 42, "usMen": 9, "uk": 8, "mmChart": 280},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 285},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 290},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 295},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 300},
+        {"eu": 47, "usMen": 13, "uk": 12, "mmChart": 310}
+      ]
+    },
+    {
+      "brand": "FR Skates",
+      "category": "inline_skates",
+      "sourceFile": "FR Brand Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "EU / US / UK / MP(cm) / Insole. mmChart = MP cm * 10.",
+      "rows": [
+        {"eu": 34, "usMen": 3, "uk": 2, "mmChart": 220},
+        {"eu": 35, "usMen": 4, "uk": 3, "mmChart": 225},
+        {"eu": 36, "usMen": 4.5, "uk": 3.5, "mmChart": 230},
+        {"eu": 37, "usMen": 5, "uk": 4, "mmChart": 235},
+        {"eu": 38, "usMen": 6, "uk": 5, "mmChart": 245},
+        {"eu": 39, "usMen": 7, "uk": 6, "mmChart": 255},
+        {"eu": 40, "usMen": 7.5, "uk": 6.5, "mmChart": 260},
+        {"eu": 41, "usMen": 8, "uk": 7, "mmChart": 265},
+        {"eu": 42, "usMen": 9, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 280},
+        {"eu": 45, "usMen": 11.5, "uk": 10, "mmChart": 285},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 295},
+        {"eu": 47, "usMen": 13.5, "uk": 12, "mmChart": 300}
+      ]
+    },
+    {
+      "brand": "SEBA",
+      "category": "inline_skates",
+      "sourceFile": "SEBA Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "EUR / US / MP / UK / Max foot length mm. mmChart = MP cm * 10.",
+      "rows": [
+        {"eu": 35, "usMen": 3.5, "uk": 3, "mmChart": 225},
+        {"eu": 36, "usMen": 4.5, "uk": 3.5, "mmChart": 230},
+        {"eu": 37, "usMen": 5, "uk": 4, "mmChart": 235},
+        {"eu": 38, "usMen": 6, "uk": 5, "mmChart": 245},
+        {"eu": 39, "usMen": 7, "uk": 6, "mmChart": 255},
+        {"eu": 40, "usMen": 7.5, "uk": 6.5, "mmChart": 260},
+        {"eu": 41, "usMen": 8, "uk": 7, "mmChart": 265},
+        {"eu": 42, "usMen": 9, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 280},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 285},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 295},
+        {"eu": 47, "usMen": 13, "uk": 12, "mmChart": 300},
+        {"eu": 48, "usMen": 13.5, "uk": 12.5, "mmChart": 305}
+      ]
+    },
+    {
+      "brand": "Gawds",
+      "category": "inline_skates",
+      "sourceFile": "Gawds Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "MONDO / US M / US W / UK / EU. Single sizes. US W only listed through EU 43.",
+      "rows": [
+        {"eu": 39, "usMen": 7, "usWomen": 8, "uk": 6, "mmChart": 250},
+        {"eu": 40, "usMen": 7.5, "usWomen": 8.5, "uk": 6.5, "mmChart": 258},
+        {"eu": 41, "usMen": 8, "usWomen": 9, "uk": 7, "mmChart": 264},
+        {"eu": 42, "usMen": 9, "usWomen": 10, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "usWomen": 11, "uk": 9, "mmChart": 277},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 284},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 290},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 296}
+      ]
+    },
+    {
+      "brand": "Iqon",
+      "category": "inline_skates",
+      "sourceFile": "Iqon Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "MONDO / US / UK / EU. US column unisex (treated as US Men).",
+      "rows": [
+        {"eu": 37, "usMen": 5, "uk": 4, "mmChart": 236},
+        {"eu": 38, "usMen": 6, "uk": 5, "mmChart": 242},
+        {"eu": 39, "usMen": 7, "uk": 6, "mmChart": 250},
+        {"eu": 40, "usMen": 7.5, "uk": 6.5, "mmChart": 258},
+        {"eu": 41, "usMen": 8, "uk": 7, "mmChart": 264},
+        {"eu": 42, "usMen": 9, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 277},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 284},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 290},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 296},
+        {"eu": 47, "usMen": 12.5, "uk": 11.5, "mmChart": 300}
+      ]
+    },
+    {
+      "brand": "Powerslide",
+      "category": "inline_skates",
+      "sourceFile": "Powerslide Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "MONDO / US M / US W / UK / EU. Single sizes. US W listed through EU 43.",
+      "rows": [
+        {"eu": 36, "usMen": 5, "usWomen": 6, "uk": 4, "mmChart": 229},
+        {"eu": 37, "usMen": 5.5, "usWomen": 6.5, "uk": 4.5, "mmChart": 236},
+        {"eu": 38, "usMen": 6, "usWomen": 7, "uk": 5, "mmChart": 242},
+        {"eu": 39, "usMen": 7, "usWomen": 8, "uk": 6, "mmChart": 248},
+        {"eu": 40, "usMen": 7.5, "usWomen": 8.5, "uk": 6.5, "mmChart": 255},
+        {"eu": 41, "usMen": 8, "usWomen": 9, "uk": 7, "mmChart": 261},
+        {"eu": 42, "usMen": 9, "usWomen": 10, "uk": 8, "mmChart": 268},
+        {"eu": 43, "usMen": 10, "usWomen": 11, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 282},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 289},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 296},
+        {"eu": 47, "usMen": 12.5, "uk": 11.5, "mmChart": 303}
+      ]
+    },
+    {
+      "brand": "Razors",
+      "category": "inline_skates",
+      "sourceFile": "Razor Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "USA Men's / Women's, UK Men's, EU, Mondo grid. UK column = UK Men's. US Women's listed through EU 44.",
+      "rows": [
+        {"eu": 37, "usMen": 4, "usWomen": 5.5, "uk": 3, "mmChart": 220},
+        {"eu": 38, "usMen": 5, "usWomen": 6.5, "uk": 4, "mmChart": 230},
+        {"eu": 39, "usMen": 6, "usWomen": 7.5, "uk": 5, "mmChart": 240},
+        {"eu": 40, "usMen": 7, "usWomen": 8.5, "uk": 6, "mmChart": 250},
+        {"eu": 41, "usMen": 8, "usWomen": 9.5, "uk": 7, "mmChart": 260},
+        {"eu": 42, "usMen": 9, "usWomen": 10.5, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "usWomen": 11, "uk": 9, "mmChart": 280},
+        {"eu": 44, "usMen": 10.5, "usWomen": 12, "uk": 9.5, "mmChart": 285},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 290},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 300},
+        {"eu": 47, "usMen": 13, "uk": 12, "mmChart": 310},
+        {"eu": 48, "usMen": 14, "uk": 13, "mmChart": 320},
+        {"eu": 49, "usMen": 15, "uk": 14, "mmChart": 340}
+      ]
+    },
+    {
+      "brand": "Luminous",
+      "category": "inline_skates",
+      "sourceFile": "Luminous Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "Luminous Ray. Measured foot MP(cm) / EU / US / UK / shell. US column unisex (treated as US Men). mmChart = MP cm * 10.",
+      "rows": [
+        {"eu": 36, "usMen": 4.5, "uk": 3.5, "mmChart": 230},
+        {"eu": 37, "usMen": 5, "uk": 4, "mmChart": 235},
+        {"eu": 38, "usMen": 6, "uk": 5, "mmChart": 245},
+        {"eu": 39, "usMen": 7, "uk": 6, "mmChart": 255},
+        {"eu": 40, "usMen": 7.5, "uk": 6.5, "mmChart": 260},
+        {"eu": 41, "usMen": 8, "uk": 7, "mmChart": 265},
+        {"eu": 42, "usMen": 9, "uk": 8, "mmChart": 270},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 280},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 285},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 295}
+      ]
+    },
+    {
+      "brand": "Rio Roller",
+      "category": "roller_skates",
+      "sourceFile": "Rio Roller Sizing Chart.jpg",
+      "confidence": "high",
+      "notes": "UK / EU / US/L (ladies -> US Women) / US/M (men -> US Men) / Insole mm. Junior rows (EU 29, 30.5, 32.5) omitted as ambiguous. Several non-integer EU sizes.",
+      "rows": [
+        {"eu": 33, "usMen": 2, "usWomen": 3, "uk": 1, "mmChart": 220},
+        {"eu": 34, "usMen": 3, "usWomen": 4, "uk": 2, "mmChart": 227},
+        {"eu": 35.5, "usMen": 4, "usWomen": 5, "uk": 3, "mmChart": 233},
+        {"eu": 37, "usMen": 5, "usWomen": 6, "uk": 4, "mmChart": 240},
+        {"eu": 38, "usMen": 6, "usWomen": 7, "uk": 5, "mmChart": 253},
+        {"eu": 39.5, "usMen": 7, "usWomen": 8, "uk": 6, "mmChart": 260},
+        {"eu": 40.5, "usMen": 8, "usWomen": 9, "uk": 7, "mmChart": 266},
+        {"eu": 42, "usMen": 9, "usWomen": 10, "uk": 8, "mmChart": 272},
+        {"eu": 43, "usMen": 10, "usWomen": 11, "uk": 9, "mmChart": 279},
+        {"eu": 44.5, "usMen": 11, "usWomen": 12, "uk": 10, "mmChart": 286},
+        {"eu": 46, "usMen": 12, "usWomen": 13, "uk": 11, "mmChart": 293},
+        {"eu": 47, "usMen": 13, "usWomen": 14, "uk": 12, "mmChart": 300}
+      ]
+    },
+    {
+      "brand": "Reign",
+      "category": "ice_skates",
+      "sourceFile": "Reign Hockey Sizing Chart.jpg",
+      "confidence": "medium",
+      "notes": "VERIFY CATEGORY: Reign makes quad/inline hockey skates, classified here as ice_skates per dev plan but may belong under roller_skates. Combined Anax Jr + Anax model rows. EUR / US / UK / Mundopoint mm.",
+      "rows": [
+        {"eu": 36, "usMen": 3, "uk": 2, "mmChart": 228},
+        {"eu": 37, "usMen": 4, "uk": 3, "mmChart": 234},
+        {"eu": 38, "usMen": 5, "uk": 4, "mmChart": 241},
+        {"eu": 39, "usMen": 6, "uk": 5, "mmChart": 248},
+        {"eu": 40, "usMen": 7, "uk": 6, "mmChart": 257},
+        {"eu": 41, "usMen": 7.5, "uk": 6.5, "mmChart": 264},
+        {"eu": 42, "usMen": 8, "uk": 7, "mmChart": 271},
+        {"eu": 43, "usMen": 9, "uk": 8, "mmChart": 278},
+        {"eu": 44, "usMen": 10, "uk": 9, "mmChart": 285},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 292},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 299},
+        {"eu": 47, "usMen": 13, "uk": 12, "mmChart": 305}
+      ]
+    },
+    {
+      "brand": "USD",
+      "category": "inline_skates",
+      "sourceFile": "USD Sizing Chart.jpg",
+      "confidence": "medium",
+      "notes": "Dual-size chart (EU pairs -> MONDO ranges). Split to single-EU endpoints; EU 37 omitted (covered by generic). US W listed through EU 42.",
+      "rows": [
+        {"eu": 36, "usMen": 5, "usWomen": 6, "uk": 4, "mmChart": 229},
+        {"eu": 38, "usMen": 6, "usWomen": 7, "uk": 5, "mmChart": 242},
+        {"eu": 39, "usMen": 7, "usWomen": 8, "uk": 6, "mmChart": 248},
+        {"eu": 40, "usMen": 7.5, "usWomen": 8.5, "uk": 6.5, "mmChart": 255},
+        {"eu": 41, "usMen": 8, "usWomen": 9, "uk": 7, "mmChart": 261},
+        {"eu": 42, "usMen": 9, "usWomen": 10, "uk": 8, "mmChart": 268},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 282},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 289},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 296}
+      ]
+    },
+    {
+      "brand": "Playlife",
+      "category": "inline_skates",
+      "sourceFile": "PlayLife Sizing Chart.jpg",
+      "confidence": "medium",
+      "notes": "Dual-size chart (EU pairs -> MONDO ranges). Split to single-EU endpoints. US W listed through EU 42.",
+      "rows": [
+        {"eu": 37, "usMen": 5.5, "usWomen": 6.5, "uk": 4.5, "mmChart": 236},
+        {"eu": 38, "usMen": 6, "usWomen": 7, "uk": 5, "mmChart": 242},
+        {"eu": 39, "usMen": 7, "usWomen": 8, "uk": 6, "mmChart": 248},
+        {"eu": 40, "usMen": 7.5, "usWomen": 8.5, "uk": 6.5, "mmChart": 255},
+        {"eu": 41, "usMen": 8, "usWomen": 9, "uk": 7, "mmChart": 261},
+        {"eu": 42, "usMen": 9, "usWomen": 10, "uk": 8, "mmChart": 268},
+        {"eu": 43, "usMen": 10, "uk": 9, "mmChart": 275},
+        {"eu": 44, "usMen": 10.5, "uk": 9.5, "mmChart": 282},
+        {"eu": 45, "usMen": 11, "uk": 10, "mmChart": 289},
+        {"eu": 46, "usMen": 12, "uk": 11, "mmChart": 296}
+      ]
+    },
+    {
+      "brand": "Mesmer",
+      "category": "inline_skates",
+      "sourceFile": "Mesmer Sizing Chart.jpg",
+      "confidence": "low",
+      "notes": "Range-based shell sizes (each shell spans 2-3 EU). Using SHELL SIZE block; mmChart is the shell mondopoint and is shared across the EU pair. Split to endpoints; verify before shipping.",
+      "rows": [
+        {"eu": 35, "usMen": 4, "mmChart": 252},
+        {"eu": 37, "usMen": 5.5, "mmChart": 252},
+        {"eu": 38, "usMen": 6, "mmChart": 268},
+        {"eu": 40, "usMen": 7.5, "mmChart": 268},
+        {"eu": 41, "usMen": 8, "mmChart": 284},
+        {"eu": 42, "usMen": 9, "mmChart": 284},
+        {"eu": 43, "usMen": 10, "mmChart": 298},
+        {"eu": 44, "usMen": 10.5, "mmChart": 298},
+        {"eu": 45, "usMen": 11, "mmChart": 312},
+        {"eu": 46, "usMen": 12, "mmChart": 312}
+      ]
+    },
+    {
+      "brand": "Flying Eagle",
+      "category": "inline_skates",
+      "sourceFile": "Flying Eagle Sizing Chart.xlsx",
+      "confidence": "medium",
+      "notes": "Source xlsx only provides EU size and the brand's own foot-length mm (no US/UK). EU 29/31/33/35 are odd-only kids sizes. As a reference brand only EU (or mm) input is meaningful.",
+      "rows": [
+        {"eu": 29, "mmChart": 179},
+        {"eu": 31, "mmChart": 192},
+        {"eu": 33, "mmChart": 205},
+        {"eu": 35, "mmChart": 219},
+        {"eu": 36, "mmChart": 225},
+        {"eu": 37, "mmChart": 232},
+        {"eu": 38, "mmChart": 239},
+        {"eu": 39, "mmChart": 245},
+        {"eu": 40, "mmChart": 252},
+        {"eu": 41, "mmChart": 259},
+        {"eu": 42, "mmChart": 265},
+        {"eu": 43, "mmChart": 272},
+        {"eu": 44, "mmChart": 279},
+        {"eu": 45, "mmChart": 285},
+        {"eu": 46, "mmChart": 292}
+      ]
+    }
+  ]
+}

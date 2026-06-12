@@ -1,0 +1,406 @@
+Brand Name,Product Category,Width Profile,Width Disclaimer Text,GraphQL Brand Slug,GraphQL Category Slug,mm Min,mm Max,Recommended Label,Size Attribute Value
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,183,187,EU 31,31eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,188,192,EU 32,32eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,193,197,EU 33,33eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,198,202,EU 34,34eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,313,317,EU 46 / US Men 13,46eu
+CHAYA,roller_skates,average,CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.,chaya,roller-skating,318,322,EU 47 / US Men 13.5,47eu
+DOOP,inline_skates,average,,doop,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+DOOP,inline_skates,average,,doop,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+DOOP,inline_skates,average,,doop,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+DOOP,inline_skates,average,,doop,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+DOOP,inline_skates,average,,doop,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+DOOP,inline_skates,average,,doop,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+DOOP,inline_skates,average,,doop,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+DOOP,inline_skates,average,,doop,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+DOOP,inline_skates,average,,doop,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+DOOP,inline_skates,average,,doop,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+DOOP,inline_skates,average,,doop,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+DOOP,inline_skates,average,,doop,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+DOOP,inline_skates,average,,doop,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+DOOP,inline_skates,average,,doop,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+DOOP,inline_skates,average,,doop,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+DOOP,inline_skates,average,,doop,inline-skating,313,317,EU 46 / US Men 13,46eu
+DOOP,inline_skates,average,,doop,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+DOOP,inline_skates,average,,doop,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+DOOP,inline_skates,average,,doop,inline-skating,333,337,EU 49 / US Men 15,49eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,168,172,EU 28,28eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,173,177,EU 29,29eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,178,182,EU 30,30eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,183,187,EU 31,31eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,188,192,EU 32,32eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,193,197,EU 33,33eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,198,202,EU 34,34eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Flying Eagle,inline_skates,average,,flyingeagle,inline-skating,313,317,EU 46 / US Men 13,46eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,313,317,EU 46 / US Men 13,46eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,323,327,EU 47.5 / US Men 14,47-5eu
+FR Skates,inline_skates,wide,FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.,frskates,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+Gawds,inline_skates,average,,gawds,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Gawds,inline_skates,average,,gawds,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Gawds,inline_skates,average,,gawds,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Gawds,inline_skates,average,,gawds,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Gawds,inline_skates,average,,gawds,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Gawds,inline_skates,average,,gawds,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Gawds,inline_skates,average,,gawds,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Gawds,inline_skates,average,,gawds,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+Gawds,inline_skates,average,,gawds,inline-skating,313,317,EU 46 / US Men 13,46eu
+IQON,inline_skates,average,,iqon,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+IQON,inline_skates,average,,iqon,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+IQON,inline_skates,average,,iqon,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+IQON,inline_skates,average,,iqon,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+IQON,inline_skates,average,,iqon,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+IQON,inline_skates,average,,iqon,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+IQON,inline_skates,average,,iqon,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+IQON,inline_skates,average,,iqon,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+IQON,inline_skates,average,,iqon,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+IQON,inline_skates,average,,iqon,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+IQON,inline_skates,average,,iqon,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+IQON,inline_skates,average,,iqon,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+IQON,inline_skates,average,,iqon,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+IQON,inline_skates,average,,iqon,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+IQON,inline_skates,average,,iqon,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+IQON,inline_skates,average,,iqon,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+IQON,inline_skates,average,,iqon,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+IQON,inline_skates,average,,iqon,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+IQON,inline_skates,average,,iqon,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+IQON,inline_skates,average,,iqon,inline-skating,313,317,EU 46 / US Men 13,46eu
+IQON,inline_skates,average,,iqon,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+Luminous,inline_skates,average,,luminous,inline-skating,188,192,EU 32,32eu
+Luminous,inline_skates,average,,luminous,inline-skating,193,197,EU 33,33eu
+Luminous,inline_skates,average,,luminous,inline-skating,198,202,EU 34,34eu
+Luminous,inline_skates,average,,luminous,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Luminous,inline_skates,average,,luminous,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Luminous,inline_skates,average,,luminous,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+Luminous,inline_skates,average,,luminous,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Luminous,inline_skates,average,,luminous,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Luminous,inline_skates,average,,luminous,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+Luminous,inline_skates,average,,luminous,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Luminous,inline_skates,average,,luminous,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Luminous,inline_skates,average,,luminous,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Luminous,inline_skates,average,,luminous,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Luminous,inline_skates,average,,luminous,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Luminous,inline_skates,average,,luminous,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Luminous,inline_skates,average,,luminous,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Luminous,inline_skates,average,,luminous,inline-skating,313,317,EU 46 / US Men 13,46eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,313,317,EU 46 / US Men 13,46eu
+Mesmer Skates,inline_skates,average,,mesmer,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+Micro,inline_skates,average,,micro,inline-skating,173,177,EU 29,29eu
+Micro,inline_skates,average,,micro,inline-skating,178,182,EU 30,30eu
+Micro,inline_skates,average,,micro,inline-skating,183,187,EU 31,31eu
+Micro,inline_skates,average,,micro,inline-skating,188,192,EU 32,32eu
+Micro,inline_skates,average,,micro,inline-skating,193,197,EU 33,33eu
+Micro,inline_skates,average,,micro,inline-skating,198,202,EU 34,34eu
+Micro,inline_skates,average,,micro,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Micro,inline_skates,average,,micro,inline-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+Micro,inline_skates,average,,micro,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Micro,inline_skates,average,,micro,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Micro,inline_skates,average,,micro,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Micro,inline_skates,average,,micro,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+Micro,inline_skates,average,,micro,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Micro,inline_skates,average,,micro,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+Micro,inline_skates,average,,micro,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Micro,inline_skates,average,,micro,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Micro,inline_skates,average,,micro,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+Micro,inline_skates,average,,micro,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Micro,inline_skates,average,,micro,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Micro,inline_skates,average,,micro,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+Micro,inline_skates,average,,micro,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Micro,inline_skates,average,,micro,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Micro,inline_skates,average,,micro,inline-skating,313,317,EU 46 / US Men 13,46eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Moxi Skates,roller_skates,average,,moxi-skates,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+MYFIT,inline_skates,average,,myfit,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+MYFIT,inline_skates,average,,myfit,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+MYFIT,inline_skates,average,,myfit,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+MYFIT,inline_skates,average,,myfit,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+MYFIT,inline_skates,average,,myfit,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+MYFIT,inline_skates,average,,myfit,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+MYFIT,inline_skates,average,,myfit,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+MYFIT,inline_skates,average,,myfit,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+MYFIT,inline_skates,average,,myfit,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+MYFIT,inline_skates,average,,myfit,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+MYFIT,inline_skates,average,,myfit,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+MYFIT,inline_skates,average,,myfit,inline-skating,313,317,EU 46 / US Men 13,46eu
+MYFIT,inline_skates,average,,myfit,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+MYFIT,inline_skates,average,,myfit,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+MYFIT,inline_skates,average,,myfit,inline-skating,333,337,EU 49 / US Men 15,49eu
+MYFIT,roller_skates,average,,myfit,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+MYFIT,roller_skates,average,,myfit,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+MYFIT,roller_skates,average,,myfit,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+MYFIT,roller_skates,average,,myfit,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+MYFIT,roller_skates,average,,myfit,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+MYFIT,roller_skates,average,,myfit,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+MYFIT,roller_skates,average,,myfit,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,313,317,EU 46 / US Men 13,46eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+NN Skates,inline_skates,average,,nn-skates,inline-skating,333,337,EU 49 / US Men 15,49eu
+PlayLife,inline_skates,average,,playlife,inline-skating,168,172,EU 28,28eu
+PlayLife,inline_skates,average,,playlife,inline-skating,173,177,EU 29,29eu
+PlayLife,inline_skates,average,,playlife,inline-skating,178,182,EU 30,30eu
+PlayLife,inline_skates,average,,playlife,inline-skating,183,187,EU 31,31eu
+PlayLife,inline_skates,average,,playlife,inline-skating,188,192,EU 32,32eu
+PlayLife,inline_skates,average,,playlife,inline-skating,193,197,EU 33,33eu
+PlayLife,inline_skates,average,,playlife,inline-skating,198,202,EU 34,34eu
+PlayLife,inline_skates,average,,playlife,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+PlayLife,inline_skates,average,,playlife,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+PlayLife,inline_skates,average,,playlife,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+PlayLife,inline_skates,average,,playlife,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+PlayLife,inline_skates,average,,playlife,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+PlayLife,inline_skates,average,,playlife,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+PlayLife,inline_skates,average,,playlife,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+PlayLife,inline_skates,average,,playlife,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+PlayLife,inline_skates,average,,playlife,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+PlayLife,inline_skates,average,,playlife,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+PlayLife,inline_skates,average,,playlife,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+PlayLife,inline_skates,average,,playlife,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+PlayLife,roller_skates,average,,playlife,roller-skating,183,187,EU 31,31eu
+PlayLife,roller_skates,average,,playlife,roller-skating,188,192,EU 32,32eu
+PlayLife,roller_skates,average,,playlife,roller-skating,193,197,EU 33,33eu
+PlayLife,roller_skates,average,,playlife,roller-skating,198,202,EU 34,34eu
+PlayLife,roller_skates,average,,playlife,roller-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+PlayLife,roller_skates,average,,playlife,roller-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+PlayLife,roller_skates,average,,playlife,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+PlayLife,roller_skates,average,,playlife,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+PlayLife,roller_skates,average,,playlife,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+PlayLife,roller_skates,average,,playlife,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+PlayLife,roller_skates,average,,playlife,roller-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+PlayLife,roller_skates,average,,playlife,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+PlayLife,roller_skates,average,,playlife,roller-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+PlayLife,roller_skates,average,,playlife,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+PlayLife,roller_skates,average,,playlife,roller-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+PlayLife,roller_skates,average,,playlife,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,163,167,EU 27,27eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,168,172,EU 28,28eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,173,177,EU 29,29eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,178,182,EU 30,30eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,183,187,EU 31,31eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,188,192,EU 32,32eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,193,197,EU 33,33eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,198,202,EU 34,34eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,288,292,EU 43.5 / US Men 10.5 / US Women 12,43-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,313,317,EU 46 / US Men 13,46eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+Powerslide,inline_skates,average,,powerslide,inline-skating,333,337,EU 49 / US Men 15,49eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Powerslide,roller_skates,average,,powerslide,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,313,317,EU 46 / US Men 13,46eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,328,332,EU 48 / US Men 14.5,48eu
+ProSkaters,inline_skates,average,,proskaters,inline-skating,333,337,EU 49 / US Men 15,49eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,168,172,EU 28,28eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,173,177,EU 29,29eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,178,182,EU 30,30eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,183,187,EU 31,31eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,188,192,EU 32,32eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,193,197,EU 33,33eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,198,202,EU 34,34eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Reign Hockey,inline_skates,average,,reignhockey,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,313,317,EU 46 / US Men 13,46eu
+Riedell Skates,roller_skates,average,,riedell-skates,roller-skating,318,322,EU 47 / US Men 13.5,47eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,188,192,EU 32,32eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,193,197,EU 33,33eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,198,202,EU 34,34eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Rio Roller,roller_skates,average,,rio-roller,roller-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,168,172,EU 28,28eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,173,177,EU 29,29eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,178,182,EU 30,30eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,183,187,EU 31,31eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,188,192,EU 32,32eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,193,197,EU 33,33eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,198,202,EU 34,34eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,258,262,EU 40.5 / US Men 7.5 / US Women 9,40-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,278,282,EU 42.5 / US Men 9.5 / US Women 11,42-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,298,302,EU 44.5 / US Men 11.5 / US Women 13,44-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+Rollerblade,inline_skates,average,,rollerblade,inline-skating,313,317,EU 46 / US Men 13,46eu
+SEBA,inline_skates,average,,seba,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+SEBA,inline_skates,average,,seba,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+SEBA,inline_skates,average,,seba,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+SEBA,inline_skates,average,,seba,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+SEBA,inline_skates,average,,seba,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+SEBA,inline_skates,average,,seba,inline-skating,283,287,EU 43 / US Men 10 / US Women 11.5,43eu
+SEBA,inline_skates,average,,seba,inline-skating,293,297,EU 44 / US Men 11 / US Women 12.5,44eu
+SEBA,inline_skates,average,,seba,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+SEBA,inline_skates,average,,seba,inline-skating,313,317,EU 46 / US Men 13,46eu
+SEBA,inline_skates,average,,seba,inline-skating,318,322,EU 47 / US Men 13.5,47eu
+Stanley,inline_skates,average,,stanley,inline-skating,193,197,EU 33,33eu
+Stanley,inline_skates,average,,stanley,inline-skating,198,202,EU 34,34eu
+Stanley,inline_skates,average,,stanley,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+Stanley,inline_skates,average,,stanley,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+Stanley,inline_skates,average,,stanley,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+Stanley,inline_skates,average,,stanley,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+Stanley,inline_skates,average,,stanley,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+Stanley,inline_skates,average,,stanley,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+USD,inline_skates,average,,usd-skates,inline-skating,183,187,EU 31,31eu
+USD,inline_skates,average,,usd-skates,inline-skating,188,192,EU 32,32eu
+USD,inline_skates,average,,usd-skates,inline-skating,193,197,EU 33,33eu
+USD,inline_skates,average,,usd-skates,inline-skating,198,202,EU 34,34eu
+USD,inline_skates,average,,usd-skates,inline-skating,208,212,EU 35 / US Men 1.5 / US Women 3,35eu
+USD,inline_skates,average,,usd-skates,inline-skating,213,217,EU 35.5 / US Men 2 / US Women 3.5,35-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,218,222,EU 36 / US Men 3 / US Women 4.5,36eu
+USD,inline_skates,average,,usd-skates,inline-skating,223,227,EU 36.5 / US Men 3.5 / US Women 5,36-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,228,232,EU 37 / US Men 4 / US Women 5.5,37eu
+USD,inline_skates,average,,usd-skates,inline-skating,233,237,EU 38 / US Men 5 / US Women 6.5,38eu
+USD,inline_skates,average,,usd-skates,inline-skating,238,242,EU 38.5 / US Men 5.5 / US Women 7,38-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,243,247,EU 39 / US Men 6 / US Women 7.5,39eu
+USD,inline_skates,average,,usd-skates,inline-skating,248,252,EU 39.5 / US Men 6.5 / US Women 8,39-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,253,257,EU 40 / US Men 7 / US Women 8.5,40eu
+USD,inline_skates,average,,usd-skates,inline-skating,263,267,EU 41 / US Men 8 / US Women 9.5,41eu
+USD,inline_skates,average,,usd-skates,inline-skating,268,272,EU 41.5 / US Men 8.5 / US Women 10,41-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,273,277,EU 42 / US Men 9 / US Women 10.5,42eu
+USD,inline_skates,average,,usd-skates,inline-skating,303,307,EU 45 / US Men 12 / US Women 13.5,45eu
+USD,inline_skates,average,,usd-skates,inline-skating,308,312,EU 45.5 / US Men 12.5,45-5eu
+USD,inline_skates,average,,usd-skates,inline-skating,313,317,EU 46 / US Men 13,46eu

@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-06-12T14:43:36.785Z",
+  "crosswalkSource": "Generic Sports Shoe",
+  "brands": [
+    {
+      "brand": "Adapt",
+      "category": "inline_skates",
+      "sourceFile": "Adapt Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 12,
+      "notes": "EU / UK / US / Insole mm. US column is unisex (treated as US Men).",
+      "flags": []
+    },
+    {
+      "brand": "FR Skates",
+      "category": "inline_skates",
+      "sourceFile": "FR Brand Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 14,
+      "notes": "EU / US / UK / MP(cm) / Insole. mmChart = MP cm * 10.",
+      "flags": []
+    },
+    {
+      "brand": "SEBA",
+      "category": "inline_skates",
+      "sourceFile": "SEBA Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 14,
+      "notes": "EUR / US / MP / UK / Max foot length mm. mmChart = MP cm * 10.",
+      "flags": []
+    },
+    {
+      "brand": "Gawds",
+      "category": "inline_skates",
+      "sourceFile": "Gawds Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 8,
+      "notes": "MONDO / US M / US W / UK / EU. Single sizes. US W only listed through EU 43.",
+      "flags": []
+    },
+    {
+      "brand": "Iqon",
+      "category": "inline_skates",
+      "sourceFile": "Iqon Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 11,
+      "notes": "MONDO / US / UK / EU. US column unisex (treated as US Men).",
+      "flags": []
+    },
+    {
+      "brand": "Powerslide",
+      "category": "inline_skates",
+      "sourceFile": "Powerslide Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 12,
+      "notes": "MONDO / US M / US W / UK / EU. Single sizes. US W listed through EU 43.",
+      "flags": []
+    },
+    {
+      "brand": "Razors",
+      "category": "inline_skates",
+      "sourceFile": "Razor Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 13,
+      "notes": "USA Men's / Women's, UK Men's, EU, Mondo grid. UK column = UK Men's. US Women's listed through EU 44.",
+      "flags": []
+    },
+    {
+      "brand": "Luminous",
+      "category": "inline_skates",
+      "sourceFile": "Luminous Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 11,
+      "notes": "Luminous Ray. Measured foot MP(cm) / EU / US / UK / shell. US column unisex (treated as US Men). mmChart = MP cm * 10.",
+      "flags": []
+    },
+    {
+      "brand": "Rio Roller",
+      "category": "roller_skates",
+      "sourceFile": "Rio Roller Sizing Chart.jpg",
+      "confidence": "high",
+      "rows": 12,
+      "notes": "UK / EU / US/L (ladies -> US Women) / US/M (men -> US Men) / Insole mm. Junior rows (EU 29, 30.5, 32.5) omitted as ambiguous. Several non-integer EU sizes.",
+      "flags": []
+    },
+    {
+      "brand": "Reign",
+      "category": "ice_skates",
+      "sourceFile": "Reign Hockey Sizing Chart.jpg",
+      "confidence": "medium",
+      "rows": 12,
+      "notes": "VERIFY CATEGORY: Reign makes quad/inline hockey skates, classified here as ice_skates per dev plan but may belong under roller_skates. Combined Anax Jr + Anax model rows. EUR / US / UK / Mundopoint mm.",
+      "flags": [
+        "confidence=medium"
+      ]
+    },
+    {
+      "brand": "USD",
+      "category": "inline_skates",
+      "sourceFile": "USD Sizing Chart.jpg",
+      "confidence": "medium",
+      "rows": 10,
+      "notes": "Dual-size chart (EU pairs -> MONDO ranges). Split to single-EU endpoints; EU 37 omitted (covered by generic). US W listed through EU 42.",
+      "flags": [
+        "confidence=medium"
+      ]
+    },
+    {
+      "brand": "Playlife",
+      "category": "inline_skates",
+      "sourceFile": "PlayLife Sizing Chart.jpg",
+      "confidence": "medium",
+      "rows": 10,
+      "notes": "Dual-size chart (EU pairs -> MONDO ranges). Split to single-EU endpoints. US W listed through EU 42.",
+      "flags": [
+        "confidence=medium"
+      ]
+    },
+    {
+      "brand": "Mesmer",
+      "category": "inline_skates",
+      "sourceFile": "Mesmer Sizing Chart.jpg",
+      "confidence": "low",
+      "rows": 10,
+      "notes": "Range-based shell sizes (each shell spans 2-3 EU). Using SHELL SIZE block; mmChart is the shell mondopoint and is shared across the EU pair. Split to endpoints; verify before shipping.",
+      "flags": [
+        "confidence=low"
+      ]
+    },
+    {
+      "brand": "Flying Eagle",
+      "category": "inline_skates",
+      "sourceFile": "Flying Eagle Sizing Chart.xlsx",
+      "confidence": "medium",
+      "rows": 15,
+      "notes": "Source xlsx only provides EU size and the brand's own foot-length mm (no US/UK). EU 29/31/33/35 are odd-only kids sizes. As a reference brand only EU (or mm) input is meaningful.",
+      "flags": [
+        "confidence=medium"
+      ]
+    }
+  ]
+}

@@ -6,6 +6,7 @@ const fields = [
   {key: 'eu', label: 'EU', placeholder: '42'},
   {key: 'usMen', label: 'US Men', placeholder: '9'},
   {key: 'usWomen', label: 'US Women', placeholder: '10.5'},
+  {key: 'usYouth', label: 'US Youth', placeholder: '3'},
   {key: 'uk', label: 'UK', placeholder: '8'},
 ] as const;
 
@@ -22,15 +23,15 @@ const handleInput = (field: (typeof fields)[number]['key'], event: Event) => {
       <p class="mt-1 text-sm leading-6 text-zinc-500">Type one size in any unit — we'll convert everything to millimeters.</p>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-6">
       <label v-for="field in fields" :key="field.key" class="grid gap-2">
         <span class="text-sm font-bold text-zinc-700">{{ field.label }}</span>
         <input
-          type="number"
-          inputmode="decimal"
+          :type="field.key === 'usYouth' ? 'text' : 'number'"
+          :inputmode="field.key === 'usYouth' ? 'text' : 'decimal'"
           min="0"
           step="0.5"
-          class="min-h-12 rounded-lg border px-4 py-3 text-base font-semibold text-zinc-950 focus:outline-none focus:ring-inset focus:ring-2 focus:ring-emerald-600 disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-500"
+          class="min-h-12 rounded-lg border px-4 py-3 text-base font-semibold uppercase text-zinc-950 focus:outline-none focus:ring-inset focus:ring-2 focus:ring-emerald-600 disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-500"
           :class="calculator.activeSizeField.value === field.key ? 'border-2 border-emerald-600 bg-white' : 'border border-zinc-300 bg-white'"
           :placeholder="field.placeholder"
           :value="calculator.state.value.sizeInput[field.key]"
