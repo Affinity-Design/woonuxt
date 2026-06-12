@@ -89,6 +89,12 @@
       "statusCode": 301
     }
   },
+  "/skate-store-toronto": {
+    "redirect": {
+      "to": "/blog/skate-store-toronto",
+      "statusCode": 301
+    }
+  },
   "/where-to-buy-roller-skates-near-me-canada": {
     "redirect": {
       "to": "/blog/where-to-buy-roller-skates-near-me-canada",

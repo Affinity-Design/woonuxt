@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-06-12
 
 ---
 
@@ -58,6 +58,15 @@
   - Status: ✅ Live
   - Performance: Monitoring
 
+### Medium Priority Keywords (Already Published)
+
+- [x] **skate store toronto** (880 sv, 14 kd, $0.36 cpc)
+
+  - Post: `/blog/skate-store-toronto`
+  - Published: 2026-06-12
+  - Status: ✅ Live
+  - Performance: Monitoring
+
 ---
 
 ## 📋 Available Keywords (Priority Order)
@@ -91,13 +100,6 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Status: Available
 
 ### Medium Priority (500-1000 sv)
-
-- [ ] **skate store toronto** (880 sv, 14 kd, $0.36 cpc)
-
-  - Intent: Local, transactional
-  - Difficulty: Easy
-  - Suggested Post: "Best Skate Stores in Toronto (Local Shopping Guide)"
-  - Status: Available
 
 - [x] **roller skates for women** (480 sv, 0 kd, $0.42 cpc)
 
@@ -226,7 +228,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 1. **Local Toronto Content** - Multiple local keywords available
 
    - toronto roller skating (2900 sv)
-   - skate store toronto (880 sv)
+   - skate store toronto (880 sv) - covered by `/blog/skate-store-toronto`
    - toronto roller skates (20 sv)
 
 2. **Demographic-Specific**
