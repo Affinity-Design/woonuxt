@@ -60,7 +60,7 @@ const handleInput = (field: (typeof fields)[number]['key'], event: Event) => {
     <button
       v-if="calculator.resolvedReferenceSize.value"
       type="button"
-      class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-6 py-3.5 text-base font-black text-white transition hover:bg-emerald-800 disabled:opacity-40"
+      class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-6 py-3.5 text-base font-black text-white transition hover:bg-emerald-800 disabled:opacity-40 sm:w-auto sm:justify-self-start sm:px-8"
       @click="calculator.continueFromSize">
       <Icon name="ion:arrow-forward-outline" class="h-5 w-5" />
       Use {{ calculator.resolvedReferenceSize.value.mm }} mm — continue

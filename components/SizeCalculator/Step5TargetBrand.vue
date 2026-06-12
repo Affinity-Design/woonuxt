@@ -9,7 +9,7 @@ const calculator = useCalculator();
       <p class="mt-1 text-sm leading-6 text-zinc-500">Pick a brand for a size-matched recommendation, or browse all options sorted by price.</p>
     </div>
 
-    <div class="grid gap-2">
+    <div class="grid gap-2 sm:grid-cols-2">
       <button
         v-for="brand in calculator.targetBrands.value"
         :key="brand.id"

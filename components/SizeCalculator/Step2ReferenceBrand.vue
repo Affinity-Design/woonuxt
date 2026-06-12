@@ -14,7 +14,7 @@ const handleBrandChange = (event: Event) => {
       <p class="mt-1 text-sm leading-6 text-zinc-500">Select the brand whose sizing chart you already trust.</p>
     </div>
 
-    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+    <div class="grid gap-3 sm:grid-cols-[minmax(0,28rem)_auto] sm:items-end">
       <label class="grid gap-2">
         <span class="text-sm font-bold text-zinc-700">Brand</span>
         <select
