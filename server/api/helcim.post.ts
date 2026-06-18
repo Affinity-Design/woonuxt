@@ -98,6 +98,11 @@ export default defineEventHandler(async (event) => {
           });
         }
 
+        // Trace id correlates this outbound invoice payload with any later charge failure.
+        // These rejections leave NO record in Helcim or Woo, so this is our only diagnostic
+        // link. See docs/helcim-cc-rejection-critical-patch.md.
+        const traceId = `helcim-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
         console.log(`[DEBUG Server] Helcim API request:`, {
           receivedAmount: amount,
           receivedAmountType: typeof amount,
@@ -359,6 +364,20 @@ export default defineEventHandler(async (event) => {
           console.log('[Helcim API] Skipping top-level taxAmount - already included in invoiceRequest.tax to avoid double-counting');
         }
 
+        // Concise, greppable trace line: pairs with the client failure beacon (/api/helcim-log)
+        // via traceId so Phase 2 can see exactly what we sent vs. what Helcim rejected.
+        console.log('[Helcim Trace]', {
+          traceId,
+          chargeAmount: helcimRequestBody.amount,
+          currency,
+          hasInvoice: !!helcimRequestBody.invoiceRequest,
+          lineItemCount: Array.isArray(lineItems) ? lineItems.length : 0,
+          taxAmount: Number(taxAmount) || 0,
+          shippingAmount: Number(shippingAmount) || 0,
+          discountAmount: Number(discountAmount) || 0,
+          hasCoupon: (Number(discountAmount) || 0) > 0,
+        });
+
         // Log the FULL request body for debugging
         console.log('[Helcim API] Full request body being sent:', JSON.stringify(helcimRequestBody, null, 2));
 
@@ -391,6 +410,7 @@ export default defineEventHandler(async (event) => {
           success: true,
           checkoutToken: data.checkoutToken,
           secretToken: data.secretToken,
+          traceId,
         };
 
       case 'validate':

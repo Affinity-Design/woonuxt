@@ -6,6 +6,7 @@ const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed',
 
 const checkoutToken = ref('');
 const secretToken = ref('');
+const traceId = ref(''); // Correlates this checkout's outbound invoice payload with any failure (see helcim-cc-rejection-critical-patch.md)
 const paymentComplete = ref(false);
 const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
@@ -184,12 +185,14 @@ const initializePayment = async () => {
       success: boolean;
       checkoutToken?: string;
       secretToken?: string;
+      traceId?: string;
       error?: {message: string};
     };
 
     if (response.success) {
       checkoutToken.value = response.checkoutToken || '';
       secretToken.value = response.secretToken || '';
+      traceId.value = response.traceId || '';
 
       console.log('[HelcimCard] Payment initialized successfully');
       captureLog('INFO', 'Payment initialized OK, token received');
@@ -434,27 +437,54 @@ const handlePaymentFailed = (eventMessage: any) => {
   ];
 
   const isDecline = declinePatterns.some((p) => rawError.includes(p));
-  // "Could not complete CC transaction" can be either a decline or a config issue.
-  // After our amount-mismatch fix, if this still appears it's most likely a genuine decline.
+  // "Could not complete CC transaction" is NOT a bank decline — it's a pre-authorization
+  // rejection (usually invoice/amount validation). The card is never charged and Helcim
+  // creates no transaction record. We MUST NOT tell the customer their card was declined.
+  // See docs/helcim-cc-rejection-critical-patch.md.
   const isCCFailure = rawError.includes('Could not complete CC transaction');
 
-  if (isDecline || isCCFailure) {
+  if (isDecline) {
+    // Genuine bank/issuer decline (keyword-matched). "Card Declined" wording is correct here.
     isCardDecline.value = true;
     isTechnicalError.value = false;
-    paymentError.value = isCCFailure
-      ? 'Your card was declined. Please check your card number, expiry date, and CVV, then try again. If the problem persists, contact your bank or try a different card.'
-      : `Your card was declined: ${rawError}. Please try a different card or contact your bank.`;
-  } else if (rawError.includes('Invalid card transaction request')) {
+    paymentError.value = `Your card was declined: ${rawError}. Please try a different card or contact your bank.`;
+  } else if (isCCFailure || rawError.includes('Invalid card transaction request')) {
+    // Processing/config rejection — card was NOT charged. Show as a technical error
+    // (orange UI with the "Copy error details" support button), not a decline.
     isCardDecline.value = false;
     isTechnicalError.value = true;
-    paymentError.value = 'There was a technical issue processing your payment. Please try again.';
+    paymentError.value =
+      'We couldn’t process this payment and your card was not charged. Please try again, or contact support@proskatersplace.ca and we’ll help complete your order.';
   } else {
     isCardDecline.value = false;
     isTechnicalError.value = true;
-    paymentError.value = 'An unexpected error occurred during payment. Please try again.';
+    paymentError.value = 'An unexpected error occurred during payment. Your card was not charged. Please try again.';
   }
 
   paymentComplete.value = false;
+
+  // Instrumentation: these failures leave NO trace in Helcim or WooCommerce, so report the
+  // raw Helcim error + order context server-side (visible in `wrangler tail` + persisted for
+  // failures). Fire-and-forget; must never affect the payment UI. See critical patch doc.
+  try {
+    $fetch('/api/helcim-log', {
+      method: 'POST',
+      body: {
+        traceId: traceId.value,
+        rawError,
+        classification: isDecline ? 'bank_decline' : isCCFailure ? 'cc_processing_rejection' : 'unknown',
+        amount: props.amount,
+        currency: props.currency,
+        lineItemCount: props.lineItems?.length || 0,
+        taxAmount: props.taxAmount,
+        shippingAmount: props.shippingAmount,
+        discountAmount: props.discountAmount,
+        hasCoupon: (props.discountAmount || 0) > 0,
+      },
+    }).catch(() => {});
+  } catch {
+    /* never block the failure UI on logging */
+  }
 
   emit('payment-failed', eventMessage);
   emit('payment-complete', {
