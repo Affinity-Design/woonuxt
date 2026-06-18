@@ -459,9 +459,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const result = await response.json().catch(async () => {
-      const rawText = await response.clone().text().catch(() => '<unable to read response>');
+      const rawText = await response
+        .clone()
+        .text()
+        .catch(() => '<unable to read response>');
       console.error(`❌ GraphQL response is not JSON [${requestId}]:`, rawText.substring(0, 500));
-      return { _parseError: true, rawText: rawText.substring(0, 500) };
+      return {_parseError: true, rawText: rawText.substring(0, 500)};
     });
 
     if (result._parseError) {
@@ -515,6 +518,8 @@ export default defineEventHandler(async (event) => {
     // Since we already calculated the discounted totals in the line items, applying coupons again via API
     // triggers a re-calculation that corrupts the totals (e.g. 0.85 -> 0.74).
     // We will just update status.
+
+    let finalizedOrderNumber = orderData.orderNumber;
 
     try {
       /*
@@ -622,6 +627,14 @@ export default defineEventHandler(async (event) => {
       );
 
       if (statusResponse.ok) {
+        const updatedOrder = await statusResponse
+          .clone()
+          .json()
+          .catch(() => null);
+        if (updatedOrder?.number) {
+          finalizedOrderNumber = String(updatedOrder.number);
+          console.log('Final order number from Woo REST:', finalizedOrderNumber);
+        }
         console.log('✅ Order status updated to processing (Email triggered)');
       } else {
         const errorText = await statusResponse.text();
@@ -639,7 +652,7 @@ export default defineEventHandler(async (event) => {
         id: orderData.databaseId,
         databaseId: orderData.databaseId,
         globalId: orderData.id,
-        orderNumber: orderData.orderNumber,
+        orderNumber: finalizedOrderNumber,
         orderKey: orderData.orderKey,
         status: orderData.status,
         total: orderData.total,

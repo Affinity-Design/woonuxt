@@ -20,6 +20,11 @@ const isCheckoutPage = computed<boolean>(() => route.path.includes('/order-recei
 const orderIsNotCompleted = computed<boolean>(() => order.value?.status !== OrderStatusEnum.COMPLETED);
 const hasDiscount = computed<boolean>(() => !!parseFloat(order.value?.rawDiscountTotal || '0'));
 const downloadableItems = computed(() => order.value?.downloadableItems?.nodes || []);
+const orderNumberFromQuery = computed(() => {
+  if (Array.isArray(query.number)) return query.number[0] || '';
+  return typeof query.number === 'string' ? query.number : '';
+});
+const displayOrderNumber = computed(() => order.value?.orderNumber || orderNumberFromQuery.value || order.value?.databaseId || '');
 
 // Helper to determine payment method display
 const getPaymentMethodDisplay = computed(() => {
@@ -99,6 +104,7 @@ async function getOrder() {
     ) {
       order.value = {
         databaseId: params.orderId as string,
+        orderNumber: orderNumberFromQuery.value,
         orderKey: query.key as string,
         status: null,
         lineItems: {nodes: []},
@@ -150,7 +156,7 @@ useSeoMeta({
           <div class="my-4 text-center">
             <Icon name="ion:happy-outline" size="64" class="mx-auto mb-4 text-primary-600" />
             <h2 class="text-2xl font-semibold text-green-600 mb-4 text-center">Thank You. Order Received!</h2>
-            <p class="text-gray-700">Order #{{ order.databaseId }}</p>
+            <p class="text-gray-700">Order #{{ displayOrderNumber }}</p>
             <p v-if="query.key" class="font-bold text-gray-800">Reference: {{ query.key }}</p>
             <div class="mt-2 text-sm text-gray-600">
               <p>We sent you an email confirmation.</p>
@@ -175,7 +181,7 @@ useSeoMeta({
             <div class="text-center mb-2 text-xs text-gray-400 uppercase">
               {{ $t('messages.shop.order') }}
             </div>
-            <div class="leading-none">#{{ order.databaseId! }}</div>
+            <div class="leading-none">#{{ displayOrderNumber }}</div>
           </div>
           <div class="w-[21%]">
             <div class="mb-2 text-xs text-gray-400 uppercase">
@@ -251,7 +257,7 @@ useSeoMeta({
             <div class="mb-2 text-xs text-gray-400 uppercase">
               {{ $t('messages.shop.order') }}
             </div>
-            <div class="leading-none">#{{ order.databaseId! }}</div>
+            <div class="leading-none">#{{ displayOrderNumber }}</div>
           </div>
           <div class="w-[21%]">
             <div class="mb-2 text-xs text-gray-400 uppercase">
