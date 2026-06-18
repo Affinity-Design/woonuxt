@@ -182,6 +182,34 @@ function groupedRows(rows, nameField) {
   return groups;
 }
 
+function groupedCarriedRows(rows) {
+  const groups = [];
+  const indexByCarriedBrandCategory = new Map();
+
+  for (const row of rows) {
+    const name = row['Brand Name'];
+    const productCategory = row['Product Category'];
+
+    if (!name) {
+      throw new Error(`Row ${row.__rowNumber}: "Brand Name" is required.`);
+    }
+
+    if (!productCategory) {
+      throw new Error(`Row ${row.__rowNumber}: "Product Category" is required.`);
+    }
+
+    const key = `${name.toLowerCase()}::${productCategory.toLowerCase()}`;
+    if (!indexByCarriedBrandCategory.has(key)) {
+      indexByCarriedBrandCategory.set(key, groups.length);
+      groups.push({name, rows: []});
+    }
+
+    groups[indexByCarriedBrandCategory.get(key)].rows.push(row);
+  }
+
+  return groups;
+}
+
 function buildReferenceData(rows) {
   const brandGroups = groupedRows(rows, 'Brand Name');
 
@@ -236,7 +264,7 @@ function buildReferenceData(rows) {
 }
 
 function buildCarriedData(rows) {
-  const brandGroups = groupedRows(rows, 'Brand Name');
+  const brandGroups = groupedCarriedRows(rows);
 
   const brands = brandGroups.map((group, brandIndex) => {
     const firstRow = group.rows[0];
