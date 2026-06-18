@@ -1,5 +1,5 @@
 {
-  "lastGenerated": "2026-06-18T16:23:49.460Z",
+  "lastGenerated": "2026-06-18T17:03:33.851Z",
   "routes": [
     {
       "url": "/",
@@ -129,12 +129,6 @@
     },
     {
       "url": "/blog/skate-shop-toronto",
-      "lastmod": "2026-06-18",
-      "changefreq": "monthly",
-      "priority": "0.8"
-    },
-    {
-      "url": "/blog/skate-store-toronto",
       "lastmod": "2026-06-18",
       "changefreq": "monthly",
       "priority": "0.8"

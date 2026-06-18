@@ -19,6 +19,5 @@ module.exports = {
     "/roller-skating-toronto-guide": { redirect: { to: "/blog/roller-skating-toronto-guide", statusCode: 301 } },
     "/skate-maintenance-winter": { redirect: { to: "/blog/skate-maintenance-winter", statusCode: 301 } },
     "/skate-shop-toronto": { redirect: { to: "/blog/skate-shop-toronto", statusCode: 301 } },
-    "/skate-store-toronto": { redirect: { to: "/blog/skate-store-toronto", statusCode: 301 } },
     "/where-to-buy-roller-skates-near-me-canada": { redirect: { to: "/blog/where-to-buy-roller-skates-near-me-canada", statusCode: 301 } },
 };

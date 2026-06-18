@@ -6,7 +6,7 @@
 
 ---
 
-## ✅ Used Keywords
+## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
 
@@ -14,70 +14,62 @@
 
   - Post: `/blog/skate-shop-toronto`
   - Published: 2026-06-18
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Secondary: skate store toronto (210), skate shop toronto canada (590), toronto skate shops (140), canadian skate shop (110), skate shop ontario (50)
-  - Performance: Monitoring (entire local "skate shop" cluster previously ranked #13–98 from the homepage with no dedicated page)
+  - Performance: Monitoring (entire local "skate shop" cluster previously ranked #13â€“98 from the homepage with no dedicated page)
 
 - [x] **inline skating** (880 sv, 17 kd, $0.00 cpc)
 
   - Post: `/blog/inline-skating-guide`
   - Published: 2026-06-04
-  - Status: ✅ Live
-  - Performance: Monitoring (was ranking ~#74 with no dedicated page — clear gap)
+  - Status: âœ… Live
+  - Performance: Monitoring (was ranking ~#74 with no dedicated page â€” clear gap)
 
 - [x] **roller skates** (9900 sv, 0 kd, $0.52 cpc)
 
   - Post: `/blog/roller-skates-complete-guide-2025`
   - Published: 2025-12-15
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [x] **roller skates near me** (5400 sv, 0 kd, $1.09 cpc)
 
   - Post: `/blog/where-to-buy-roller-skates-near-me-canada`
   - Published: 2025-11-13
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [x] **inline skates canada** (390 sv, 31 kd, $0.45 cpc)
 
   - Post: `/blog/best-inline-skates-canada-2025`
   - Published: 2025-11-10
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [x] **roller skates for beginners** (estimated 14.8k sv, +1956% YoY)
 
   - Post: `/blog/complete-beginners-guide-inline-quad-skating`
   - Published: 2025-11-10
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [x] **how to skate backwards** (Featured snippet opportunity)
 
   - Post: `/blog/how-to-skate-backwards-tutorial`
   - Published: 2025-11-10
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [x] **best inline skates 2025** (High commercial intent)
   - Post: `/blog/best-inline-skates-2025`
   - Published: 2025-11-10
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
-### Medium Priority Keywords (Already Published)
-
-- [x] **skate store toronto** (880 sv, 14 kd, $0.36 cpc)
-
-  - Post: `/blog/skate-store-toronto`
-  - Published: 2026-06-12
-  - Status: ✅ Live
-  - Performance: Monitoring
 
 ---
 
-## 📋 Available Keywords (Priority Order)
+## ðŸ“‹ Available Keywords (Priority Order)
 
 ### Ultra High Priority (5000+ sv, Low Competition)
 
@@ -98,7 +90,7 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Intent: Commercial/Transactional
   - Difficulty: Easy
   - Suggested Post: "Professional Skates: What the Pros Use"
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Post: `/blog/pro-skates-professional-guide`
 
 - [ ] **childrens roller skates** (1900 sv, 42 kd, $0.48 cpc)
@@ -115,7 +107,7 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Difficulty: Very Easy
   - Post: `/blog/roller-skates-for-women`
   - Published: 2026-03-31
-  - Status: ✅ Live
+  - Status: âœ… Live
 
 - [ ] **proskatersplace** (480 sv, 3 kd, $0.00 cpc)
 
@@ -144,7 +136,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 
   - Post: `/blog/online-skate-shop-canada`
   - Published: 2026-05-20
-  - Status: ✅ Live
+  - Status: âœ… Live
   - Performance: Monitoring
 
 - [ ] **inline roller skates** (320 sv, 55 kd, $0.30 cpc)
@@ -229,14 +221,14 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ---
 
-## 📊 Keyword Strategy Notes
+## ðŸ“Š Keyword Strategy Notes
 
 ### Content Gaps to Fill
 
 1. **Local Toronto Content** - Multiple local keywords available
 
    - toronto roller skating (2900 sv)
-   - skate store toronto (880 sv) - covered by `/blog/skate-store-toronto`
+   - skate store toronto (880 sv) - covered as a secondary keyword by `/blog/skate-shop-toronto`
    - toronto roller skates (20 sv)
 
 2. **Demographic-Specific**
@@ -258,7 +250,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ### Keyword Cannibalization Warnings
 
-⚠️ **Be careful with these overlapping keywords:**
+âš ï¸ **Be careful with these overlapping keywords:**
 
 - "inline skates" vs "inline roller skates" vs "roller skates"
 - "toronto roller skating" vs "roller skating toronto" vs "toronto roller skates"
@@ -268,7 +260,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ---
 
-## 🎯 Next Blog Post Recommendations
+## ðŸŽ¯ Next Blog Post Recommendations
 
 ### Immediate Priorities (Write Next)
 
@@ -300,7 +292,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ---
 
-## 📝 Update Instructions
+## ðŸ“ Update Instructions
 
 **When using a keyword:**
 
@@ -315,7 +307,7 @@ _No remaining ultra-high priority keywords - all have been used!_
 - [x] **keyword phrase** (sv, kd, $cpc)
   - Post: `/blog/post-slug`
   - Published: YYYY-MM-DD
-  - Status: ✅ Live / 🚧 Draft / 📝 Planning
+  - Status: âœ… Live / ðŸš§ Draft / ðŸ“ Planning
   - Performance: [Rankings/Traffic notes after 30 days]
 ```
 
