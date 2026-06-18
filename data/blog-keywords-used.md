@@ -2,13 +2,21 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-06-18
 
 ---
 
 ## ✅ Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **skate shop toronto** (210 sv, 52 kd, $0.20 cpc)
+
+  - Post: `/blog/skate-shop-toronto`
+  - Published: 2026-06-18
+  - Status: ✅ Live
+  - Secondary: skate store toronto (210), skate shop toronto canada (590), toronto skate shops (140), canadian skate shop (110), skate shop ontario (50)
+  - Performance: Monitoring (entire local "skate shop" cluster previously ranked #13–98 from the homepage with no dedicated page)
 
 - [x] **inline skating** (880 sv, 17 kd, $0.00 cpc)
 
