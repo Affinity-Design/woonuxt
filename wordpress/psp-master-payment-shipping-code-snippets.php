@@ -3,14 +3,15 @@
  * @author         Paul Giovanatto
  * @compatible     WooCommerce 10.6+ / HPOS & Store API Ready
  * @company        https://affinitydesign.ca
- * @version        2.4.0 (Code Snippets Compatible)
- * @Modified       2026/03/27
+ * @version        2.5.0 (Code Snippets Compatible)
+ * @Modified       2026/06/16
  * @Description    Combines:
  * 1. Country-based gateway logic (CA/US/World).
  * 2. Tariff Tax logic for US.
  * 3. WooNuxt "Helcim via COD" logic.
  * 4. POS/Cashier permissions for COD & Local Shipping.
- * 5. Master toggles for PayPal and Stripe (Includes Apple/Google Pay).
+ * 5. POS customer profile assignment from collected billing email.
+ * 6. Master toggles for PayPal and Stripe (Includes Apple/Google Pay).
  * * INSTALLATION: Copy this entire code into Code Snippets plugin
  * Set to "Run snippet everywhere" or "Only run on site front-end"
  */
@@ -52,11 +53,11 @@ if (!function_exists('psp_is_pos_staff')) {
             return false;
         }
         
-        $allowed_roles = array('administrator', 'shop_manager', 'cashier');
+        $allowed_roles = apply_filters('psp_pos_staff_roles', array('administrator', 'shop_manager', 'cashier', 'POS_Cashier'));
         
         // Direct role check
         foreach ($allowed_roles as $role) {
-            if (in_array($role, (array) $user->roles)) {
+            if (in_array($role, (array) $user->roles, true)) {
                 return true;
             }
         }
@@ -71,7 +72,295 @@ if (!function_exists('psp_is_pos_staff')) {
 }
 
 // ============================================================================
-// 3. SHIPPING FILTER: Handle "POS | Local Store Purchase"
+// 3. POS CUSTOMER PROFILE ASSIGNMENT
+// ============================================================================
+add_action('woocommerce_checkout_create_order', 'psp_attach_pos_order_to_customer_profile', 20, 2);
+add_action('woocommerce_store_api_checkout_update_order_from_request', 'psp_attach_pos_order_to_customer_profile', 20, 2);
+add_action('woocommerce_new_order', 'psp_attach_saved_pos_order_to_customer_profile', 20, 2);
+
+function psp_attach_saved_pos_order_to_customer_profile($order_id, $order = null) {
+    if (!$order instanceof WC_Order && function_exists('wc_get_order')) {
+        $order = wc_get_order($order_id);
+    }
+
+    if (!$order instanceof WC_Order) {
+        return;
+    }
+
+    if (psp_attach_pos_order_to_customer_profile($order)) {
+        $order->save();
+    }
+}
+
+function psp_attach_pos_order_to_customer_profile($order, $source_data = null) {
+    if (!$order instanceof WC_Order) {
+        return false;
+    }
+
+    if (!psp_order_looks_like_pos_purchase($order, $source_data)) {
+        return false;
+    }
+
+    $billing_email = psp_get_clean_order_billing_email($order);
+    if (empty($billing_email)) {
+        psp_log_pos_customer_profile_message('Skipped POS customer assignment because the order has no valid billing email.');
+        return false;
+    }
+
+    $current_customer_id = absint($order->get_customer_id());
+    if ($current_customer_id > 0 && !psp_user_is_pos_staff_account($current_customer_id)) {
+        $current_user = get_user_by('id', $current_customer_id);
+        $current_email = $current_user ? strtolower((string) $current_user->user_email) : '';
+
+        if ($current_email === strtolower($billing_email)) {
+            return false;
+        }
+
+        $allow_reassign = apply_filters('psp_reassign_non_staff_pos_order_customer', false, $order, $current_customer_id, $billing_email);
+        if (!$allow_reassign) {
+            return false;
+        }
+    }
+
+    $target_customer_id = psp_get_or_create_pos_customer_id($order, $billing_email);
+    if ($target_customer_id <= 0 || $target_customer_id === $current_customer_id) {
+        return false;
+    }
+
+    $order->set_customer_id($target_customer_id);
+    $order->update_meta_data('_psp_pos_customer_profile_attached', 'yes');
+    $order->update_meta_data('_psp_pos_customer_profile_email', $billing_email);
+
+    psp_fill_customer_profile_from_pos_order($target_customer_id, $order);
+    psp_log_pos_customer_profile_message(sprintf('Assigned POS order to customer #%d for %s.', $target_customer_id, $billing_email));
+
+    return true;
+}
+
+function psp_order_looks_like_pos_purchase($order, $source_data = null) {
+    $is_staff_context = psp_is_pos_staff();
+
+    if (psp_order_has_pos_shipping_method($order)) {
+        return true;
+    }
+
+    $created_via = strtolower((string) $order->get_created_via());
+    foreach (array('pos', 'point-of-sale', 'point_of_sale', 'in-store', 'instore') as $pos_source) {
+        if ($created_via !== '' && strpos($created_via, $pos_source) !== false) {
+            return true;
+        }
+    }
+
+    if (psp_current_request_looks_like_pos_checkout()) {
+        return true;
+    }
+
+    if (!$is_staff_context) {
+        return false;
+    }
+
+    $payment_method = strtolower((string) $order->get_payment_method());
+    $payment_title = strtolower((string) $order->get_payment_method_title());
+    if ($payment_method === 'cod' || strpos($payment_method, 'cash') !== false || strpos($payment_title, 'cash') !== false) {
+        return true;
+    }
+
+    if (is_array($source_data)) {
+        $posted_payment_method = strtolower((string) ($source_data['payment_method'] ?? ''));
+        if ($posted_payment_method === 'cod' || strpos($posted_payment_method, 'cash') !== false) {
+            return true;
+        }
+
+        $posted_shipping_methods = $source_data['shipping_method'] ?? array();
+        foreach ((array) $posted_shipping_methods as $posted_shipping_method) {
+            if (psp_shipping_method_value_is_pos((string) $posted_shipping_method)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function psp_order_has_pos_shipping_method($order) {
+    if (!$order instanceof WC_Order) {
+        return false;
+    }
+
+    foreach ($order->get_items('shipping') as $shipping_item) {
+        $shipping_label = strtolower((string) $shipping_item->get_name());
+        $method_id = strtolower((string) $shipping_item->get_method_id());
+        $instance_id = (int) $shipping_item->get_instance_id();
+        $method_value = $method_id . ':' . $instance_id;
+
+        if (psp_shipping_method_value_is_pos($method_value) || psp_shipping_label_is_pos($shipping_label)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function psp_shipping_method_value_is_pos($method_value) {
+    $method_value = strtolower($method_value);
+    $pos_instance_id = defined('PSP_POS_SHIPPING_INSTANCE_ID') ? (int) PSP_POS_SHIPPING_INSTANCE_ID : 8;
+
+    if (strpos($method_value, ':' . $pos_instance_id) !== false &&
+        (strpos($method_value, 'local_pickup') !== false || strpos($method_value, 'flat_rate') !== false)) {
+        return true;
+    }
+
+    return psp_shipping_label_is_pos($method_value);
+}
+
+function psp_shipping_label_is_pos($label) {
+    $label = strtolower($label);
+
+    return strpos($label, 'pos |') !== false
+        || strpos($label, 'local store purchase') !== false
+        || strpos($label, 'pos local') !== false
+        || strpos($label, 'in-store purchase') !== false
+        || strpos($label, 'instore purchase') !== false;
+}
+
+function psp_current_request_looks_like_pos_checkout() {
+    $request_text = strtolower(implode(' ', array(
+        $_SERVER['REQUEST_URI'] ?? '',
+        $_SERVER['HTTP_REFERER'] ?? '',
+        $_SERVER['HTTP_USER_AGENT'] ?? '',
+    )));
+
+    foreach (array('/pos/', '/pos?', 'pos-app', 'wc-pos', 'woocommerce-pos', 'point-of-sale', 'point_of_sale', 'wepos', 'foosales', 'yith-pos') as $pos_hint) {
+        if ($request_text !== '' && strpos($request_text, $pos_hint) !== false) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function psp_get_clean_order_billing_email($order) {
+    if (!$order instanceof WC_Order) {
+        return '';
+    }
+
+    $billing_email = sanitize_email((string) $order->get_billing_email());
+    return is_email($billing_email) ? $billing_email : '';
+}
+
+function psp_get_or_create_pos_customer_id($order, $billing_email) {
+    $customer_id = 0;
+
+    if (function_exists('wc_get_customer_id_by_email')) {
+        $customer_id = absint(wc_get_customer_id_by_email($billing_email));
+    }
+
+    if ($customer_id <= 0) {
+        $user = get_user_by('email', $billing_email);
+        if ($user) {
+            $customer_id = absint($user->ID);
+        }
+    }
+
+    if ($customer_id > 0) {
+        return $customer_id;
+    }
+
+    $create_customer = apply_filters('psp_create_customer_for_pos_order', true, $order, $billing_email);
+    if (!$create_customer || !function_exists('wc_create_new_customer')) {
+        return 0;
+    }
+
+    $first_name = trim((string) $order->get_billing_first_name());
+    $last_name = trim((string) $order->get_billing_last_name());
+    $display_name = trim($first_name . ' ' . $last_name);
+
+    $customer_data = array_filter(array(
+        'first_name' => $first_name,
+        'last_name' => $last_name,
+        'display_name' => $display_name,
+        'role' => 'customer',
+    ));
+
+    $new_customer_id = wc_create_new_customer($billing_email, '', '', $customer_data);
+    if (is_wp_error($new_customer_id)) {
+        psp_log_pos_customer_profile_message(sprintf('Could not create POS customer for %s: %s', $billing_email, $new_customer_id->get_error_message()));
+        return 0;
+    }
+
+    return absint($new_customer_id);
+}
+
+function psp_fill_customer_profile_from_pos_order($customer_id, $order) {
+    if (!$order instanceof WC_Order || !class_exists('WC_Customer')) {
+        return;
+    }
+
+    $customer = new WC_Customer($customer_id);
+    $fields_to_fill = array(
+        array('get_first_name', 'set_first_name', $order->get_billing_first_name()),
+        array('get_last_name', 'set_last_name', $order->get_billing_last_name()),
+        array('get_billing_first_name', 'set_billing_first_name', $order->get_billing_first_name()),
+        array('get_billing_last_name', 'set_billing_last_name', $order->get_billing_last_name()),
+        array('get_billing_company', 'set_billing_company', $order->get_billing_company()),
+        array('get_billing_address_1', 'set_billing_address_1', $order->get_billing_address_1()),
+        array('get_billing_address_2', 'set_billing_address_2', $order->get_billing_address_2()),
+        array('get_billing_city', 'set_billing_city', $order->get_billing_city()),
+        array('get_billing_state', 'set_billing_state', $order->get_billing_state()),
+        array('get_billing_postcode', 'set_billing_postcode', $order->get_billing_postcode()),
+        array('get_billing_country', 'set_billing_country', $order->get_billing_country()),
+        array('get_billing_phone', 'set_billing_phone', $order->get_billing_phone()),
+        array('get_shipping_first_name', 'set_shipping_first_name', $order->get_shipping_first_name()),
+        array('get_shipping_last_name', 'set_shipping_last_name', $order->get_shipping_last_name()),
+        array('get_shipping_company', 'set_shipping_company', $order->get_shipping_company()),
+        array('get_shipping_address_1', 'set_shipping_address_1', $order->get_shipping_address_1()),
+        array('get_shipping_address_2', 'set_shipping_address_2', $order->get_shipping_address_2()),
+        array('get_shipping_city', 'set_shipping_city', $order->get_shipping_city()),
+        array('get_shipping_state', 'set_shipping_state', $order->get_shipping_state()),
+        array('get_shipping_postcode', 'set_shipping_postcode', $order->get_shipping_postcode()),
+        array('get_shipping_country', 'set_shipping_country', $order->get_shipping_country()),
+    );
+
+    foreach ($fields_to_fill as $field) {
+        list($getter, $setter, $order_value) = $field;
+        $order_value = trim((string) $order_value);
+
+        if ($order_value === '' || !method_exists($customer, $getter) || !method_exists($customer, $setter)) {
+            continue;
+        }
+
+        if (trim((string) $customer->{$getter}()) === '') {
+            $customer->{$setter}($order_value);
+        }
+    }
+
+    $customer->save();
+}
+
+function psp_user_is_pos_staff_account($user_id) {
+    $user = get_userdata($user_id);
+    if (!$user) {
+        return false;
+    }
+
+    $allowed_roles = apply_filters('psp_pos_staff_roles', array('administrator', 'shop_manager', 'cashier', 'POS_Cashier'));
+    foreach ($allowed_roles as $role) {
+        if (in_array($role, (array) $user->roles, true)) {
+            return true;
+        }
+    }
+
+    return user_can($user_id, 'manage_woocommerce') || user_can($user_id, 'edit_shop_orders');
+}
+
+function psp_log_pos_customer_profile_message($message) {
+    if (defined('PSP_DEBUG_MODE') && PSP_DEBUG_MODE) {
+        error_log('PSP POS Customer Assignment - ' . $message);
+    }
+}
+
+// ============================================================================
+// 4. SHIPPING FILTER: Handle "POS | Local Store Purchase"
 // ============================================================================
 add_filter('woocommerce_package_rates', 'psp_filter_shipping_methods_by_role', 10, 2);
 
@@ -149,7 +438,7 @@ function psp_filter_shipping_methods_by_role($rates, $package) {
 }
 
 // ============================================================================
-// 4. GATEWAY FILTER: The "Mega Merge"
+// 5. GATEWAY FILTER: The "Mega Merge"
 // ============================================================================
 add_filter('woocommerce_available_payment_gateways', 'psp_master_gateway_logic', 15);
 
@@ -283,7 +572,7 @@ function psp_master_gateway_logic($available_gateways) {
 }
 
 // ============================================================================
-// 5. ENSURE COD LOADED FOR WOONUXT
+// 6. ENSURE COD LOADED FOR WOONUXT
 // ============================================================================
 add_filter('woocommerce_payment_gateways', 'psp_ensure_cod_enabled_for_woonuxt', 5);
 
@@ -304,7 +593,7 @@ function psp_ensure_cod_enabled_for_woonuxt($payment_gateways) {
 }
 
 // ============================================================================
-// 6. FORCE COD AVAILABILITY FOR STAFF (Bypass shipping method restriction)
+// 7. FORCE COD AVAILABILITY FOR STAFF (Bypass shipping method restriction)
 // ============================================================================
 add_filter('woocommerce_available_payment_gateways', 'psp_force_cod_for_staff', 99);
 
@@ -319,7 +608,7 @@ function psp_force_cod_for_staff($gateways) {
 }
 
 // ============================================================================
-// 7. BYPASS COD SHIPPING METHOD RESTRICTION FOR STAFF
+// 8. BYPASS COD SHIPPING METHOD RESTRICTION FOR STAFF
 // ============================================================================
 add_filter('woocommerce_cod_process_payment_order_status', 'psp_cod_allow_any_shipping_for_staff', 10, 2);
 
@@ -341,7 +630,7 @@ function psp_override_cod_shipping_restriction($gateways) {
 }
 
 // ============================================================================
-// 8. TARIFF TAX SYSTEM
+// 9. TARIFF TAX SYSTEM
 // ============================================================================
 if (!function_exists('psp_is_checkout_context')) {
     function psp_is_checkout_context() {
@@ -421,7 +710,7 @@ function psp_display_tariff_notice() {
 }
 
 // ============================================================================
-// 9. DEBUG OUTPUT ON CHECKOUT PAGE (Only when PSP_DEBUG_MODE is true)
+// 10. DEBUG OUTPUT ON CHECKOUT PAGE (Only when PSP_DEBUG_MODE is true)
 // ============================================================================
 add_action('wp_footer', 'psp_debug_checkout_info');
 
@@ -442,7 +731,7 @@ function psp_debug_checkout_info() {
 }
 
 // ============================================================================
-// 10. CLEAR WOOCOMMERCE SHIPPING CACHE (Run once on admin init)
+// 11. CLEAR WOOCOMMERCE SHIPPING CACHE (Run once on admin init)
 // ============================================================================
 add_action('admin_init', 'psp_clear_shipping_cache_once');
 
@@ -457,7 +746,7 @@ function psp_clear_shipping_cache_once() {
 }
 
 // ============================================================================
-// 10b. FORCE POS SHIPPING FOR STAFF (Add method even if zone doesn't match)
+// 11b. FORCE POS SHIPPING FOR STAFF (Add method even if zone doesn't match)
 // ============================================================================
 add_filter('woocommerce_package_rates', 'psp_force_pos_shipping_for_staff', 100, 2);
 
@@ -509,7 +798,7 @@ function psp_force_pos_shipping_for_staff($rates, $package) {
 }
 
 // ============================================================================
-// 11. ADMIN NOTICE FOR DEBUG MODE
+// 12. ADMIN NOTICE FOR DEBUG MODE
 // ============================================================================
 add_action('admin_notices', 'psp_debug_mode_notice');
 

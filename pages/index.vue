@@ -27,7 +27,10 @@ const homepageBrandList = brandSearchLinks
 const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
-  title: 'Inline Skates Canada | Buy Rollerblades & Roller Skates | ProSkaters Place',
+  // Brand suffix (" - ProSkaters Place") is appended by the global titleTemplate in app.vue.
+  // Keep this keyword-focused and brand-free so the rendered <title> stays under ~60 chars
+  // and never duplicates the brand (and never says "WooNuxt").
+  title: 'Roller Skates & Inline Skates Canada',
   description: `Buy inline skates & rollerblades in Canada. ⭐ 1000+ models ⭐ Free shipping $${freeShipThreshold}+ ⭐ Expert fitting ⭐ Toronto-based. Canada's top-rated skate shop since 2011.`,
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',

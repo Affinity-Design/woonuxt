@@ -1,8 +1,8 @@
 {
-  "_instructions": "Options for bannerType: 'green', 'red', 'orange'. Set enabled to true to show the banner.",
-  "enabled": false,
-  "message": "Boxing day sale is live! Get 25% off sitewide with code BOXING25.",
-  "link": "/catagories",
-  "linkText": "Shop Now",
-  "bannerType": "green"
+  "_instructions": "Options for bannerType: 'green', 'red', 'orange'. Set enabled to true to show the banner. Canada Day Sale runs June 15 - July 5; set enabled to false after July 5.",
+  "enabled": true,
+  "message": "🍁 Canada Day Sale: 10% OFF Storewide incl. Clearance + 10% Back in Rewards on everything else. Use code <b>CanadaDay10</b> at checkout · Ends July 5",
+  "link": "/products",
+  "linkText": "Shop the Sale",
+  "bannerType": "red"
 }
