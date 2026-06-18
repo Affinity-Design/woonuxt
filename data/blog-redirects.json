@@ -89,6 +89,12 @@
       "statusCode": 301
     }
   },
+  "/skate-shop-toronto": {
+    "redirect": {
+      "to": "/blog/skate-shop-toronto",
+      "statusCode": 301
+    }
+  },
   "/skate-store-toronto": {
     "redirect": {
       "to": "/blog/skate-store-toronto",
