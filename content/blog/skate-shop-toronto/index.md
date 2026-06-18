@@ -1,6 +1,6 @@
 ---
 title: "Skate Shop Toronto: The Complete Local Buyer's Guide 2026"
-description: "Looking for a skate shop in Toronto? Compare specialist vs big-box stores, in-person fitting, top brands, and local pickup for inline, roller & quad skates."
+description: 'Looking for a skate shop in Toronto? Compare specialist vs big-box stores, in-person fitting, top brands, and local pickup for inline, roller & quad skates.'
 category: 'Shopping Guides'
 date: 2026-06-18
 author: 'ProSkaters Place Team'
@@ -61,7 +61,7 @@ Wheels, bearings, brake pads, liners, and laces should be on the shelf — and m
 
 ### 5. Staff Who Skate
 
-The best fit advice comes from people who ride the gear. A shop where the staff actually skate will steer you toward the right setup for the way *you* skate — not just the most expensive boot on the wall.
+The best fit advice comes from people who ride the gear. A shop where the staff actually skate will steer you toward the right setup for the way _you_ skate — not just the most expensive boot on the wall.
 
 ---
 
@@ -69,14 +69,14 @@ The best fit advice comes from people who ride the gear. A shop where the staff 
 
 A true skate shop covers far more than one discipline. Here's what a well-stocked Toronto store carries — and who each type is for.
 
-| Skate Type | Best For | Shop Category |
-| --- | --- | --- |
-| **Inline skates** | Fitness, commuting, long trail rides | [Inline skates](/product-category/inline-skates) |
-| **Roller (quad) skates** | Rink sessions, dance, retro cruising | [Roller skates](/product-category/roller-skates) |
-| **Aggressive / park skates** | Skateparks, grinds, ramps | [Inline skates](/product-category/inline-skates) |
-| **Skateboards & longboards** | Cruising, commuting, tricks | [Skateboards & longboards](/product-category/skateboards-and-longboards) |
-| **Scooters** | Park riding, kids, commuting | [Scooters](/product-category/scooters) |
-| **Ice skates** | Winter rinks and outdoor ice | [Ice skates](/product-category/ice-skates) |
+| Skate Type                   | Best For                             | Shop Category                                                            |
+| ---------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| **Inline skates**            | Fitness, commuting, long trail rides | [Inline skates](/product-category/inline-skates)                         |
+| **Roller (quad) skates**     | Rink sessions, dance, retro cruising | [Roller skates](/product-category/roller-skates)                         |
+| **Aggressive / park skates** | Skateparks, grinds, ramps            | [Inline skates](/product-category/inline-skates)                         |
+| **Skateboards & longboards** | Cruising, commuting, tricks          | [Skateboards & longboards](/product-category/skateboards-and-longboards) |
+| **Scooters**                 | Park riding, kids, commuting         | [Scooters](/product-category/scooters)                                   |
+| **Ice skates**               | Winter rinks and outdoor ice         | [Ice skates](/product-category/ice-skates)                               |
 
 Not sure whether inline or quad is right for you? Our [inline skates vs roller skates](/blog/inline-skates-vs-roller-skates) comparison lays out the differences in stability, speed, and learning curve.
 
