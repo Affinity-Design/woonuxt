@@ -336,6 +336,7 @@ export function useCheckout() {
 
             const orderId = adminOrderResult.order.databaseId;
             const orderKey = adminOrderResult.order.orderKey;
+            const orderNumber = adminOrderResult.order.orderNumber || orderId;
 
             // Empty cart and redirect to order received page
             try {
@@ -347,12 +348,13 @@ export function useCheckout() {
             }
 
             // Redirect to order received page
-            router.push(`/checkout/order-received/${orderId}/?key=${orderKey}`);
+            router.push(`/checkout/order-received/${orderId}/?key=${orderKey}&number=${encodeURIComponent(String(orderNumber))}`);
 
             return {
               success: true,
               orderId,
               orderKey,
+              orderNumber,
               adminCreated: true,
               transactionId: orderInput.value.transactionId,
             };
