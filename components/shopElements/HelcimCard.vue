@@ -18,6 +18,11 @@ const isTechnicalError = ref(false); // True = unexpected/integration error
 const rawErrorMessage = ref(''); // Unmodified error from Helcim for debug logs
 const debugLogsCopied = ref(false); // Tracks if user copied debug info
 
+// Duplicate-charge guard (NON-BLOCKING): set when the server detects that this exact cart
+// already produced a successful charge in the last few minutes. We warn the customer to check
+// their email before paying again, but do NOT block — see docs/helcim-double-charge-analysis.md.
+const recentChargeWarning = ref<{transactionId?: string; minutesAgo: number} | null>(null);
+
 // Collect console logs for debug support button
 const debugLogs = ref<string[]>([]);
 const captureLog = (level: string, ...args: any[]) => {
@@ -127,6 +132,7 @@ const initializePayment = async () => {
     isTechnicalError.value = false;
     rawErrorMessage.value = '';
     debugLogsCopied.value = false;
+    recentChargeWarning.value = null;
 
     // Reset payment completion state when re-initializing
     paymentComplete.value = false;
@@ -186,6 +192,7 @@ const initializePayment = async () => {
       checkoutToken?: string;
       secretToken?: string;
       traceId?: string;
+      recentChargeWarning?: {transactionId?: string; minutesAgo: number} | null;
       error?: {message: string};
     };
 
@@ -193,6 +200,15 @@ const initializePayment = async () => {
       checkoutToken.value = response.checkoutToken || '';
       secretToken.value = response.secretToken || '';
       traceId.value = response.traceId || '';
+
+      // Surface a non-blocking duplicate-charge warning if the server found a recent matching
+      // charge for this exact cart. This is the safeguard against the reload-and-retry double
+      // charge — the customer is told to check their email before paying again.
+      recentChargeWarning.value = response.recentChargeWarning || null;
+      if (recentChargeWarning.value) {
+        console.warn('[HelcimCard] ⚠️ Possible duplicate charge detected:', recentChargeWarning.value);
+        captureLog('WARN', 'Possible duplicate charge detected:', recentChargeWarning.value);
+      }
 
       console.log('[HelcimCard] Payment initialized successfully');
       captureLog('INFO', 'Payment initialized OK, token received');
@@ -331,6 +347,15 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       body: {
         transactionData: responseData, // Send full response for server to analyze
         secretToken: secretToken.value,
+        // Charge context fingerprints this successful charge for the duplicate-charge guard.
+        // Recorded server-side BEFORE the WooCommerce order is created, so a later
+        // order-creation failure + customer retry can be detected. Does not affect validation.
+        chargeContext: {
+          email: props.customerInfo?.email || '',
+          amount: props.amount,
+          lineItems: props.lineItems || [],
+          traceId: traceId.value,
+        },
       },
     })) as any;
 
@@ -660,6 +685,26 @@ onUnmounted(() => {
 
 <template>
   <div class="helcim-payment-container">
+    <!-- Possible Duplicate Charge Warning (NON-BLOCKING) -->
+    <!-- Independent of the state chain below — shown alongside the pay button so the customer -->
+    <!-- is warned before retrying. Set when the server found a recent matching charge. -->
+    <div v-if="recentChargeWarning && !paymentComplete" class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+      <div class="flex items-start gap-3">
+        <Icon name="ion:alert-circle" size="24" class="text-yellow-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <div class="font-medium text-yellow-800 mb-1">You may have already paid for this order</div>
+          <p class="text-sm text-yellow-700">
+            A payment for this exact order appears to have gone through
+            <template v-if="recentChargeWarning.minutesAgo > 0">
+              about {{ recentChargeWarning.minutesAgo }} minute<span v-if="recentChargeWarning.minutesAgo !== 1">s</span> ago</template
+            ><template v-else> a moment ago</template>. Please check your email for an order confirmation before paying again to avoid being charged
+            twice. If you're sure the first attempt failed, you can still continue, or contact
+            <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Error Display -->
     <div v-if="paymentError" class="mb-4">
       <!-- Card Decline - clear customer-facing message -->

@@ -406,11 +406,35 @@ export default defineEventHandler(async (event) => {
           hadLineItems: !!lineItems,
         });
 
+        // Duplicate-charge guard (NON-BLOCKING): if this exact cart (email + amount + line
+        // items) already produced a successful charge in the last few minutes, surface a
+        // warning so the client can ask the customer to check their email before paying again.
+        // This is the front line against the charge-first/order-second double-charge class.
+        // Best-effort — never blocks issuing the checkout token. See helcimChargeGuard.ts.
+        let recentChargeWarning: {transactionId?: string; minutesAgo: number; at: string} | null = null;
+        try {
+          const recent = await findRecentCharge({
+            email: customerInfo?.email,
+            amount: amountInDollars,
+            lineItems,
+          });
+          if (recent) {
+            recentChargeWarning = {transactionId: recent.transactionId, minutesAgo: recent.minutesAgo, at: recent.at};
+            console.warn('[Helcim Guard] ⚠️ Recent matching charge found at initialize — flagging possible duplicate', {
+              traceId,
+              ...recentChargeWarning,
+            });
+          }
+        } catch (guardError: any) {
+          console.warn('[Helcim Guard] initialize duplicate check failed (continuing):', guardError?.message || guardError);
+        }
+
         return {
           success: true,
           checkoutToken: data.checkoutToken,
           secretToken: data.secretToken,
           traceId,
+          recentChargeWarning,
         };
 
       case 'validate':
