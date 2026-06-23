@@ -39,6 +39,8 @@ const CONFIG = {
   CF_API_TOKEN: process.env.CF_API_TOKEN,
   CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA,
   KV_KEY_PRODUCTS: 'products-list',
+  GRAPHQL_RETRY_ATTEMPTS: Number(process.env.GRAPHQL_RETRY_ATTEMPTS || 3),
+  GRAPHQL_RETRY_DELAY_MS: Number(process.env.GRAPHQL_RETRY_DELAY_MS || 2000),
 };
 
 // GraphQL query (ensure it's correct and matches your backend schema)
@@ -94,6 +96,37 @@ query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrder
 }`;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const isRetryableStatus = (status) => [408, 429, 500, 502, 503, 504].includes(status);
+
+async function fetchGraphQLWithRetry(requestBody, context) {
+  for (let attempt = 1; attempt <= CONFIG.GRAPHQL_RETRY_ATTEMPTS; attempt++) {
+    const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: requestBody,
+    });
+
+    if (response.ok) return response;
+
+    let errorBody = 'Could not read error response body.';
+    try {
+      errorBody = await response.text();
+    } catch {
+      // Keep default message.
+    }
+
+    const message = `GraphQL API request failed during ${context}: ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+    if (isRetryableStatus(response.status) && attempt < CONFIG.GRAPHQL_RETRY_ATTEMPTS) {
+      console.warn(`${message} Retrying in ${CONFIG.GRAPHQL_RETRY_DELAY_MS}ms (${attempt}/${CONFIG.GRAPHQL_RETRY_ATTEMPTS})...`);
+      await delay(CONFIG.GRAPHQL_RETRY_DELAY_MS);
+      continue;
+    }
+
+    throw new Error(message);
+  }
+
+  throw new Error(`GraphQL API request failed during ${context} after all retry attempts.`);
+}
 
 /**
  * Converts USD price to CAD with .99 rounding.
@@ -150,8 +183,7 @@ async function fetchAndProcessProducts() {
   let batchCount = 0;
 
   if (!CONFIG.WP_GRAPHQL_URL) {
-    console.error('GQL_HOST is not defined in environment variables. Skipping product fetch.');
-    return [];
+    throw new Error('GQL_HOST is not defined in environment variables. Cannot populate product KV.');
   }
 
   while (hasNextPage) {
@@ -163,10 +195,8 @@ async function fetchAndProcessProducts() {
     }
 
     try {
-      const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
+      const response = await fetchGraphQLWithRetry(
+        JSON.stringify({
           query: PRODUCTS_QUERY,
           variables: {
             first: CONFIG.BATCH_SIZE,
@@ -175,30 +205,18 @@ async function fetchAndProcessProducts() {
             order: 'DESC',
           },
         }),
-      });
-
-      // --- START: Robust Error Handling for GraphQL Response ---
-      if (!response.ok) {
-        console.error(`GraphQL API request failed: ${response.status} ${response.statusText}`);
-        try {
-          const errorBody = await response.text();
-          console.error('Response body:', errorBody);
-        } catch (e) {
-          console.error('Could not read error response body.');
-        }
-        break; // Stop fetching on HTTP error
-      }
+        `product batch ${batchCount}`,
+      );
 
       const result = await response.json();
 
       if (result.errors) {
-        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
+        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map((e) => e.message).join('; '));
         // Continue processing — partial errors (e.g. unsupported product types like pw-gift-card) still return valid data
       }
 
       if (!result.data) {
-        console.error("GraphQL response missing 'data' field. Response:", JSON.stringify(result, null, 2));
-        break; // Stop if 'data' field is missing
+        throw new Error(`GraphQL response missing 'data' field. Response: ${JSON.stringify(result, null, 2)}`);
       }
       // The line that caused the error:
       // Ensure result.data.products and result.data.products.nodes exist
@@ -213,12 +231,12 @@ async function fetchAndProcessProducts() {
           if (hasNextPage && CONFIG.BATCH_DELAY > 0) await delay(CONFIG.BATCH_DELAY);
           continue; // Skip processing this empty batch and try next if hasNextPage
         } else {
-          break; // If pageInfo is also missing, it's an unexpected structure
+          throw new Error("GraphQL response 'data' field does not contain 'products.nodes' or pageInfo.");
         }
       }
       // --- END: Robust Error Handling ---
 
-      const fetchedNodes = (result.data.products.nodes || []).filter(p => p && p.slug); // Filter out null nodes from unsupported product types
+      const fetchedNodes = (result.data.products.nodes || []).filter((p) => p && p.slug); // Filter out null nodes from unsupported product types
 
       const productsWithCadPrices = fetchedNodes.map((product) => {
         const convertedProduct = {...product};
@@ -296,10 +314,13 @@ async function fetchAndProcessProducts() {
           console.error('Could not get raw text from error response.');
         }
       }
-      break; // Stop fetching on error
+      throw error;
     }
   }
   console.log(`Finished fetching & processing products. Total collected: ${allProducts.length}`);
+  if (allProducts.length === 0) {
+    throw new Error('GraphQL returned 0 products. Refusing to overwrite product KV with an empty list.');
+  }
   return allProducts;
 }
 
@@ -343,15 +364,10 @@ async function main() {
 
   const products = await fetchAndProcessProducts();
 
-  if (!products || products.length === 0) {
-    console.warn('No products fetched/processed. Storing empty list in KV.');
-    await storeProductsInKV([]);
-  } else {
-    const success = await storeProductsInKV(products);
-    if (!success) {
-      console.error('Failed to store products in Cloudflare KV.');
-      process.exit(1);
-    }
+  const success = await storeProductsInKV(products);
+  if (!success) {
+    console.error('Failed to store products in Cloudflare KV.');
+    process.exit(1);
   }
   console.log('Products data build process finished.');
 }

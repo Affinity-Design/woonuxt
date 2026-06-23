@@ -2,6 +2,8 @@
 require('dotenv').config(); // Ensure environment variables are loaded
 const {execSync} = require('child_process');
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
 console.log('🚀 Starting build-time data population for Cloudflare KV...');
 
@@ -20,7 +22,13 @@ const CONFIG = {
   // but their data isn't directly handled by this script anymore.
 };
 
-console.log('Build Configuration:', JSON.stringify(CONFIG, null, 2));
+const SETUP_COMPLETE_MARKER = path.join(process.cwd(), '.nuxt', 'setup-script-complete');
+const safeConfigForLog = {
+  ...CONFIG,
+  CF_API_TOKEN: CONFIG.CF_API_TOKEN ? '[set]' : '[missing]',
+};
+
+console.log('Build Configuration:', JSON.stringify(safeConfigForLog, null, 2));
 
 /**
  * Purge all keys from KV namespace before rebuilding cache
@@ -161,6 +169,11 @@ function generateAllRoutes() {
 // Main function to sequence operations
 async function main() {
   try {
+    if (fs.existsSync(SETUP_COMPLETE_MARKER)) {
+      console.log('Build-time data population already completed in this build. Skipping duplicate setup-script run.');
+      process.exit(0);
+    }
+
     // COMMENTED OUT: Do not purge KV cache here.
     // The build process runs 'scripts/build-sitemap.js' BEFORE this script,
     // which uploads 'product-seo-meta' and 'sitemap-data' to KV.
@@ -195,6 +208,8 @@ async function main() {
     // await storeBuildMetadataInKV({ buildTime: new Date().toISOString(), limitedProducts: CONFIG.LIMIT_PRODUCTS });
 
     console.log('✅ All build-time data population scripts completed successfully!');
+    fs.mkdirSync(path.dirname(SETUP_COMPLETE_MARKER), {recursive: true});
+    fs.writeFileSync(SETUP_COMPLETE_MARKER, new Date().toISOString());
     process.exit(0); // Explicitly exit with success
   } catch (error) {
     console.error('❌ Error during build-time data population process:', error.message || error);
