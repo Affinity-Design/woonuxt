@@ -324,45 +324,50 @@ const payNow = async () => {
         // Trigger Helcim payment process
         if (helcimCardRef.value?.processPayment) {
           console.log('[payNow] Triggering Helcim payment...');
-          helcimCardRef.value.processPayment();
+          const paymentStarted = await helcimCardRef.value.processPayment();
 
-          // Wait for payment completion (with timeout)
-          success = await new Promise((resolve) => {
-            let resolved = false;
+          if (!paymentStarted) {
+            console.log('[payNow] Helcim payment did not start');
+            success = false;
+          } else {
+            // Wait for payment completion (with timeout)
+            success = await new Promise((resolve) => {
+              let resolved = false;
 
-            const checkPayment = () => {
-              if (resolved) return;
+              const checkPayment = () => {
+                if (resolved) return;
 
-              // Check if user closed modal
-              if (helcimModalClosed.value) {
-                resolved = true;
-                console.log('[payNow] User closed modal - stopping payment check');
-                resolve(false);
-                return;
-              }
+                // Check if user closed modal
+                if (helcimModalClosed.value) {
+                  resolved = true;
+                  console.log('[payNow] User closed modal - stopping payment check');
+                  resolve(false);
+                  return;
+                }
 
-              if (helcimPaymentComplete.value) {
-                resolved = true;
-                resolve(true);
-              } else if (paymentError.value) {
-                resolved = true;
-                resolve(false);
-              } else {
-                setTimeout(checkPayment, 500);
-              }
-            };
-            checkPayment();
+                if (helcimPaymentComplete.value) {
+                  resolved = true;
+                  resolve(true);
+                } else if (paymentError.value) {
+                  resolved = true;
+                  resolve(false);
+                } else {
+                  setTimeout(checkPayment, 500);
+                }
+              };
+              checkPayment();
 
-            // Timeout after 2 minutes (user probably closed modal)
-            setTimeout(() => {
-              if (!resolved) {
-                resolved = true;
-                console.log('[payNow] Payment timeout - user may have closed modal');
-                paymentError.value = 'Payment was not completed. Please try again.';
-                resolve(false);
-              }
-            }, 120000); // 2 minutes
-          });
+              // Timeout after 2 minutes (user probably closed modal)
+              setTimeout(() => {
+                if (!resolved) {
+                  resolved = true;
+                  console.log('[payNow] Payment timeout - user may have closed modal');
+                  paymentError.value = 'Payment was not completed. Please try again.';
+                  resolve(false);
+                }
+              }, 120000); // 2 minutes
+            });
+          }
 
           // If modal was closed, don't treat it as an error
           if (helcimModalClosed.value && !success) {
@@ -790,17 +795,8 @@ useSeoMeta({
       <form v-else class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20" @submit.prevent="payNow">
         <!-- Backorder / Clearance Notice Banners -->
         <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
-          <CartNotice
-            v-if="hasBackorderItems"
-            type="warning"
-            dismissible
-            :message="$t('messages.notices.backorderBanner')" />
-          <CartNotice
-            v-if="hasClearanceItems"
-            type="warning"
-            icon="ion:pricetag"
-            dismissible
-            :message="$t('messages.notices.clearanceBanner')" />
+          <CartNotice v-if="hasBackorderItems" type="warning" dismissible :message="$t('messages.notices.backorderBanner')" />
+          <CartNotice v-if="hasClearanceItems" type="warning" icon="ion:pricetag" dismissible :message="$t('messages.notices.clearanceBanner')" />
         </div>
 
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">

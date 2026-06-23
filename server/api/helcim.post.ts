@@ -364,6 +364,40 @@ export default defineEventHandler(async (event) => {
           console.log('[Helcim API] Skipping top-level taxAmount - already included in invoiceRequest.tax to avoid double-counting');
         }
 
+        // Duplicate-charge guard: block before asking Helcim for a new checkout token.
+        // If the same cart was successfully charged moments ago, issuing another token gives
+        // the customer a path to a second real charge. Fail open if KV is unavailable.
+        try {
+          const recent = await findRecentCharge({
+            email: customerInfo?.email,
+            amount: amountInDollars,
+            lineItems,
+          });
+
+          if (recent) {
+            const recentChargeWarning = {transactionId: recent.transactionId, minutesAgo: recent.minutesAgo, at: recent.at};
+            console.warn('[Helcim Guard] Recent matching charge found before initialize — blocking duplicate token', {
+              traceId,
+              ...recentChargeWarning,
+            });
+
+            return {
+              success: false,
+              duplicateChargeBlocked: true,
+              traceId,
+              recentChargeWarning,
+              error: {
+                message:
+                  'A matching payment appears to have gone through recently. Please check your email for an order confirmation or contact support@proskatersplace.ca before trying again.',
+                code: 'recent_charge_detected',
+                statusCode: 409,
+              },
+            };
+          }
+        } catch (guardError: any) {
+          console.warn('[Helcim Guard] pre-initialize duplicate check failed (continuing):', guardError?.message || guardError);
+        }
+
         // Concise, greppable trace line: pairs with the client failure beacon (/api/helcim-log)
         // via traceId so Phase 2 can see exactly what we sent vs. what Helcim rejected.
         console.log('[Helcim Trace]', {
