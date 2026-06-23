@@ -23,6 +23,13 @@ const debugLogsCopied = ref(false); // Tracks if user copied debug info
 // their email before paying again, but do NOT block — see docs/helcim-double-charge-analysis.md.
 const recentChargeWarning = ref<{transactionId?: string; minutesAgo: number} | null>(null);
 
+// Human-readable timing phrase for the duplicate-charge warning banner.
+const recentChargeWarningTiming = computed(() => {
+  const mins = recentChargeWarning.value?.minutesAgo ?? 0;
+  if (mins <= 0) return 'a moment ago';
+  return `about ${mins} minute${mins === 1 ? '' : 's'} ago`;
+});
+
 // Collect console logs for debug support button
 const debugLogs = ref<string[]>([]);
 const captureLog = (level: string, ...args: any[]) => {
@@ -694,11 +701,8 @@ onUnmounted(() => {
         <div>
           <div class="font-medium text-yellow-800 mb-1">You may have already paid for this order</div>
           <p class="text-sm text-yellow-700">
-            A payment for this exact order appears to have gone through
-            <template v-if="recentChargeWarning.minutesAgo > 0">
-              about {{ recentChargeWarning.minutesAgo }} minute<span v-if="recentChargeWarning.minutesAgo !== 1">s</span> ago</template
-            ><template v-else> a moment ago</template>. Please check your email for an order confirmation before paying again to avoid being charged
-            twice. If you're sure the first attempt failed, you can still continue, or contact
+            A payment for this exact order appears to have gone through {{ recentChargeWarningTiming }}. Please check your email for an order confirmation
+            before paying again to avoid being charged twice. If you're sure the first attempt failed, you can still continue, or contact
             <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
           </p>
         </div>
