@@ -18,10 +18,11 @@ const isTechnicalError = ref(false); // True = unexpected/integration error
 const rawErrorMessage = ref(''); // Unmodified error from Helcim for debug logs
 const debugLogsCopied = ref(false); // Tracks if user copied debug info
 
-// Duplicate-charge guard (NON-BLOCKING): set when the server detects that this exact cart
-// already produced a successful charge in the last few minutes. We warn the customer to check
-// their email before paying again, but do NOT block — see docs/helcim-double-charge-analysis.md.
+// Duplicate-charge guard: set when the server detects that this exact cart already produced
+// a successful charge in the last few minutes. We block the pay button so the customer cannot
+// accidentally create a second Helcim charge for the same order.
 const recentChargeWarning = ref<{transactionId?: string; minutesAgo: number} | null>(null);
+const initializedChargeContextKey = ref('');
 
 // Human-readable timing phrase for the duplicate-charge warning banner.
 const recentChargeWarningTiming = computed(() => {
@@ -29,6 +30,27 @@ const recentChargeWarningTiming = computed(() => {
   if (mins <= 0) return 'a moment ago';
   return `about ${mins} minute${mins === 1 ? '' : 's'} ago`;
 });
+
+const duplicateChargeBlockedMessage = computed(() => {
+  if (!recentChargeWarning.value) return '';
+  return `A matching payment appears to have gone through ${recentChargeWarningTiming.value}. We paused this checkout to prevent a duplicate charge. Please check your email for an order confirmation or contact support@proskatersplace.ca.`;
+});
+
+const getCurrentChargeContextKey = () => {
+  const email = (props.customerInfo?.email || '').trim().toLowerCase();
+  const amount = Number(props.amount || 0).toFixed(2);
+  const lineItemsSignature = (props.lineItems || [])
+    .map((item) => {
+      const id = (item.sku || item.description || '').trim().toLowerCase();
+      const quantity = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+      return `${id}x${quantity}@${price.toFixed(2)}`;
+    })
+    .sort()
+    .join('|');
+
+  return `${email}::${amount}::${lineItemsSignature}`;
+};
 
 // Collect console logs for debug support button
 const debugLogs = ref<string[]>([]);
@@ -199,23 +221,27 @@ const initializePayment = async () => {
       checkoutToken?: string;
       secretToken?: string;
       traceId?: string;
+      duplicateChargeBlocked?: boolean;
       recentChargeWarning?: {transactionId?: string; minutesAgo: number} | null;
-      error?: {message: string};
+      error?: {message: string; code?: string};
     };
+
+    if (response.duplicateChargeBlocked || response.error?.code === 'recent_charge_detected') {
+      checkoutToken.value = '';
+      secretToken.value = '';
+      traceId.value = response.traceId || '';
+      recentChargeWarning.value = response.recentChargeWarning || null;
+      initializedChargeContextKey.value = getCurrentChargeContextKey();
+      console.warn('[HelcimCard] Duplicate charge blocked:', recentChargeWarning.value);
+      captureLog('WARN', 'Duplicate charge blocked:', recentChargeWarning.value);
+      return;
+    }
 
     if (response.success) {
       checkoutToken.value = response.checkoutToken || '';
       secretToken.value = response.secretToken || '';
       traceId.value = response.traceId || '';
-
-      // Surface a non-blocking duplicate-charge warning if the server found a recent matching
-      // charge for this exact cart. This is the safeguard against the reload-and-retry double
-      // charge — the customer is told to check their email before paying again.
-      recentChargeWarning.value = response.recentChargeWarning || null;
-      if (recentChargeWarning.value) {
-        console.warn('[HelcimCard] ⚠️ Possible duplicate charge detected:', recentChargeWarning.value);
-        captureLog('WARN', 'Possible duplicate charge detected:', recentChargeWarning.value);
-      }
+      initializedChargeContextKey.value = getCurrentChargeContextKey();
 
       console.log('[HelcimCard] Payment initialized successfully');
       captureLog('INFO', 'Payment initialized OK, token received');
@@ -557,17 +583,32 @@ const copyDebugInfo = async () => {
   }
 };
 
-const processPayment = () => {
+const processPayment = async () => {
+  if (recentChargeWarning.value) {
+    emit('error', duplicateChargeBlockedMessage.value);
+    return false;
+  }
+
+  if (!checkoutToken.value || initializedChargeContextKey.value !== getCurrentChargeContextKey()) {
+    console.log('[HelcimCard] Refreshing Helcim session before opening modal because checkout context changed');
+    await initializePayment();
+  }
+
+  if (recentChargeWarning.value) {
+    emit('error', duplicateChargeBlockedMessage.value);
+    return false;
+  }
+
   if (!checkoutToken.value) {
     paymentError.value = 'Payment not initialized';
     emit('error', paymentError.value);
-    return;
+    return false;
   }
 
   if (!(window as any).appendHelcimPayIframe) {
     paymentError.value = 'Helcim payment script not loaded';
     emit('error', paymentError.value);
-    return;
+    return false;
   }
 
   console.log('[HelcimCard] Opening payment modal');
@@ -575,10 +616,12 @@ const processPayment = () => {
 
   try {
     (window as any).appendHelcimPayIframe(checkoutToken.value, true); // allowExit = true
+    return true;
   } catch (error) {
     console.error('[HelcimCard] Error opening payment modal:', error);
     paymentError.value = 'Failed to open payment form';
     emit('error', paymentError.value);
+    return false;
   }
 };
 
@@ -670,7 +713,7 @@ watch(
   () => props.amount,
   (newAmount, oldAmount) => {
     if (newAmount !== oldAmount && newAmount > 0) {
-      console.log(`[HelcimCard] Amount changed from ${oldAmount} to ${newAmount} cents, re-initializing...`);
+      console.log(`[HelcimCard] Amount changed from ${oldAmount} to ${newAmount} dollars, re-initializing...`);
       initializePayment();
     }
   },
@@ -692,25 +735,22 @@ onUnmounted(() => {
 
 <template>
   <div class="helcim-payment-container">
-    <!-- Possible Duplicate Charge Warning (NON-BLOCKING) -->
-    <!-- Independent of the state chain below — shown alongside the pay button so the customer -->
-    <!-- is warned before retrying. Set when the server found a recent matching charge. -->
+    <!-- Duplicate Charge Block -->
     <div v-if="recentChargeWarning && !paymentComplete" class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
       <div class="flex items-start gap-3">
         <Icon name="ion:alert-circle" size="24" class="text-yellow-600 mt-0.5 flex-shrink-0" />
         <div>
-          <div class="font-medium text-yellow-800 mb-1">You may have already paid for this order</div>
+          <div class="font-medium text-yellow-800 mb-1">Payment already detected</div>
           <p class="text-sm text-yellow-700">
-            A payment for this exact order appears to have gone through {{ recentChargeWarningTiming }}. Please check your email for an order confirmation
-            before paying again to avoid being charged twice. If you're sure the first attempt failed, you can still continue, or contact
-            <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
+            A payment for this exact order appears to have gone through {{ recentChargeWarningTiming }}. Please check your email for an order confirmation or
+            contact <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
           </p>
+          <p class="text-sm text-yellow-700 mt-2">Checkout is paused so your card is not charged twice.</p>
         </div>
       </div>
     </div>
 
-    <!-- Error Display -->
-    <div v-if="paymentError" class="mb-4">
+    <div v-else-if="paymentError" class="mb-4">
       <!-- Card Decline - clear customer-facing message -->
       <div v-if="isCardDecline" class="p-4 bg-red-50 rounded-lg border border-red-200">
         <div class="flex items-start gap-3">

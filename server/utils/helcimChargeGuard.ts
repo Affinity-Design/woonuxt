@@ -19,10 +19,8 @@
 // --------------
 // Records every SUCCESSFUL charge in KV keyed by a stable fingerprint (email + amount + line
 // items). On the NEXT `initialize`, we look the fingerprint up and, if a matching charge
-// happened within the recent window, surface a NON-BLOCKING warning so the client can tell the
-// customer "you may have already paid — check your email before retrying". This intentionally
-// does NOT hard-block (legitimate re-purchases exist and this ships without live-checkout
-// testing); a hard block is documented as a follow-up in docs/helcim-double-charge-analysis.md.
+// happened within the recent window, block issuing a new Helcim checkout token. That removes the
+// reload-and-retry path that created real duplicate charges.
 //
 // All operations are best-effort: if KV is unavailable, we fail open (no warning, no error) so
 // checkout is never broken by this guard.
