@@ -60,6 +60,8 @@ interface HelcimInvoiceRequest {
   discount?: number;
 }
 
+const CUSTOMER_SERVICE_EMAIL = 'customerservice@proskatersplace.com';
+
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();
   const helcimApiToken = runtimeConfig.helcimApiToken;
@@ -164,10 +166,11 @@ export default defineEventHandler(async (event) => {
           // Digital wallets (Google Pay, Apple Pay) are disabled by default per Helcim docs
           // DO NOT include digitalWallet parameter - if they still show, disable in Helcim dashboard
         };
+        const hasDiscount = Number(discountAmount) > 0;
 
         // Add invoiceRequest with line items if provided
         // This creates an invoice in Helcim with order details
-        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0 && !hasDiscount) {
           const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => {
             const qty = Number(item.quantity) || 1;
             const unitPrice = Number(item.price) || 0;
@@ -296,6 +299,16 @@ export default defineEventHandler(async (event) => {
             discount: invoiceRequest.discount,
             reconciledAmount: helcimRequestBody.amount,
           });
+        } else if (lineItems && Array.isArray(lineItems) && lineItems.length > 0 && hasDiscount) {
+          // Helcim requires newly-created invoice line totals to exactly match the payment amount.
+          // Coupon orders have tax/discount rounding handled by Woo, so charge the final amount only.
+          console.log('[Helcim API] Skipping invoiceRequest for discounted checkout to avoid Helcim invoice total rejection', {
+            lineItemCount: lineItems.length,
+            chargeAmount: helcimRequestBody.amount,
+            discountAmount: Number(discountAmount) || 0,
+            taxAmount: Number(taxAmount) || 0,
+            shippingAmount: Number(shippingAmount) || 0,
+          });
         }
 
         // Add customer information ONLY if user has filled in required details
@@ -387,8 +400,7 @@ export default defineEventHandler(async (event) => {
               traceId,
               recentChargeWarning,
               error: {
-                message:
-                  'A matching payment appears to have gone through recently. Please check your email for an order confirmation or contact support@proskatersplace.ca before trying again.',
+                message: `A matching payment appears to have gone through recently. Please check your email for an order confirmation or contact ${CUSTOMER_SERVICE_EMAIL} before trying again.`,
                 code: 'recent_charge_detected',
                 statusCode: 409,
               },

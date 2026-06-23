@@ -11,6 +11,8 @@ const paymentComplete = ref(false);
 const paymentError = ref<string | null>(null);
 const isInitializing = ref(true);
 const transactionData = ref<any>(null);
+const customerServiceEmail = 'customerservice@proskatersplace.com';
+const customerServiceMailto = `mailto:${customerServiceEmail}`;
 
 // Error classification
 const isCardDecline = ref(false); // True = card was declined by issuing bank
@@ -35,7 +37,7 @@ const recoveryError = ref<string | null>(null);
 const retrievePaidOrder = async () => {
   const transactionId = recentChargeWarning.value?.transactionId;
   if (!transactionId) {
-    recoveryError.value = 'We could not find your payment reference automatically. Please contact support@proskatersplace.ca and we will finish your order.';
+    recoveryError.value = `We could not find your payment reference automatically. Please contact ${customerServiceEmail} and we will finish your order.`;
     return;
   }
 
@@ -59,17 +61,14 @@ const retrievePaidOrder = async () => {
         orderNumber: res.order.orderNumber ?? res.order.databaseId ?? res.order.id,
       });
     } else if (res?.needsManualReview) {
-      recoveryError.value =
-        'Your payment is safe, but we could not finish your order automatically just yet. Please contact support@proskatersplace.ca and we will complete it for you right away.';
+      recoveryError.value = `Your payment is safe, but we could not finish your order automatically just yet. Please contact ${customerServiceEmail} and we will complete it for you right away.`;
     } else {
-      recoveryError.value =
-        'We could not retrieve your order automatically. Please check your email for a confirmation, or contact support@proskatersplace.ca and we will help.';
+      recoveryError.value = `We could not retrieve your order automatically. Please check your email for a confirmation, or contact ${customerServiceEmail} and we will help.`;
     }
   } catch (error: any) {
     console.error('[HelcimCard] Order recovery failed:', error);
     captureLog('ERROR', 'Order recovery failed:', error?.message || error);
-    recoveryError.value =
-      'Something went wrong retrieving your order. Your payment is safe — please contact support@proskatersplace.ca and we will complete your order.';
+    recoveryError.value = `Something went wrong retrieving your order. Your payment is safe — please contact ${customerServiceEmail} and we will complete your order.`;
   } finally {
     isRecovering.value = false;
   }
@@ -84,7 +83,7 @@ const recentChargeWarningTiming = computed(() => {
 
 const duplicateChargeBlockedMessage = computed(() => {
   if (!recentChargeWarning.value) return '';
-  return `A matching payment appears to have gone through ${recentChargeWarningTiming.value}. We paused this checkout to prevent a duplicate charge. Please check your email for an order confirmation or contact support@proskatersplace.ca.`;
+  return `A matching payment appears to have gone through ${recentChargeWarningTiming.value}. We paused this checkout to prevent a duplicate charge. Please check your email for an order confirmation or contact ${customerServiceEmail}.`;
 });
 
 const getCurrentChargeContextKey = () => {
@@ -562,8 +561,7 @@ const handlePaymentFailed = (eventMessage: any) => {
     // (orange UI with the "Copy error details" support button), not a decline.
     isCardDecline.value = false;
     isTechnicalError.value = true;
-    paymentError.value =
-      'We couldn’t process this payment and your card was not charged. Please try again, or contact support@proskatersplace.ca and we’ll help complete your order.';
+    paymentError.value = `We couldn’t process this payment and your card was not charged. Please try again, or contact ${customerServiceEmail} and we’ll help complete your order.`;
   } else {
     isCardDecline.value = false;
     isTechnicalError.value = true;
@@ -630,7 +628,7 @@ const copyDebugInfo = async () => {
   } catch (err) {
     console.error('[HelcimCard] Failed to copy debug info:', err);
     // Fallback: select text in a textarea
-    alert('Could not copy automatically. Please contact support@proskatersplace.ca with details about this error.');
+    alert(`Could not copy automatically. Please contact ${customerServiceEmail} with details about this error.`);
   }
 };
 
@@ -809,7 +807,8 @@ onUnmounted(() => {
           <p v-if="recoveryError" class="text-sm text-red-700 mt-3">{{ recoveryError }}</p>
           <p v-else class="text-xs text-yellow-700 mt-3">
             Still stuck? Contact
-            <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
+            <a :href="customerServiceMailto" class="underline font-medium">{{ customerServiceEmail }}</a>
+            <span>.</span>
           </p>
         </div>
       </div>
@@ -836,7 +835,7 @@ onUnmounted(() => {
             <p class="text-sm text-orange-700 mb-3">{{ paymentError }}</p>
             <p class="text-xs text-orange-600 mb-2">
               If this keeps happening, please copy the error details below and email them to
-              <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>
+              <a :href="customerServiceMailto" class="underline font-medium">{{ customerServiceEmail }}</a>
             </p>
             <button
               @click="copyDebugInfo"
