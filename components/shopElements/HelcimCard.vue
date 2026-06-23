@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import {ref, onMounted, onUnmounted, computed, watch} from 'vue';
 
-const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested']);
+const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested', 'order-recovered']);
 
 const checkoutToken = ref('');
 const secretToken = ref('');
@@ -23,6 +23,57 @@ const debugLogsCopied = ref(false); // Tracks if user copied debug info
 // accidentally create a second Helcim charge for the same order.
 const recentChargeWarning = ref<{transactionId?: string; minutesAgo: number} | null>(null);
 const initializedChargeContextKey = ref('');
+
+// Self-service recovery from the duplicate-charge block: instead of dead-ending a paid customer,
+// we let them retrieve the order their (already successful) charge should have created.
+const isRecovering = ref(false);
+const recoveryError = ref<string | null>(null);
+
+// Pull the already-paid charge into a real order without charging again. Server-authoritative and
+// de-duplicated: it only works for a transactionId the server recorded as stranded, and it never
+// creates a second order if one already exists.
+const retrievePaidOrder = async () => {
+  const transactionId = recentChargeWarning.value?.transactionId;
+  if (!transactionId) {
+    recoveryError.value = 'We could not find your payment reference automatically. Please contact support@proskatersplace.ca and we will finish your order.';
+    return;
+  }
+
+  isRecovering.value = true;
+  recoveryError.value = null;
+  try {
+    const res = (await $fetch('/api/recover-helcim-order', {
+      method: 'POST',
+      body: {transactionId},
+    })) as {
+      recovered?: boolean;
+      needsManualReview?: boolean;
+      order?: {id?: number | string; databaseId?: number | string; orderKey?: string; orderNumber?: string | number};
+    };
+
+    if (res?.recovered && res.order) {
+      captureLog('INFO', 'Stranded charge recovered into order:', res.order);
+      emit('order-recovered', {
+        orderId: res.order.databaseId ?? res.order.id,
+        orderKey: res.order.orderKey || '',
+        orderNumber: res.order.orderNumber ?? res.order.databaseId ?? res.order.id,
+      });
+    } else if (res?.needsManualReview) {
+      recoveryError.value =
+        'Your payment is safe, but we could not finish your order automatically just yet. Please contact support@proskatersplace.ca and we will complete it for you right away.';
+    } else {
+      recoveryError.value =
+        'We could not retrieve your order automatically. Please check your email for a confirmation, or contact support@proskatersplace.ca and we will help.';
+    }
+  } catch (error: any) {
+    console.error('[HelcimCard] Order recovery failed:', error);
+    captureLog('ERROR', 'Order recovery failed:', error?.message || error);
+    recoveryError.value =
+      'Something went wrong retrieving your order. Your payment is safe — please contact support@proskatersplace.ca and we will complete your order.';
+  } finally {
+    isRecovering.value = false;
+  }
+};
 
 // Human-readable timing phrase for the duplicate-charge warning banner.
 const recentChargeWarningTiming = computed(() => {
@@ -738,14 +789,28 @@ onUnmounted(() => {
     <!-- Duplicate Charge Block -->
     <div v-if="recentChargeWarning && !paymentComplete" class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
       <div class="flex items-start gap-3">
-        <Icon name="ion:alert-circle" size="24" class="text-yellow-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <div class="font-medium text-yellow-800 mb-1">Payment already detected</div>
+        <Icon name="ion:checkmark-circle" size="24" class="text-yellow-600 mt-0.5 flex-shrink-0" />
+        <div class="flex-1">
+          <div class="font-medium text-yellow-800 mb-1">Your payment already went through</div>
           <p class="text-sm text-yellow-700">
-            A payment for this exact order appears to have gone through {{ recentChargeWarningTiming }}. Please check your email for an order confirmation or
-            contact <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
+            A payment for this exact order was completed {{ recentChargeWarningTiming }}, so we paused checkout to make sure your card is not charged twice.
           </p>
-          <p class="text-sm text-yellow-700 mt-2">Checkout is paused so your card is not charged twice.</p>
+          <p class="text-sm text-yellow-700 mt-2">You don't need to pay again. Click below to retrieve your order, or check your email for a confirmation.</p>
+
+          <button
+            v-if="recentChargeWarning.transactionId"
+            @click="retrievePaidOrder"
+            :disabled="isRecovering"
+            class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md bg-yellow-600 text-white hover:bg-yellow-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+            <Icon :name="isRecovering ? 'ion:refresh' : 'ion:receipt'" size="16" :class="isRecovering ? 'animate-spin' : ''" />
+            {{ isRecovering ? 'Retrieving your order…' : 'Retrieve my order' }}
+          </button>
+
+          <p v-if="recoveryError" class="text-sm text-red-700 mt-3">{{ recoveryError }}</p>
+          <p v-else class="text-xs text-yellow-700 mt-3">
+            Still stuck? Contact
+            <a href="mailto:support@proskatersplace.ca" class="underline font-medium">support@proskatersplace.ca</a>.
+          </p>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import {convertToCAD} from '~/utils/priceConverter';
 
 const {t} = useI18n();
 const {query} = useRoute();
-const {cart, isUpdatingCart, paymentGateways, refreshCart} = useCart();
+const {cart, isUpdatingCart, paymentGateways, refreshCart, emptyCart} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete} = useCheckout();
 const {exchangeRate} = useExchangeRate();
@@ -545,6 +545,26 @@ const handleHelcimFailed = (error: any) => {
   paymentError.value = typeof error === 'string' ? error : 'Payment failed';
 };
 
+// The duplicate-charge guard blocked a second charge and the customer chose to retrieve the order
+// their already-successful payment should have created. The server reconciled it (find-or-create,
+// de-duplicated), so finish exactly like a normal success: clear the cart and go to the receipt.
+const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; orderNumber?: any}) => {
+  console.log('[Checkout] Helcim order recovered:', order);
+  helcimPaymentComplete.value = true;
+  isPaid.value = true;
+  paymentError.value = null;
+
+  try {
+    await emptyCart();
+    await refreshCart();
+  } catch (cartError) {
+    console.error('[Checkout] Error emptying cart after recovery:', cartError);
+  }
+
+  const {orderId, orderKey, orderNumber} = order;
+  await navigateTo(`/checkout/order-received/${orderId}/?key=${orderKey || ''}&number=${encodeURIComponent(String(orderNumber ?? orderId))}`);
+};
+
 const handleHelcimComplete = (result: any) => {
   console.log('[Checkout] Helcim payment completed:', result);
 
@@ -945,7 +965,8 @@ useSeoMeta({
               @error="handleHelcimError"
               @payment-success="handleHelcimSuccess"
               @payment-failed="handleHelcimFailed"
-              @payment-complete="handleHelcimComplete" />
+              @payment-complete="handleHelcimComplete"
+              @order-recovered="handleHelcimRecovered" />
           </div>
 
           <!-- Turnstile security verification - invisible widget -->

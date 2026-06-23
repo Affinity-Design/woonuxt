@@ -1,6 +1,6 @@
 # Helcim Double-Charge — Root-Cause Analysis & Mitigation
 
-**Status:** Phase 1 (pre-charge duplicate block) shipped in this PR · Phases 2–3 pending
+**Status:** Phase 1 (pre-charge duplicate block) + Phase 2 (paid-order recovery) shipped · Phase 3 pending
 **Severity:** High — customers can be charged twice for one order; erodes trust and creates manual refund work.
 **Reported incident:** Order **500046856**, **Heather Krause**, **2026-06-07**. Two **$383.41 CAD** "Successful / Purchase" Helcim transactions, **8 minutes apart** (5:19 PM and 5:27 PM), on **two different cards** (Visa …0239 then …0355), same cardholder, same batch (725).
 
@@ -141,21 +141,44 @@ twice.
 
 ---
 
-## Recommended follow-ups (Phases 2–3 — need live-checkout testing)
+## Phase 2 — Paid-order recovery (shipped in this PR)
+
+The block from Phase 1 stops the second charge, but on its own it converts the failure mode from
+"charged twice" into "charged once, **no order**, and unable to retry" — a **stranded payment**.
+Phase 2 closes that: a charged customer always ends up with an order, without paying again.
+
+- `server/utils/helcimOrderRecovery.ts` — a KV-backed store of **stranded charges** keyed by
+  `transactionId` (`helcim-recovery:<txid>`, 7-day TTL). Holds the full `create-admin-order` payload
+  plus light support context (email, name, total, failure reason, attempts). Best-effort / fail-safe.
+- `server/api/create-admin-order.post.ts` — on **every** failure path (GraphQL HTTP error, non-JSON
+  response, GraphQL errors, no order returned, or a thrown exception) it now (a) marks the
+  idempotency key `failed` consistently and (b) **persists the full payload** for recovery. The happy
+  path is untouched.
+- `server/api/recover-helcim-order.post.ts` — reconciles a stranded charge into a real order
+  **without charging again**. Duplicate-safe by construction, in order: (1) only acts on a
+  transactionId the server itself recorded as stranded; (2) if the idempotency record already shows
+  the order completed, returns it; (3) verifies via WooCommerce REST whether an order already exists
+  for the transactionId and adopts it if so; (4) only if none exists, replays the persisted payload
+  through `create-admin-order`; (5) if WooCommerce can't be reached to confirm absence, it
+  **refuses to auto-create** and flags the charge for manual review (never risks a duplicate order).
+  Admin actions `list` / `recover-all` are gated by `REVALIDATION_SECRET`; the single self-service
+  recovery is safe to call unauthenticated because it is server-authoritative and de-duplicated.
+- `components/shopElements/HelcimCard.vue` + `pages/checkout/index.vue` — the duplicate-charge block
+  now reassures the customer their payment went through and offers a **"Retrieve my order"** button.
+  It calls the recovery endpoint with the blocked `transactionId`; on success the checkout empties the
+  cart and redirects to the order-received page exactly like a normal completion.
+
+## Recommended follow-ups (Phase 3 — need live-checkout testing)
 
 1. **Harden order creation so it stops failing after the charge** (attacks the root trigger):
    - Remove/shrink the hard-coded 4 s sleep in `create-admin-order.post.ts`.
    - Move the status→processing REST update to a non-blocking/queued step so the order is returned
      to the customer as soon as it is created.
-   - Add a server-side **recovery**: if `create-admin-order` throws after a known-good
-     `transactionId`, persist the full order payload to KV and reconcile/create it out-of-band
-     (cron or webhook) so a charged customer always ends up with an order without retrying.
-2. **Add a recovery path from the block**: when `recent_charge_detected` has a transaction id and
-   the cart is still present, offer a support/admin recovery flow that creates the Woo order from
-   the already-paid transaction instead of asking the customer to retry payment.
-3. **Persist "already charged" client state** keyed to the cart/session so a reload restores the
+   - Optionally run `recover-all` from a scheduled Cloudflare cron so stranded charges are
+     reconciled automatically even if the customer never returns.
+2. **Persist "already charged" client state** keyed to the cart/session so a reload restores the
    "payment already completed, finishing your order…" view instead of a fresh pay button.
-4. **Server-authoritative charge** (larger change): create the charge intent server-side and tie
+3. **Server-authoritative charge** (larger change): create the charge intent server-side and tie
    the Woo order to it via a single idempotency key that exists _before_ the money moves.
 
 ---
@@ -171,4 +194,5 @@ matching Woo order) and confirm only a single order ships.
 - `docs/helcim-integration.md`
 - `docs/helcim-cc-rejection-critical-patch.md`
 - `server/api/create-admin-order.post.ts`, `server/api/helcim.post.ts`, `server/api/helcim-validate.post.ts`
-- `server/utils/helcimChargeGuard.ts`, `components/shopElements/HelcimCard.vue`
+- `server/api/recover-helcim-order.post.ts`
+- `server/utils/helcimChargeGuard.ts`, `server/utils/helcimOrderRecovery.ts`, `components/shopElements/HelcimCard.vue`
