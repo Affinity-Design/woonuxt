@@ -1,10 +1,19 @@
 <script lang="ts" setup>
 import {debounce} from 'lodash-es';
-const {updateShippingLocation, isShippingAddressComplete} = useCheckout();
+const {updateShippingLocation, isShippingAddressComplete, markShippingAddressConfirmed} = useCheckout();
 const {isBillingAddressEnabled} = useCart();
 
-const updateShippingIfComplete = () => {
+// Recalculate rates (debounced) once the address is complete. Created once so the
+// debounce actually accumulates across keystrokes instead of being re-created per event.
+const runUpdate = debounce(() => {
   if (isShippingAddressComplete.value) updateShippingLocation();
+}, 800);
+
+// Fired on genuine user interaction with an address field. Marks the address as
+// confirmed-this-session (reveals shipping) and triggers a fresh rate calculation.
+const onAddressInput = () => {
+  markShippingAddressConfirmed();
+  runUpdate();
 };
 
 const props = defineProps({
@@ -33,8 +42,8 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.address1"
         placeholder="O'Connell Street 47"
         autocomplete="street-address"
-        @input="debounce(updateShippingIfComplete, 1000)"
-        @blur="updateShippingIfComplete"
+        @input="onAddressInput"
+        @blur="onAddressInput"
         type="text"
         required />
     </div>
@@ -51,8 +60,8 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.city"
         placeholder="Toronto"
         autocomplete="locality"
-        @input="debounce(updateShippingIfComplete, 1000)"
-        @blur="updateShippingIfComplete"
+        @input="onAddressInput"
+        @blur="onAddressInput"
         type="text"
         required />
     </div>
@@ -64,13 +73,13 @@ const billing = toRef(props, 'modelValue');
         v-model="billing.state"
         default-value="Ontario"
         country-code="CA"
-        @change="updateShippingIfComplete"
+        @change="onAddressInput"
         autocomplete="address-level1" />
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
       <label for="country">{{ 'Country' }}</label>
-      <CountrySelect id="country" v-model="billing.country" default-value="Canada" @change="updateShippingIfComplete" autocomplete="country" />
+      <CountrySelect id="country" v-model="billing.country" default-value="Canada" @change="onAddressInput" autocomplete="country" />
     </div>
 
     <div v-if="isBillingAddressEnabled" class="w-full">
@@ -79,8 +88,8 @@ const billing = toRef(props, 'modelValue');
         id="zip"
         v-model="billing.postcode"
         placeholder="M9W4Y6"
-        @input="debounce(updateShippingIfComplete, 800)"
-        @blur="updateShippingIfComplete"
+        @input="onAddressInput"
+        @blur="onAddressInput"
         autocomplete="postal-code"
         type="text"
         required />

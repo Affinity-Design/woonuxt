@@ -95,6 +95,20 @@ export function useCheckout() {
     return fields.every((f) => f && String(f).trim().length > 0);
   });
 
+  // True once the customer has actively entered/confirmed their shipping address THIS session.
+  // A logged-in customer's saved account address is pre-filled on checkout load (making
+  // isShippingAddressComplete true immediately), which previously revealed a WooCommerce shipping
+  // rate computed for a stale/unverified address. Gating display on this flag too means rates only
+  // show after the customer types their address (guests) or taps "Confirm shipping address" (returning
+  // logged-in users). Set by the address forms; never auto-set from pre-filled data.
+  const shippingAddressConfirmed = useState<boolean>('shippingAddressConfirmed', () => false);
+  const markShippingAddressConfirmed = (): void => {
+    shippingAddressConfirmed.value = true;
+  };
+
+  // Single display gate for all shipping UI: address is both complete AND confirmed this session.
+  const showShippingRates = computed(() => isShippingAddressComplete.value && shippingAddressConfirmed.value);
+
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
     const {customer, viewer} = useAuth();
@@ -653,6 +667,9 @@ export function useCheckout() {
     orderInput,
     isProcessingOrder,
     isShippingAddressComplete,
+    shippingAddressConfirmed,
+    markShippingAddressConfirmed,
+    showShippingRates,
     processCheckout,
     updateShippingLocation,
     setOrderAttribution,

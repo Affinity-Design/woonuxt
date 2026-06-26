@@ -3,7 +3,9 @@ import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/util
 
 const {cart, isUpdatingCart} = useCart();
 const {exchangeRate} = useExchangeRate();
-const {isShippingAddressComplete} = useCheckout();
+// showShippingRates = address complete AND confirmed this session. Until then the shipping
+// line and total exclude shipping (prevents a stale/unverified rate from showing).
+const {showShippingRates} = useCheckout();
 
 // Parse a WooCommerce price string (may contain HTML) into a number
 const parseWooPrice = (priceStr: string | null | undefined): number => {
@@ -71,13 +73,13 @@ const totalWithoutShipping = computed(() => {
         <span>{{ $t('messages.shop.subtotal') }}</span>
         <span class="text-gray-700 tabular-nums">{{ formatPrice(cart.subtotal) }}</span>
       </div>
-      <!-- Shipping: only show after user enters full address -->
+      <!-- Shipping: only show after the user confirms their full address this session -->
       <div class="flex justify-between">
         <span>{{ $t('messages.general.shipping') }}</span>
-        <span v-if="isShippingAddressComplete && isUpdatingCart" class="text-gray-700">
+        <span v-if="showShippingRates && isUpdatingCart" class="text-gray-700">
           <LoadingIcon size="16" />
         </span>
-        <span v-else-if="isShippingAddressComplete" class="text-gray-700 tabular-nums">
+        <span v-else-if="showShippingRates" class="text-gray-700 tabular-nums">
           {{ parseWooPrice(cart.shippingTotal) > 0 ? '+ ' : '' }}{{ formatPrice(cart.shippingTotal) }}
         </span>
         <span v-else class="text-gray-400 text-xs italic">Enter address for quote</span>
@@ -98,7 +100,7 @@ const totalWithoutShipping = computed(() => {
       <div class="flex justify-between mt-4">
         <span>{{ $t('messages.shop.total') }}</span>
         <span class="text-lg font-bold text-gray-700 tabular-nums">
-          {{ isShippingAddressComplete ? formatPrice(cart.total) : totalWithoutShipping }}
+          {{ showShippingRates ? formatPrice(cart.total) : totalWithoutShipping }}
         </span>
       </div>
     </div>

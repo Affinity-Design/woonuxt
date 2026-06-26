@@ -7,7 +7,15 @@ const {t} = useI18n();
 const {query} = useRoute();
 const {cart, isUpdatingCart, paymentGateways, refreshCart, emptyCart} = useCart();
 const {customer, viewer} = useAuth();
-const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete} = useCheckout();
+const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete, showShippingRates, shippingAddressConfirmed, markShippingAddressConfirmed} =
+  useCheckout();
+
+// One-tap reveal for returning logged-in customers whose saved address is already complete:
+// confirm it for this session AND recalculate rates fresh for that address (never a stale value).
+const confirmShippingAddress = (): void => {
+  markShippingAddressConfirmed();
+  updateShippingLocation();
+};
 const {exchangeRate} = useExchangeRate();
 const {hasBackorderItems, hasClearanceItems, hasAnyNotices} = useCartNotices();
 const config = useRuntimeConfig();
@@ -891,7 +899,10 @@ useSeoMeta({
           </Transition>
 
           <!-- Shipping methods section -->
-          <div v-if="cart.availableShippingMethods.length && isShippingAddressComplete">
+          <!-- Rates are shown ONLY after the customer confirms their shipping address this session.
+               This prevents a WooCommerce rate computed for a pre-filled/stale (logged-in) address
+               from displaying before the address is verified. -->
+          <div v-if="cart.availableShippingMethods.length && showShippingRates">
             <h3 class="mb-4 text-xl font-semibold">
               {{ $t('messages.general.shippingSelect') }}
             </h3>
@@ -900,9 +911,27 @@ useSeoMeta({
               :active-option="cart?.chosenShippingMethods?.[0] || ''"
               @shipping-changed="refreshCart" />
           </div>
-          <!-- Shipping loading spinner: shown when address is complete but rates haven't loaded yet -->
-          <div v-else-if="isShippingAddressComplete && isUpdatingCart" class="flex items-center gap-2 py-4">
+          <!-- Shipping loading spinner: shown when address is confirmed but rates haven't loaded yet -->
+          <div v-else-if="showShippingRates && isUpdatingCart" class="flex items-center gap-2 py-4">
             <LoadingIcon size="20" />
+          </div>
+          <!-- Confirm CTA: address is complete (e.g. pre-filled for a logged-in customer) but not yet
+               confirmed this session. One tap reveals + recalculates rates without re-typing. -->
+          <div v-else-if="isShippingAddressComplete && !shippingAddressConfirmed">
+            <h3 class="mb-2 text-xl font-semibold">
+              {{ $t('messages.general.shippingSelect') }}
+            </h3>
+            <p class="mb-3 text-sm text-gray-500">Confirm your shipping address to see available shipping options.</p>
+            <button
+              type="button"
+              class="rounded-lg bg-gray-800 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-gray-900"
+              @click="confirmShippingAddress">
+              Confirm shipping address
+            </button>
+          </div>
+          <!-- Address incomplete: prompt the customer to enter it. -->
+          <div v-else-if="cart.availableShippingMethods.length" class="py-2 text-sm italic text-gray-400">
+            Enter your shipping address above to see shipping options.
           </div>
 
           <!-- Payment methods section - ALWAYS show since Helcim is required -->
