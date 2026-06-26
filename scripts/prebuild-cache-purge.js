@@ -36,8 +36,21 @@ const IS_TEST_ENV = process.env.IS_TEST_ENV === 'true' || CF_PAGES_BRANCH === 't
 // Skip purge in CI/CD unless explicitly enabled
 const SKIP_PURGE = process.env.SKIP_KV_PURGE === 'true';
 const PURGE_PAGE_CACHE = process.env.PURGE_PAGE_CACHE !== 'false'; // Default: true
-const PURGE_SCRIPT_DATA = process.env.PURGE_SCRIPT_DATA !== 'false'; // Default: true
+// Default: false. Purging SCRIPT_DATA deletes the LIVE products-list / categories-list
+// BEFORE the build repopulates them. KV writes are immediate and independent of deploy
+// success, so if repopulation fails (e.g. a transient GraphQL error during the long
+// paginated product fetch), the live site is left with empty search and no rollback.
+// The populate scripts (build-sitemap.js, build-products-cache.js, build-categories-cache.js)
+// PUT-overwrite their keys in place every build, so purging first is unnecessary and unsafe.
+// Opt in explicitly (PURGE_SCRIPT_DATA=true) only to clear genuinely stale keys — even then,
+// SCRIPT_DATA_PROTECTED_KEYS below are never deleted.
+const PURGE_SCRIPT_DATA = process.env.PURGE_SCRIPT_DATA === 'true'; // Default: false
 const PURGE_TEST_CACHE = IS_TEST_ENV && process.env.PURGE_TEST_CACHE !== 'false'; // Default: true if test env
+
+// Search/nav-critical keys in SCRIPT_DATA that ONLY the build repopulates and that are NOT
+// self-healing. They must never be deleted by a purge — losing them breaks live search and
+// navigation until the next fully successful build.
+const SCRIPT_DATA_PROTECTED_KEYS = ['products-list', 'categories-list', 'sitemap-data', 'product-seo-meta'];
 
 /**
  * Validate UUID format (32 hex chars, with or without hyphens)
@@ -170,7 +183,7 @@ async function deleteKey(namespaceId, keyName) {
 /**
  * Purge all keys from a KV namespace
  */
-async function purgeNamespace(namespaceId, namespaceName) {
+async function purgeNamespace(namespaceId, namespaceName, protectedKeys = []) {
   if (!namespaceId) {
     console.log(`⏭️  ${namespaceName}: Not configured (skipping)`);
     return {success: true, count: 0, skipped: true};
@@ -184,10 +197,17 @@ async function purgeNamespace(namespaceId, namespaceName) {
 
   try {
     console.log(`🔍 ${namespaceName}: Listing keys...`);
-    const keys = await listAllKeys(namespaceId);
+    const allKeys = await listAllKeys(namespaceId);
+
+    // Never delete protected keys — the live site depends on them and only the build repopulates them.
+    const keys = protectedKeys.length ? allKeys.filter((k) => !protectedKeys.includes(k.name)) : allKeys;
+    const preserved = allKeys.length - keys.length;
+    if (preserved > 0) {
+      console.log(`🛡️  ${namespaceName}: Preserving ${preserved} protected key(s): ${protectedKeys.join(', ')}`);
+    }
 
     if (keys.length === 0) {
-      console.log(`✅ ${namespaceName}: Already empty`);
+      console.log(`✅ ${namespaceName}: Nothing to purge (already empty or all keys protected)`);
       return {success: true, count: 0};
     }
 
@@ -270,13 +290,13 @@ async function main() {
     console.log('\n⏭️  PAGE_CACHE: Skipped (PURGE_PAGE_CACHE=false)');
   }
 
-  // Purge script data
+  // Purge script data (OFF by default; protected keys are preserved even when enabled)
   if (PURGE_SCRIPT_DATA) {
     console.log('\n📊 Purging Script Data (NUXT_SCRIPT_DATA)...');
-    const scriptResult = await purgeNamespace(CF_KV_NAMESPACE_ID_SCRIPT_DATA, 'SCRIPT_DATA');
+    const scriptResult = await purgeNamespace(CF_KV_NAMESPACE_ID_SCRIPT_DATA, 'SCRIPT_DATA', SCRIPT_DATA_PROTECTED_KEYS);
     results.push({name: 'SCRIPT_DATA', ...scriptResult});
   } else {
-    console.log('\n⏭️  SCRIPT_DATA: Skipped (PURGE_SCRIPT_DATA=false)');
+    console.log('\n⏭️  SCRIPT_DATA: Skipped (purge disabled by default — products-list/categories-list are overwritten in place by the build, not purged)');
   }
 
   // Purge test cache (proskatersplace-test-cache) - ONLY in test environment
