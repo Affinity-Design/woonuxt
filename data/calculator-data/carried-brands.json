@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-12T15:23:18.301Z",
+  "generatedAt": "2026-06-26T19:13:17.900Z",
   "brands": [
     {
       "id": "car_chaya_001",
@@ -8,6 +8,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "CHAYA sizing follows a more average quad-skate profile. Use the millimeter recommendation as the baseline and review product notes for model-specific comfort guidance.",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "chaya",
         "categorySlug": "roller-skating"
@@ -147,6 +148,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "doop",
         "categorySlug": "inline-skating"
@@ -274,6 +276,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 3,
       "graphqlLookup": {
         "productAttributeBrandSlug": "flyingeagle",
         "categorySlug": "inline-skating"
@@ -413,6 +416,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "wide",
       "widthDisclaimer": "FR shells generally feel roomy and supportive. If you are between sizes use the recommended millimeter match first and consider a performance fit only after checking the product page notes.",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "frskates",
         "categorySlug": "inline-skating"
@@ -552,6 +556,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 6,
       "graphqlLookup": {
         "productAttributeBrandSlug": "gawds",
         "categorySlug": "inline-skating"
@@ -619,6 +624,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 5,
       "graphqlLookup": {
         "productAttributeBrandSlug": "iqon",
         "categorySlug": "inline-skating"
@@ -758,6 +764,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 3,
       "graphqlLookup": {
         "productAttributeBrandSlug": "luminous",
         "categorySlug": "inline-skating"
@@ -873,6 +880,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "mesmer",
         "categorySlug": "inline-skating"
@@ -952,6 +960,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "micro",
         "categorySlug": "inline-skating"
@@ -1103,6 +1112,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "moxi-skates",
         "categorySlug": "roller-skating"
@@ -1158,6 +1168,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "myfit",
         "categorySlug": "inline-skating"
@@ -1303,6 +1314,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "myfit",
         "categorySlug": "roller-skating"
@@ -1358,6 +1370,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "nn-skates",
         "categorySlug": "inline-skating"
@@ -1467,6 +1480,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 5,
       "graphqlLookup": {
         "productAttributeBrandSlug": "playlife",
         "categorySlug": "inline-skating"
@@ -1594,6 +1608,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "playlife",
         "categorySlug": "roller-skating"
@@ -1703,6 +1718,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 5,
       "graphqlLookup": {
         "productAttributeBrandSlug": "powerslide",
         "categorySlug": "inline-skating"
@@ -1914,6 +1930,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "powerslide",
         "categorySlug": "roller-skating"
@@ -1969,6 +1986,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "proskaters",
         "categorySlug": "inline-skating"
@@ -2078,6 +2096,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 4,
       "graphqlLookup": {
         "productAttributeBrandSlug": "reignhockey",
         "categorySlug": "inline-skating"
@@ -2187,6 +2206,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "riedell-skates",
         "categorySlug": "roller-skating"
@@ -2266,6 +2286,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": -4,
       "graphqlLookup": {
         "productAttributeBrandSlug": "rio-roller",
         "categorySlug": "roller-skating"
@@ -2339,6 +2360,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "rollerblade",
         "categorySlug": "inline-skating"
@@ -2496,6 +2518,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 4,
       "graphqlLookup": {
         "productAttributeBrandSlug": "seba",
         "categorySlug": "inline-skating"
@@ -2569,6 +2592,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "stanley",
         "categorySlug": "inline-skating"
@@ -2630,6 +2654,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
+      "fitOffsetMm": 5,
       "graphqlLookup": {
         "productAttributeBrandSlug": "usd-skates",
         "categorySlug": "inline-skating"
@@ -2763,6 +2788,7 @@
       "productCategory": "ski_boots",
       "widthProfile": "average",
       "widthDisclaimer": "Rossignol ski boots should be checked against mondopoint first. Use this recommendation as a starting point and confirm binding and boot model notes before purchase.",
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "rossignol-ski",
         "categorySlug": "nordic-ski-boots"

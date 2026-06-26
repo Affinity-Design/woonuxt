@@ -32,6 +32,8 @@ export interface CalculatorCarriedBrand {
   productCategory: ProductCategory;
   widthProfile: WidthProfile;
   widthDisclaimer: string;
+  /** Foot-length adjustment (mm) for brand fit. Positive = brand runs small (recommend larger). */
+  fitOffsetMm: number;
   graphqlLookup: {
     productAttributeBrandSlug: string;
     categorySlug: string;

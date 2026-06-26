@@ -55,6 +55,8 @@ interface CalculatorRecommendation {
   range: CalculatorCarriedSizeRange;
   snapped: boolean;
   warning: string | null;
+  fitOffsetMm: number;
+  effectiveMm: number;
 }
 
 const referenceData = referenceBrandsJson as CalculatorReferenceBrandsData;
@@ -256,22 +258,31 @@ export const useCalculator = () => {
     const resolvedSize = resolvedReferenceSize.value;
     if (!targetBrand || !resolvedSize) return null;
 
-    const directRange = targetBrand.sizeRanges.find((range) => resolvedSize.mm >= range.mmMin && resolvedSize.mm <= range.mmMax);
+    // Apply the brand-specific fit offset to the foot measurement before matching ranges.
+    // Positive offset = brand runs small, so the effective measurement is nudged up to a larger size.
+    const fitOffsetMm = targetBrand.fitOffsetMm || 0;
+    const effectiveMm = resolvedSize.mm + fitOffsetMm;
+
+    const directRange = targetBrand.sizeRanges.find((range) => effectiveMm >= range.mmMin && effectiveMm <= range.mmMax);
     if (directRange) {
       return {
         range: directRange,
         snapped: false,
         warning: null,
+        fitOffsetMm,
+        effectiveMm,
       };
     }
 
-    const nearestRange = nearestByValue(targetBrand.sizeRanges, resolvedSize.mm, (range) => (range.mmMin + range.mmMax) / 2);
+    const nearestRange = nearestByValue(targetBrand.sizeRanges, effectiveMm, (range) => (range.mmMin + range.mmMax) / 2);
     if (!nearestRange) return null;
 
     return {
       range: nearestRange,
       snapped: true,
-      warning: `No exact target range covered ${resolvedSize.mm}mm, so the closest available range was selected.`,
+      warning: `No exact target range covered ${effectiveMm}mm, so the closest available range was selected.`,
+      fitOffsetMm,
+      effectiveMm,
     };
   });
 

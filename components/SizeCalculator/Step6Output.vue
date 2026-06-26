@@ -17,6 +17,18 @@ const selectedTargetBrand = computed(() => calculator.selectedTargetBrand.value)
 const recommendation = computed(() => calculator.recommendation.value);
 const resolvedSize = computed(() => calculator.resolvedReferenceSize.value);
 
+// Human explanation of the brand-specific fit adjustment, shown when the brand runs small/large.
+const fitNote = computed(() => {
+  const offset = recommendation.value?.fitOffsetMm ?? 0;
+  if (!offset) return null;
+  const brand = selectedTargetBrand.value?.name ?? 'This brand';
+  const abs = Math.abs(offset);
+  const magnitude = abs < 6 ? 'about half a size' : abs < 11 ? 'about a full size' : 'about 1½ sizes';
+  return offset > 0
+    ? `${brand} runs small, so we sized you up ${magnitude} from your foot measurement.`
+    : `${brand} runs large, so we sized you down ${magnitude} from your foot measurement.`;
+});
+
 const activeStorefront = computed(
   () => storefront.storefrontOptions.find((o) => o.value === storefront.choice.value) ?? null,
 );
@@ -252,6 +264,9 @@ const saveSize = () => {
 
       <!-- Fit guidance + range hint -->
       <div class="border-t border-zinc-100 bg-zinc-50 px-5 py-4 grid gap-3">
+        <p v-if="fitNote" class="flex items-start gap-1.5 text-sm font-semibold text-emerald-800">
+          <Icon name="ion:resize-outline" class="mt-0.5 h-4 w-4 shrink-0" />{{ fitNote }}
+        </p>
         <p class="text-sm leading-6 text-zinc-600">{{ calculator.widthDisclaimer(selectedTargetBrand) }}</p>
         <p v-if="recommendation.warning" class="text-sm font-semibold text-amber-800">
           <Icon name="ion:warning-outline" class="mr-1 inline h-4 w-4" />{{ recommendation.warning }}

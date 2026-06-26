@@ -9,6 +9,19 @@ const CARRIED_GID = process.env.CALCULATOR_CARRIED_GID || '902001';
 
 const OUTPUT_DIR = path.join(process.cwd(), 'data', 'calculator-data');
 const TYPES_DIR = path.join(process.cwd(), 'types');
+const FIT_OFFSETS_FILE = path.join(OUTPUT_DIR, 'brand-fit-offsets.json');
+
+// Per-brand fit offset (mm) applied to the user's foot length before matching the target
+// brand's ranges. Sourced from a committed fallback file (chart-derived, vetted) and
+// overridable per-row via the optional "Fit Offset (mm)" sheet column. Positive = runs small.
+function loadFitOffsets() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(FIT_OFFSETS_FILE, 'utf8'));
+    return parsed.offsets || {};
+  } catch {
+    return {};
+  }
+}
 
 const REFERENCE_CATEGORIES = new Set(['inline_skates', 'roller_skates', 'ice_skates', 'sports_shoes']);
 const CARRIED_CATEGORIES = new Set(['inline_skates', 'roller_skates', 'ski_boots']);
@@ -257,6 +270,7 @@ function buildReferenceData(rows) {
 
 function buildCarriedData(rows) {
   const brandGroups = groupedRows(rows, 'Brand Name', ['Product Category']);
+  const fitOffsets = loadFitOffsets();
 
   const brands = brandGroups.map((group, brandIndex) => {
     const firstRow = group.rows[0];
@@ -264,6 +278,14 @@ function buildCarriedData(rows) {
     const widthProfile = firstRow['Width Profile'];
     const brandSlug = firstRow['GraphQL Brand Slug'];
     const categorySlug = firstRow['GraphQL Category Slug'];
+
+    // Optional per-row "Fit Offset (mm)" sheet column overrides the committed fallback.
+    const sheetOffsetRaw = firstRow['Fit Offset (mm)'];
+    const sheetOffset = sheetOffsetRaw === undefined || sheetOffsetRaw === '' ? undefined : Number(sheetOffsetRaw);
+    if (sheetOffset !== undefined && !Number.isFinite(sheetOffset)) {
+      throw new Error(`Row ${firstRow.__rowNumber}: "Fit Offset (mm)" must be numeric.`);
+    }
+    const fitOffsetMm = sheetOffset !== undefined ? sheetOffset : fitOffsets[`${brandSlug}|${productCategory}`] || 0;
 
     if (!CARRIED_CATEGORIES.has(productCategory)) {
       throw new Error(`Row ${firstRow.__rowNumber}: Product Category "${productCategory}" is not valid.`);
@@ -317,6 +339,7 @@ function buildCarriedData(rows) {
       productCategory,
       widthProfile,
       widthDisclaimer: firstRow['Width Disclaimer Text'] || '',
+      fitOffsetMm,
       graphqlLookup: {
         productAttributeBrandSlug: brandSlug,
         categorySlug,
@@ -395,6 +418,8 @@ export interface CalculatorCarriedBrand {
   productCategory: ProductCategory;
   widthProfile: WidthProfile;
   widthDisclaimer: string;
+  /** Foot-length adjustment (mm) for brand fit. Positive = brand runs small (recommend larger). */
+  fitOffsetMm: number;
   graphqlLookup: {
     productAttributeBrandSlug: string;
     categorySlug: string;
