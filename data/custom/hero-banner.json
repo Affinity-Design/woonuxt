@@ -12,5 +12,13 @@
     "text": "Discover our newest collection of inline skates, protective gear, and accessories. Stay ahead of the curve with the latest technology and designs from top brands.",
     "buttonText": "View New Arrivals",
     "buttonLink": "/products?orderby=date"
+  },
+  {
+    "title": "Canada Day Sale 🍁",
+    "subtitle": "10% Off Storewide — Clearance Included",
+    "text": "Celebrate Canada Day with 10% off everything storewide, including clearance, plus 10% back in rewards on full-price gear. Use code CanadaDay10 at checkout. Ends July 5 — shop inline skates, roller skates, scooters, and more.",
+    "buttonText": "Shop the Sale",
+    "buttonLink": "/products",
+    "endDate": "2026-07-05"
   }
 ]

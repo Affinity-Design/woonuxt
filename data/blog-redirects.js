@@ -13,6 +13,7 @@ module.exports = {
     "/inline-skating-guide": { redirect: { to: "/blog/inline-skating-guide", statusCode: 301 } },
     "/online-skate-shop-canada": { redirect: { to: "/blog/online-skate-shop-canada", statusCode: 301 } },
     "/pro-skates-professional-guide": { redirect: { to: "/blog/pro-skates-professional-guide", statusCode: 301 } },
+    "/roller-skate-size-chart": { redirect: { to: "/blog/roller-skate-size-chart", statusCode: 301 } },
     "/roller-skates-complete-guide-2025": { redirect: { to: "/blog/roller-skates-complete-guide-2025", statusCode: 301 } },
     "/roller-skates-for-women": { redirect: { to: "/blog/roller-skates-for-women", statusCode: 301 } },
     "/roller-skates-toronto": { redirect: { to: "/blog/roller-skates-toronto", statusCode: 301 } },

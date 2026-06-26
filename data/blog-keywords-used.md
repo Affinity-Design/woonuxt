@@ -2,13 +2,22 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-06-18
+**Last Updated:** 2026-06-26
 
 ---
 
 ## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **roller skate size chart** (informational + commercial; sizing cluster)
+
+  - Post: `/blog/roller-skate-size-chart`
+  - Published: 2026-06-26
+  - Status: âœ… Live
+  - Secondary: inline skate size chart, skate sizing, how to measure skate size, what size roller skates, skate size guide
+  - Funnel: supports the `/roller-skates-size-calculator` tool page (informational "chart/guide" intent vs. the tool's utility intent — no cannibalization)
+  - Performance: Monitoring (no sizing keywords currently ranked — clear content gap)
 
 - [x] **skate shop toronto** (210 sv, 52 kd, $0.20 cpc)
 

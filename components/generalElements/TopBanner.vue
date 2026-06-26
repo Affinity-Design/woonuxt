@@ -1,8 +1,10 @@
 <script setup>
 import bannerConfig from '~/data/custom/banner.json';
-import {ref, computed} from 'vue';
+import {computed} from 'vue';
 
-const bannerToggle = ref(bannerConfig.enabled);
+// Visible only while enabled AND on/before endDate (America/Toronto, inclusive).
+const {isActive} = usePromoSchedule();
+const bannerToggle = computed(() => isActive(bannerConfig));
 
 const backgroundColor = computed(() => {
   const type = bannerConfig.bannerType || 'green';

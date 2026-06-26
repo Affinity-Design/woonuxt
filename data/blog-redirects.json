@@ -59,6 +59,12 @@
       "statusCode": 301
     }
   },
+  "/roller-skate-size-chart": {
+    "redirect": {
+      "to": "/blog/roller-skate-size-chart",
+      "statusCode": 301
+    }
+  },
   "/roller-skates-complete-guide-2025": {
     "redirect": {
       "to": "/blog/roller-skates-complete-guide-2025",

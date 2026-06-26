@@ -1,6 +1,7 @@
 {
-  "_instructions": "Options for bannerType: 'green', 'red', 'orange'. Set enabled to true to show the banner. Canada Day Sale runs June 15 - July 5; set enabled to false after July 5.",
+  "_instructions": "bannerType: 'green' | 'red' | 'orange'. Set enabled to false to hide manually. The banner ALSO auto-hides after endDate (YYYY-MM-DD, America/Toronto, inclusive — shows through the end of that day, gone the next). Canada Day Sale runs June 15 – July 5.",
   "enabled": true,
+  "endDate": "2026-07-05",
   "message": "🍁 Canada Day Sale: 10% OFF Storewide incl. Clearance + 10% Back in Rewards on everything else. Use code <b>CanadaDay10</b> at checkout · Ends July 5",
   "link": "/products",
   "linkText": "Shop the Sale",

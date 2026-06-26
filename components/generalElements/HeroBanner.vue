@@ -1,6 +1,14 @@
 <script setup>
-import heroSlides from '~/data/custom/hero-banner.json';
-import {ref, onMounted, onUnmounted} from 'vue';
+import heroSlidesData from '~/data/custom/hero-banner.json';
+import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
+
+// Drop expired promo slides (e.g. the Canada Day slide after its endDate).
+// Falls back to all slides if filtering would leave none.
+const {isActive} = usePromoSchedule();
+const heroSlides = computed(() => {
+  const active = heroSlidesData.filter((slide) => isActive(slide));
+  return active.length ? active : heroSlidesData;
+});
 
 const currentSlideIndex = ref(0);
 const direction = ref('next');
@@ -9,13 +17,18 @@ let intervalId;
 
 const nextSlide = () => {
   direction.value = 'next';
-  currentSlideIndex.value = (currentSlideIndex.value + 1) % heroSlides.length;
+  currentSlideIndex.value = (currentSlideIndex.value + 1) % heroSlides.value.length;
 };
 
 const prevSlide = () => {
   direction.value = 'prev';
-  currentSlideIndex.value = (currentSlideIndex.value - 1 + heroSlides.length) % heroSlides.length;
+  currentSlideIndex.value = (currentSlideIndex.value - 1 + heroSlides.value.length) % heroSlides.value.length;
 };
+
+// Keep the index in range if the active slide count changes (e.g. promo expires on the client).
+watch(heroSlides, (slides) => {
+  if (currentSlideIndex.value >= slides.length) currentSlideIndex.value = 0;
+});
 
 const startAutoRotate = () => {
   stopAutoRotate();
