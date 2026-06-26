@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import Calculator from '~/components/SizeCalculator/Calculator.vue';
+import referenceBrandsJson from '~/data/calculator-data/reference-brands.json';
+import carriedBrandsJson from '~/data/calculator-data/carried-brands.json';
+import type {CalculatorReferenceBrandsData, CalculatorCarriedBrandsData} from '~/types/calculator-data';
 
 const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
-  title: 'Roller Skate Size Calculator | Inline Skates, Rollerblades & Quad Skates | ProSkaters Place',
+  title: 'Roller & Inline Skate Size Calculator | ProSkaters Place',
   description:
     'Free roller skate size calculator. Convert your shoe size to inline skates, rollerblades, or quad skates — all major brands, Canadian sizing. Find your perfect fit in under 2 minutes.',
   image: '/images/roller-skates-size-calculator.jpg',
@@ -53,6 +56,41 @@ const faqs = [
       'Hockey skates typically run 1.5 to 2 US sizes smaller than your shoe size. A player wearing a US size 9 shoe usually needs a size 7 or 7.5 hockey skate. Our calculator supports hockey skate conversions alongside recreational inline and quad skates.',
   },
 ];
+
+// --- Indexable size charts (server-rendered from the same data the calculator uses) ---
+// These are built at prerender time from the calculator data files so the published chart
+// always stays in sync with the Google Sheet pipeline that feeds the tool above.
+const referenceData = referenceBrandsJson as unknown as CalculatorReferenceBrandsData;
+const carriedData = carriedBrandsJson as unknown as CalculatorCarriedBrandsData;
+
+// Master shoe-size -> skate-size equivalence, from the Generic Sports Shoe reference scale.
+const genericShoe = referenceData.brands.find((brand) => brand.name === 'Generic Sports Shoe');
+const shoeSizeChart = (genericShoe?.sizes ?? [])
+  .filter((size) => size.usMen !== undefined && size.usMen >= 4 && size.usMen <= 14)
+  .map((size) => ({
+    usMen: size.usMen,
+    usWomen: size.usWomen,
+    eu: size.eu,
+    mm: size.mm,
+  }));
+
+// Available EU size range we stock per carried brand, parsed from each recommendation label.
+const euFromLabel = (label: string): number | null => {
+  const match = label.match(/EU ([\d.]+)/);
+  return match ? parseFloat(match[1]) : null;
+};
+const brandSizeGuide = carriedData.brands
+  .filter((brand) => brand.productCategory === 'inline_skates' || brand.productCategory === 'roller_skates')
+  .map((brand) => {
+    const eus = brand.sizeRanges.map((range) => euFromLabel(range.recommendedLabel)).filter((value): value is number => value !== null);
+    return {
+      name: brand.name,
+      type: brand.productCategory === 'inline_skates' ? 'Inline' : 'Quad / Roller',
+      euMin: Math.min(...eus),
+      euMax: Math.max(...eus),
+    };
+  })
+  .sort((first, second) => first.type.localeCompare(second.type) || first.name.localeCompare(second.name));
 
 useHead({
   script: [
@@ -217,6 +255,63 @@ useHead({
               <p class="font-bold text-zinc-900">Get your recommended size</p>
               <p class="mt-1 text-sm text-zinc-500">See your exact size and shop directly from our Canadian inventory.</p>
             </div>
+          </div>
+        </section>
+
+        <!-- Shoe size to skate size chart (indexable) -->
+        <section class="mb-14">
+          <h2 class="mb-4 text-2xl font-black text-zinc-900">Shoe Size to Skate Size Chart</h2>
+          <p class="mb-6 text-zinc-600 leading-relaxed">
+            Skate sizing is based on the actual length of your foot in millimetres (the Mondopoint system used across the industry). Use this chart to convert a US or EU shoe size to its skate-size equivalent, then run the calculator above to match it to a specific brand and see what's in stock. For a full step-by-step walkthrough, read our <NuxtLink to="/blog/roller-skate-size-chart" class="text-emerald-700 font-semibold hover:underline">complete roller skate size chart guide</NuxtLink>.
+          </p>
+          <div class="overflow-x-auto rounded-xl border border-zinc-100">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-stone-50 text-left">
+                  <th class="px-4 py-3 font-bold text-zinc-900">US Men</th>
+                  <th class="px-4 py-3 font-bold text-zinc-900">US Women</th>
+                  <th class="px-4 py-3 font-bold text-zinc-900">EU</th>
+                  <th class="px-4 py-3 font-bold text-zinc-900">Foot length</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in shoeSizeChart" :key="row.mm" class="border-t border-zinc-100">
+                  <td class="px-4 py-2.5 text-zinc-700">{{ row.usMen }}</td>
+                  <td class="px-4 py-2.5 text-zinc-700">{{ row.usWomen ?? '—' }}</td>
+                  <td class="px-4 py-2.5 text-zinc-700">{{ row.eu ?? '—' }}</td>
+                  <td class="px-4 py-2.5 text-zinc-700">{{ row.mm }} mm</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-3 text-xs text-zinc-400">
+            Sizes are general equivalents based on foot length. Skates are meant to fit snugly — most inline and hockey skaters size down from their shoe size, while women's quad skates usually run true to US women's size. Confirm with the calculator or the product page before ordering.
+          </p>
+        </section>
+
+        <!-- Brands carried & available sizes (indexable) -->
+        <section class="mb-14">
+          <h2 class="mb-4 text-2xl font-black text-zinc-900">Skate Brands We Carry &amp; Their Available Sizes</h2>
+          <p class="mb-6 text-zinc-600 leading-relaxed">
+            Available sizes vary by brand. This table shows the EU size range we stock in Canada for each skate brand — check your size is available before you order, then use the calculator above for your exact recommendation.
+          </p>
+          <div class="overflow-x-auto rounded-xl border border-zinc-100">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-stone-50 text-left">
+                  <th class="px-4 py-3 font-bold text-zinc-900">Brand</th>
+                  <th class="px-4 py-3 font-bold text-zinc-900">Type</th>
+                  <th class="px-4 py-3 font-bold text-zinc-900">Available sizes (EU)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="brand in brandSizeGuide" :key="`${brand.name}-${brand.type}`" class="border-t border-zinc-100">
+                  <td class="px-4 py-2.5 font-semibold text-zinc-800">{{ brand.name }}</td>
+                  <td class="px-4 py-2.5 text-zinc-600">{{ brand.type }}</td>
+                  <td class="px-4 py-2.5 text-zinc-700">EU {{ brand.euMin }}–{{ brand.euMax }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
