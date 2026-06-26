@@ -60,6 +60,8 @@ interface HelcimInvoiceRequest {
   discount?: number;
 }
 
+const CUSTOMER_SERVICE_EMAIL = 'customerservice@proskatersplace.com';
+
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();
   const helcimApiToken = runtimeConfig.helcimApiToken;
@@ -97,6 +99,11 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Amount is required for Helcim initialization',
           });
         }
+
+        // Trace id correlates this outbound invoice payload with any later charge failure.
+        // These rejections leave NO record in Helcim or Woo, so this is our only diagnostic
+        // link. See docs/helcim-cc-rejection-critical-patch.md.
+        const traceId = `helcim-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
         console.log(`[DEBUG Server] Helcim API request:`, {
           receivedAmount: amount,
@@ -159,10 +166,11 @@ export default defineEventHandler(async (event) => {
           // Digital wallets (Google Pay, Apple Pay) are disabled by default per Helcim docs
           // DO NOT include digitalWallet parameter - if they still show, disable in Helcim dashboard
         };
+        const hasDiscount = Number(discountAmount) > 0;
 
         // Add invoiceRequest with line items if provided
         // This creates an invoice in Helcim with order details
-        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0 && !hasDiscount) {
           const formattedLineItems: HelcimLineItem[] = lineItems.map((item: any) => {
             const qty = Number(item.quantity) || 1;
             const unitPrice = Number(item.price) || 0;
@@ -291,6 +299,16 @@ export default defineEventHandler(async (event) => {
             discount: invoiceRequest.discount,
             reconciledAmount: helcimRequestBody.amount,
           });
+        } else if (lineItems && Array.isArray(lineItems) && lineItems.length > 0 && hasDiscount) {
+          // Helcim requires newly-created invoice line totals to exactly match the payment amount.
+          // Coupon orders have tax/discount rounding handled by Woo, so charge the final amount only.
+          console.log('[Helcim API] Skipping invoiceRequest for discounted checkout to avoid Helcim invoice total rejection', {
+            lineItemCount: lineItems.length,
+            chargeAmount: helcimRequestBody.amount,
+            discountAmount: Number(discountAmount) || 0,
+            taxAmount: Number(taxAmount) || 0,
+            shippingAmount: Number(shippingAmount) || 0,
+          });
         }
 
         // Add customer information ONLY if user has filled in required details
@@ -359,6 +377,53 @@ export default defineEventHandler(async (event) => {
           console.log('[Helcim API] Skipping top-level taxAmount - already included in invoiceRequest.tax to avoid double-counting');
         }
 
+        // Duplicate-charge guard: block before asking Helcim for a new checkout token.
+        // If the same cart was successfully charged moments ago, issuing another token gives
+        // the customer a path to a second real charge. Fail open if KV is unavailable.
+        try {
+          const recent = await findRecentCharge({
+            email: customerInfo?.email,
+            amount: amountInDollars,
+            lineItems,
+          });
+
+          if (recent) {
+            const recentChargeWarning = {transactionId: recent.transactionId, minutesAgo: recent.minutesAgo, at: recent.at};
+            console.warn('[Helcim Guard] Recent matching charge found before initialize — blocking duplicate token', {
+              traceId,
+              ...recentChargeWarning,
+            });
+
+            return {
+              success: false,
+              duplicateChargeBlocked: true,
+              traceId,
+              recentChargeWarning,
+              error: {
+                message: `A matching payment appears to have gone through recently. Please check your email for an order confirmation or contact ${CUSTOMER_SERVICE_EMAIL} before trying again.`,
+                code: 'recent_charge_detected',
+                statusCode: 409,
+              },
+            };
+          }
+        } catch (guardError: any) {
+          console.warn('[Helcim Guard] pre-initialize duplicate check failed (continuing):', guardError?.message || guardError);
+        }
+
+        // Concise, greppable trace line: pairs with the client failure beacon (/api/helcim-log)
+        // via traceId so Phase 2 can see exactly what we sent vs. what Helcim rejected.
+        console.log('[Helcim Trace]', {
+          traceId,
+          chargeAmount: helcimRequestBody.amount,
+          currency,
+          hasInvoice: !!helcimRequestBody.invoiceRequest,
+          lineItemCount: Array.isArray(lineItems) ? lineItems.length : 0,
+          taxAmount: Number(taxAmount) || 0,
+          shippingAmount: Number(shippingAmount) || 0,
+          discountAmount: Number(discountAmount) || 0,
+          hasCoupon: (Number(discountAmount) || 0) > 0,
+        });
+
         // Log the FULL request body for debugging
         console.log('[Helcim API] Full request body being sent:', JSON.stringify(helcimRequestBody, null, 2));
 
@@ -391,6 +456,7 @@ export default defineEventHandler(async (event) => {
           success: true,
           checkoutToken: data.checkoutToken,
           secretToken: data.secretToken,
+          traceId,
         };
 
       case 'validate':

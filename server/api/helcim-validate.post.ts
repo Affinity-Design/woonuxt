@@ -12,7 +12,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const {transactionData, secretToken} = body;
+  // `chargeContext` (email/amount/lineItems) is optional and used only to fingerprint the
+  // charge for the duplicate-charge guard. It never affects validation.
+  const {transactionData, secretToken, chargeContext} = body;
 
   if (!transactionData || !secretToken) {
     throw createError({
@@ -20,6 +22,17 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Transaction data and secret token are required for validation',
     });
   }
+
+  // Helper: record a successful, validated charge for the duplicate-charge guard.
+  // Fires before the WooCommerce order exists, so it still protects against retries even
+  // when order creation later fails. Best-effort — never affects the validation response.
+  const recordChargeForGuard = async (transactionId?: string) => {
+    if (!chargeContext) return;
+    await recordSuccessfulCharge(
+      {email: chargeContext.email, amount: chargeContext.amount, lineItems: chargeContext.lineItems},
+      {transactionId, amount: chargeContext.amount, email: chargeContext.email, traceId: chargeContext.traceId},
+    );
+  };
 
   try {
     console.log('[Helcim Validation] Server-side validation starting...');
@@ -35,12 +48,14 @@ export default defineEventHandler(async (event) => {
       // TEMPORARY: Allow validation to pass if crypto is not available
       // This is a fallback for production environment issues
       console.warn('[Helcim Validation] WARNING: Crypto not available, allowing transaction without validation');
+      const bypassTxnId = transactionData.data?.data?.transactionId || transactionData.data?.transactionId;
+      await recordChargeForGuard(bypassTxnId);
       return {
         success: true,
         isValid: true, // TEMPORARY - allow payment through
         expectedHash: 'crypto_unavailable',
         receivedHash: 'crypto_unavailable',
-        transactionId: transactionData.data?.data?.transactionId || transactionData.data?.transactionId,
+        transactionId: bypassTxnId,
         warning: 'Validation bypassed due to crypto unavailability',
       };
     }
@@ -70,6 +85,11 @@ export default defineEventHandler(async (event) => {
       isValid,
     });
 
+    // Only record genuinely successful (validated) charges for the duplicate-charge guard.
+    if (isValid) {
+      await recordChargeForGuard(dataToHash?.transactionId);
+    }
+
     return {
       success: true,
       isValid,
@@ -83,12 +103,14 @@ export default defineEventHandler(async (event) => {
     // TEMPORARY: If validation fails due to environment issues, allow transaction
     if (error.message?.includes('crypto') || error.message?.includes('unenv')) {
       console.warn('[Helcim Validation] WARNING: Crypto error detected, allowing transaction without validation');
+      const fallbackTxnId = transactionData.data?.data?.transactionId || transactionData.data?.transactionId;
+      await recordChargeForGuard(fallbackTxnId);
       return {
         success: true,
         isValid: true, // TEMPORARY - allow payment through
         expectedHash: 'error_fallback',
         receivedHash: 'error_fallback',
-        transactionId: transactionData.data?.data?.transactionId || transactionData.data?.transactionId,
+        transactionId: fallbackTxnId,
         warning: `Validation bypassed due to crypto error: ${error.message}`,
       };
     }

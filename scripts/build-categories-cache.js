@@ -13,7 +13,12 @@ const CONFIG = {
   CF_API_TOKEN: process.env.CF_API_TOKEN,
   CF_KV_NAMESPACE_ID: process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA, // Specific KV namespace for script data
   KV_KEY_CATEGORIES: 'categories-list', // The key to use in KV for storing categories
+  GRAPHQL_RETRY_ATTEMPTS: Number(process.env.GRAPHQL_RETRY_ATTEMPTS || 3),
+  GRAPHQL_RETRY_DELAY_MS: Number(process.env.GRAPHQL_RETRY_DELAY_MS || 2000),
 };
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const isRetryableStatus = (status) => [408, 429, 500, 502, 503, 504].includes(status);
 
 // GraphQL query for categories (ensure this matches your needs)
 const CATEGORIES_QUERY = `
@@ -51,11 +56,10 @@ const CATEGORIES_QUERY = `
 async function fetchCategories() {
   console.log('Fetching categories from GraphQL for KV store...');
   if (!CONFIG.WP_GRAPHQL_URL) {
-    console.error('GQL_HOST is not defined. Skipping category fetch.');
-    return [];
+    throw new Error('GQL_HOST is not defined. Cannot populate category KV.');
   }
 
-  try {
+  for (let attempt = 1; attempt <= CONFIG.GRAPHQL_RETRY_ATTEMPTS; attempt++) {
     const response = await fetch(CONFIG.WP_GRAPHQL_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -66,29 +70,34 @@ async function fetchCategories() {
     });
 
     if (!response.ok) {
-      console.error(`Error fetching categories: ${response.status} ${response.statusText}`);
       const errorBody = await response.text().catch(() => 'Could not read error body.');
-      console.error('Response body:', errorBody);
-      return [];
+      const message = `Error fetching categories: ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+      if (isRetryableStatus(response.status) && attempt < CONFIG.GRAPHQL_RETRY_ATTEMPTS) {
+        console.warn(`${message} Retrying in ${CONFIG.GRAPHQL_RETRY_DELAY_MS}ms (${attempt}/${CONFIG.GRAPHQL_RETRY_ATTEMPTS})...`);
+        await delay(CONFIG.GRAPHQL_RETRY_DELAY_MS);
+        continue;
+      }
+      throw new Error(message);
     }
 
     const data = await response.json();
     if (data.errors) {
-      console.error('GraphQL errors:', data.errors);
-      return [];
+      throw new Error(`GraphQL errors while fetching categories: ${JSON.stringify(data.errors)}`);
     }
     if (!data.data || !data.data.productCategories || !data.data.productCategories.nodes) {
-      console.error('Unexpected data structure from GraphQL:', JSON.stringify(data, null, 2));
-      return [];
+      throw new Error(`Unexpected data structure from GraphQL: ${JSON.stringify(data, null, 2)}`);
     }
 
     const categories = data.data.productCategories.nodes;
+    if (categories.length === 0) {
+      throw new Error('GraphQL returned 0 categories. Refusing to overwrite category KV with an empty list.');
+    }
+
     console.log(`Fetched ${categories.length} categories.`);
     return categories;
-  } catch (error) {
-    console.error('Error during category fetch operation:', error);
-    return [];
   }
+
+  throw new Error('Category fetch failed after all retry attempts.');
 }
 
 // Store categories directly into Cloudflare KV
@@ -137,7 +146,6 @@ async function main() {
 
   const categories = await fetchCategories();
 
-  // Populate KV store (even if categories array is empty)
   const kvSuccess = await storeCategoriesInKV(categories);
 
   if (!kvSuccess) {

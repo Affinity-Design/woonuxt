@@ -125,6 +125,27 @@ export default defineEventHandler(async (event) => {
       console.warn('⚠️ Idempotency storage unavailable (KV binding missing?), proceeding without duplicate protection:', storageError);
       idempotencyStorage = null;
     }
+
+    // The card has ALREADY been charged by the time we reach this handler (charge-first/order-second).
+    // So any failure below leaves a stranded payment. This helper marks the idempotency key failed AND
+    // persists the full payload so /api/recover-helcim-order can reconcile the charge into an order
+    // without asking the customer to pay again. Best-effort — never throws into the order flow.
+    const persistFailureForRecovery = async (reason: string) => {
+      if (idempotencyStorage) {
+        try {
+          await idempotencyStorage.setItem(idempotencyKey, {
+            status: 'failed',
+            transactionId,
+            failedAt: new Date().toISOString(),
+            error: reason,
+          });
+        } catch (e) {
+          console.warn('⚠️ Failed to mark idempotency failed:', e);
+        }
+      }
+      await recordStrandedCharge(transactionId, body, reason);
+    };
+
     // Log the request data for debugging/recovery purposes
     console.log(`📝 Order Request [${requestId}]:`, {
       transactionId,
@@ -449,8 +470,10 @@ export default defineEventHandler(async (event) => {
         error: errorText,
       });
 
+      await persistFailureForRecovery(`GraphQL HTTP Error: ${response.status} - ${response.statusText}`);
       return {
         success: false,
+        recoverable: true,
         error: `GraphQL HTTP Error: ${response.status} - ${response.statusText}`,
         details: errorText,
         requestUrl: graphqlUrl,
@@ -468,8 +491,10 @@ export default defineEventHandler(async (event) => {
     });
 
     if (result._parseError) {
+      await persistFailureForRecovery('GraphQL returned non-JSON response');
       return {
         success: false,
+        recoverable: true,
         error: 'GraphQL returned non-JSON response (possible WordPress error page or security block)',
         details: result.rawText,
         requestUrl: graphqlUrl,
@@ -480,8 +505,10 @@ export default defineEventHandler(async (event) => {
     // Check for GraphQL errors
     if (result.errors) {
       console.error('❌ GraphQL mutation errors:', result.errors);
+      await persistFailureForRecovery('GraphQL mutation failed');
       return {
         success: false,
+        recoverable: true,
         error: 'GraphQL mutation failed',
         graphqlErrors: result.errors,
         requestUrl: graphqlUrl,
@@ -492,8 +519,10 @@ export default defineEventHandler(async (event) => {
     const orderData = result.data?.createOrder?.order;
     if (!orderData) {
       console.error('❌ No order data returned from GraphQL mutation');
+      await persistFailureForRecovery('No order data returned from GraphQL');
       return {
         success: false,
+        recoverable: true,
         error: 'Order creation failed - no order data returned from GraphQL',
         result: result,
         requestUrl: graphqlUrl,
@@ -710,11 +739,16 @@ export default defineEventHandler(async (event) => {
       // ignore
     }
 
+    // The charge already succeeded in Helcim — persist the full payload so the payment can be
+    // reconciled into an order out-of-band instead of stranding the customer. Best-effort.
+    await recordStrandedCharge(body?.transactionId, body, error?.message || 'Admin order creation threw');
+
     // Return detailed error info for debugging
     // The transaction was successful in Helcim, but WP order failed
     // Include enough info to manually recover the order if needed
     return {
       success: false,
+      recoverable: !!body?.transactionId,
       error: error.message || 'Admin order creation failed',
       requestId: requestId,
       transactionId: body.transactionId,
