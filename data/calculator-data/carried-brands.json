@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-26T19:13:17.900Z",
+  "generatedAt": "2026-06-26T19:17:16.954Z",
   "brands": [
     {
       "id": "car_chaya_001",
@@ -2096,7 +2096,7 @@
       "productCategory": "inline_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
-      "fitOffsetMm": 4,
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "reignhockey",
         "categorySlug": "inline-skating"
@@ -2286,7 +2286,7 @@
       "productCategory": "roller_skates",
       "widthProfile": "average",
       "widthDisclaimer": "",
-      "fitOffsetMm": -4,
+      "fitOffsetMm": 0,
       "graphqlLookup": {
         "productAttributeBrandSlug": "rio-roller",
         "categorySlug": "roller-skating"

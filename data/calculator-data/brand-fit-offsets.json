@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-brand fit offset in MILLIMETRES applied to the user's foot length before matching the target brand's size ranges. POSITIVE = the brand runs SMALL, so we recommend a larger size (+8mm is roughly one US size). NEGATIVE = runs large, size down. Values are derived from the real chart extractions in brand-size-map.json compared against the generic EU->mm crosswalk, then sanity-checked: anything under ~3mm (less than ~1/3 size = noise) is set to 0, and Mesmer is forced to 0 because its chart measures insole/shell length, not foot length (needs re-extraction). Brands with no extracted chart (Rollerblade, Moxi, Riedell, Chaya, DOOP, Micro, MYFIT, NN, ProSkaters, Stanley) default to 0 until real chart data is available. The optional 'Fit Offset (mm)' column in the Carried Brands sheet overrides any value here when present. Key format: '<GraphQL Brand Slug>|<Product Category>'.",
+  "_comment": "Per-brand fit offset in MILLIMETRES applied to the user's foot length before matching the target brand's size ranges. POSITIVE = the brand runs SMALL, so we recommend a larger size (+8mm is roughly one US size). NEGATIVE = runs large, size down. Values are derived from the real chart extractions (chart-extractions.json / brand-size-map.json) compared against the generic EU->mm crosswalk, then VETTED two ways: (1) magnitude < ~3mm is treated as noise and set to 0; (2) the offset is only trusted when that brand's chart measured MONDO / foot length. Charts that measured INSOLE or SHELL length, or were spliced from junior+adult grids, are NOT comparable to foot length and are excluded (set to 0) pending a clean re-extraction: Mesmer (shell), Rio Roller (insole), Reign Hockey (combined Jr+Men, ambiguous), Adapt (insole, reference-only anyway). Brands with no extracted chart (Rollerblade, Moxi, Riedell, Chaya, DOOP, Micro, MYFIT, NN, ProSkaters, Stanley) default to 0. The optional 'Fit Offset (mm)' column in the Carried Brands sheet overrides any value here when present. Key format: '<GraphQL Brand Slug>|<Product Category>'.",
   "offsets": {
     "seba|inline_skates": 4,
     "gawds|inline_skates": 6,
@@ -8,10 +8,10 @@
     "luminous|inline_skates": 3,
     "usd-skates|inline_skates": 5,
     "playlife|inline_skates": 5,
-    "reignhockey|inline_skates": 4,
     "flyingeagle|inline_skates": 3,
-    "rio-roller|roller_skates": -4,
     "frskates|inline_skates": 0,
-    "mesmer|inline_skates": 0
+    "mesmer|inline_skates": 0,
+    "rio-roller|roller_skates": 0,
+    "reignhockey|inline_skates": 0
   }
 }
