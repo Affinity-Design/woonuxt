@@ -3,8 +3,8 @@
  * @author         Paul Giovanatto
  * @compatible     WooCommerce 10.6+ / HPOS & Store API Ready
  * @company        https://affinitydesign.ca
- * @version        2.5.0 (Code Snippets Compatible)
- * @Modified       2026/06/16
+ * @version        2.6.0 (Code Snippets Compatible)
+ * @Modified       2026/07/03
  * @Description    Combines:
  * 1. Country-based gateway logic (CA/US/World).
  * 2. Tariff Tax logic for US.
@@ -12,6 +12,7 @@
  * 4. POS/Cashier permissions for COD & Local Shipping.
  * 5. POS customer profile assignment from collected billing email.
  * 6. Master toggles for PayPal and Stripe (Includes Apple/Google Pay).
+ * 7. Auto-complete in-store POS orders (paid at the counter).
  * * INSTALLATION: Copy this entire code into Code Snippets plugin
  * Set to "Run snippet everywhere" or "Only run on site front-end"
  */
@@ -31,6 +32,14 @@ if (!defined('PSP_ENABLE_STRIPE')) define('PSP_ENABLE_STRIPE', true); // Set fal
 // POS Shipping Method Configuration
 if (!defined('PSP_POS_SHIPPING_INSTANCE_ID')) define('PSP_POS_SHIPPING_INSTANCE_ID', 8); // Your POS shipping instance ID
 if (!defined('PSP_POS_SHIPPING_ZONE_ID')) define('PSP_POS_SHIPPING_ZONE_ID', 3); // Your POS shipping zone ID
+
+// POS Order Handling
+// In-store POS sales are paid at the counter and handed over on the spot, so they
+// should land in "Completed" instead of sitting in "Processing". Set false to disable.
+if (!defined('PSP_POS_AUTOCOMPLETE')) define('PSP_POS_AUTOCOMPLETE', true);
+// Skip the "Processing" customer email for POS sales so the shopper only gets the
+// "Completed" receipt (set false to keep WooCommerce's default double email).
+if (!defined('PSP_POS_SUPPRESS_PROCESSING_EMAIL')) define('PSP_POS_SUPPRESS_PROCESSING_EMAIL', true);
 
 // ============================================================================
 // 2. HELPER: DETECT STAFF (Admin, Manager, Cashier) - IMPROVED FOR AJAX/API
@@ -608,12 +617,26 @@ function psp_force_cod_for_staff($gateways) {
 }
 
 // ============================================================================
-// 8. BYPASS COD SHIPPING METHOD RESTRICTION FOR STAFF
+// 8. COD ORDER STATUS: COMPLETE IN-STORE POS SALES
 // ============================================================================
-add_filter('woocommerce_cod_process_payment_order_status', 'psp_cod_allow_any_shipping_for_staff', 10, 2);
+// COD is the gateway behind in-store POS sales (cash at the counter, or the
+// "Helcim via COD" staff flow). Those orders are paid on the spot and the goods
+// leave with the customer, so send them straight to "Completed" instead of
+// WooCommerce's default "Processing". Regular (non-POS, non-staff) COD checkouts
+// keep the default status untouched.
+add_filter('woocommerce_cod_process_payment_order_status', 'psp_cod_complete_pos_orders', 10, 2);
 
-function psp_cod_allow_any_shipping_for_staff($status, $order) {
-    if (psp_is_pos_staff()) return $status;
+function psp_cod_complete_pos_orders($status, $order) {
+    if (!defined('PSP_POS_AUTOCOMPLETE') || PSP_POS_AUTOCOMPLETE !== true) {
+        return $status;
+    }
+
+    // Complete when the sale uses the POS shipping method, or when a staff member
+    // is ringing it up (the two signals for an at-the-counter sale).
+    if (($order instanceof WC_Order && psp_order_is_instore_pos_sale($order)) || psp_is_pos_staff()) {
+        return 'completed';
+    }
+
     return $status;
 }
 
@@ -621,12 +644,93 @@ add_filter('woocommerce_available_payment_gateways', 'psp_override_cod_shipping_
 
 function psp_override_cod_shipping_restriction($gateways) {
     if (!psp_is_pos_staff()) return $gateways;
-    
+
     if (!isset($gateways['cod']) && class_exists('WC_Gateway_COD')) {
         $gateways['cod'] = new WC_Gateway_COD();
     }
-    
+
     return $gateways;
+}
+
+// ============================================================================
+// 8b. AUTO-COMPLETE IN-STORE POS ORDERS (WooNuxt / Helcim admin-API path)
+// ============================================================================
+// WooNuxt/Helcim POS sales are created through the admin REST API and pushed to
+// "Processing", which never fires the COD status filter in section 8. Watch the
+// paid status transitions and complete anything that is an in-store POS purchase.
+// Detection is label-based (the "POS | Local Store Purchase" shipping method), so
+// normal online orders and a customer-facing "Local Pickup" are never touched.
+add_action('woocommerce_order_status_pending_to_processing', 'psp_autocomplete_pos_order', 20, 2);
+add_action('woocommerce_order_status_processing', 'psp_autocomplete_pos_order', 20, 2);
+add_action('woocommerce_order_status_on-hold_to_processing', 'psp_autocomplete_pos_order', 20, 2);
+add_action('woocommerce_order_status_pending_to_on-hold', 'psp_autocomplete_pos_order', 20, 2);
+
+function psp_autocomplete_pos_order($order_id, $order = null) {
+    if (!defined('PSP_POS_AUTOCOMPLETE') || PSP_POS_AUTOCOMPLETE !== true) {
+        return;
+    }
+
+    if (!$order instanceof WC_Order && function_exists('wc_get_order')) {
+        $order = wc_get_order($order_id);
+    }
+    if (!$order instanceof WC_Order) {
+        return;
+    }
+
+    if ($order->has_status('completed') || !psp_order_is_instore_pos_sale($order)) {
+        return;
+    }
+
+    // Run once per order (also guards against the paired status hooks double-firing).
+    if ($order->get_meta('_psp_pos_autocompleted') === 'yes') {
+        return;
+    }
+    $order->update_meta_data('_psp_pos_autocompleted', 'yes');
+
+    // update_status() persists the order (meta included) and fires the completed
+    // transition; it will not loop back here because "completed" != "processing".
+    $order->update_status('completed', __('Auto-completed: in-store POS sale.', 'woocommerce'));
+
+    psp_log_pos_customer_profile_message(sprintf('Auto-completed in-store POS order #%d.', $order->get_id()));
+}
+
+// For POS sales, email the shopper only the "Completed" receipt (skip "Processing")
+// so a customer standing at the counter does not get two emails for one purchase.
+add_filter('woocommerce_email_recipient_customer_processing_order', 'psp_suppress_pos_processing_email', 10, 2);
+
+function psp_suppress_pos_processing_email($recipient, $order) {
+    if (defined('PSP_POS_SUPPRESS_PROCESSING_EMAIL') && PSP_POS_SUPPRESS_PROCESSING_EMAIL === true
+        && $order instanceof WC_Order && psp_order_is_instore_pos_sale($order)) {
+        return '';
+    }
+    return $recipient;
+}
+
+// Shared, label-first detector for a genuine in-store POS sale. Intentionally
+// stricter than psp_order_has_pos_shipping_method(): it matches only the explicit
+// POS shipping label (or a POS/in-store created-via), never instance-8 alone, so a
+// customer's free "Local Pickup" is never auto-completed.
+function psp_order_is_instore_pos_sale($order) {
+    if (!$order instanceof WC_Order) {
+        return false;
+    }
+
+    // 1. A shipping line explicitly labelled as the in-store POS method.
+    foreach ($order->get_items('shipping') as $shipping_item) {
+        if (psp_shipping_label_is_pos((string) $shipping_item->get_name())) {
+            return true;
+        }
+    }
+
+    // 2. Order created through a POS / in-store channel.
+    $created_via = strtolower((string) $order->get_created_via());
+    foreach (array('pos', 'point-of-sale', 'point_of_sale', 'in-store', 'instore') as $pos_source) {
+        if ($created_via !== '' && strpos($created_via, $pos_source) !== false) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // ============================================================================
