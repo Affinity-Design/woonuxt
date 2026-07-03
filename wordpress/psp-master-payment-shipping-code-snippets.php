@@ -631,9 +631,11 @@ function psp_cod_complete_pos_orders($status, $order) {
         return $status;
     }
 
-    // Complete when the sale uses the POS shipping method, or when a staff member
-    // is ringing it up (the two signals for an at-the-counter sale).
-    if (($order instanceof WC_Order && psp_order_is_instore_pos_sale($order)) || psp_is_pos_staff()) {
+    // Complete ONLY when the sale actually uses the in-store POS shipping method.
+    // Do NOT key on staff-context alone: staff also place ship-to-home / phone COD
+    // orders (COD is force-enabled for staff on every shipping method), and those
+    // must stay in "Processing" until the goods ship and cash is collected.
+    if ($order instanceof WC_Order && psp_order_is_instore_pos_sale($order)) {
         return 'completed';
     }
 
@@ -658,8 +660,9 @@ function psp_override_cod_shipping_restriction($gateways) {
 // WooNuxt/Helcim POS sales are created through the admin REST API and pushed to
 // "Processing", which never fires the COD status filter in section 8. Watch the
 // paid status transitions and complete anything that is an in-store POS purchase.
-// Detection is label-based (the "POS | Local Store Purchase" shipping method), so
-// normal online orders and a customer-facing "Local Pickup" are never touched.
+// Detection = the in-store POS shipping method (POS label or the configured POS
+// instance, which is hidden from regular customers), so normal online orders and a
+// customer-facing "Local Pickup" are never auto-completed.
 add_action('woocommerce_order_status_pending_to_processing', 'psp_autocomplete_pos_order', 20, 2);
 add_action('woocommerce_order_status_processing', 'psp_autocomplete_pos_order', 20, 2);
 add_action('woocommerce_order_status_on-hold_to_processing', 'psp_autocomplete_pos_order', 20, 2);
@@ -699,27 +702,31 @@ function psp_autocomplete_pos_order($order_id, $order = null) {
 add_filter('woocommerce_email_recipient_customer_processing_order', 'psp_suppress_pos_processing_email', 10, 2);
 
 function psp_suppress_pos_processing_email($recipient, $order) {
+    // Only suppress the "Processing" email when auto-complete is ALSO on. Otherwise the
+    // order stays in Processing, the "Completed" receipt never fires, and suppressing
+    // here would leave the customer with no order email at all.
     if (defined('PSP_POS_SUPPRESS_PROCESSING_EMAIL') && PSP_POS_SUPPRESS_PROCESSING_EMAIL === true
+        && defined('PSP_POS_AUTOCOMPLETE') && PSP_POS_AUTOCOMPLETE === true
         && $order instanceof WC_Order && psp_order_is_instore_pos_sale($order)) {
         return '';
     }
     return $recipient;
 }
 
-// Shared, label-first detector for a genuine in-store POS sale. Intentionally
-// stricter than psp_order_has_pos_shipping_method(): it matches only the explicit
-// POS shipping label (or a POS/in-store created-via), never instance-8 alone, so a
-// customer's free "Local Pickup" is never auto-completed.
+// Shared detector for a genuine in-store POS sale. Matches the POS shipping method
+// (by the "POS | Local Store Purchase" label OR the configured POS shipping instance
+// id, so it is robust to label drift) or a POS/in-store created-via. The POS instance
+// is hidden from regular customers (section 4), so this never matches a customer-facing
+// "Local Pickup".
 function psp_order_is_instore_pos_sale($order) {
     if (!$order instanceof WC_Order) {
         return false;
     }
 
-    // 1. A shipping line explicitly labelled as the in-store POS method.
-    foreach ($order->get_items('shipping') as $shipping_item) {
-        if (psp_shipping_label_is_pos((string) $shipping_item->get_name())) {
-            return true;
-        }
+    // 1. Uses the in-store POS shipping method (POS label or the configured POS
+    //    instance id). Reuses the same detector as the POS customer-profile feature.
+    if (psp_order_has_pos_shipping_method($order)) {
+        return true;
     }
 
     // 2. Order created through a POS / in-store channel.
