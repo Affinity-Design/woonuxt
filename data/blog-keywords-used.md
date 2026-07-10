@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-06-26
+**Last Updated:** 2026-07-10
 
 ---
 
@@ -191,12 +191,16 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Suggested Post: About/Shop page optimization
   - Status: Available
 
-- [ ] **pink roller skates** (90 sv, 16 kd, $0.33 cpc)
+- [x] **pink roller skates** (90 sv, 16 kd, $0.33 cpc)
 
   - Intent: Commercial
   - Difficulty: Easy
   - Suggested Post: "Best Pink Roller Skates for Kids & Adults"
-  - Status: Available
+  - Post: `/blog/best-pink-roller-skates-canada-2026`
+  - Published: 2026-07-10
+  - Status: Draft on `test`
+  - Secondary: pink quad skates, pink roller skates for adults, pink roller skates for kids, pink outdoor roller skates
+  - Performance: Monitoring after publication
 
 - [ ] **best roller skates** (70 sv, 50 kd, $0.00 cpc)
 
