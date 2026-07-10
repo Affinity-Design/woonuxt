@@ -61,6 +61,8 @@ export interface NavTopLevel {
   headline: string;
   /** Optional right-rail callout */
   editorial?: NavEditorial;
+  /** Optional direct category link shown before groups in the mobile drawer */
+  mobileDirectLink?: NavSubItem;
   /** Subcategory groups for the panel columns */
   groups: NavGroup[];
 }
@@ -72,6 +74,7 @@ export const navigation: NavTopLevel[] = [
     image: '/images/Inline-Skating.jpeg',
     imageAlt: 'Inline skates for fitness, urban, and off-road',
     headline: 'Built for speed,\ncontrol & style.',
+    mobileDirectLink: { label: 'Inline Skates', slug: 'inline-skates' },
     editorial: {
       label: 'Not sure on size?',
       description: 'Use our free size calculator to find your perfect fit.',
@@ -122,6 +125,7 @@ export const navigation: NavTopLevel[] = [
     image: '/images/Roller-Skating.jpeg',
     imageAlt: 'Quad roller skates and derby gear',
     headline: 'Quad skates,\nfrom rink to derby.',
+    mobileDirectLink: { label: 'Roller Skates', slug: 'roller-skates' },
     editorial: {
       label: 'New to roller?',
       description: 'Our roller size calculator narrows the fit in 60 seconds.',

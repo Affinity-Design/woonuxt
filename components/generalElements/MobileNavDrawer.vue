@@ -159,6 +159,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                   </div>
                 </NuxtLink>
                 <ul class="py-2">
+                  <li v-if="activeCategory.mobileDirectLink">
+                    <NuxtLink
+                      :to="activeCategory.mobileDirectLink.href ?? `/product-category/${activeCategory.mobileDirectLink.slug}`"
+                      class="flex items-center justify-between gap-3 px-4 py-3.5 text-left font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-50 transition-colors"
+                      @click="close">
+                      <span>{{ activeCategory.mobileDirectLink.label }}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </NuxtLink>
+                  </li>
                   <li v-for="(group, gi) in activeCategory.groups" :key="group.groupTitle">
                     <button
                       type="button"
