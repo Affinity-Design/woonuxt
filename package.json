@@ -38,6 +38,7 @@
     "clean:build": "npm run clean && npm install && npm run build",
     "postdeploy": "node scripts/post-deploy.js",
     "verify-env": "node scripts/verify-env.js",
+    "test:product-loading": "node --test tests/fetchProductWithRetry.test.mjs",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
     "preinstall": "npx only-allow npm"

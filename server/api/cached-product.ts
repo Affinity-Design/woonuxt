@@ -1,50 +1,66 @@
-// server/api/cached-product.ts
-import {defineEventHandler, readBody} from 'h3';
+import {createError, defineEventHandler, readBody} from 'h3';
+import {fetchProductWithRetry, ProductNotFoundError} from '../../utils/fetchProductWithRetry.mjs';
+
+const PRODUCT_CACHE_MAX_AGE_MILLISECONDS = 24 * 60 * 60 * 1000;
+
+interface CachedProductRecord {
+  cachedAt: number;
+  product: any;
+}
 
 export default defineEventHandler(async (event) => {
+  const {slug} = await readBody(event);
+
+  if (typeof slug !== 'string' || !slug.trim()) {
+    throw createError({statusCode: 400, statusMessage: 'No slug provided'});
+  }
+
+  const storage = useStorage('cache');
+  const productCacheKey = `product-data:${slug}`;
+  const cachedProductRecord = await storage.getItem<CachedProductRecord>(productCacheKey);
+  const isCachedProductFresh =
+    cachedProductRecord?.product &&
+    Number.isFinite(cachedProductRecord.cachedAt) &&
+    Date.now() - cachedProductRecord.cachedAt < PRODUCT_CACHE_MAX_AGE_MILLISECONDS;
+
+  if (isCachedProductFresh) {
+    return {
+      success: true,
+      product: cachedProductRecord.product,
+      timestamp: cachedProductRecord.cachedAt,
+    };
+  }
+
   try {
-    const {slug} = await readBody(event);
+    const product = await fetchProductWithRetry({
+      slug,
+      fetchProduct: (productSlug: string) => GqlGetProduct({slug: productSlug}),
+    });
+    const cachedAt = Date.now();
 
-    if (!slug) {
-      return {
-        success: false,
-        error: 'No slug provided',
-      };
-    }
-
-    // Get the storage instance
-    const storage = useStorage();
-
-    // Try to get cached products
-    const cachedProducts = await storage.getItem('cached-products');
-
-    if (!cachedProducts || !Array.isArray(cachedProducts)) {
-      return {
-        success: false,
-        error: 'No cached products available',
-      };
-    }
-
-    // Find the product with matching slug
-    const product = cachedProducts.find((p) => p.slug === slug);
-
-    if (!product) {
-      return {
-        success: false,
-        error: 'Product not found in cache',
-      };
-    }
+    await storage.setItem(productCacheKey, {product, cachedAt});
 
     return {
       success: true,
       product,
-      timestamp: Date.now(), // Add timestamp for cache freshness check
+      timestamp: cachedAt,
     };
   } catch (error) {
-    console.error('Error fetching cached product:', error);
-    return {
-      success: false,
-      error: error.message,
-    };
+    if (error instanceof ProductNotFoundError) {
+      throw createError({statusCode: 404, statusMessage: 'Product not found'});
+    }
+
+    if (cachedProductRecord?.product) {
+      console.warn(`[cached-product] Serving stale product data for ${slug} after refresh failed.`);
+      return {
+        success: true,
+        product: cachedProductRecord.product,
+        timestamp: cachedProductRecord.cachedAt,
+        stale: true,
+      };
+    }
+
+    console.error(`[cached-product] Failed to load ${slug}:`, error);
+    throw createError({statusCode: 502, statusMessage: 'Product data is temporarily unavailable'});
   }
 });

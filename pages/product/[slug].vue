@@ -47,18 +47,7 @@ try {
 }
 
 const cacheKey = `product-${slug}`;
-
-// Try KV cache first
 const {getProductFromCache} = useCachedProduct();
-let cachedProduct = null;
-try {
-  cachedProduct = await getProductFromCache(slug);
-  if (cachedProduct) {
-    console.log(`✓ Cache hit: ${slug}`);
-  }
-} catch (error) {
-  console.warn(`Cache error for ${slug}:`, error);
-}
 
 // Define a more specific type for product attributes if available from #woo or locally
 interface ProductAttributeWithTerms extends WooProductAttribute {
@@ -68,40 +57,25 @@ interface ProductAttributeWithTerms extends WooProductAttribute {
   options: string[]; // Ensure options is explicitly part of the type
 }
 
-const {data, pending, error, refresh} = await useAsyncData(
-  cacheKey,
-  async () => {
-    // If we have cached product, use it immediately
-    if (cachedProduct) {
-      return cachedProduct;
-    }
-
-    try {
-      // @ts-ignore
-      const result = await GqlGetProduct({slug});
-      if (!result?.product) {
-        console.error(`Product not found: ${slug}`);
-        return null;
-      }
-      return result.product;
-    } catch (err) {
-      console.error(`GraphQL error for ${slug}:`, err);
-      return null;
-    }
+const {data, pending, error, refresh} = await useAsyncData(cacheKey, () => getProductFromCache(slug), {
+  server: true, // Re-enable SSR since we're using KV cache
+  lazy: false, // Load immediately
+  immediate: true,
+  watch: [],
+  transform: (p) => p,
+  getCachedData: (key) => {
+    return nuxtApp.payload?.data?.[key] || nuxtApp.static?.data?.[key] || undefined;
   },
-  {
-    server: true, // Re-enable SSR since we're using KV cache
-    lazy: false, // Load immediately
-    immediate: true,
-    watch: [],
-    transform: (p) => p,
-    getCachedData: (key) => {
-      return nuxtApp.payload?.data?.[key] || nuxtApp.static?.data?.[key] || undefined;
-    },
-  },
-);
+});
 
 const product = computed(() => data.value);
+const productLoadErrorMessage = computed(() => {
+  if (error.value?.statusCode === 404 || error.value?.message?.includes('Product not found')) {
+    return t('messages.shop.productNotFound', 'This product could not be found.');
+  }
+
+  return t('messages.shop.productLoadError', 'We could not load this product. Please try again.');
+});
 
 // Apply Canadian SEO with ENHANCED rich snippets when product is loaded
 // Includes: Product schema, Reviews, FAQs, Breadcrumbs, Video (if available)
@@ -487,7 +461,7 @@ watch(
     </div>
     <div v-else-if="error" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error.message || t('messages.shop.productLoadError', 'Error loading product.') }}
+        {{ productLoadErrorMessage }}
       </div>
       <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded">
         {{ t('messages.general.retry', 'Retry') }}
@@ -649,6 +623,14 @@ watch(
         </div>
       </div>
     </main>
+    <div v-else class="container my-12 text-center">
+      <div class="text-red-500 mb-4">
+        {{ t('messages.shop.productLoadError', 'We could not load this product. Please try again.') }}
+      </div>
+      <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded">
+        {{ t('messages.general.retry', 'Retry') }}
+      </button>
+    </div>
   </div>
 </template>
 
