@@ -91,12 +91,14 @@ export default defineEventHandler(async (event) => {
 
     // Idempotency guard: prevents accidental repeat submissions from spamming WC REST updates.
     // This endpoint is only used for Helcim payments; `transactionId` should be stable per payment.
-    // Wrapped in try/catch so order creation still works if KV storage (NUXT_CACHE) isn't configured.
+    // Records live in the dedicated payment store (NUXT_PAYMENT_DATA, legacy-cache fallback) so
+    // cache clears can't wipe them. Wrapped in try/catch so order creation still works if KV
+    // storage isn't configured at all.
     let idempotencyStorage: any = null;
     const idempotencyKey = `idempotency:admin-order:${transactionId}`;
     try {
-      idempotencyStorage = useStorage('cache');
-      const existingIdempotency = await idempotencyStorage.getItem<any>(idempotencyKey);
+      idempotencyStorage = {getItem: paymentGetItem, setItem: paymentSetItem};
+      const existingIdempotency = await idempotencyStorage.getItem(idempotencyKey);
 
       if (existingIdempotency?.status === 'completed' && existingIdempotency?.order) {
         console.log('🔁 Idempotency hit: returning previously created order for transactionId', transactionId);
@@ -726,9 +728,8 @@ export default defineEventHandler(async (event) => {
     // Best-effort mark idempotency key as failed (if we had a transactionId)
     try {
       if (body?.transactionId) {
-        const idempotencyStorage = useStorage('cache');
         const idempotencyKey = `idempotency:admin-order:${body.transactionId}`;
-        await idempotencyStorage.setItem(idempotencyKey, {
+        await paymentSetItem(idempotencyKey, {
           status: 'failed',
           transactionId: body.transactionId,
           failedAt: new Date().toISOString(),

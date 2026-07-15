@@ -106,8 +106,7 @@ export default defineEventHandler(async (event) => {
 
     // 1. Idempotency record already says the order completed (response was just lost) → adopt it.
     try {
-      const storage = useStorage('cache');
-      const idem = await storage.getItem<any>(`idempotency:admin-order:${transactionId}`);
+      const idem = await paymentGetItem<any>(`idempotency:admin-order:${transactionId}`);
       if (idem?.status === 'completed' && idem?.order) {
         await updateStrandedCharge(transactionId, {status: 'recovered', recoveredOrder: idem.order, recoveredVia: 'idempotency'});
         return {recovered: true, order: idem.order, via: 'idempotency'};

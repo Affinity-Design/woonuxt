@@ -211,10 +211,17 @@ export default defineNuxtConfig({
         driver: 'cloudflare-kv-binding',
         binding: 'NUXT_SCRIPT_DATA',
       },
+      // Payment-critical records (stranded charges, duplicate-charge fingerprints, order
+      // idempotency, Helcim failure beacons). Separate namespace so cache clears/rebuilds
+      // (clear-kv-cache-safe.js wipes NUXT_CACHE completely) can never touch them.
+      // The NUXT_PAYMENT_DATA KV binding must be added to the Pages project; until it is,
+      // server/utils/paymentStorage.ts falls back to the cache store.
+      payment: {driver: 'cloudflare-kv-binding', binding: 'NUXT_PAYMENT_DATA'},
     },
     devStorage: {
       cache: {driver: 'fs', base: './.nuxt/dev-cache/isr'},
       script_data: {driver: 'fs', base: './.nuxt/dev-cache/script_data'},
+      payment: {driver: 'fs', base: './.nuxt/dev-cache/payment'},
     },
     prerender: {
       crawlLinks: false,

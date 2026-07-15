@@ -20,6 +20,10 @@
 //
 // All operations are best-effort: if KV is unavailable we fail safe (never throw into the order
 // flow). The happy path never touches this module.
+//
+// STORAGE: records live in the dedicated `payment` mount (NUXT_PAYMENT_DATA) via paymentStorage.ts
+// so cache clears/rebuilds can't wipe them; reads fall back to the legacy cache location for
+// records written before the migration.
 
 export type StrandedChargeStatus = 'pending' | 'recovered' | 'failed';
 
@@ -65,10 +69,9 @@ function keyFor(transactionId: string): string {
 export async function recordStrandedCharge(transactionId: string | undefined | null, payload: any, failureReason?: string): Promise<void> {
   if (!transactionId) return;
   try {
-    const storage = useStorage('cache');
     const key = keyFor(String(transactionId));
 
-    const existing = await storage.getItem<StrandedCharge>(key).catch(() => null);
+    const existing = await paymentGetItem<StrandedCharge>(key).catch(() => null);
     if (existing?.status === 'recovered') {
       // Already reconciled into an order — don't regress it back to pending.
       return;
@@ -88,7 +91,7 @@ export async function recordStrandedCharge(transactionId: string | undefined | n
       updatedAt: now,
     };
 
-    await storage.setItem(key, record, {ttl: KV_TTL_SECONDS} as any);
+    await paymentSetItem(key, record, {ttl: KV_TTL_SECONDS});
     console.log('[Helcim Recovery] Recorded stranded charge for later reconciliation', {transactionId, failureReason});
   } catch (error: any) {
     console.warn('[Helcim Recovery] recordStrandedCharge failed (continuing):', error?.message || error);
@@ -98,8 +101,7 @@ export async function recordStrandedCharge(transactionId: string | undefined | n
 /** Fetch a single stranded-charge record. Returns null if missing or storage is unavailable. */
 export async function getStrandedCharge(transactionId: string): Promise<StrandedCharge | null> {
   try {
-    const storage = useStorage('cache');
-    return (await storage.getItem<StrandedCharge>(keyFor(transactionId))) || null;
+    return (await paymentGetItem<StrandedCharge>(keyFor(transactionId))) || null;
   } catch (error: any) {
     console.warn('[Helcim Recovery] getStrandedCharge failed:', error?.message || error);
     return null;
@@ -109,12 +111,13 @@ export async function getStrandedCharge(transactionId: string): Promise<Stranded
 /** Update an existing stranded-charge record. Best-effort; merges `extra` over the stored record. */
 export async function updateStrandedCharge(transactionId: string, extra: Partial<StrandedCharge>): Promise<void> {
   try {
-    const storage = useStorage('cache');
     const key = keyFor(transactionId);
-    const existing = await storage.getItem<StrandedCharge>(key);
+    const existing = await paymentGetItem<StrandedCharge>(key);
     if (!existing) return;
     const updated: StrandedCharge = {...existing, ...extra, updatedAt: new Date().toISOString()};
-    await storage.setItem(key, updated, {ttl: KV_TTL_SECONDS} as any);
+    // Written to the payment store even when the original was read from the legacy cache —
+    // updates migrate legacy records forward.
+    await paymentSetItem(key, updated, {ttl: KV_TTL_SECONDS});
   } catch (error: any) {
     console.warn('[Helcim Recovery] updateStrandedCharge failed:', error?.message || error);
   }
@@ -123,11 +126,10 @@ export async function updateStrandedCharge(transactionId: string, extra: Partial
 /** List stranded-charge records, newest first. Optionally filter by status. */
 export async function listStrandedCharges(status?: StrandedChargeStatus): Promise<StrandedCharge[]> {
   try {
-    const storage = useStorage('cache');
-    const keys = await storage.getKeys(KEY_PREFIX);
+    const keys = await paymentGetKeys(KEY_PREFIX);
     if (!keys?.length) return [];
 
-    const records = await Promise.all(keys.map((k) => storage.getItem<StrandedCharge>(k).catch(() => null)));
+    const records = await Promise.all(keys.map((k) => paymentGetItem<StrandedCharge>(k).catch(() => null)));
     const list = records.filter((r): r is StrandedCharge => !!r);
     const filtered = status ? list.filter((r) => r.status === status) : list;
     return filtered.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));

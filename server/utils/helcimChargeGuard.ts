@@ -24,6 +24,10 @@
 //
 // All operations are best-effort: if KV is unavailable, we fail open (no warning, no error) so
 // checkout is never broken by this guard.
+//
+// STORAGE: fingerprints live in the dedicated `payment` mount (NUXT_PAYMENT_DATA) via
+// paymentStorage.ts so cache clears can't disarm the guard mid-window; reads fall back to the
+// legacy cache location for records written before the migration.
 
 import {createHash} from 'node:crypto';
 
@@ -83,11 +87,10 @@ function keyFor(fingerprint: string): string {
 export async function recordSuccessfulCharge(input: ChargeFingerprintInput, charge: Omit<RecordedCharge, 'at'>): Promise<void> {
   try {
     const fingerprint = computeChargeFingerprint(input);
-    const storage = useStorage('cache');
     const record: RecordedCharge = {...charge, at: new Date().toISOString()};
     // Pass ttl when supported by the KV driver; harmlessly ignored otherwise (we also
     // window-check on read, so an ignored TTL never causes a stale warning).
-    await storage.setItem(keyFor(fingerprint), record, {ttl: KV_TTL_SECONDS} as any);
+    await paymentSetItem(keyFor(fingerprint), record, {ttl: KV_TTL_SECONDS});
     console.log('[Helcim Guard] Recorded successful charge', {fingerprint, transactionId: charge.transactionId});
   } catch (error: any) {
     console.warn('[Helcim Guard] recordSuccessfulCharge failed (continuing):', error?.message || error);
@@ -101,8 +104,7 @@ export async function recordSuccessfulCharge(input: ChargeFingerprintInput, char
 export async function findRecentCharge(input: ChargeFingerprintInput): Promise<(RecordedCharge & {minutesAgo: number}) | null> {
   try {
     const fingerprint = computeChargeFingerprint(input);
-    const storage = useStorage('cache');
-    const record = await storage.getItem<RecordedCharge>(keyFor(fingerprint));
+    const record = await paymentGetItem<RecordedCharge>(keyFor(fingerprint));
     if (!record?.at) return null;
 
     const ageMs = Date.now() - new Date(record.at).getTime();

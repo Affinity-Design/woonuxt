@@ -24,11 +24,12 @@ export default defineEventHandler(async (event) => {
     // Grep by the traceId to line this up with the matching "[Helcim Trace]" outbound payload.
     console.error('[Helcim FAIL]', JSON.stringify(record));
 
-    // Persist failures to KV so they can be reviewed after the fact (best-effort).
+    // Persist failures to the dedicated payment store (NUXT_PAYMENT_DATA) so they survive cache
+    // clears and can be reviewed after the fact (best-effort). 30-day TTL keeps growth bounded
+    // now that nothing ever purges this namespace.
     try {
-      const storage = useStorage('cache');
       const key = `helcim-fail:${record.traceId || 'no-trace'}:${Date.now()}`;
-      await storage.setItem(key, record);
+      await paymentSetItem(key, record, {ttl: 30 * 24 * 60 * 60});
     } catch (storageError) {
       console.warn('[Helcim FAIL] KV persist unavailable:', storageError);
     }
