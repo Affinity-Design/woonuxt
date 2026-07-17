@@ -160,6 +160,7 @@ export function useCheckout() {
     const {customer, viewer, loginUser} = useAuth();
     const router = useRouter();
     const {cart, emptyCart, refreshCart} = useCart();
+    const {getOrCreateAttemptId, clearAttemptId} = useCheckoutAttempt();
 
     isProcessingOrder.value = true;
 
@@ -250,6 +251,9 @@ export function useCheckout() {
             },
             customerId: viewer.value?.databaseId,
             transactionId: orderInput.value.transactionId,
+            // Stable per-purchase id (reload-proof): lets the server collapse a retry of the same
+            // cart onto the original attempt even though Helcim mints a new transactionId per charge.
+            checkoutAttemptId: getOrCreateAttemptId(),
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
@@ -352,6 +356,10 @@ export function useCheckout() {
             const orderKey = adminOrderResult.order.orderKey;
             const orderNumber = adminOrderResult.order.orderNumber || orderId;
 
+            // The attempt is resolved into an order — clear its id so a future purchase of the
+            // same items is a NEW attempt and never collapses onto this finished one.
+            clearAttemptId();
+
             // Empty cart and redirect to order received page
             try {
               await emptyCart();
@@ -375,12 +383,34 @@ export function useCheckout() {
           } else {
             console.error('[processCheckout] Admin order creation failed:', adminOrderResult.error || 'Unknown error');
 
-            // Fall back to regular GraphQL checkout if admin creation fails
-            console.log('[processCheckout] Falling back to regular GraphQL checkout...');
+            // The card is ALREADY charged (charge-first/order-second). NEVER fall through to a
+            // second checkout attempt — GqlCheckout succeeding here would mint a second order for
+            // the same charge, and failing shows a "please try again" that caused a real double
+            // charge (orders 500047991/500047994). Surface the paid-but-unfinished state instead
+            // so the checkout page can auto-run recovery and show the hard do-not-reorder notice.
+            return {
+              success: false,
+              error: true,
+              paymentCaptured: true,
+              recoverable: adminOrderResult?.recoverable !== false,
+              transactionId: orderInput.value.transactionId,
+              reason: adminOrderResult?.error || 'admin_order_failed',
+              errorMessage: 'Your payment was received but we could not finish creating your order automatically.',
+            };
           }
-        } catch (adminError) {
+        } catch (adminError: any) {
           console.error('[processCheckout] Admin order creation error:', adminError);
-          console.log('[processCheckout] Falling back to regular GraphQL checkout...');
+
+          // Same rule as above: payment is captured, so no fallback and no retry prompt.
+          return {
+            success: false,
+            error: true,
+            paymentCaptured: true,
+            recoverable: true,
+            transactionId: orderInput.value.transactionId,
+            reason: adminError?.message || 'admin_order_threw',
+            errorMessage: 'Your payment was received but we could not finish creating your order automatically.',
+          };
         }
       }
 
@@ -615,6 +645,9 @@ export function useCheckout() {
 
       const orderId = checkout?.order?.databaseId;
       const orderKey = checkout?.order?.orderKey;
+
+      // Attempt resolved into an order via the GraphQL path — same cleanup as the admin path.
+      clearAttemptId();
 
       // Empty cart and redirect to order received page
       try {

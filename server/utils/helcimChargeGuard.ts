@@ -81,6 +81,10 @@ function keyFor(fingerprint: string): string {
   return `helcim-charge:${fingerprint}`;
 }
 
+function attemptKeyFor(attemptId: string): string {
+  return `helcim-attempt:${attemptId}`;
+}
+
 /**
  * Record a successful charge. Best-effort: swallows all storage errors.
  */
@@ -94,6 +98,42 @@ export async function recordSuccessfulCharge(input: ChargeFingerprintInput, char
     console.log('[Helcim Guard] Recorded successful charge', {fingerprint, transactionId: charge.transactionId});
   } catch (error: any) {
     console.warn('[Helcim Guard] recordSuccessfulCharge failed (continuing):', error?.message || error);
+  }
+}
+
+/**
+ * Record a successful charge against the client-minted checkout attempt id. Unlike the
+ * fingerprint, the attempt id is exact (no amount/line-item normalization to drift), so this is
+ * the strongest retry signal we have. Best-effort: swallows all storage errors.
+ */
+export async function recordAttemptCharge(attemptId: string | undefined | null, charge: Omit<RecordedCharge, 'at'>): Promise<void> {
+  if (!attemptId) return;
+  try {
+    const record: RecordedCharge = {...charge, at: new Date().toISOString()};
+    await paymentSetItem(attemptKeyFor(String(attemptId)), record, {ttl: KV_TTL_SECONDS});
+    console.log('[Helcim Guard] Recorded successful charge for attempt', {attemptId, transactionId: charge.transactionId});
+  } catch (error: any) {
+    console.warn('[Helcim Guard] recordAttemptCharge failed (continuing):', error?.message || error);
+  }
+}
+
+/**
+ * Look up a recent successful charge for the same checkout attempt id. Same window semantics as
+ * findRecentCharge; fail open.
+ */
+export async function findRecentAttemptCharge(attemptId: string | undefined | null): Promise<(RecordedCharge & {minutesAgo: number}) | null> {
+  if (!attemptId) return null;
+  try {
+    const record = await paymentGetItem<RecordedCharge>(attemptKeyFor(String(attemptId)));
+    if (!record?.at) return null;
+
+    const ageMs = Date.now() - new Date(record.at).getTime();
+    if (ageMs < 0 || ageMs > DUPLICATE_WARNING_WINDOW_MS) return null;
+
+    return {...record, minutesAgo: Math.max(0, Math.round(ageMs / 60000))};
+  } catch (error: any) {
+    console.warn('[Helcim Guard] findRecentAttemptCharge failed (failing open):', error?.message || error);
+    return null;
   }
 }
 

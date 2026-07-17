@@ -4,6 +4,10 @@ import {ref, onMounted, onUnmounted, computed, watch} from 'vue';
 
 const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested', 'order-recovered']);
 
+// Stable per-purchase attempt id (reload-proof) — sent with initialize + validate so the server
+// can block a second charge for an attempt that already paid. See useCheckoutAttempt.ts.
+const {getOrCreateAttemptId} = useCheckoutAttempt();
+
 const checkoutToken = ref('');
 const secretToken = ref('');
 const traceId = ref(''); // Correlates this checkout's outbound invoice payload with any failure (see helcim-cc-rejection-critical-patch.md)
@@ -229,6 +233,9 @@ const initializePayment = async () => {
       action: 'initialize',
       amount: apiAmount.value,
       currency: props.currency,
+      // Stable per-purchase id (survives reload/retry of the same cart). Lets the server refuse
+      // to issue a second charge token for an attempt that already charged successfully.
+      checkoutAttemptId: getOrCreateAttemptId(),
     };
 
     // Add line items if provided (creates invoice in Helcim as backup)
@@ -438,6 +445,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
           amount: props.amount,
           lineItems: props.lineItems || [],
           traceId: traceId.value,
+          checkoutAttemptId: getOrCreateAttemptId(),
         },
       },
     })) as any;

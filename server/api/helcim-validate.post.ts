@@ -26,12 +26,20 @@ export default defineEventHandler(async (event) => {
   // Helper: record a successful, validated charge for the duplicate-charge guard.
   // Fires before the WooCommerce order exists, so it still protects against retries even
   // when order creation later fails. Best-effort — never affects the validation response.
+  // Recorded under BOTH the cart fingerprint and the client-minted checkout attempt id (the
+  // attempt id is the stronger signal: exact, reload-stable, drift-immune).
   const recordChargeForGuard = async (transactionId?: string) => {
     if (!chargeContext) return;
     await recordSuccessfulCharge(
       {email: chargeContext.email, amount: chargeContext.amount, lineItems: chargeContext.lineItems},
       {transactionId, amount: chargeContext.amount, email: chargeContext.email, traceId: chargeContext.traceId},
     );
+    await recordAttemptCharge(chargeContext.checkoutAttemptId, {
+      transactionId,
+      amount: chargeContext.amount,
+      email: chargeContext.email,
+      traceId: chargeContext.traceId,
+    });
   };
 
   try {

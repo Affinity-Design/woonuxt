@@ -64,6 +64,11 @@ export default defineEventHandler(async (event) => {
       customerId,
       cardToken, // Helcim card token for native refund support
       helcimInvoiceData, // Backup data if order fails - can be used to recover
+      // Client-minted id for this checkout attempt. Stable across reload/retry of the same cart
+      // even though Helcim mints a new transactionId per charge — the key that lets us collapse
+      // "customer paid again after an error" onto the original attempt instead of minting a
+      // second order (orders 500047991/500047994 incident).
+      checkoutAttemptId,
     } = body;
 
     // Validate required configuration
@@ -89,16 +94,63 @@ export default defineEventHandler(async (event) => {
       throw new Error(`Missing required billing fields: ${missingBillingFields.join(', ')}`);
     }
 
-    // Idempotency guard: prevents accidental repeat submissions from spamming WC REST updates.
-    // This endpoint is only used for Helcim payments; `transactionId` should be stable per payment.
+    // Idempotency guard: prevents duplicate order creation. Two keys, strongest first:
+    //   attempt key — client-minted checkoutAttemptId, STABLE across reload/retry of the same
+    //                 cart even though Helcim mints a new transactionId per charge. This is what
+    //                 collapses "customer paid again after an error" onto the original attempt.
+    //   charge key  — Helcim transactionId, catches re-submission of the SAME charge.
     // Records live in the dedicated payment store (NUXT_PAYMENT_DATA, legacy-cache fallback) so
     // cache clears can't wipe them. Wrapped in try/catch so order creation still works if KV
     // storage isn't configured at all.
-    let idempotencyStorage: any = null;
     const idempotencyKey = `idempotency:admin-order:${transactionId}`;
+    const attemptIdempotencyKey = checkoutAttemptId ? `idempotency:admin-order:attempt:${checkoutAttemptId}` : null;
+
+    // Writes the same record under both keys so either lookup path finds it.
+    const writeIdempotency = async (record: Record<string, any>) => {
+      const fullRecord = {...record, transactionId, checkoutAttemptId: checkoutAttemptId || undefined};
+      await paymentSetItem(idempotencyKey, fullRecord);
+      if (attemptIdempotencyKey) {
+        await paymentSetItem(attemptIdempotencyKey, fullRecord);
+      }
+    };
+
     try {
-      idempotencyStorage = {getItem: paymentGetItem, setItem: paymentSetItem};
-      const existingIdempotency = await idempotencyStorage.getItem(idempotencyKey);
+      const attemptIdempotency = attemptIdempotencyKey ? await paymentGetItem<any>(attemptIdempotencyKey) : null;
+
+      if (attemptIdempotency?.status === 'completed' && attemptIdempotency?.order) {
+        const isSameCharge = String(attemptIdempotency.transactionId || '') === String(transactionId);
+        if (!isSameCharge) {
+          // Same purchase, DIFFERENT charge: the customer paid a second time for an attempt whose
+          // order already exists. Never create a second order — return the original and record
+          // this charge as stranded so support can refund it from the recovery list.
+          console.warn('🚨 Duplicate charge for completed attempt — returning original order, stranding duplicate charge', {
+            checkoutAttemptId,
+            originalTransactionId: attemptIdempotency.transactionId,
+            duplicateTransactionId: transactionId,
+          });
+          await recordStrandedCharge(transactionId, body, `duplicate_charge_for_completed_attempt:${attemptIdempotency.transactionId}`);
+        } else {
+          console.log('🔁 Idempotency hit (attempt): returning previously created order', {checkoutAttemptId});
+        }
+        return {
+          success: true,
+          idempotent: true,
+          duplicateChargeDetected: !isSameCharge,
+          order: attemptIdempotency.order,
+        };
+      }
+
+      if (attemptIdempotency?.status === 'in_progress') {
+        console.warn('⏳ Idempotency in-progress (attempt): ignoring duplicate request', {checkoutAttemptId});
+        return {
+          success: false,
+          idempotent: true,
+          error: 'Order creation already in progress. Please wait and refresh.',
+        };
+      }
+      // Attempt status 'failed' (or no record): a paid charge with no order yet — proceed to create.
+
+      const existingIdempotency = await paymentGetItem<any>(idempotencyKey);
 
       if (existingIdempotency?.status === 'completed' && existingIdempotency?.order) {
         console.log('🔁 Idempotency hit: returning previously created order for transactionId', transactionId);
@@ -118,35 +170,48 @@ export default defineEventHandler(async (event) => {
         };
       }
 
-      await idempotencyStorage.setItem(idempotencyKey, {
-        status: 'in_progress',
-        transactionId,
-        startedAt: new Date().toISOString(),
-      });
+      await writeIdempotency({status: 'in_progress', startedAt: new Date().toISOString()});
     } catch (storageError) {
       console.warn('⚠️ Idempotency storage unavailable (KV binding missing?), proceeding without duplicate protection:', storageError);
-      idempotencyStorage = null;
     }
 
     // The card has ALREADY been charged by the time we reach this handler (charge-first/order-second).
-    // So any failure below leaves a stranded payment. This helper marks the idempotency key failed AND
-    // persists the full payload so /api/recover-helcim-order can reconcile the charge into an order
-    // without asking the customer to pay again. Best-effort — never throws into the order flow.
+    // So any failure below leaves a stranded payment. This helper marks BOTH idempotency keys failed
+    // AND persists the full payload so /api/recover-helcim-order can reconcile the charge into an
+    // order without asking the customer to pay again. Best-effort — never throws into the order flow.
     const persistFailureForRecovery = async (reason: string) => {
-      if (idempotencyStorage) {
-        try {
-          await idempotencyStorage.setItem(idempotencyKey, {
-            status: 'failed',
-            transactionId,
-            failedAt: new Date().toISOString(),
-            error: reason,
-          });
-        } catch (e) {
-          console.warn('⚠️ Failed to mark idempotency failed:', e);
-        }
+      try {
+        await writeIdempotency({status: 'failed', failedAt: new Date().toISOString(), error: reason});
+      } catch (e) {
+        console.warn('⚠️ Failed to mark idempotency failed:', e);
       }
       await recordStrandedCharge(transactionId, body, reason);
     };
+
+    // Shipping-address validation — LAST line of defense (mitigation plan P0-4). The card is
+    // already charged, so a missing address must NOT silently produce a blank-shipping order
+    // (2026-07-15 support incident). Refuse to create the order and persist the charge for
+    // reconciliation instead. Same field set and billing fallback as the order payload below,
+    // matching the client-side isShippingAddressComplete gate.
+    const effectiveShipping: Record<string, string> = {
+      address1: String(shipping?.address1 || billing?.address1 || '').trim(),
+      city: String(shipping?.city || billing?.city || '').trim(),
+      state: String(shipping?.state || billing?.state || '').trim(),
+      postcode: String(shipping?.postcode || billing?.postcode || '').trim(),
+      country: String(shipping?.country || billing?.country || '').trim(),
+    };
+    const missingShippingFields = Object.keys(effectiveShipping).filter((field) => !effectiveShipping[field]);
+    if (missingShippingFields.length > 0) {
+      console.error(`❌ Missing shipping address fields [${requestId}]:`, missingShippingFields);
+      await persistFailureForRecovery(`Missing shipping address fields: ${missingShippingFields.join(', ')}`);
+      return {
+        success: false,
+        recoverable: true,
+        error: 'MISSING_SHIPPING_ADDRESS',
+        missingShippingFields,
+        message: 'Order was not created because the shipping address is incomplete. The payment has been recorded for manual reconciliation.',
+      };
+    }
 
     // Log the request data for debugging/recovery purposes
     console.log(`📝 Order Request [${requestId}]:`, {
@@ -703,17 +768,14 @@ export default defineEventHandler(async (event) => {
       ],
     };
 
-    if (idempotencyStorage) {
-      try {
-        await idempotencyStorage.setItem(idempotencyKey, {
-          status: 'completed',
-          transactionId,
-          completedAt: new Date().toISOString(),
-          order: responsePayload.order,
-        });
-      } catch (storageError) {
-        console.warn('⚠️ Failed to write idempotency completion:', storageError);
-      }
+    try {
+      await writeIdempotency({
+        status: 'completed',
+        completedAt: new Date().toISOString(),
+        order: responsePayload.order,
+      });
+    } catch (storageError) {
+      console.warn('⚠️ Failed to write idempotency completion:', storageError);
     }
 
     return responsePayload;
@@ -725,16 +787,20 @@ export default defineEventHandler(async (event) => {
       stack: error.stack,
     });
 
-    // Best-effort mark idempotency key as failed (if we had a transactionId)
+    // Best-effort mark both idempotency keys as failed (if we had a transactionId)
     try {
       if (body?.transactionId) {
-        const idempotencyKey = `idempotency:admin-order:${body.transactionId}`;
-        await paymentSetItem(idempotencyKey, {
+        const failureRecord = {
           status: 'failed',
           transactionId: body.transactionId,
+          checkoutAttemptId: body?.checkoutAttemptId || undefined,
           failedAt: new Date().toISOString(),
           error: error?.message || 'Unknown error',
-        });
+        };
+        await paymentSetItem(`idempotency:admin-order:${body.transactionId}`, failureRecord);
+        if (body?.checkoutAttemptId) {
+          await paymentSetItem(`idempotency:admin-order:attempt:${body.checkoutAttemptId}`, failureRecord);
+        }
       }
     } catch {
       // ignore

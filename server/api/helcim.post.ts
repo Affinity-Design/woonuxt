@@ -87,6 +87,9 @@ export default defineEventHandler(async (event) => {
     discountAmount,
     customerInfo,
     invoiceNumber,
+    // Client-minted id for this checkout attempt (stable across reload/retry of the same cart).
+    // Used to hard-block issuing a second charge token for an attempt that already charged.
+    checkoutAttemptId,
   } = body;
 
   try {
@@ -380,12 +383,18 @@ export default defineEventHandler(async (event) => {
         // Duplicate-charge guard: block before asking Helcim for a new checkout token.
         // If the same cart was successfully charged moments ago, issuing another token gives
         // the customer a path to a second real charge. Fail open if KV is unavailable.
+        // Two signals, strongest first:
+        //   1. checkoutAttemptId — exact match on the client-minted attempt id (survives reload,
+        //      immune to the amount/line-item drift that can defeat the fingerprint).
+        //   2. fingerprint (email+amount+items) — catches clients without an attempt id.
         try {
-          const recent = await findRecentCharge({
-            email: customerInfo?.email,
-            amount: amountInDollars,
-            lineItems,
-          });
+          const recent =
+            (await findRecentAttemptCharge(checkoutAttemptId)) ||
+            (await findRecentCharge({
+              email: customerInfo?.email,
+              amount: amountInDollars,
+              lineItems,
+            }));
 
           if (recent) {
             const recentChargeWarning = {transactionId: recent.transactionId, minutesAgo: recent.minutesAgo, at: recent.at};

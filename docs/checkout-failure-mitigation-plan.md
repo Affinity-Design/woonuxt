@@ -86,6 +86,8 @@ The stranded-charge recovery infrastructure is solid and under-used:
 
 Ordered by priority. P0 = stops customers being double-charged or stranded.
 
+> ✅ **IMPLEMENTED (2026-07-17, on `test`):** all of P0 — P0-1 (no fallback after a captured payment), P0-2 (hard "payment went through — do not pay again" notice with transaction reference), P0-3 (client-minted `checkoutAttemptId` via `composables/useCheckoutAttempt.ts`, enforced at Helcim initialize AND in `create-admin-order` idempotency with duplicate-charge stranding), P0-4 (server-side shipping validation), P0-5 (client shipping gate before charge) — **plus** P1-1 (auto-recovery on a captured-but-failed order via `/api/recover-helcim-order`, with manual retry button) and the P1-5 pay-affordance gate (Helcim card hidden while the notice is up). Still open: P1-2 (strongly-consistent duplicate block), P1-3 (guard on every charge path / token-reuse re-init), the remaining P1-4 `alert()` cleanups on unpaid flows, P2 items, and the D1 failure ledger.
+
 ### P0 — Stop the bleeding
 
 | # | Change | Where | Effort |

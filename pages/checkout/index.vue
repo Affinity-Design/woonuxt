@@ -18,6 +18,7 @@ const confirmShippingAddress = (): void => {
 };
 const {exchangeRate} = useExchangeRate();
 const {hasBackorderItems, hasClearanceItems, hasAnyNotices} = useCartNotices();
+const {clearAttemptId} = useCheckoutAttempt();
 const config = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -45,6 +46,15 @@ const helcimCardToken = ref<string>(''); // Card token required for refunds via 
 const isCreatingOrder = ref<boolean>(false);
 const orderCreationMessage = ref<string>('');
 const helcimModalClosed = ref<boolean>(false); // Track if user closed modal
+
+// Payment-captured-but-order-unfinished state (mitigation plan P0-2). When the charge succeeded
+// but order creation failed, the generic "please try again" flow caused a real double charge —
+// this state replaces it with a hard do-not-reorder notice + automatic recovery.
+const customerServiceEmail = 'customerservice@proskatersplace.com';
+const paymentCaptured = ref<boolean>(false);
+const paymentCapturedTxnId = ref<string>('');
+const isAutoRecovering = ref<boolean>(false);
+const autoRecoveryFailed = ref<boolean>(false);
 
 // Fallback Helcim payment gateway - used when paymentGateways doesn't load properly
 const fallbackHelcimGateway = {
@@ -228,6 +238,16 @@ const payNow = async () => {
       throw new Error(paymentError.value);
     }
 
+    // Shipping address must be complete BEFORE the card is charged (mitigation plan P0-5). This is
+    // the real gate: the post-payment payNow() call is a direct JS invocation, so HTML5 `required`
+    // never runs on it. Post-payment we deliberately do NOT hard-block here — the server validates
+    // again (P0-4) and routes to paid-recovery instead of dead-ending a charged customer.
+    if (!helcimPaymentComplete.value && !isShippingAddressComplete.value) {
+      paymentError.value = 'Please complete your shipping address before payment.';
+      console.error('[payNow] Shipping address incomplete — blocking payment');
+      throw new Error(paymentError.value);
+    }
+
     // Validate email format
     if (!emailRegex.test(customer.value.billing.email.trim())) {
       paymentError.value = 'Please enter a valid email address.';
@@ -403,6 +423,14 @@ const payNow = async () => {
 
     // Complete checkout only if payment succeeded
     const checkoutResult = await processCheckout(success, turnstileToken.value);
+
+    // Payment captured but order unfinished: hand off to the paid-recovery flow. Returning (not
+    // throwing) keeps the generic error/retry UI out of the picture — the hard notice owns the UI.
+    if (checkoutResult?.paymentCaptured) {
+      await handlePaymentCapturedFailure(checkoutResult);
+      return;
+    }
+
     if (!checkoutResult?.success) {
       console.log('[payNow] Order completion failed:', checkoutResult?.errorMessage);
       paymentError.value = checkoutResult?.errorMessage || 'Order completion failed after payment';
@@ -553,6 +581,59 @@ const handleHelcimFailed = (error: any) => {
   paymentError.value = typeof error === 'string' ? error : 'Payment failed';
 };
 
+// The charge succeeded but the order could not be finished. Show the hard do-not-reorder notice
+// and immediately try to reconcile the paid charge into a real order (server-side find-or-create,
+// de-duplicated — never charges again). This is the Demetrius-incident path: had the first
+// attempt's lost success been auto-recovered, there would have been no retry and no second charge.
+const handlePaymentCapturedFailure = async (result: any) => {
+  console.warn('[Checkout] Payment captured but order unfinished — entering recovery flow', {
+    transactionId: result?.transactionId,
+    reason: result?.reason,
+  });
+
+  isCreatingOrder.value = false;
+  orderCreationMessage.value = '';
+  paymentError.value = null; // the hard notice replaces the generic red box
+  paymentCapturedTxnId.value = String(result?.transactionId || '');
+  paymentCaptured.value = true;
+
+  await attemptStrandedRecovery();
+};
+
+const attemptStrandedRecovery = async () => {
+  if (!paymentCapturedTxnId.value) {
+    autoRecoveryFailed.value = true;
+    return;
+  }
+
+  isAutoRecovering.value = true;
+  autoRecoveryFailed.value = false;
+  try {
+    const res: any = await $fetch('/api/recover-helcim-order', {
+      method: 'POST',
+      body: {transactionId: paymentCapturedTxnId.value},
+    });
+
+    if (res?.recovered && res.order) {
+      console.log('[Checkout] Stranded charge auto-recovered into order:', res.order);
+      await handleHelcimRecovered({
+        orderId: res.order.databaseId ?? res.order.id,
+        orderKey: res.order.orderKey || '',
+        orderNumber: res.order.orderNumber ?? res.order.databaseId ?? res.order.id,
+      });
+      return;
+    }
+
+    console.warn('[Checkout] Auto-recovery did not produce an order:', res);
+    autoRecoveryFailed.value = true;
+  } catch (error: any) {
+    console.error('[Checkout] Auto-recovery failed:', error);
+    autoRecoveryFailed.value = true;
+  } finally {
+    isAutoRecovering.value = false;
+  }
+};
+
 // The duplicate-charge guard blocked a second charge and the customer chose to retrieve the order
 // their already-successful payment should have created. The server reconciled it (find-or-create,
 // de-duplicated), so finish exactly like a normal success: clear the cart and go to the receipt.
@@ -561,6 +642,8 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
   helcimPaymentComplete.value = true;
   isPaid.value = true;
   paymentError.value = null;
+  // Attempt resolved into an order — a future purchase of the same items is a new attempt.
+  clearAttemptId();
 
   try {
     await emptyCart();
@@ -588,7 +671,9 @@ const handleHelcimComplete = (result: any) => {
   }
 };
 
-const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value);
+// Suppressed while the payment-captured notice is up: that state must never render as a generic
+// "try again" error for a customer whose card was already charged.
+const hasPaymentError = computed(() => paymentError.value && !isSubmitting.value && !paymentCaptured.value);
 
 // Computed property for Helcim amount that includes tax and is reactive
 // Converts USD cart total to CAD using the exchange rate
@@ -978,8 +1063,46 @@ useSeoMeta({
             {{ paymentError }}
           </div>
 
-          <!-- Helcim Card Component in Order Summary -->
-          <div v-if="shouldShowHelcimCard" class="mt-4">
+          <!-- HARD payment-captured notice: the charge went through but the order needs finishing.
+               Replaces the generic "try again" error that caused a real double charge. -->
+          <div v-if="paymentCaptured" class="mb-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+            <div class="flex items-start gap-3">
+              <Icon name="ion:checkmark-circle" size="24" class="text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div class="flex-1">
+                <div class="font-medium text-yellow-800 mb-1">Your payment went through — do not pay again</div>
+                <p class="text-sm text-yellow-700">
+                  We received your payment, but hit a problem finishing your order automatically. Please do
+                  <strong>not</strong> place the order again — your card would be charged twice.
+                </p>
+
+                <div v-if="isAutoRecovering" class="flex items-center gap-2 mt-3 text-sm text-yellow-800">
+                  <LoadingIcon size="18" />
+                  <span>Retrieving your order…</span>
+                </div>
+
+                <template v-else-if="autoRecoveryFailed">
+                  <p class="text-sm text-yellow-700 mt-2">
+                    Payment reference: <span class="font-mono font-medium">{{ paymentCapturedTxnId || 'unavailable' }}</span>
+                  </p>
+                  <p class="text-sm text-yellow-700 mt-1">
+                    Please contact
+                    <a :href="`mailto:${customerServiceEmail}`" class="underline font-medium">{{ customerServiceEmail }}</a>
+                    with this reference and we will finish your order right away — you will not be charged again.
+                  </p>
+                  <button
+                    type="button"
+                    class="mt-3 rounded-lg bg-yellow-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-yellow-700"
+                    @click="attemptStrandedRecovery">
+                    Try retrieving my order again
+                  </button>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Helcim Card Component in Order Summary (hidden while the payment-captured notice is up
+               so there is no pay affordance for an already-charged purchase) -->
+          <div v-if="shouldShowHelcimCard && !paymentCaptured" class="mt-4">
             <HelcimCard
               ref="helcimCardRef"
               :amount="helcimAmount"
