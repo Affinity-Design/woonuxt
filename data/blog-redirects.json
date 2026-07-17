@@ -23,6 +23,12 @@
       "statusCode": 301
     }
   },
+  "/best-pink-roller-skates-canada-2026": {
+    "redirect": {
+      "to": "/blog/best-pink-roller-skates-canada-2026",
+      "statusCode": 301
+    }
+  },
   "/complete-beginners-guide-inline-quad-skating": {
     "redirect": {
       "to": "/blog/complete-beginners-guide-inline-quad-skating",
@@ -98,6 +104,12 @@
   "/skate-shop-toronto": {
     "redirect": {
       "to": "/blog/skate-shop-toronto",
+      "statusCode": 301
+    }
+  },
+  "/toronto-roller-skating-spots-2026": {
+    "redirect": {
+      "to": "/blog/toronto-roller-skating-spots-2026",
       "statusCode": 301
     }
   },

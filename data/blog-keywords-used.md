@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-07-10
+**Last Updated:** 2026-07-17
 
 ---
 
@@ -75,6 +75,14 @@
   - Status: âœ… Live
   - Performance: Monitoring
 
+- [x] **toronto roller skating** (2900 sv, 13 kd, $1.31 cpc)
+
+  - Post: `/blog/toronto-roller-skating-spots-2026`
+  - Published: 2026-07-17
+  - Status: âœ… Live
+  - Secondary: roller skating toronto, toronto roller skates, waterfront trail skating, skate parks toronto
+  - Angle: local "where to skate" listicle (9 real Toronto spots + bylaw/safety section) — deliberately distinct from `/blog/roller-skating-toronto-guide`'s beginner how-to-start angle, to avoid cannibalization
+  - Performance: Monitoring
 
 ---
 
@@ -86,13 +94,11 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ### High Priority (1000-5000 sv)
 
-- [ ] **toronto roller skating** (2900 sv, 13 kd, $1.31 cpc)
+- [x] **toronto roller skating** (2900 sv, 13 kd, $1.31 cpc) — moved to Used Keywords above
 
-  - Intent: Local, informational
-  - Difficulty: Easy
-  - Suggested Post: "Best Roller Skating Spots in Toronto 2025"
-  - Status: Available
-  - Note: We have `/blog/roller-skating-toronto-guide` - check for overlap
+  - Post: `/blog/toronto-roller-skating-spots-2026`
+  - Published: 2026-07-17
+  - Status: âœ… Live
 
 - [x] **pro skates** (2400 sv, 10 kd, $0.84 cpc)
 
@@ -102,11 +108,12 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Status: âœ… Live
   - Post: `/blog/pro-skates-professional-guide`
 
-- [ ] **childrens roller skates** (1900 sv, 42 kd, $0.48 cpc)
+- [x] **childrens roller skates** (1900 sv, 42 kd, $0.48 cpc)
   - Intent: Commercial/Transactional
   - Difficulty: Medium
-  - Suggested Post: "Best Kids Roller Skates 2025 (Safety Guide)"
-  - Status: Available
+  - Post: `/blog/best-kids-roller-skates-2026`
+  - Published: 2026-02-10
+  - Status: âœ… Live (was published but not previously logged here — corrected 2026-07-17)
 
 ### Medium Priority (500-1000 sv)
 
@@ -155,11 +162,12 @@ _No remaining ultra-high priority keywords - all have been used!_
   - Suggested Post: Supporting content for main inline skates post
   - Status: Available
 
-- [ ] **mens roller skates** (260 sv, 38 kd, $0.43 cpc)
+- [x] **mens roller skates** (260 sv, 38 kd, $0.43 cpc)
   - Intent: Commercial/Transactional
   - Difficulty: Medium
-  - Suggested Post: "Best Men's Roller Skates 2025"
-  - Status: Available
+  - Post: `/blog/best-mens-roller-skates-2026`
+  - Published: 2026-04-14
+  - Status: âœ… Live (was published but not previously logged here — corrected 2026-07-17)
 
 ### Niche/Long-tail Keywords (50-100 sv)
 
@@ -275,33 +283,21 @@ _No remaining ultra-high priority keywords - all have been used!_
 
 ## ðŸŽ¯ Next Blog Post Recommendations
 
-### Immediate Priorities (Write Next)
+**Status as of 2026-07-17:** every item below (Immediate + Medium-Term) has now been published — see the Used Keywords section above. This list is kept for history; **do not treat it as the current pipeline.**
 
-1. **"Where to Buy Roller Skates Near You in Canada 2025"**
+The remaining unused entries in "Available Keywords" above are all low-volume (<150 sv), branded/not-blog-suited, or genuinely overlap an existing post's angle (see cannibalization warnings). Before writing the next post, either re-run keyword research (fresh volumes, not the 2025 snapshot above) or mine `data/brand-keywords-full.json` (20k+ keyword/brand dataset) for an untapped topic — don't pick blind from the stale "Available" list below without checking `content/blog/` first, since it has drifted out of sync with actual published posts before (kids/mens/toronto entries were all live for months before being logged here).
 
-   - Primary: roller skates near me (5400 sv, $1.09 cpc)
-   - Secondary: buy roller skates, roller skates price
-   - Type: Local + Commercial
-   - Internal links: Store locations, product categories
+### Immediate Priorities (Write Next) — ALL PUBLISHED, kept for history
 
-2. **"Best Roller Skating Spots in Toronto 2025"**
+1. ~~"Where to Buy Roller Skates Near You in Canada 2025"~~ → `/blog/where-to-buy-roller-skates-near-me-canada`
+2. ~~"Best Roller Skating Spots in Toronto 2025"~~ → `/blog/toronto-roller-skating-spots-2026`
+3. ~~"Best Kids Roller Skates 2025 (Complete Safety Guide)"~~ → `/blog/best-kids-roller-skates-2026`
 
-   - Primary: toronto roller skating (2900 sv, $1.31 cpc)
-   - Secondary: roller skating toronto, toronto roller skates
-   - Type: Local guide
-   - Internal links: Existing toronto guide, products
+### Medium-Term (2-4 weeks) — ALL PUBLISHED, kept for history
 
-3. **"Best Kids Roller Skates 2025 (Complete Safety Guide)"**
-   - Primary: childrens roller skates (1900 sv, $0.48 cpc)
-   - Secondary: roller skates for adults (comparison)
-   - Type: Buying guide + safety
-   - Internal links: Protection gear, kids products
-
-### Medium-Term (2-4 weeks)
-
-4. **"Best Women's Roller Skates 2025"**
-5. **"Professional Skates: What the Pros Use"**
-6. **"Complete Roller Skates Guide 2025"** (broad keyword)
+4. ~~"Best Women's Roller Skates 2025"~~ → `/blog/roller-skates-for-women`
+5. ~~"Professional Skates: What the Pros Use"~~ → `/blog/pro-skates-professional-guide`
+6. ~~"Complete Roller Skates Guide 2025"~~ (broad keyword) → `/blog/roller-skates-complete-guide-2025`
 
 ---
 
