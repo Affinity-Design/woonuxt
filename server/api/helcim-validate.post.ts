@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       {email: chargeContext.email, amount: chargeContext.amount, lineItems: chargeContext.lineItems},
       {transactionId, amount: chargeContext.amount, email: chargeContext.email, traceId: chargeContext.traceId},
     );
-    await recordAttemptCharge(chargeContext.checkoutAttemptId, {
+    await recordAttemptChargeStrong(event, chargeContext.checkoutAttemptId, {
       transactionId,
       amount: chargeContext.amount,
       email: chargeContext.email,
@@ -96,6 +96,16 @@ export default defineEventHandler(async (event) => {
     // Only record genuinely successful (validated) charges for the duplicate-charge guard.
     if (isValid) {
       await recordChargeForGuard(dataToHash?.transactionId);
+    } else {
+      await logCheckoutFailure(event, {
+        stage: 'validate_failed',
+        reason: 'Helcim transaction hash validation failed',
+        transactionId: dataToHash?.transactionId,
+        checkoutAttemptId: chargeContext?.checkoutAttemptId,
+        email: chargeContext?.email,
+        cartTotal: chargeContext?.amount,
+        requestId: chargeContext?.traceId,
+      });
     }
 
     return {

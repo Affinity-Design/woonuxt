@@ -646,10 +646,13 @@ const processPayment = async () => {
     return false;
   }
 
-  if (!checkoutToken.value || initializedChargeContextKey.value !== getCurrentChargeContextKey()) {
-    console.log('[HelcimCard] Refreshing Helcim session before opening modal because checkout context changed');
-    await initializePayment();
-  }
+  // ALWAYS refresh the Helcim session before opening the modal (mitigation plan P1-3). The
+  // server-side duplicate-charge check runs only inside `initialize` — reusing a still-valid
+  // token from an earlier initialize would open the pay modal with NO duplicate check at all
+  // (the token-reuse bypass). One extra round-trip per pay click is the price of never
+  // re-charging a paid attempt.
+  console.log('[HelcimCard] Refreshing Helcim session before opening modal (fresh duplicate check)');
+  await initializePayment();
 
   if (recentChargeWarning.value) {
     emit('error', duplicateChargeBlockedMessage.value);

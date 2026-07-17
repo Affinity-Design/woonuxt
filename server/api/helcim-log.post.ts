@@ -34,6 +34,18 @@ export default defineEventHandler(async (event) => {
       console.warn('[Helcim FAIL] KV persist unavailable:', storageError);
     }
 
+    // Also index it in the queryable checkout-failure ledger (D1 when bound).
+    await logCheckoutFailure(event, {
+      stage: 'charge_failed_beacon',
+      reason: body?.message || body?.error || body?.errorMessage || 'client-reported Helcim charge failure',
+      detail: body,
+      transactionId: body?.transactionId,
+      checkoutAttemptId: body?.checkoutAttemptId,
+      email: body?.email || body?.customerEmail,
+      cartTotal: body?.amount,
+      requestId: body?.traceId,
+    });
+
     return {ok: true};
   } catch (error: any) {
     // Swallow everything — diagnostics must not affect the customer's checkout.

@@ -69,6 +69,10 @@ export default defineEventHandler(async (event) => {
       // "customer paid again after an error" onto the original attempt instead of minting a
       // second order (orders 500047991/500047994 incident).
       checkoutAttemptId,
+      // True when every cart item is virtual (no shippable goods): shipping-address validation is
+      // skipped and the order is explicitly marked no-shipping-required instead of silently
+      // carrying a blank address (mitigation plan P2-2).
+      isVirtualOrder = false,
     } = body;
 
     // Validate required configuration
@@ -129,6 +133,15 @@ export default defineEventHandler(async (event) => {
             duplicateTransactionId: transactionId,
           });
           await recordStrandedCharge(transactionId, body, `duplicate_charge_for_completed_attempt:${attemptIdempotency.transactionId}`);
+          await logCheckoutFailure(event, {
+            stage: 'duplicate_charge_detected',
+            reason: `Second charge for completed attempt — original order returned, duplicate stranded for refund (original txn ${attemptIdempotency.transactionId})`,
+            transactionId,
+            checkoutAttemptId,
+            email: billing?.email,
+            cartTotal: cartTotals?.total,
+            requestId,
+          });
         } else {
           console.log('🔁 Idempotency hit (attempt): returning previously created order', {checkoutAttemptId});
         }
@@ -186,6 +199,15 @@ export default defineEventHandler(async (event) => {
         console.warn('⚠️ Failed to mark idempotency failed:', e);
       }
       await recordStrandedCharge(transactionId, body, reason);
+      await logCheckoutFailure(event, {
+        stage: 'order_create_failed',
+        reason,
+        transactionId,
+        checkoutAttemptId,
+        email: billing?.email,
+        cartTotal: cartTotals?.total,
+        requestId,
+      });
     };
 
     // Shipping-address validation — LAST line of defense (mitigation plan P0-4). The card is
@@ -200,7 +222,7 @@ export default defineEventHandler(async (event) => {
       postcode: String(shipping?.postcode || billing?.postcode || '').trim(),
       country: String(shipping?.country || billing?.country || '').trim(),
     };
-    const missingShippingFields = Object.keys(effectiveShipping).filter((field) => !effectiveShipping[field]);
+    const missingShippingFields = isVirtualOrder ? [] : Object.keys(effectiveShipping).filter((field) => !effectiveShipping[field]);
     if (missingShippingFields.length > 0) {
       console.error(`❌ Missing shipping address fields [${requestId}]:`, missingShippingFields);
       await persistFailureForRecovery(`Missing shipping address fields: ${missingShippingFields.join(', ')}`);
@@ -485,6 +507,8 @@ export default defineEventHandler(async (event) => {
           {key: '_order_source', value: 'proskatersplace.ca'},
           {key: '_customer_source', value: 'proskatersplace.ca'},
           {key: '_order_via', value: 'WooNuxt'},
+          // Blank shipping on this order is intentional (all-virtual cart), not a validation gap.
+          ...(isVirtualOrder ? [{key: '_psp_no_shipping_required', value: 'yes'}] : []),
           // Mark order as created via API for email template handling
           {key: '_created_via_api', value: 'woonuxt'},
           // Add cart totals as metadata for reference

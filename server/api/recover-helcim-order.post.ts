@@ -178,7 +178,15 @@ export default defineEventHandler(async (event) => {
     // recover-all
     const results = [];
     for (const c of pending) {
-      results.push({transactionId: c.transactionId, ...(await recoverOne(c.transactionId))});
+      const outcome = await recoverOne(c.transactionId);
+      await logCheckoutFailure(event, {
+        stage: 'recovery_attempt',
+        reason: outcome?.recovered ? `recovered_via_${(outcome as any).via || 'unknown'}` : `failed: ${(outcome as any)?.reason || 'unknown'}`,
+        transactionId: c.transactionId,
+        email: c.customerEmail,
+        cartTotal: c.cartTotal,
+      });
+      results.push({transactionId: c.transactionId, ...outcome});
     }
     return {success: true, processed: results.length, results};
   }
@@ -190,5 +198,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const result = await recoverOne(String(transactionId));
+
+  await logCheckoutFailure(event, {
+    stage: 'recovery_attempt',
+    reason: result?.recovered ? `recovered_via_${(result as any).via || 'unknown'}` : `failed: ${(result as any)?.reason || 'unknown'}`,
+    transactionId: String(transactionId),
+  });
+
   return {success: true, ...result};
 });

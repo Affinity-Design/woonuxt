@@ -159,7 +159,7 @@ export function useCheckout() {
   const processCheckout = async (isPaid = false, turnstileToken = ''): Promise<any> => {
     const {customer, viewer, loginUser} = useAuth();
     const router = useRouter();
-    const {cart, emptyCart, refreshCart} = useCart();
+    const {cart, emptyCart, refreshCart, allProductsAreVirtual} = useCart();
     const {getOrCreateAttemptId, clearAttemptId} = useCheckoutAttempt();
 
     isProcessingOrder.value = true;
@@ -254,6 +254,8 @@ export function useCheckout() {
             // Stable per-purchase id (reload-proof): lets the server collapse a retry of the same
             // cart onto the original attempt even though Helcim mints a new transactionId per charge.
             checkoutAttemptId: getOrCreateAttemptId(),
+            // All-virtual carts skip shipping-address validation and are marked no-shipping-required.
+            isVirtualOrder: allProductsAreVirtual.value === true,
             currency: 'CAD', // Explicitly set currency for all order operations
             lineItems:
               cart.value?.contents?.nodes?.map((item: any) => {
@@ -489,11 +491,10 @@ export function useCheckout() {
         }
       } catch (refreshError) {
         console.error('[processCheckout] Failed to refresh session:', refreshError);
-        alert('Unable to establish session for checkout. Please refresh the page and try again.');
         return {
           success: false,
           error: true,
-          errorMessage: 'Session establishment failed',
+          errorMessage: 'Unable to establish a checkout session. Please refresh the page and try again.',
         };
       }
 
@@ -553,7 +554,7 @@ export function useCheckout() {
             errorMessage,
           });
 
-          alert(errorMessage);
+          // No alert() — the checkout page renders errorMessage in its in-page error state.
           return {success: false, error: true, errorMessage};
         }
       } catch (gqlError: any) {
@@ -618,19 +619,22 @@ export function useCheckout() {
             console.log('[processCheckout] Retry successful!');
           } catch (retryError) {
             console.error('[processCheckout] Retry failed:', retryError);
-            alert('Session expired. Please refresh the page and try again.');
             return {
               success: false,
               error: true,
-              errorMessage: 'Session expired',
+              errorMessage: 'Your session expired. Please refresh the page and try again.',
             };
           }
         } else {
-          // Other GraphQL errors
-          const errorMessage = gqlError?.gqlErrors?.[0]?.message || gqlError.message || 'Checkout failed';
-          console.error('[processCheckout] Non-session GraphQL error:', errorMessage);
-          alert(errorMessage);
-          return {success: false, error: true, errorMessage};
+          // Other GraphQL errors. Raw GraphQL/transport messages are technical noise (or worse,
+          // alarming) to a shopper — log them, but show a customer-safe message in the page.
+          const rawMessage = gqlError?.gqlErrors?.[0]?.message || gqlError.message || 'Checkout failed';
+          console.error('[processCheckout] Non-session GraphQL error:', rawMessage);
+          return {
+            success: false,
+            error: true,
+            errorMessage: 'We could not complete your order. Please review your details and try again, or contact customerservice@proskatersplace.com for help.',
+          };
         }
       }
 
@@ -675,7 +679,6 @@ export function useCheckout() {
 
       if (errorMessage?.includes('An account is already registered with')) {
         const accountErrorMsg = 'An account is already registered with your email address. Please log in to continue.';
-        alert(accountErrorMsg);
         return {
           success: false,
           error: true,
@@ -685,7 +688,6 @@ export function useCheckout() {
       }
 
       const finalErrorMessage = errorMessage || 'An unexpected error occurred during checkout.';
-      alert(finalErrorMessage);
       return {
         success: false,
         error: true,

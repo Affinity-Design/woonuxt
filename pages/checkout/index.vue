@@ -5,7 +5,7 @@ import {convertToCAD} from '~/utils/priceConverter';
 
 const {t} = useI18n();
 const {query} = useRoute();
-const {cart, isUpdatingCart, paymentGateways, refreshCart, emptyCart} = useCart();
+const {cart, isUpdatingCart, paymentGateways, refreshCart, emptyCart, allProductsAreVirtual} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete, showShippingRates, shippingAddressConfirmed, markShippingAddressConfirmed} =
   useCheckout();
@@ -242,7 +242,8 @@ const payNow = async () => {
     // the real gate: the post-payment payNow() call is a direct JS invocation, so HTML5 `required`
     // never runs on it. Post-payment we deliberately do NOT hard-block here — the server validates
     // again (P0-4) and routes to paid-recovery instead of dead-ending a charged customer.
-    if (!helcimPaymentComplete.value && !isShippingAddressComplete.value) {
+    // All-virtual carts have nothing to ship, so they are exempt (P2-2).
+    if (!helcimPaymentComplete.value && !isShippingAddressComplete.value && !allProductsAreVirtual.value) {
       paymentError.value = 'Please complete your shipping address before payment.';
       console.error('[payNow] Shipping address incomplete — blocking payment');
       throw new Error(paymentError.value);
@@ -333,17 +334,21 @@ const payNow = async () => {
         } catch (refreshError) {
           console.warn('[payNow] Cart refresh failed, proceeding with cached cart:', refreshError);
         }
-        // Restore any billing/shipping fields that were wiped by refreshCart
+        // FULLY restore the pre-refresh billing/shipping values (mitigation plan P2-1). At
+        // pay-time the just-typed form is the source of truth — refreshCart()'s updateCustomer
+        // can overwrite it with stale/null values from WordPress, and the old gap-fill restore
+        // (only when the refreshed field was empty) let a stale non-empty value survive and an
+        // order go out with an address the customer never confirmed.
         if (savedBilling && customer.value?.billing) {
           for (const [key, value] of Object.entries(savedBilling)) {
-            if (value && !customer.value.billing[key as keyof typeof customer.value.billing]) {
+            if (value) {
               (customer.value.billing as any)[key] = value;
             }
           }
         }
         if (savedShipping && customer.value?.shipping) {
           for (const [key, value] of Object.entries(savedShipping)) {
-            if (value && !customer.value.shipping[key as keyof typeof customer.value.shipping]) {
+            if (value) {
               (customer.value.shipping as any)[key] = value;
             }
           }

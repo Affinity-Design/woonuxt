@@ -251,6 +251,7 @@ export function useCart() {
     isUpdatingCoupon,
     paymentGateways,
     isBillingAddressEnabled,
+    allProductsAreVirtual,
     updateCart,
     refreshCart,
     toggleCart,

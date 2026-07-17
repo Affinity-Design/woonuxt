@@ -118,6 +118,71 @@ export async function recordAttemptCharge(attemptId: string | undefined | null, 
 }
 
 /**
+ * Strongly-consistent attempt-charge marker (mitigation plan P1-2). KV is eventually consistent,
+ * so a fast retry could read stale state and slip past the block; D1 reads hit the primary and
+ * see the write immediately. Writes BOTH stores (D1 authoritative, KV as fallback + legacy
+ * reader); falls back silently when the D1 binding is absent. Best-effort, never throws.
+ *
+ * Deliberate scope note: we mark attempts at charge-VALIDATION time, not when the pay modal
+ * opens. The charge happens client-side inside HelcimPay.js, so a modal-open marker cannot
+ * distinguish "charged but not yet validated" from "customer closed the modal without paying" —
+ * blocking on it would lock legitimate abandoned-cart retries out for the whole window. The
+ * residual exposure (reload in the seconds between charge success and validate) is covered by
+ * the order-level attempt idempotency in create-admin-order.
+ */
+export async function recordAttemptChargeStrong(event: any, attemptId: string | undefined | null, charge: Omit<RecordedCharge, 'at'>): Promise<void> {
+  if (!attemptId) return;
+
+  const db = getCheckoutLogsDb(event);
+  if (db) {
+    try {
+      await ensureLedgerSchema(db);
+      await db
+        .prepare('INSERT OR REPLACE INTO attempt_charges (attempt_id, transaction_id, email, amount, at) VALUES (?1, ?2, ?3, ?4, ?5)')
+        .bind(String(attemptId), charge.transactionId || null, charge.email || null, charge.amount != null ? String(charge.amount) : null, new Date().toISOString())
+        .run();
+    } catch (error: any) {
+      console.warn('[Helcim Guard] D1 attempt-charge write failed (KV still records):', error?.message || error);
+    }
+  }
+
+  await recordAttemptCharge(attemptId, charge);
+}
+
+/** D1-first lookup of a recent charge for this attempt; falls back to the KV record. Fail open. */
+export async function findRecentAttemptChargeStrong(
+  event: any,
+  attemptId: string | undefined | null,
+): Promise<(RecordedCharge & {minutesAgo: number}) | null> {
+  if (!attemptId) return null;
+
+  const db = getCheckoutLogsDb(event);
+  if (db) {
+    try {
+      await ensureLedgerSchema(db);
+      const row: any = await db.prepare('SELECT transaction_id, email, amount, at FROM attempt_charges WHERE attempt_id = ?1').bind(String(attemptId)).first();
+      if (row?.at) {
+        const ageMs = Date.now() - new Date(row.at).getTime();
+        if (ageMs >= 0 && ageMs <= DUPLICATE_WARNING_WINDOW_MS) {
+          return {
+            transactionId: row.transaction_id || undefined,
+            email: row.email || undefined,
+            amount: row.amount || undefined,
+            at: row.at,
+            minutesAgo: Math.max(0, Math.round(ageMs / 60000)),
+          };
+        }
+        return null; // authoritative answer: known attempt, outside the window
+      }
+    } catch (error: any) {
+      console.warn('[Helcim Guard] D1 attempt-charge lookup failed, falling back to KV:', error?.message || error);
+    }
+  }
+
+  return findRecentAttemptCharge(attemptId);
+}
+
+/**
  * Look up a recent successful charge for the same checkout attempt id. Same window semantics as
  * findRecentCharge; fail open.
  */

@@ -389,7 +389,7 @@ export default defineEventHandler(async (event) => {
         //   2. fingerprint (email+amount+items) — catches clients without an attempt id.
         try {
           const recent =
-            (await findRecentAttemptCharge(checkoutAttemptId)) ||
+            (await findRecentAttemptChargeStrong(event, checkoutAttemptId)) ||
             (await findRecentCharge({
               email: customerInfo?.email,
               amount: amountInDollars,
@@ -401,6 +401,16 @@ export default defineEventHandler(async (event) => {
             console.warn('[Helcim Guard] Recent matching charge found before initialize — blocking duplicate token', {
               traceId,
               ...recentChargeWarning,
+            });
+
+            await logCheckoutFailure(event, {
+              stage: 'duplicate_block',
+              reason: `Blocked issuing a new charge token — matching charge ${recent.minutesAgo} min ago`,
+              transactionId: recent.transactionId,
+              checkoutAttemptId,
+              email: customerInfo?.email,
+              cartTotal: amountInDollars,
+              requestId: traceId,
             });
 
             return {
