@@ -34,7 +34,10 @@ export default defineEventHandler(async (event) => {
   try {
     const product = await fetchProductWithRetry({
       slug,
-      fetchProduct: (productSlug: string) => GqlGetProduct({slug: productSlug}),
+      // Raw fetch with browser-like headers (see serverGetProduct.ts) — the nitro Gql* client
+      // (graphql-request) fails at runtime in the deployed Cloudflare Worker, which broke every
+      // product page ("We could not load this product", 2026-07-17).
+      fetchProduct: (productSlug: string) => fetchProductViaGraphQL(productSlug),
     });
     const cachedAt = Date.now();
 
