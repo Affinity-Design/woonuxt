@@ -95,7 +95,10 @@ Ordered by priority. P0 = stops customers being double-charged or stranded.
 > - **P2-2**: all-virtual carts pass `isVirtualOrder` — shipping validation is skipped and the order is marked `_psp_no_shipping_required: yes` instead of silently carrying a blank address.
 > - **§6 Tier 1 (D1 failure ledger)**: `server/utils/checkoutFailureLedger.ts` writes a structured record at every failure stage (`charge_failed_beacon`, `duplicate_block`, `validate_failed`, `order_create_failed`, `duplicate_charge_detected`, `recovery_attempt`) to D1 (`checkout_failures` table, schema auto-created) with payment-KV fallback; queryable via secret-gated `GET /api/checkout-failures?secret=…&email=…&stage=…&since=…`.
 >
-> **Deploy prerequisite (one-time):** `npx wrangler d1 create woonuxt-checkout-logs`, then Pages project → Settings → Bindings → **D1 database** → variable name **`NUXT_CHECKOUT_LOGS`** (Production + Preview). Until bound, the ledger and the P1-2 strong guard transparently fall back to the payment KV store (i.e., behaviour is no worse than the previous commit). Same reminder for the earlier **`NUXT_PAYMENT_DATA`** KV binding.
+> **Deploy prerequisite (one-time), status as of 2026-07-17:**
+> - ✅ KV namespaces **created** (via API): `proskatersplace-payment-data` (`e9e47db0641f4e1699d82c7c295fd417`) and `proskatersplace-test-payment-data` (`fa9b5b6df900400a8ff6b46e5d9eee7b`). Still to do: bind each in its Pages project (main → prod namespace, test → test namespace) as variable **`NUXT_PAYMENT_DATA`**, Production + Preview.
+> - ⬜ D1 databases **not created** — the repo's `CF_API_TOKEN` is KV-scoped (no D1/Pages permission). Create `woonuxt-checkout-logs` (main) + `woonuxt-checkout-logs-test` (test) in dashboard → Storage & Databases → D1 (or `npx wrangler d1 create …`), then bind as variable **`NUXT_CHECKOUT_LOGS`** in each Pages project. Schema auto-creates on first write — no migration step.
+> - Until bound, the ledger and the P1-2 strong guard transparently fall back to the payment/cache KV stores (behaviour no worse than before). Do **not** add the payment namespace IDs to the `CF_KV_NAMESPACE_ID_*` env vars used by the cache-clear script.
 
 ### P0 — Stop the bleeding
 
