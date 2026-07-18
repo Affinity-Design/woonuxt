@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {fetchProductWithRetry, ProductNotFoundError} from '../utils/fetchProductWithRetry.mjs';
+import {fetchProductWithRetry, ProductNotFoundError} from '../server/utils/fetchProductWithRetry.mjs';
 
 test('returns a product on the first successful fetch', async () => {
   const expectedProduct = {slug: 'available-product'};

@@ -1,5 +1,7 @@
 import {createError, defineEventHandler, readBody} from 'h3';
-import {fetchProductWithRetry, ProductNotFoundError} from '../../utils/fetchProductWithRetry.mjs';
+// Lives in server/utils so nitro bundles it — a project-root utils/ import is treated as external
+// and fails to resolve at runtime in dev (same class of bug as the serverGetProduct outage).
+import {fetchProductWithRetry, ProductNotFoundError} from '../utils/fetchProductWithRetry.mjs';
 
 const PRODUCT_CACHE_MAX_AGE_MILLISECONDS = 24 * 60 * 60 * 1000;
 
