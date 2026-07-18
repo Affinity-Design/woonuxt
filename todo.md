@@ -34,14 +34,13 @@ The items below were found during that work and are deferred.
   `/api/cache-products` (secret-protected, currently has zero callers) into the deploy
   pipeline with converted prices, or remove this orphaned cache layer entirely.
 
-- [ ] **Verify SEO output on the test site after deploy.**
-  `curl` the product page and confirm the raw HTML now contains: the canonical
-  `<title>... | Buy Online in Canada | ProSkaters Place` (single brand suffix),
-  `og:`/`twitter:`/`product:` metas, and four populated `application/ld+json` scripts
-  (Organization, Product with `offers.price` matching the visible price, BreadcrumbList,
-  FAQPage matching the visible FAQ text). Purge/let expire the ISR route cache first —
-  cached renders predate the fix. Then spot-check prices on product cards, product page,
-  cart, and checkout per CLAUDE.md rule 12.
+- [x] **Verify SEO output on the test site after deploy.** DONE 2026-07-17: deployed to test
+  via merge `c92994a9`; live SSR HTML (plain ISR URL) confirmed — canonical single-brand
+  title, og/product/twitter metas, four populated JSON-LD scripts (Organization, Product
+  `offers.price` 1.99 CAD, BreadcrumbList, FAQPage matching the visible "$1.99 CAD" FAQ).
+- [ ] **Spot-check prices on product cards, cart line items, cart totals, and checkout
+  summary on test** per CLAUDE.md rule 12 (manual browser pass), then PR this branch
+  (`claude/happy-wozniak-9b7bd4`) to master for production.
 
 ## Medium priority
 
