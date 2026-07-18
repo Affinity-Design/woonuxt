@@ -19,7 +19,15 @@ export default defineEventHandler(async (event) => {
 
   const storage = useStorage('cache');
   const productCacheKey = `product-data:${slug}`;
-  const cachedProductRecord = await storage.getItem<CachedProductRecord>(productCacheKey);
+  // A missing/broken KV binding must never take down product pages: 2026-07-18 prod outage —
+  // the Pages project lost its NUXT_CACHE binding and this read (then unwrapped) 500'd every
+  // PDP even though the GraphQL fallback below was healthy.
+  let cachedProductRecord: CachedProductRecord | null = null;
+  try {
+    cachedProductRecord = await storage.getItem<CachedProductRecord>(productCacheKey);
+  } catch (storageError: any) {
+    console.warn(`[cached-product] cache read failed for ${slug} (continuing to GraphQL):`, storageError?.message || storageError);
+  }
   const isCachedProductFresh =
     cachedProductRecord?.product &&
     Number.isFinite(cachedProductRecord.cachedAt) &&
@@ -43,7 +51,13 @@ export default defineEventHandler(async (event) => {
     });
     const cachedAt = Date.now();
 
-    await storage.setItem(productCacheKey, {product, cachedAt});
+    // Best-effort: a failed cache write (e.g. missing KV binding) must not discard a
+    // successfully fetched product.
+    try {
+      await storage.setItem(productCacheKey, {product, cachedAt});
+    } catch (storageError: any) {
+      console.warn(`[cached-product] cache write failed for ${slug} (serving product anyway):`, storageError?.message || storageError);
+    }
 
     return {
       success: true,
