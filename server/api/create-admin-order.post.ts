@@ -511,12 +511,12 @@ export default defineEventHandler(async (event) => {
           ...(isVirtualOrder ? [{key: '_psp_no_shipping_required', value: 'yes'}] : []),
           // Mark order as created via API for email template handling
           {key: '_created_via_api', value: 'woonuxt'},
-          // Add cart totals as metadata for reference
-          {key: '_cart_subtotal', value: cartTotals?.subtotal || '0'},
-          {key: '_cart_total', value: cartTotals?.total || '0'},
-          {key: '_cart_total_tax', value: cartTotals?.totalTax || '0'},
-          {key: '_cart_shipping_total', value: cartTotals?.shippingTotal || '0'},
-          {key: '_cart_shipping_tax', value: cartTotals?.shippingTax || '0'},
+          // Add cart totals as metadata for reference (entity-decoded: Woo emits "$2.25&nbsp;CAD")
+          {key: '_cart_subtotal', value: cleanPriceText(cartTotals?.subtotal) || '0'},
+          {key: '_cart_total', value: cleanPriceText(cartTotals?.total) || '0'},
+          {key: '_cart_total_tax', value: cleanPriceText(cartTotals?.totalTax) || '0'},
+          {key: '_cart_shipping_total', value: cleanPriceText(cartTotals?.shippingTotal) || '0'},
+          {key: '_cart_shipping_tax', value: cleanPriceText(cartTotals?.shippingTax) || '0'},
           ...metaData,
         ],
       },

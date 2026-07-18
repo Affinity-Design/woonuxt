@@ -84,7 +84,7 @@ export async function recordStrandedCharge(transactionId: string | undefined | n
       payload,
       customerEmail: payload?.billing?.email,
       customerName: `${payload?.billing?.firstName || ''} ${payload?.billing?.lastName || ''}`.trim() || undefined,
-      cartTotal: payload?.cartTotals?.total,
+      cartTotal: cleanPriceText(payload?.cartTotals?.total) || undefined,
       failureReason: failureReason || existing?.failureReason,
       attempts: existing?.attempts || 0,
       createdAt: existing?.createdAt || now,
