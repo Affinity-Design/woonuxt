@@ -18,10 +18,11 @@
  * - Automatic FAQ generation based on product category
  * - Bilingual support (English/French Canadian)
  *
- * Usage in product pages:
+ * Usage in product pages (SSR-safe — tags land in server-rendered HTML):
  * ```typescript
- * const { setProductSEO } = useProductSEO();
- * await setProductSEO(product, { includeReviews: true, includeFAQ: true, locale: 'en-CA' });
+ * const { applyProductSEO, loadProductSEOData } = useProductSEO();
+ * const { data: seoData } = await useAsyncData(`product-seo-${slug}`, () => loadProductSEOData(slug));
+ * applyProductSEO(product.value, seoData.value, { includeReviews: true, includeFAQ: true, locale: 'en-CA' });
  * ```
  *
  * CANADIAN TERM INJECTION EXAMPLES:
@@ -56,6 +57,8 @@ interface EnhancedSEOOptions {
   videoThumbnail?: string;
   videoDescription?: string;
   customFAQs?: Array<{question: string; answer: string}>;
+  /** Canonical customer-facing CAD price string (e.g. "$1.99 CAD"), as displayed on the page */
+  displayPrice?: string;
 }
 
 /**
@@ -165,10 +168,18 @@ export const useProductSEO = () => {
   };
 
   /**
-   * Set SEO metadata for a product page - ENHANCED VERSION
+   * Apply SEO metadata synchronously from pre-fetched data - ENHANCED VERSION
    * Uses pre-generated data if available, falls back to generating from product
    *
-   * NEW: Supports comprehensive rich snippets including:
+   * IMPORTANT (SSR): this function is synchronous so all useHead/useSeoMeta
+   * calls run while the component context is active. Pages should await
+   * loadProductSEOData() at setup top level and then call this — that is what
+   * puts the meta tags and Product/FAQ/Breadcrumb JSON-LD into the
+   * server-rendered HTML. Calling composables after an internal await (the old
+   * setProductSEO shape) loses the component context during SSR and the tags
+   * never make it into the SSR output.
+   *
+   * Supports comprehensive rich snippets including:
    * - Product structured data with pricing and availability
    * - Reviews and ratings
    * - FAQ sections
@@ -180,20 +191,28 @@ export const useProductSEO = () => {
    * It gracefully handles all failures and always provides SEO metadata.
    *
    * @param product - Product data from WooCommerce
+   * @param seoData - Pre-generated SEO data from loadProductSEOData(), or null
    * @param options - Enhanced SEO options
    */
-  const setProductSEO = async (product: any, options: EnhancedSEOOptions = {}) => {
+  const applyProductSEO = (product: any, seoData: ProductSEOData | null, options: EnhancedSEOOptions = {}) => {
     // Fail-safe: if no product, silently return without breaking the page
     if (!product) {
       return;
     }
 
-    const {locale = 'en-CA', includeReviews = true, includeFAQ = true, includeVideo = false, videoUrl, videoThumbnail, videoDescription, customFAQs} = options;
+    const {
+      locale = 'en-CA',
+      includeReviews = true,
+      includeFAQ = true,
+      includeVideo = false,
+      videoUrl,
+      videoThumbnail,
+      videoDescription,
+      customFAQs,
+      displayPrice,
+    } = options;
 
     try {
-      // Try to load pre-generated SEO data (this is wrapped in its own try-catch)
-      const seoData = await loadProductSEOData(product.slug);
-
       // Extract primary category
       const primaryCategory = product.productCategories?.nodes?.[0]?.name || 'Products';
 
@@ -210,6 +229,11 @@ export const useProductSEO = () => {
 
       // Get product image
       const productImage = seoData?.seo?.image || product.image?.sourceUrl || product.image?.mediaItemUrl || '/images/default-product.jpg';
+
+      // Product titles (generated and pre-generated) already end with
+      // "| ProSkaters Place" — disable the global titleTemplate from app.vue
+      // for this page so the brand is not appended a second time.
+      useHead({titleTemplate: null});
 
       // Set Canadian SEO metadata (handles hreflang, geo-targeting, etc.)
       canadianSEO.setCanadianSEO({
@@ -231,13 +255,19 @@ export const useProductSEO = () => {
         videoThumbnail,
         videoDescription,
         faqItems: customFAQs,
+        displayPrice,
       });
+
+      // Canonical numeric CAD price for meta tags. Prefer the displayed price;
+      // raw WPGraphQL strings carry currency markers ("$1.99 CAD") that plain
+      // parseFloat cannot handle (it returns NaN for them).
+      const {numericString: metaPriceNumeric} = cleanAndExtractPriceInfo(displayPrice || product.price || product.regularPrice);
 
       // Add additional Open Graph tags for better social sharing
       useHead({
         meta: [
           // Product-specific Open Graph
-          {property: 'product:price:amount', content: String(parseFloat(product.price || product.regularPrice || '0'))},
+          ...(metaPriceNumeric ? [{property: 'product:price:amount', content: metaPriceNumeric}] : []),
           {property: 'product:price:currency', content: 'CAD'},
           {
             property: 'product:availability',
@@ -248,8 +278,12 @@ export const useProductSEO = () => {
           {property: 'product:brand', content: primaryCategory},
 
           // Twitter Product Card
-          {name: 'twitter:label1', content: 'Price'},
-          {name: 'twitter:data1', content: canadianSEO.formatCADPrice(parseFloat(product.price || product.regularPrice || '0'))},
+          ...(metaPriceNumeric
+            ? [
+                {name: 'twitter:label1', content: 'Price'},
+                {name: 'twitter:data1', content: canadianSEO.formatCADPrice(parseFloat(metaPriceNumeric))},
+              ]
+            : []),
           {name: 'twitter:label2', content: 'Availability'},
           {name: 'twitter:data2', content: product.stockStatus === 'IN_STOCK' ? 'In Stock' : 'Out of Stock'},
         ],
@@ -265,6 +299,25 @@ export const useProductSEO = () => {
         return;
       }
     }
+  };
+
+  /**
+   * Async convenience wrapper: fetches pre-generated SEO data, then applies.
+   *
+   * NOTE: because composables run after an internal await here, the tags are
+   * NOT guaranteed to reach server-rendered HTML. For SSR-visible SEO, await
+   * loadProductSEOData() at setup top level and call applyProductSEO() —
+   * this wrapper is only suitable for client-side re-application (e.g. after
+   * a product refresh).
+   */
+  const setProductSEO = async (product: any, options: EnhancedSEOOptions = {}) => {
+    if (!product) {
+      return;
+    }
+
+    // loadProductSEOData is fail-safe and never throws
+    const seoData = await loadProductSEOData(product.slug);
+    applyProductSEO(product, seoData, options);
   };
 
   /**
@@ -290,6 +343,10 @@ export const useProductSEO = () => {
     // Check stock status
     const inStock = product.stockStatus === 'IN_STOCK';
 
+    // Title already ends with "| ProSkaters Place" — avoid the global
+    // titleTemplate appending the brand a second time
+    useHead({titleTemplate: null});
+
     // Set Canadian SEO
     canadianSEO.setCanadianSEO({
       title,
@@ -304,7 +361,7 @@ export const useProductSEO = () => {
       script: [
         {
           type: 'application/ld+json',
-          children: JSON.stringify({
+          innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: product.name,
@@ -325,6 +382,7 @@ export const useProductSEO = () => {
   };
 
   return {
+    applyProductSEO,
     setProductSEO,
     generateProductSEO,
     loadProductSEOData,

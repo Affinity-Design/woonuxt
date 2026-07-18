@@ -340,9 +340,11 @@ export default defineNuxtConfig({
       ],
       script: [
         // Structured data for Organization
+        // NOTE: unhead v2 (Nuxt >= 3.16) removed the `children` prop — use
+        // innerHTML, otherwise the script tag renders empty
         {
           type: 'application/ld+json',
-          children: JSON.stringify({
+          innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'ProSkaters Place Canada',

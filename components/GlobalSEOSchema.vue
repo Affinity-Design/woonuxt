@@ -23,16 +23,16 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
-      children: JSON.stringify(organizationSchema),
+      innerHTML: JSON.stringify(organizationSchema),
     },
     {
       type: 'application/ld+json',
-      children: JSON.stringify(localBusinessSchema),
+      innerHTML: JSON.stringify(localBusinessSchema),
     },
     // WebSite schema for site-wide search
     {
       type: 'application/ld+json',
-      children: JSON.stringify({
+      innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         '@id': 'https://proskatersplace.ca/#website',

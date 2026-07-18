@@ -329,15 +329,15 @@ export const useCategorySEO = () => {
       script: [
         {
           type: 'application/ld+json',
-          children: JSON.stringify(collectionPageSchema),
+          innerHTML: JSON.stringify(collectionPageSchema),
         },
         {
           type: 'application/ld+json',
-          children: JSON.stringify(itemListSchema),
+          innerHTML: JSON.stringify(itemListSchema),
         },
         {
           type: 'application/ld+json',
-          children: JSON.stringify(breadcrumbSchema),
+          innerHTML: JSON.stringify(breadcrumbSchema),
         },
       ],
       meta: [

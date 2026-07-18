@@ -141,6 +141,54 @@ const formatSingleNumericPriceWithoutDollar = (numericStr: string): string => {
   return numericAmount.toFixed(2); // Just the number string "XX.YY"
 };
 
+/**
+ * Normalizes a raw WooCommerce price string for display: strips HTML tags,
+ * decodes $/&nbsp;/dash entities, collapses whitespace.
+ * Mirrors the normalization in components/productElements/ProductPrice.vue.
+ */
+export const normalizeWooPriceText = (rawPrice: string | null | undefined): string => {
+  if (!rawPrice) return '';
+
+  return String(rawPrice)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&#36;/g, '$')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&ndash;|&mdash;/g, ' - ')
+    .replace(/[–—]/g, ' - ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+/**
+ * Formats a raw WooCommerce price string for customer-facing display, matching
+ * ProductPrice.vue: WPGraphQL prices are already in the store currency (CAD) and
+ * are shown verbatim. Only legacy USD-marked strings ("US$0.97", "0.97 USD" —
+ * e.g. stale KV product-cache entries) are converted, with the same .99 round-up
+ * used by ProductPrice.vue and build-products-cache.js, so every surface on the
+ * page shows the same price.
+ */
+export const formatWooPriceForDisplay = (rawPrice: string | null | undefined, exchangeRate: number | null): string => {
+  const priceText = normalizeWooPriceText(rawPrice).replace(/^from\s+/i, '').trim();
+  if (!priceText) return '';
+
+  const upperPriceText = priceText.toUpperCase();
+  const isUsdMarked = upperPriceText.includes('US$') || upperPriceText.includes('USD');
+  if (!isUsdMarked) return priceText;
+
+  if (exchangeRate !== null) {
+    const cadNumericString = convertToCAD(priceText, exchangeRate, true);
+    if (cadNumericString) return `$${formatPriceWithCAD(cadNumericString)}`;
+  }
+
+  const {numericString} = cleanAndExtractPriceInfo(priceText);
+  return numericString
+    ? `$${numericString}`
+    : priceText
+        .replace(/US\$/gi, '$')
+        .replace(/\s*USD\b/gi, '')
+        .trim();
+};
+
 // Other utilities (removeCurrencyPrefix might need adjustment if used elsewhere)
 export const removeCurrencyPrefix = (price: string | null): string => {
   if (!price) return '';
