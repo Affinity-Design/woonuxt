@@ -7,6 +7,11 @@ const { formatPrice, formatDate } = useHelpers(); // Make sure formatPrice is im
 const activeTab = computed(() => route.query.tab || "my-details");
 const showLoader = computed(() => !cart.value && !viewer.value);
 
+// Admin tabs: server-verified WP role (see useAdminStatus). Only ask once a login is confirmed —
+// guests never trigger the check. Hiding tabs is cosmetic; the admin APIs enforce the role.
+const { isAdmin, checkOnce } = useAdminStatus();
+watch(viewer, (loggedInViewer) => { if (loggedInViewer) checkOnce(); }, { immediate: true });
+
 useSeoMeta({
   title: `My Account`,
 });
@@ -91,6 +96,22 @@ useSeoMeta({
               <Icon name="ion:heart-outline" size="22" />
               Wishlist
             </NuxtLink>
+            <template v-if="isAdmin">
+              <hr class="my-4 w-full" />
+              <div
+                class="px-4 text-xs font-semibold uppercase tracking-wider text-gray-400"
+              >
+                Admin
+              </div>
+              <NuxtLink
+                to="/my-account?tab=recoverable-orders"
+                class="flex items-center gap-4 p-2 px-4"
+                :class="{ active: activeTab == 'recoverable-orders' }"
+              >
+                <Icon name="ion:refresh-circle-outline" size="22" />
+                Recoverable Orders
+              </NuxtLink>
+            </template>
           </nav>
           <template class="hidden lg:block">
             <hr class="my-8" />
@@ -112,6 +133,9 @@ useSeoMeta({
           <OrderList v-else-if="activeTab === 'orders'" />
           <DownloadList v-else-if="activeTab === 'downloads'" />
           <WishList v-else-if="activeTab === 'wishlist'" />
+          <RecoverableOrders
+            v-else-if="activeTab === 'recoverable-orders' && isAdmin"
+          />
         </main>
       </div>
     </template>

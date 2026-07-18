@@ -146,10 +146,17 @@ export default defineEventHandler(async (event) => {
     }
   };
 
-  // --- Admin actions (secret-gated) -------------------------------------------------------------
+  // --- Admin actions (secret- OR wp-role-gated) -------------------------------------------------
   if (action === 'list' || action === 'recover-all') {
-    if (!process.env.REVALIDATION_SECRET || secret !== process.env.REVALIDATION_SECRET) {
-      throw createError({statusCode: 401, statusMessage: 'Invalid token'});
+    const secretOk = !!process.env.REVALIDATION_SECRET && secret === process.env.REVALIDATION_SECRET;
+    if (!secretOk) {
+      // My-account admin UI sends no secret — authorize by the WP role WordPress resolves from
+      // the woocommerce-session cookie (fail-closed, see server/utils/adminAuth.ts).
+      const adminUser = await verifyAdminSession(event);
+      if (!adminUser.isAdmin) {
+        throw createError({statusCode: 401, statusMessage: 'Invalid token'});
+      }
+      console.log('[Helcim Recovery] Admin action authorized via WP role', {action, username: adminUser.username});
     }
 
     const pending = await listStrandedCharges('pending');
