@@ -41,9 +41,7 @@ export default defineEventHandler(async (event) => {
 
   const scriptDataStorage = useStorage('script_data');
   const defaultStorage = useStorage();
-  const cachedProducts = parseCachedProducts(
-    (await scriptDataStorage.getItem('products-list')) || (await defaultStorage.getItem('products-list')) || (await defaultStorage.getItem('cached-products')),
-  );
+  const cachedProducts = parseCachedProducts((await scriptDataStorage.getItem('products-list')) || (await defaultStorage.getItem('products-list')));
 
   if (!cachedProducts) {
     return {success: false, error: 'No cached products available'};

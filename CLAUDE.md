@@ -71,7 +71,7 @@ No Vuex/Pinia — uses Nuxt composables with `useState`:
 - `useAuth()` — Authentication, login/logout, customer data
 - `useCheckout()` — Multi-step checkout, billing/shipping forms, payment selection
 - `useCanadianSEO()` — Bilingual meta tags, hreflang, geographic targeting
-- `useCachedProduct()` — KV-cached product retrieval with GraphQL fallback
+- `useCachedProduct()` — per-slug product fetch via `/api/cached-product` KV cache (24h TTL, server-side raw-fetch refresh)
 - `useExchangeRate()` — CAD/USD currency conversion
 
 ### Caching Strategy
@@ -85,7 +85,7 @@ No Vuex/Pinia — uses Nuxt composables with `useState`:
 - **Helcim** — Special handling: WooCommerce GraphQL session limitations require admin-level order creation via WordPress REST API. Flow: cart (GraphQL) → Helcim payment → admin order creation (`server/api/create-admin-order.post.ts`). See `docs/helcim-integration.md`.
 
 ### Server API Routes (`server/api/`)
-Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (payment processing), `stripe.post.ts` (webhook), `contact.ts` (SendGrid email), `cached-product.ts` (KV retrieval), `sitemap.xml.ts`, `verify-turnstile.post.ts`, `stock-status.get.ts`.
+Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (payment processing), `stripe.post.ts` (webhook), `contact.ts` (SendGrid email), `cached-product.ts` (per-slug product KV cache), `sitemap.xml.ts`, `verify-turnstile.post.ts`, `stock-status.get.ts`.
 
 ### Routing
 - Product pages: `/product/[slug]`
@@ -98,7 +98,7 @@ Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (p
 
 1. **Never modify `woonuxt_base/`** — Override by creating files in root directories with matching names.
 2. **Always use `useCanadianSEO()`** for page meta tags — never use generic `useHead()` alone. Include hreflang tags (en-CA, fr-CA, en-US, x-default).
-3. **Use `useCachedProduct()`** for product data fetching — it handles KV cache with GraphQL fallback.
+3. **Product pages load via `useCachedProduct()`** → `/api/cached-product`: a per-slug KV cache (`product-data:<slug>` in the `cache` mount, 24h TTL) that on miss fetches WPGraphQL through `server/utils/serverGetProduct.ts` — a raw `$fetch` with browser-like headers, because `Gql*` crashes in server routes on Workers. Currency caution: this server-side fetch has returned USD-marked prices (`"US$…"`) on test while browsers get CAD — always render prices through `formatWooPriceForDisplay()`. The old bulk `cached-products` layer (`cache-products.ts`, `products-search.ts`, `products-cache.ts`, `trigger-cache-products.ts`, `useProductsCached`) was orphaned and removed (July 2026).
 4. **Build scripts are mandatory** — `npm run build` runs route generation. Skipping creates missing route data. Run `npm run build-all-routes` if blog routes change.
 5. **Blog posts** — Check `data/seo_Keywordlist.csv` for target keywords, `data/blog-keywords-used.md` for used ones. Generate images with `node scripts/generate-blog-image.js "keyword" --posted`. Use internal links from `data/sitemap-data.json`. 1,000-2,500 words with H2/H3 headings.
 6. **Images** — Use `<NuxtImg>` component (optimization is disabled on Cloudflare but component is still used for consistency).

@@ -53,8 +53,7 @@ npm install
 - `scripts/cache-warmer.js` - Warms HTML pages for faster loading
 - `scripts/cache-utils.js` - Shared utilities for caching scripts
 - `scripts/run-all-caching.js` - Coordinates all caching operations
-- `server/api/cached-product.ts` - API endpoint for accessing cached products
-- `server/api/cache-products.ts` - API endpoint for updating product cache
+- `server/api/cached-product.ts` - per-slug product KV cache endpoint (`product-data:<slug>`)
 - `server/api/revalidate.ts` - API endpoint for cache invalidation
 - `server/api/trigger-cache-warming.ts` - API endpoint to trigger cache warming
 

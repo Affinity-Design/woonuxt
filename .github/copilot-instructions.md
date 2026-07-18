@@ -9,7 +9,7 @@
 
 1.  **Architecture:** `woonuxt_base/` is READ-ONLY. Override components by copying to root `components/`.
 2.  **SEO:** MUST use `useCanadianSEO()` composable. Never use generic `useHead` for meta tags.
-3.  **Data:** Products = WPGraphQL (via `useCachedProduct` for SSR). Blog = Nuxt Content.
+3.  **Data:** Products = WPGraphQL (via `useCachedProduct` per-slug KV cache for PDP SSR). Blog = Nuxt Content.
 4.  **Images:** Always use `<NuxtImg>`.
 5.  **Build:** `npm run build` is REQUIRED (runs route generation scripts).
 6.  **Cache:** Run `npm run warm-cache` after deploy.
@@ -674,42 +674,15 @@ ERROR [[slug].vue] useAsyncData: Error fetching product: {
 - SSR requests from Node.js don't look like "real browsers" to WordPress
 - Even with proper headers (User-Agent, Origin, Referer), WordPress/Cloudflare may block server-side requests
 
-**Fix:** Use Cloudflare KV cache as primary source, GraphQL as fallback
+**Fix:** per-slug KV cache with a Workers-safe raw fetch (July 2026)
 
-- Product page first tries `useCachedProduct()` to get data from KV cache
-- KV cache is populated during build by `scripts/build-products-cache.js`
-- Only fetches from WordPress GraphQL if product not in cache
-- SSR re-enabled since we're using cached data
-- Files: `pages/product/[slug].vue`, `server/api/cached-product.ts`, `composables/useCachedProduct.ts`
+- Product pages load via `useCachedProduct()` → `/api/cached-product` (`server/api/cached-product.ts`)
+- The endpoint serves `product-data:<slug>` from the `cache` KV mount (24h TTL); on miss/stale it fetches WPGraphQL through `server/utils/serverGetProduct.ts` and re-caches
+- `serverGetProduct.ts` uses a raw `$fetch` with browser-like headers (stock-status pattern) — the nitro `Gql*` client crashes at runtime in the deployed Cloudflare Worker, so never call `Gql*`/`useGql` in server routes
+- Rendered pages are additionally cached by the ISR/KV route cache (`NUXT_CACHE`, 72h TTL for products)
+- **Currency caution:** the server-side fetch has returned USD-marked prices (`"US$0.97"`) on test while browser requests get CAD — render prices only through `formatWooPriceForDisplay()` so USD-marked strings get the same `.99`-rounded conversion as ProductPrice.vue
 
-**Result:**
-
-- ✅ Zero 403 errors (primary data source is KV cache)
-- ✅ Fast loading (KV cache <5ms lookup)
-- ✅ SEO perfect (full product data in SSR payload)
-- ✅ Fallback to GraphQL if product not in cache
-- ✅ Fresh data (cache rebuilt on deploy)
-
-**How It Works:**
-
-1. **During Build:**
-
-   - `scripts/build-products-cache.js` fetches all products from WordPress
-   - Stores them in Cloudflare KV under `cached-products` key
-   - Each product includes full data (price, images, categories, etc.)
-
-2. **During SSR (Server-Side):**
-
-   - Product page calls `useCachedProduct().getProductFromCache(slug)`
-   - Reads from `/api/cached-product` endpoint
-   - Endpoint queries KV storage for product list
-   - Returns matching product instantly (<5ms)
-   - No WordPress API call needed
-
-3. **Fallback (If Not in Cache):**
-   - If product not found in cache, falls back to GraphQL
-   - Fetches fresh data from WordPress
-   - Still works, just slightly slower
+**History (July 2026):** an earlier bulk KV product-JSON layer (`cache-products.ts`, `products-search.ts`, `products-cache.ts`, `trigger-cache-products.ts`, `useProductsCached`, `cached-products` key) was removed as orphaned: no build or deploy script ever wrote its key (builds write `products-list` in `NUXT_SCRIPT_DATA`), its lazy seed used `Gql*` in a server route, and the only data it ever served was a stale USD snapshot on test.
 
 **Cache Warming:**
 
