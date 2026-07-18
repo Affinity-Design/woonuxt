@@ -22,6 +22,8 @@ interface ProductSchemaData {
   includeFAQ?: boolean;
   includeVideo?: boolean;
   faqItems?: Array<{question: string; answer: string}>;
+  /** Canonical customer-facing CAD price string (e.g. "$1.99 CAD"), as displayed on the page */
+  displayPrice?: string;
   videoUrl?: string;
   videoThumbnail?: string;
   videoDescription?: string;
@@ -41,10 +43,12 @@ export const useProductRichSnippets = () => {
 
     if (!product) return null;
 
-    // Extract price information
-    const price = parseFloat(product.price || product.regularPrice || '0');
-    const salePrice = product.salePrice ? parseFloat(product.salePrice) : null;
-    const currentPrice = salePrice || price;
+    // Extract price information. Prefer the canonical displayed CAD price;
+    // raw WPGraphQL strings carry currency markers ("$1.99 CAD") that plain
+    // parseFloat cannot handle (it returns NaN for them).
+    const priceFromDisplay = data.displayPrice ? cleanAndExtractPriceInfo(data.displayPrice).numericString : '';
+    const priceFromRaw = cleanAndExtractPriceInfo(product.salePrice || product.price || product.regularPrice).numericString;
+    const currentPrice = parseFloat(priceFromDisplay || priceFromRaw || '0');
 
     // Stock status mapping to Schema.org values
     const stockStatusMap: Record<string, string> = {
@@ -393,7 +397,7 @@ export const useProductRichSnippets = () => {
    * This is the main function to call from product pages
    */
   const applyProductRichSnippets = (data: ProductSchemaData) => {
-    const {product, includeFAQ = true, includeReviews = true, includeVideo = false, faqItems, videoUrl, videoThumbnail, videoDescription} = data;
+    const {product, includeFAQ = true, includeReviews = true, includeVideo = false, faqItems, displayPrice, videoUrl, videoThumbnail, videoDescription} = data;
 
     if (!product) return;
 
@@ -404,7 +408,7 @@ export const useProductRichSnippets = () => {
     if (productSchema) {
       scripts.push({
         type: 'application/ld+json',
-        children: JSON.stringify(productSchema),
+        innerHTML: JSON.stringify(productSchema),
       });
     }
 
@@ -413,18 +417,19 @@ export const useProductRichSnippets = () => {
     if (breadcrumbSchema) {
       scripts.push({
         type: 'application/ld+json',
-        children: JSON.stringify(breadcrumbSchema),
+        innerHTML: JSON.stringify(breadcrumbSchema),
       });
     }
 
     // 3. FAQ Schema (recommended for better SERP features)
+    // Pass displayPrice so the schema price matches the visible FAQ text exactly
     if (includeFAQ) {
-      const faqs = faqItems || getDefaultFAQs(product);
+      const faqs = faqItems || getDefaultFAQs(product, displayPrice);
       const faqSchema = generateFAQSchema(faqs);
       if (faqSchema) {
         scripts.push({
           type: 'application/ld+json',
-          children: JSON.stringify(faqSchema),
+          innerHTML: JSON.stringify(faqSchema),
         });
       }
     }
@@ -440,7 +445,7 @@ export const useProductRichSnippets = () => {
       if (videoSchema) {
         scripts.push({
           type: 'application/ld+json',
-          children: JSON.stringify(videoSchema),
+          innerHTML: JSON.stringify(videoSchema),
         });
       }
     }

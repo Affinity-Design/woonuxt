@@ -27,7 +27,7 @@ const slug = route.params.slug as string;
 const nuxtApp = useNuxtApp();
 
 // Initialize SEO composable with enhanced features
-const {setProductSEO} = useProductSEO();
+const {applyProductSEO, setProductSEO, loadProductSEOData} = useProductSEO();
 
 // Initialize exchange rate with error handling
 let exchangeRate = ref<number | null>(null);
@@ -103,74 +103,19 @@ const {data, pending, error, refresh} = await useAsyncData(
 
 const product = computed(() => data.value);
 
-// Apply Canadian SEO with ENHANCED rich snippets when product is loaded
-// Includes: Product schema, Reviews, FAQs, Breadcrumbs, Video (if available)
-watch(
-  product,
-  async (newProduct) => {
-    if (newProduct) {
-      try {
-        // Apply comprehensive SEO with all rich snippets
-        await setProductSEO(newProduct, {
-          locale: 'en-CA', // or detectLocale() for bilingual support
-          includeReviews: true, // Enable review rich snippets
-          includeFAQ: true, // Enable FAQ rich snippets
-          includeVideo: false, // Set to true if product has demo video
-          // Optional: videoUrl: 'https://youtube.com/watch?v=...',
-          // Optional: videoThumbnail: '/images/video-thumb.jpg',
-          // Optional: customFAQs: [{question: '...', answer: '...'}],
-        });
-      } catch (error) {
-        // Silently catch any SEO errors - never break the page for SEO
-        // The page will load with default meta tags if SEO fails
-      }
-    }
-  },
-  {immediate: true},
-);
-
-// --- Updated Price Formatting Logic ---
+// --- Price Formatting Logic ---
+// WPGraphQL prices are already in the store currency (CAD) and are displayed
+// verbatim, matching ProductPrice.vue. formatWooPriceForDisplay only converts
+// legacy USD-marked strings (stale KV cache entries), with the same .99 round-up
+// as ProductPrice.vue, so the FAQ and SEO price always match the displayed price.
+// Declared before the SEO application below, which uses it during setup.
 const getFormattedPriceDisplay = (priceValue?: string | null, regularPriceValue?: string | null) => {
-  const rawPriceToConsider = priceValue || regularPriceValue;
-
-  if (rawPriceToConsider === null || rawPriceToConsider === undefined || String(rawPriceToConsider).trim() === '') {
-    // @ts-ignore
-    return t('messages.shop.priceUnavailable', 'Price unavailable');
-  }
-
-  if (exchangeRate.value === null) {
-    const {numericString, originalHadSymbol} = cleanAndExtractPriceInfo(rawPriceToConsider);
-    if (numericString) {
-      return originalHadSymbol || numericString.startsWith('$') ? `$${numericString.replace(/^\$/, '')}` : `$${numericString}`;
-    }
-    return String(rawPriceToConsider)
-      .replace(/&nbsp;/g, ' ')
-      .trim();
-  }
-
-  const cadNumericString = convertToCAD(rawPriceToConsider, exchangeRate.value);
-
-  if (cadNumericString === '') {
-    const {numericString: cleanedOriginalNumeric, originalHadSymbol: cleanedHadSymbol} = cleanAndExtractPriceInfo(rawPriceToConsider);
-    if (cleanedOriginalNumeric) {
-      return cleanedHadSymbol || cleanedOriginalNumeric.startsWith('$') ? `$${cleanedOriginalNumeric.replace(/^\$/, '')}` : `$${cleanedOriginalNumeric}`;
-    }
-    return String(rawPriceToConsider)
-      .replace(/&nbsp;/g, ' ')
-      .trim();
-  }
-  return formatPriceWithCAD(cadNumericString);
+  const formatted = formatWooPriceForDisplay(priceValue || regularPriceValue, exchangeRate.value);
+  return formatted || t('messages.shop.priceUnavailable', 'Price unavailable');
 };
 
-const displayPrice = computed(() => {
-  if (!product.value) return ''; // Or some placeholder
-  let priceString = '';
-  if (activeVariation.value) {
-    priceString = getFormattedPriceDisplay(activeVariation.value.salePrice, activeVariation.value.regularPrice);
-  } else {
-    priceString = getFormattedPriceDisplay(product.value.salePrice, product.value.regularPrice);
-  }
-  // Ensure $ is prepended if not already, and handle cases where price might be text like "Price unavailable"
+// Ensure $ is prepended if not already, and handle cases where price might be text like "Price unavailable"
+const ensureDollarPrefix = (priceString: string): string => {
   if (
     typeof priceString === 'string' &&
     !priceString.includes(t('messages.shop.priceUnavailable', 'Price unavailable')) &&
@@ -179,6 +124,71 @@ const displayPrice = computed(() => {
     return `$${priceString}`;
   }
   return priceString;
+};
+
+// Base head fallback (registered BEFORE the Canadian SEO below so the
+// SEO-optimized title/description win whenever they apply successfully)
+watch(
+  () => product.value,
+  (np) => {
+    if (np) {
+      useHead({
+        title: np.name || 'Product',
+        meta: [
+          {
+            name: 'description',
+            content: np.shortDescription || np.description || 'Product details',
+          },
+        ],
+      });
+    } else {
+      useHead({title: 'Product not found'});
+    }
+  },
+  {immediate: true},
+);
+
+const buildProductSEOOptions = (productData: any) => ({
+  locale: 'en-CA' as const, // or detectLocale() for bilingual support
+  includeReviews: true, // Enable review rich snippets
+  includeFAQ: true, // Enable FAQ rich snippets
+  includeVideo: false, // Set to true if product has demo video
+  // Canonical customer-facing price so the FAQ schema and Offer price
+  // match the visible page price (base product, not a selected variation)
+  displayPrice: ensureDollarPrefix(getFormattedPriceDisplay(productData.salePrice, productData.regularPrice)),
+  // Optional: videoUrl: 'https://youtube.com/watch?v=...',
+  // Optional: videoThumbnail: '/images/video-thumb.jpg',
+  // Optional: customFAQs: [{question: '...', answer: '...'}],
+});
+
+// Pre-generated SEO data, fetched via useAsyncData so the SSR result transfers
+// to the client payload (no duplicate fetch during hydration)
+const {data: productSeoData} = await useAsyncData(`product-seo-${slug}`, () =>
+  product.value ? loadProductSEOData(product.value.slug) : Promise.resolve(null),
+);
+
+// Apply Canadian SEO with ENHANCED rich snippets synchronously during setup so
+// the meta tags and Product/FAQ/Breadcrumb JSON-LD are in the server-rendered
+// HTML (the old async-watcher approach applied them after SSR had rendered).
+// applyProductSEO is fail-safe — SEO errors never break the page.
+if (product.value) {
+  applyProductSEO(product.value, productSeoData.value || null, buildProductSEOOptions(product.value));
+}
+
+// Re-apply if the product is replaced after initial load (e.g. retry/refresh).
+// setProductSEO fetches its own SEO data and never rejects.
+watch(product, (newProduct) => {
+  if (newProduct) {
+    setProductSEO(newProduct, buildProductSEOOptions(newProduct));
+  }
+});
+
+const displayPrice = computed(() => {
+  if (!product.value) return ''; // Or some placeholder
+  const priceString = activeVariation.value
+    ? getFormattedPriceDisplay(activeVariation.value.salePrice, activeVariation.value.regularPrice)
+    : getFormattedPriceDisplay(product.value.salePrice, product.value.regularPrice);
+  return ensureDollarPrefix(priceString);
 });
 
 // Description expansion state
@@ -444,26 +454,6 @@ onMounted(async () => {
     await refreshExchangeRate();
   }
 });
-
-watch(
-  () => product.value,
-  (np) => {
-    if (np) {
-      useHead({
-        title: np.name || 'Product',
-        meta: [
-          {
-            name: 'description',
-            content: np.shortDescription || np.description || 'Product details',
-          },
-        ],
-      });
-    } else {
-      useHead({title: 'Product not found'});
-    }
-  },
-  {immediate: true},
-);
 
 watch(
   activeVariation,
