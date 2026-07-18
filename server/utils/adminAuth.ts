@@ -43,6 +43,7 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
     const sessionHeader = headerToken || (cookieToken ? `Session ${cookieToken}` : '');
     if (!sessionHeader) return notAdmin();
 
+    const siteUrl = (config.public as any)?.siteUrl || 'https://proskatersplace.ca';
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     let response: Response;
@@ -52,8 +53,13 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
         headers: {
           'Content-Type': 'application/json',
           'woocommerce-session': sessionHeader,
-          'User-Agent': 'WooNuxt-Admin-Verify/1.0',
-          Origin: wpBaseUrl,
+          // Browser-like headers (stock-status / serverGetProduct pattern): the WordPress-side
+          // security blocks Worker requests with bot-style User-Agents, and a blocked viewer
+          // lookup silently fails closed — admins never see their tabs.
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: 'application/json',
+          Origin: siteUrl,
+          Referer: siteUrl,
         },
         body: JSON.stringify({query: 'query VerifyAdminViewer { viewer { databaseId username roles { nodes { name } } } }'}),
         signal: controller.signal,
@@ -61,7 +67,10 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
     } finally {
       clearTimeout(timeoutId);
     }
-    if (!response.ok) return notAdmin();
+    if (!response.ok) {
+      console.warn('[Admin Verify] viewer request rejected:', response.status, response.statusText);
+      return notAdmin();
+    }
 
     const result: any = await response.json().catch(() => null);
     const viewer = result?.data?.viewer;
@@ -74,7 +83,11 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
     if (!roles.length && config.wpAdminUsername && config.wpAdminAppPassword) {
       const auth = Buffer.from(`${config.wpAdminUsername}:${config.wpAdminAppPassword}`).toString('base64');
       const userRes = await fetch(`${wpBaseUrl}/wp-json/wp/v2/users/${viewer.databaseId}?context=edit`, {
-        headers: {Authorization: `Basic ${auth}`, 'User-Agent': 'WooNuxt-Admin-Verify/1.0'},
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: 'application/json',
+        },
       });
       if (userRes.ok) {
         const user: any = await userRes.json().catch(() => null);
