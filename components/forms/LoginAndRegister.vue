@@ -18,11 +18,19 @@ const userInfo = ref<UserInfo>({
   username: '',
   rememberMe: false,
   turnstileToken: '', // Add this
+  twoFactorCode: '', // Wordfence 2FA passthrough (accounts with 2FA enabled)
 });
 
 const formView = ref('login');
 const message = ref('');
 const errorMessage = ref('');
+const needsTwoFactor = ref(false);
+
+// Wordfence Login Security passthrough: GraphQL JSON bodies never populate $_POST, so Wordfence
+// would never see a 2FA token. We append the code to the password as "<password>#wfls#<code>";
+// a WP-side snippet (docs/wordfence-2fa-headless-passthrough.md) splits it off before GraphQL
+// executes and exposes it as $_POST['wfls-token'] — Wordfence still does ALL validation.
+const WFLS_MARKER = '#wfls#';
 
 const verifyTurnstile = async () => {
   turnstileError.value = '';
@@ -46,8 +54,12 @@ const updateFormView = () => {
 watch(route, updateFormView, {immediate: true});
 
 const login = async (credentials: UserInfo) => {
-  // Update parameter name for clarity
-  const {success, error} = await loginUser(credentials);
+  // Wordfence 2FA passthrough: strip the code out of the payload and ship it inside the password.
+  const {twoFactorCode, ...loginCredentials} = credentials as UserInfo & {twoFactorCode?: string};
+  const code = twoFactorCode?.trim();
+  const payload = code ? {...loginCredentials, password: `${loginCredentials.password}${WFLS_MARKER}${code}`} : loginCredentials;
+
+  const {success, error} = await loginUser(payload as UserInfo);
   switch (error) {
     case 'invalid_username':
       errorMessage.value = t('messages.error.invalidUsername');
@@ -60,8 +72,14 @@ const login = async (credentials: UserInfo) => {
       break;
   }
 
+  // Wordfence rejections mention the 2FA/authenticator code — surface the field prominently.
+  if (!success && /2fa|two.?factor|authenticat|verification code|wfls/i.test(String(error || ''))) {
+    needsTwoFactor.value = true;
+  }
+
   if (success) {
     errorMessage.value = '';
+    needsTwoFactor.value = false;
     message.value = t('messages.account.loggingIn');
   }
 };
@@ -178,6 +196,22 @@ const inputPlaceholder = computed(() => {
           :placeholder="passwordLabel"
           :autocomplete="formView === 'login' ? 'current-password' : 'new-password'"
           :required="true" />
+
+        <!-- Wordfence 2FA passthrough — only accounts with 2FA enabled need this field. -->
+        <div v-if="formView === 'login'" class="text-left">
+          <input
+            v-model="userInfo.twoFactorCode"
+            class="mt-1"
+            :class="{'border-yellow-500 ring-1 ring-yellow-400': needsTwoFactor && !userInfo.twoFactorCode}"
+            placeholder="2FA code (only if your account uses one)"
+            autocomplete="one-time-code"
+            type="text"
+            maxlength="32" />
+          <p v-if="needsTwoFactor" class="-mt-2 mb-4 text-sm text-yellow-600">
+            This account requires two-factor authentication — enter the 6-digit code from your authenticator app (or a recovery code) and sign in
+            again.
+          </p>
+        </div>
       </div>
 
       <Transition name="scale-y" mode="out-in">
