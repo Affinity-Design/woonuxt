@@ -41,39 +41,53 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
     const headerToken = getHeader(event, 'woocommerce-session');
     const cookieToken = getCookie(event, 'woocommerce-session');
     const sessionHeader = headerToken || (cookieToken ? `Session ${cookieToken}` : '');
-    if (!sessionHeader) return notAdmin();
+
+    // The JWT the client authenticates `viewer` with. nuxt-graphql-client's default tokenStorage
+    // is cookie-mode under `gql:default` (set by useGqlToken at login), so same-origin /api calls
+    // carry it. The woocommerce-session token alone does NOT resolve `viewer` — verified
+    // 2026-07-17: a logged-in administrator got {viewer:null} until the Bearer token was forwarded.
+    const authTokenCookie = getCookie(event, 'gql:default');
+    if (!sessionHeader && !authTokenCookie) return notAdmin();
 
     const siteUrl = (config.public as any)?.siteUrl || 'https://proskatersplace.ca';
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-    let response: Response;
-    try {
-      response = await fetch(`${wpBaseUrl}/graphql`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'woocommerce-session': sessionHeader,
-          // Browser-like headers (stock-status / serverGetProduct pattern): the WordPress-side
-          // security blocks Worker requests with bot-style User-Agents, and a blocked viewer
-          // lookup silently fails closed — admins never see their tabs.
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          Accept: 'application/json',
-          Origin: siteUrl,
-          Referer: siteUrl,
-        },
-        body: JSON.stringify({query: 'query VerifyAdminViewer { viewer { databaseId username roles { nodes { name } } } }'}),
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
-    if (!response.ok) {
-      console.warn('[Admin Verify] viewer request rejected:', response.status, response.statusText);
-      return notAdmin();
-    }
+    const queryViewer = async (withBearer: boolean): Promise<any | null> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await fetch(`${wpBaseUrl}/graphql`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Browser-like headers (stock-status / serverGetProduct pattern): the WordPress-side
+            // security blocks Worker requests with bot-style User-Agents, and a blocked viewer
+            // lookup silently fails closed — admins never see their tabs.
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            Accept: 'application/json',
+            Origin: siteUrl,
+            Referer: siteUrl,
+            ...(sessionHeader ? {'woocommerce-session': sessionHeader} : {}),
+            ...(withBearer && authTokenCookie ? {Authorization: `Bearer ${authTokenCookie}`} : {}),
+          },
+          body: JSON.stringify({query: 'query VerifyAdminViewer { viewer { databaseId username roles { nodes { name } } } }'}),
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          console.warn('[Admin Verify] viewer request rejected:', response.status, response.statusText, withBearer ? '(with bearer)' : '(session only)');
+          return null;
+        }
+        const result: any = await response.json().catch(() => null);
+        return result?.data?.viewer || null;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
 
-    const result: any = await response.json().catch(() => null);
-    const viewer = result?.data?.viewer;
+    // Mirror the client's working request first (Bearer + session). Retry session-only when the
+    // JWT is expired/invalid, so a stale token can't lock out an otherwise-valid session.
+    let viewer = await queryViewer(true);
+    if (!viewer?.databaseId && authTokenCookie && sessionHeader) {
+      viewer = await queryViewer(false);
+    }
     if (!viewer?.databaseId) return notAdmin();
 
     let roles: string[] = (viewer.roles?.nodes || []).map((node: any) => node?.name).filter(Boolean);
