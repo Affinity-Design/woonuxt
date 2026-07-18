@@ -48,18 +48,6 @@ try {
 
 const cacheKey = `product-${slug}`;
 
-// Try KV cache first
-const {getProductFromCache} = useCachedProduct();
-let cachedProduct = null;
-try {
-  cachedProduct = await getProductFromCache(slug);
-  if (cachedProduct) {
-    console.log(`✓ Cache hit: ${slug}`);
-  }
-} catch (error) {
-  console.warn(`Cache error for ${slug}:`, error);
-}
-
 // Define a more specific type for product attributes if available from #woo or locally
 interface ProductAttributeWithTerms extends WooProductAttribute {
   terms?: {
@@ -71,11 +59,6 @@ interface ProductAttributeWithTerms extends WooProductAttribute {
 const {data, pending, error, refresh} = await useAsyncData(
   cacheKey,
   async () => {
-    // If we have cached product, use it immediately
-    if (cachedProduct) {
-      return cachedProduct;
-    }
-
     try {
       // @ts-ignore
       const result = await GqlGetProduct({slug});
@@ -90,7 +73,7 @@ const {data, pending, error, refresh} = await useAsyncData(
     }
   },
   {
-    server: true, // Re-enable SSR since we're using KV cache
+    server: true,
     lazy: false, // Load immediately
     immediate: true,
     watch: [],

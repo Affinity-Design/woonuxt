@@ -9,7 +9,7 @@
 
 1.  **Architecture:** `woonuxt_base/` is READ-ONLY. Override components by copying to root `components/`.
 2.  **SEO:** MUST use `useCanadianSEO()` composable. Never use generic `useHead` for meta tags.
-3.  **Data:** Products = WPGraphQL (via `useCachedProduct` for SSR). Blog = Nuxt Content.
+3.  **Data:** Products = WPGraphQL (`GqlGetProduct` via `useAsyncData` on product pages). Blog = Nuxt Content.
 4.  **Images:** Always use `<NuxtImg>`.
 5.  **Build:** `npm run build` is REQUIRED (runs route generation scripts).
 6.  **Cache:** Run `npm run warm-cache` after deploy.
@@ -674,42 +674,13 @@ ERROR [[slug].vue] useAsyncData: Error fetching product: {
 - SSR requests from Node.js don't look like "real browsers" to WordPress
 - Even with proper headers (User-Agent, Origin, Referer), WordPress/Cloudflare may block server-side requests
 
-**Fix:** Use Cloudflare KV cache as primary source, GraphQL as fallback
+**Fix:** ISR route caching + direct GraphQL during SSR
 
-- Product page first tries `useCachedProduct()` to get data from KV cache
-- KV cache is populated during build by `scripts/build-products-cache.js`
-- Only fetches from WordPress GraphQL if product not in cache
-- SSR re-enabled since we're using cached data
-- Files: `pages/product/[slug].vue`, `server/api/cached-product.ts`, `composables/useCachedProduct.ts`
+- Product pages fetch via `GqlGetProduct` inside `useAsyncData` (`pages/product/[slug].vue`)
+- Rendered pages are cached by the ISR/KV route cache (`NUXT_CACHE`, 72h TTL for products), so repeat hits don't touch WordPress
+- In **server routes**, never call `Gql*`/`useGql` (crashes on Cloudflare Workers) — use raw `$fetch` with browser-like headers instead (see `server/api/stock-status.get.ts`)
 
-**Result:**
-
-- ✅ Zero 403 errors (primary data source is KV cache)
-- ✅ Fast loading (KV cache <5ms lookup)
-- ✅ SEO perfect (full product data in SSR payload)
-- ✅ Fallback to GraphQL if product not in cache
-- ✅ Fresh data (cache rebuilt on deploy)
-
-**How It Works:**
-
-1. **During Build:**
-
-   - `scripts/build-products-cache.js` fetches all products from WordPress
-   - Stores them in Cloudflare KV under `cached-products` key
-   - Each product includes full data (price, images, categories, etc.)
-
-2. **During SSR (Server-Side):**
-
-   - Product page calls `useCachedProduct().getProductFromCache(slug)`
-   - Reads from `/api/cached-product` endpoint
-   - Endpoint queries KV storage for product list
-   - Returns matching product instantly (<5ms)
-   - No WordPress API call needed
-
-3. **Fallback (If Not in Cache):**
-   - If product not found in cache, falls back to GraphQL
-   - Fetches fresh data from WordPress
-   - Still works, just slightly slower
+**History (July 2026):** an earlier fix layered a KV product-JSON cache in front of GraphQL (`useCachedProduct()` → `/api/cached-product` → `cached-products` key). It was removed: no build or deploy script ever wrote its key (builds write `products-list` in `NUXT_SCRIPT_DATA`), its lazy seed used `Gql*` in a server route (crashes on Workers), and the only data it ever served was a stale USD snapshot (`"US$0.97"` prices) on the test environment. Do not reintroduce a product-JSON KV cache unless a deploy-pipeline writer keeps it in CAD and fresh.
 
 **Cache Warming:**
 
