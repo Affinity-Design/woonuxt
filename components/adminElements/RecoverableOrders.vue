@@ -2,6 +2,7 @@
 // Admin-only my-account tab: stranded Helcim charges (card charged, Woo order missing) with
 // one-click reconciliation. Thin UI over /api/recover-helcim-order — that endpoint authorizes via
 // the WP role check (server/utils/adminAuth.ts) and stays secret-gated for curl/ops use.
+import {normalizeWooPriceText} from '~/utils/priceConverter';
 interface RecoveredOrderRef {
   id?: number | string;
   databaseId?: number | string;
@@ -181,7 +182,9 @@ onMounted(loadCharges);
               <div class="text-gray-500">{{ charge.customerEmail || '—' }}</div>
               <div class="font-mono text-xs text-gray-400 mt-0.5" :title="'Helcim transaction ID'">txn {{ charge.transactionId }}</div>
             </td>
-            <td class="py-3 pr-4 whitespace-nowrap text-gray-800">{{ charge.cartTotal || '—' }}</td>
+            <!-- Older stranded-charge records persisted the raw Woo string ("$2.25&nbsp;CAD");
+                 normalize on display so entities never render literally. -->
+            <td class="py-3 pr-4 whitespace-nowrap text-gray-800">{{ normalizeWooPriceText(charge.cartTotal) || '—' }}</td>
             <td class="py-3 pr-4">
               <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="statusClasses[charge.status]">
                 {{ charge.status }}
