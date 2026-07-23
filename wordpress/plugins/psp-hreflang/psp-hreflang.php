@@ -70,20 +70,24 @@ function psp_hreflang_ca_equivalent() {
         return $ca_base . '/';
     }
 
-    // Product pages: .ca serves every product at /product/<slug>/
+    // Product pages: .ca serves every product at /product/<slug>
+    // (no trailing slash — matches the .ca page's own canonical exactly;
+    // validated 2026-07-23: 8/8 random .com slugs return 200 on .ca)
     if (function_exists('is_product') && is_product()) {
         $post = get_queried_object();
         if ($post instanceof WP_Post && $post->post_name) {
-            return $ca_base . '/product/' . $post->post_name . '/';
+            return $ca_base . '/product/' . $post->post_name;
         }
         return null;
     }
 
     // Product-category archives: .ca uses the flat deepest-term slug
+    // (validated 2026-07-23: 62/63 .com terms return 200 on .ca; the
+    // exception, "2023-products", 301s on .com itself and never gets here)
     if (is_tax('product_cat')) {
         $term = get_queried_object();
         if ($term instanceof WP_Term && $term->slug) {
-            return $ca_base . '/product-category/' . $term->slug . '/';
+            return $ca_base . '/product-category/' . $term->slug;
         }
         return null;
     }
