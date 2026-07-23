@@ -2,13 +2,24 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-07-17
+**Last Updated:** 2026-07-23
+
+> **Current pipeline:** `data/blog-rehydration-2026-07.md` (fresh DataForSEO research, July 2026). The keyword lists below this point are the historical record — pick new topics from the rehydration doc, not from here.
 
 ---
 
 ## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **roller skating near me** (4,400 sv, 23 kd — fresh 2026-07 data; rehydration doc topic #1)
+
+  - Post: `/blog/roller-rinks-indoor-skating-canada`
+  - Published: 2026-07-23
+  - Status: âœ… Live
+  - Secondary: roller rinks near me (1,000), indoor roller skating (880), roller skating indoor (880), roller skating places (590), rollerskating (880)
+  - Angle: national rinks/indoor directory — takes over the near-me cluster that `/blog/roller-skating-toronto-guide` was catching at pos 19–39; Toronto sections link to the Toronto posts to keep city intent separate
+  - Performance: Monitoring
 
 - [x] **roller skate size chart** (informational + commercial; sizing cluster)
 

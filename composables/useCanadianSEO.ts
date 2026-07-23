@@ -25,6 +25,14 @@ interface CanadianSEOOptions {
   currency?: string;
   availability?: string;
   locale?: Locale;
+  /** Canonical URL override (e.g. category pages with filter params). */
+  url?: string;
+  /** The equivalent page on proskatersplace.com, used for en-us/x-default
+   *  hreflang. Must be a full https://proskatersplace.com/... URL (product
+   *  pages: the WP permalink from product.link; category pages: the static
+   *  us-category-paths map). Omit when no US equivalent exists — the page
+   *  then emits no hreflang at all. */
+  usUrl?: string;
 }
 
 export const useCanadianSEO = () => {
@@ -34,19 +42,37 @@ export const useCanadianSEO = () => {
   const runtimeConfig = useRuntimeConfig();
 
   /**
-   * Generate hreflang tags for the current page
-   * Now includes French Canadian support
+   * Generate hreflang tags for the current page (2026-07 hreflang repair).
+   *
+   * Cluster design:
+   * - en-ca     → this page on proskatersplace.ca (self)
+   * - en-us     → the equivalent page on proskatersplace.com — ONLY when the
+   *               real US URL is known (WP permalink via product.link, the
+   *               static category map, or the homepage). The old behaviour of
+   *               appending the .ca path to the .com domain produced URLs that
+   *               301 to the .com homepage, which invalidates the cluster.
+   * - x-default → the US URL (deliberate: routes rest-of-world to .com)
+   * - fr-ca is never emitted: i18n strategy is no_prefix, so no French URLs
+   *   exist — the old tag declared this English page as its own French
+   *   alternate.
+   *
+   * Pages with no known US equivalent emit NO hreflang at all — wrong tags
+   * are worse than absent ones. Reciprocity requirement: the .com must emit
+   * matching en-ca return tags (see wordpress/plugins/psp-hreflang/).
    *
    * @param currentPath - The current route path
-   * @param locale - Current locale (en-CA or fr-CA)
+   * @param locale - Current locale (kept for API compatibility)
+   * @param usUrl - Verified https://proskatersplace.com/... equivalent URL
    */
-  const generateHreflangTags = (currentPath: string, locale: Locale = 'en-CA') => {
+  const generateHreflangTags = (currentPath: string, locale: Locale = 'en-CA', usUrl?: string) => {
     const baseUrl = 'https://proskatersplace.ca';
-    const usUrl = 'https://proskatersplace.com';
-
-    // For French pages, we need to handle path properly
-    const frPath = locale === 'fr-CA' && !currentPath.startsWith('/fr') ? `/fr${currentPath}` : currentPath;
+    const usBase = 'https://proskatersplace.com';
     const enPath = currentPath.replace(/^\/fr/, '');
+
+    // Homepage maps 1:1; every other page needs an explicit, verified US URL.
+    const resolvedUsUrl = usUrl && usUrl.startsWith(usBase) ? usUrl : enPath === '/' ? `${usBase}/` : null;
+
+    if (!resolvedUsUrl) return [];
 
     return [
       {
@@ -56,18 +82,13 @@ export const useCanadianSEO = () => {
       },
       {
         rel: 'alternate',
-        hreflang: 'fr-ca',
-        href: `${baseUrl}${frPath}`,
-      },
-      {
-        rel: 'alternate',
         hreflang: 'en-us',
-        href: `${usUrl}${enPath}`,
+        href: resolvedUsUrl,
       },
       {
         rel: 'alternate',
         hreflang: 'x-default',
-        href: `${usUrl}${enPath}`,
+        href: resolvedUsUrl,
       },
     ];
   };
@@ -178,11 +199,13 @@ export const useCanadianSEO = () => {
       currency = 'CAD',
       availability,
       locale = 'en-CA', // Default to English Canadian
+      url,
+      usUrl,
     } = options;
 
     const currentPath = route.path;
-    const canonicalUrl = getCanonicalUrl(currentPath, locale);
-    const hreflangTags = generateHreflangTags(currentPath, locale);
+    const canonicalUrl = url || getCanonicalUrl(currentPath, locale);
+    const hreflangTags = generateHreflangTags(currentPath, locale, usUrl);
     const canadianMeta = getCanadianMetaTags(locale);
 
     // Determine language attribute

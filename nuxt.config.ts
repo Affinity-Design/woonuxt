@@ -310,7 +310,12 @@ export default defineNuxtConfig({
         {name: 'business:location:locality', content: 'Toronto'},
       ],
       link: [
-        {rel: 'canonical', href: 'https://proskatersplace.ca'},
+        // NOTE (2026-07 hreflang repair): the static canonical + hreflang
+        // cluster that used to live here shipped homepage URLs on EVERY page,
+        // conflicting with the per-page tags from useCanadianSEO() (two
+        // en-ca declarations with different hrefs invalidate the cluster).
+        // Canonical + hreflang are per-page concerns — useCanadianSEO() owns
+        // them exclusively now.
         // Preconnect to critical origins
         {
           rel: 'preconnect',
@@ -320,22 +325,6 @@ export default defineNuxtConfig({
         {
           rel: 'dns-prefetch',
           href: 'https://static.cloudflareinsights.com',
-        },
-        // Hreflang for international targeting
-        {
-          rel: 'alternate',
-          hreflang: 'en-ca',
-          href: 'https://proskatersplace.ca',
-        },
-        {
-          rel: 'alternate',
-          hreflang: 'en-us',
-          href: 'https://proskatersplace.com',
-        },
-        {
-          rel: 'alternate',
-          hreflang: 'x-default',
-          href: 'https://proskatersplace.com',
         },
       ],
       script: [

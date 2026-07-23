@@ -34,6 +34,11 @@
  * ```
  */
 
+// Term slug → nested proskatersplace.com category path (/products/<parents>/<slug>/).
+// Generated from data/categories-list (same WP taxonomy backs both stores);
+// powers the en-us hreflang alternate on category pages.
+import usCategoryPaths from '~/data/us-category-paths.json';
+
 export interface CategorySEOProduct {
   name: string;
   slug: string;
@@ -303,7 +308,13 @@ export const useCategorySEO = () => {
     // Get first product image for og:image
     const image = products[0]?.image?.sourceUrl || `${baseUrl}/images/category-${slug}.jpg`;
 
-    // Apply Canadian SEO base meta tags
+    // en-us hreflang target: the same taxonomy term on proskatersplace.com
+    // (nested path from the static map). Only on the clean page-1 URL —
+    // filtered/paginated variants have no 1:1 US equivalent.
+    const usPath = (usCategoryPaths as Record<string, string>)[slug];
+    const usUrl = usPath && currentPage === 1 && !canonicalUrl.includes('?') ? `https://proskatersplace.com${usPath}` : undefined;
+
+    // Apply Canadian SEO base meta tags (owns canonical + hreflang)
     setCanadianSEO({
       title,
       description,
@@ -311,6 +322,7 @@ export const useCategorySEO = () => {
       type: 'website',
       locale,
       url: canonicalUrl,
+      usUrl,
     });
 
     // Generate structured data schemas
@@ -318,10 +330,11 @@ export const useCategorySEO = () => {
     const itemListSchema = generateItemListSchema(options);
     const breadcrumbSchema = generateBreadcrumbSchema(options);
 
-    // Apply additional meta tags and structured data
+    // Apply additional meta tags and structured data.
+    // (canonical is emitted by setCanadianSEO above — a second link tag here
+    // used to produce duplicate/conflicting canonicals on category pages)
     useHead({
       link: [
-        {rel: 'canonical', href: canonicalUrl},
         // Pagination links for SEO
         currentPage > 1 ? {rel: 'prev', href: `${url}?page=${currentPage - 1}`} : null,
         currentPage < totalPages ? {rel: 'next', href: `${url}?page=${currentPage + 1}`} : null,

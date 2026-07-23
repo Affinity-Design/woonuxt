@@ -129,6 +129,18 @@ const generateCanadianDescription = (product: any, category: string, locale: 'en
   return `Shop ${product.name} at ProSkaters Place Canada. ${category} available online with fast Canadian shipping from Toronto. Best prices in CAD with expert advice.`;
 };
 
+/**
+ * Normalize a WP product permalink into the canonical proskatersplace.com URL
+ * for hreflang. Builds against the test backend return test.proskatersplace.com
+ * links — rewrite the host so hreflang always targets production. Returns
+ * undefined for anything that isn't a proskatersplace product URL.
+ */
+const toUsProductUrl = (link: unknown): string | undefined => {
+  if (typeof link !== 'string' || !link) return undefined;
+  const normalized = link.replace(/^https?:\/\/(?:test\.|www\.)?proskatersplace\.com/, 'https://proskatersplace.com');
+  return normalized.startsWith('https://proskatersplace.com/') ? normalized : undefined;
+};
+
 export const useProductSEO = () => {
   const canadianSEO = useCanadianSEO();
   const richSnippets = useProductRichSnippets();
@@ -236,12 +248,17 @@ export const useProductSEO = () => {
       useHead({titleTemplate: null});
 
       // Set Canadian SEO metadata (handles hreflang, geo-targeting, etc.)
+      // product.link is the WP permalink — the real proskatersplace.com URL
+      // for this product (both stores share one WP backend). It powers the
+      // en-us/x-default hreflang; when absent (stale KV cache entries from
+      // before `link` was added to the query) the page emits no hreflang.
       canadianSEO.setCanadianSEO({
         title,
         description,
         image: productImage,
         type: 'product',
         locale,
+        usUrl: toUsProductUrl(product.link),
       });
 
       // Apply comprehensive rich snippets (Product, Review, FAQ, Breadcrumb, Video schemas)
@@ -354,6 +371,7 @@ export const useProductSEO = () => {
       image: productImage,
       type: 'product',
       locale,
+      usUrl: toUsProductUrl(product.link),
     });
 
     // Add product-specific structured data

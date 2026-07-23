@@ -33,6 +33,7 @@ query getProduct($slug: ID!) {
       value
     }
     slug
+    link
     sku
     description
     rawDescription: description(format: RAW)
