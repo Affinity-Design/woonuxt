@@ -1,11 +1,11 @@
 {
-  "lastGenerated": "2026-07-29T20:50:24.936Z",
-  "totalRoutes": 1802,
+  "lastGenerated": "2026-07-29T22:44:42.497Z",
+  "totalRoutes": 1801,
   "breakdown": {
     "static": 9,
     "blog": 21,
     "categories": 63,
-    "products": 1709
+    "products": 1708
   },
   "routes": [
     {
@@ -660,6 +660,20 @@
       "type": "category"
     },
     {
+      "url": "/product/swings-crew-socks",
+      "lastmod": "2026-07-29T22:36:18+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/swings-bike-socks",
+      "lastmod": "2026-07-29T22:12:23+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
       "url": "/product/rollerblade-hydrogen-spectre-blue-80mm-85a-wheels",
       "lastmod": "2026-07-28T22:19:35+00:00",
       "changefreq": "weekly",
@@ -871,7 +885,7 @@
     },
     {
       "url": "/product/ennui-st-eugen-enin-pro-combo-pads",
-      "lastmod": "2026-07-24T22:32:15+00:00",
+      "lastmod": "2026-07-29T22:26:22+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1536,7 +1550,7 @@
     },
     {
       "url": "/product/iqon-decode-dh-downhill-trinity-frames",
-      "lastmod": "2026-07-07T20:27:24+00:00",
+      "lastmod": "2026-07-29T22:14:08+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1564,7 +1578,7 @@
     },
     {
       "url": "/product/mesmer-e-clips-tool",
-      "lastmod": "2026-07-03T04:36:26+00:00",
+      "lastmod": "2026-07-29T22:26:18+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1906,13 +1920,6 @@
       "type": "product"
     },
     {
-      "url": "/product/symetrics-superfast-110mm-90a-wheels",
-      "lastmod": "2026-07-27T18:42:44+00:00",
-      "changefreq": "weekly",
-      "priority": "0.7",
-      "type": "product"
-    },
-    {
       "url": "/product/symetrics-brand-6b-abec-9-608-bearings",
       "lastmod": "2026-04-02T20:20:28+00:00",
       "changefreq": "weekly",
@@ -1970,7 +1977,7 @@
     },
     {
       "url": "/product/powerslide-pheme-leo-100-inline-skates",
-      "lastmod": "2026-07-25T20:43:23+00:00",
+      "lastmod": "2026-07-29T22:32:27+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3712,20 +3719,6 @@
       "type": "product"
     },
     {
-      "url": "/product/symetrics-superfast-80mm-90a-wheels",
-      "lastmod": "2026-04-24T22:30:30+00:00",
-      "changefreq": "weekly",
-      "priority": "0.7",
-      "type": "product"
-    },
-    {
-      "url": "/product/symetrics-superfast-100mm-90a-wheels",
-      "lastmod": "2026-07-29T01:48:39+00:00",
-      "changefreq": "weekly",
-      "priority": "0.7",
-      "type": "product"
-    },
-    {
       "url": "/product/symetrics-brand-7b-abec-9-608-bearings",
       "lastmod": "2026-02-07T23:09:38+00:00",
       "changefreq": "weekly",
@@ -4161,7 +4154,7 @@
     },
     {
       "url": "/product/powerslide-next-core-100-inline-skates",
-      "lastmod": "2026-07-11T19:06:17+00:00",
+      "lastmod": "2026-07-29T22:00:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -6785,8 +6778,8 @@
       "type": "product"
     },
     {
-      "url": "/product/chaya-neon-red-led-65mm-78a-roller-skate-wheels",
-      "lastmod": "2026-06-02T16:43:28+00:00",
+      "url": "/product/chaya-neons-switch-pearl-led-62mm-85a-quad-wheels",
+      "lastmod": "2026-07-29T22:40:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9754,7 +9747,7 @@
     },
     {
       "url": "/product/ennui-st-wrist-guard",
-      "lastmod": "2026-07-25T18:49:56+00:00",
+      "lastmod": "2026-07-29T22:00:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10979,7 +10972,7 @@
     },
     {
       "url": "/product/myfit-race-speed-skating-socks",
-      "lastmod": "2026-07-27T19:43:01+00:00",
+      "lastmod": "2026-07-29T22:12:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11714,7 +11707,7 @@
     },
     {
       "url": "/product/fr-spin-carbon-inline-skates",
-      "lastmod": "2026-07-26T18:44:48+00:00",
+      "lastmod": "2026-07-29T20:56:31+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"

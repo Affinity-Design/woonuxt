@@ -37,13 +37,13 @@
 
 const {writeFileSync, existsSync, mkdirSync} = require('fs');
 const {resolve} = require('path');
+const {harvestProducts, harvestLivePrices} = require('./lib/product-harvest');
 
 const SITE = 'https://proskatersplace.ca';
 const GQL_HOST = process.env.GQL_HOST || 'https://proskatersplace.com/graphql';
 const OUTPUT_DIR = resolve(process.cwd(), 'data');
 const OUTPUT_FILE = resolve(OUTPUT_DIR, 'merchant-feed-ca.json');
 
-const BATCH_SIZE = 100; // products per GraphQL page
 const PAGE_CONCURRENCY = Number(process.env.FEED_CONCURRENCY || 16); // simultaneous product-page fetches
 const PAGE_RETRIES = 2;
 
@@ -76,171 +76,13 @@ function existingFeedIsFresh() {
   return false;
 }
 
-const BROWSER_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-};
+// ─── 1. Catalogue + pricing: shared harvest ──────────────────────────────────
+//
+// Both passes live in scripts/lib/product-harvest.js so build-sitemap.js and
+// this script share ONE GraphQL pagination and ONE page-price pass per build,
+// instead of each running its own full pagination over ~1,700 products.
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// ─── 1. Catalogue metadata from WPGraphQL ────────────────────────────────────
-
-// NOTE: the explicit orderby is REQUIRED, not cosmetic. Without a stable sort,
-// WPGraphQL's cursor pagination silently terminates early — an earlier run of
-// this script collected only 351 of 1,707 products because of exactly that.
-const PRODUCTS_QUERY = `
-  query FeedProducts($first: Int!, $after: String) {
-    products(first: $first, after: $after, where: {orderby: {field: DATE, order: DESC}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
-      found
-      pageInfo { hasNextPage endCursor }
-      nodes {
-        databaseId
-        slug
-        name
-        sku
-        type
-        shortDescription
-        productCategories { nodes { name } }
-        terms(first: 60) { nodes { taxonomyName name } }
-        ... on SimpleProduct {
-          image { sourceUrl }
-          galleryImages(first: 9) { nodes { sourceUrl } }
-        }
-        ... on VariableProduct {
-          image { sourceUrl }
-          galleryImages(first: 9) { nodes { sourceUrl } }
-        }
-        ... on ExternalProduct {
-          image { sourceUrl }
-        }
-      }
-    }
-  }
-`;
-
-async function fetchCatalogue() {
-  const products = [];
-  let after = null;
-  let hasNextPage = true;
-  let page = 0;
-  let reportedTotal = null;
-
-  while (hasNextPage) {
-    page++;
-    const res = await fetch(GQL_HOST, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...BROWSER_HEADERS,
-        Accept: 'application/json',
-        Origin: SITE,
-        Referer: SITE,
-      },
-      body: JSON.stringify({query: PRODUCTS_QUERY, variables: {first: BATCH_SIZE, after}}),
-    });
-
-    if (!res.ok) throw new Error(`GraphQL HTTP ${res.status} on page ${page}`);
-    const json = await res.json();
-    if (json.errors?.length) throw new Error(`GraphQL error: ${json.errors[0].message}`);
-
-    const data = json.data?.products;
-    if (!data) throw new Error('GraphQL returned no products payload');
-
-    if (reportedTotal === null && typeof data.found === 'number') reportedTotal = data.found;
-
-    products.push(...data.nodes);
-    hasNextPage = data.pageInfo.hasNextPage;
-    after = data.pageInfo.endCursor;
-    process.stdout.write(`\r  fetched ${products.length}${reportedTotal ? '/' + reportedTotal : ''} products from GraphQL...`);
-
-    if (argLimit && products.length >= argLimit) break;
-    if (hasNextPage) await sleep(200);
-  }
-
-  process.stdout.write('\n');
-
-  // Guard against the silent-truncation failure mode: if pagination stops well
-  // short of what the server says exists, we would publish a feed that reads as
-  // a mass product removal in Merchant Center.
-  if (!argLimit && reportedTotal && products.length < reportedTotal * 0.95) {
-    throw new Error(`pagination truncated: collected ${products.length} of ${reportedTotal} products (cursor likely unstable)`);
-  }
-
-  return argLimit ? products.slice(0, argLimit) : products;
-}
-
-// ─── 2. Authoritative price/availability from the live product page ──────────
-
-/** Pull the Product node out of a page's JSON-LD blocks. */
-function extractProductJsonLd(html) {
-  const blocks = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
-  for (const [, raw] of blocks) {
-    let parsed;
-    try {
-      parsed = JSON.parse(raw.trim());
-    } catch {
-      continue;
-    }
-    const candidates = Array.isArray(parsed) ? parsed : parsed['@graph'] ? parsed['@graph'] : [parsed];
-    const product = candidates.find((node) => node && node['@type'] === 'Product');
-    if (product) return product;
-  }
-  return null;
-}
-
-async function fetchLivePricing(slug) {
-  const url = `${SITE}/product/${slug}`;
-
-  for (let attempt = 0; attempt <= PAGE_RETRIES; attempt++) {
-    try {
-      const res = await fetch(url, {headers: BROWSER_HEADERS});
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const html = await res.text();
-      const product = extractProductJsonLd(html);
-      const offer = Array.isArray(product?.offers) ? product.offers[0] : product?.offers;
-      if (!offer?.price) throw new Error('no price in JSON-LD');
-
-      const price = Number(String(offer.price).replace(/[^0-9.]/g, ''));
-      if (!Number.isFinite(price) || price <= 0) throw new Error(`bad price "${offer.price}"`);
-
-      return {
-        price,
-        currency: offer.priceCurrency || 'CAD',
-        availability: /InStock/i.test(offer.availability || '') ? 'in_stock' : 'out_of_stock',
-        description: typeof product.description === 'string' ? product.description : '',
-      };
-    } catch (err) {
-      if (attempt === PAGE_RETRIES) return {error: err.message};
-      await sleep(500 * (attempt + 1));
-    }
-  }
-}
-
-/** Run an async mapper over items with a fixed worker pool. */
-async function pool(items, concurrency, worker) {
-  const results = new Array(items.length);
-  let cursor = 0;
-  let done = 0;
-
-  await Promise.all(
-    Array.from({length: Math.min(concurrency, items.length)}, async () => {
-      while (cursor < items.length) {
-        const index = cursor++;
-        results[index] = await worker(items[index], index);
-        done++;
-        if (done % 25 === 0 || done === items.length) {
-          process.stdout.write(`\r  priced ${done}/${items.length} products...`);
-        }
-      }
-    }),
-  );
-
-  process.stdout.write('\n');
-  return results;
-}
-
-// ─── 3. Shape items ──────────────────────────────────────────────────────────
+// ─── 2. Shape items ──────────────────────────────────────────────────────────
 
 const stripHtml = (input) =>
   String(input || '')
@@ -348,16 +190,20 @@ async function uploadToKV(feed) {
   console.log(`  concurrency: ${PAGE_CONCURRENCY}`);
   if (argLimit) console.log(`  LIMIT: ${argLimit} (smoke test)`);
 
-  const catalogue = await fetchCatalogue();
+  const harvested = await harvestProducts({gqlHost: GQL_HOST});
+  const catalogue = argLimit ? harvested.slice(0, argLimit) : harvested;
   console.log(`  catalogue: ${catalogue.length} products`);
 
-  const pricings = await pool(catalogue, PAGE_CONCURRENCY, (product) => fetchLivePricing(product.slug));
+  const prices = await harvestLivePrices(
+    catalogue.map((p) => p.slug),
+    {concurrency: PAGE_CONCURRENCY, retries: PAGE_RETRIES},
+  );
 
   const items = [];
   const skipped = [];
 
-  catalogue.forEach((product, i) => {
-    const pricing = pricings[i];
+  catalogue.forEach((product) => {
+    const pricing = prices[product.slug];
     if (!pricing || pricing.error) {
       skipped.push({slug: product.slug, reason: pricing?.error || 'unknown'});
       return;

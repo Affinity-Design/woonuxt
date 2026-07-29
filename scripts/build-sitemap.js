@@ -116,6 +116,21 @@ async function fetchAllProducts() {
     return [];
   }
 
+  // Shared harvest: one paginated pass per build, reused by build-merchant-feed
+  // (previously each script ran its own full pagination). The harvest returns a
+  // superset of the fields this script needs, so downstream code is unchanged.
+  try {
+    const {harvestProducts} = require('./lib/product-harvest');
+    const harvested = await harvestProducts({gqlHost: CONFIG.WP_GRAPHQL_URL});
+    if (harvested.length) {
+      console.log(`✅ Fetched ${harvested.length} total products (shared harvest)`);
+      return harvested.filter((p) => p && p.slug);
+    }
+    console.warn('⚠️  Shared harvest returned nothing — falling back to local pagination');
+  } catch (harvestError) {
+    console.warn('⚠️  Shared harvest failed, falling back to local pagination:', harvestError.message);
+  }
+
   let allProducts = [];
   let hasNextPage = true;
   let endCursor = null;

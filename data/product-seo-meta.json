@@ -1,5 +1,39 @@
 [
   {
+    "slug": "swings-crew-socks",
+    "url": "/product/swings-crew-socks",
+    "seo": {
+      "title": "Swings Crew Socks | Buy Online in Canada | ProSkaters Place",
+      "description": "Swings Crew Socks. The perfect socks for every day to wear and represent your favorite skate brand, with a perfect weave to wrap around your front foot, nice an",
+      "image": "https://proskatersplace.com/wp-content/uploads/2026/07/Swings-Crew-Socks.jpg",
+      "imageAlt": "Swings Crew Socks",
+      "type": "product",
+      "locale": "en-CA",
+      "price": 38.99,
+      "currency": "CAD",
+      "availability": "in stock",
+      "category": "New Arrivals",
+      "modified": "2026-07-29T22:36:18+00:00"
+    }
+  },
+  {
+    "slug": "swings-bike-socks",
+    "url": "/product/swings-bike-socks",
+    "seo": {
+      "title": "Swings Bike Socks | Buy Online in Canada | ProSkaters Place",
+      "description": "Swings Bike Socks. Most speed skaters are cyclists, and so it made sense for Swings to craft these cycling socks. Manufactured from nylon, these socks are tight",
+      "image": "https://proskatersplace.com/wp-content/uploads/2026/07/Swings-Bike-Socks-2.jpg",
+      "imageAlt": "Swings Bike Socks",
+      "type": "product",
+      "locale": "en-CA",
+      "price": 14.99,
+      "currency": "CAD",
+      "availability": "in stock",
+      "category": "New Arrivals",
+      "modified": "2026-07-29T22:12:23+00:00"
+    }
+  },
+  {
     "slug": "rollerblade-hydrogen-spectre-blue-80mm-85a-wheels",
     "url": "/product/rollerblade-hydrogen-spectre-blue-80mm-85a-wheels",
     "seo": {
@@ -523,7 +557,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Knee and Elbow Pads",
-      "modified": "2026-07-24T22:32:15+00:00"
+      "modified": "2026-07-29T22:26:22+00:00"
     }
   },
   {
@@ -2138,7 +2172,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Inline Frames",
-      "modified": "2026-07-07T20:27:24+00:00"
+      "modified": "2026-07-29T22:14:08+00:00"
     }
   },
   {
@@ -2206,7 +2240,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "New Arrivals",
-      "modified": "2026-07-03T04:36:26+00:00"
+      "modified": "2026-07-29T22:26:18+00:00"
     }
   },
   {
@@ -2946,8 +2980,8 @@
     "seo": {
       "title": "Symetrics Superfast II 110mm 88A Wheels (2 pack) | Buy Online in Canada | ProSkaters Place",
       "description": "Symetrics Superfast II 110mm 88A Wheels is a new 2025 version of these great wheels. They feature a speed profile for even stride control and fast rolling. It t",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-II-110mm-88A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast II 110mm 88A Wheels",
+      "image": "/images/default-product.jpg",
+      "imageAlt": "Symetrics Superfast II 110mm 88A Wheels (2 pack)",
       "type": "product",
       "locale": "en-CA",
       "price": 40.99,
@@ -2963,8 +2997,8 @@
     "seo": {
       "title": "Symetrics Superfast II 100mm 88A Wheels (2 pack) | Buy Online in Canada | ProSkaters Place",
       "description": "Symetrics Superfast II 100mm 88A Wheels is a new 2025 version of these great wheels. They feature a speed profile for even stride control and fast rolling. It t",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-II-100mm-88A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast II 100mm 88A Wheels",
+      "image": "/images/default-product.jpg",
+      "imageAlt": "Symetrics Superfast II 100mm 88A Wheels (2 pack)",
       "type": "product",
       "locale": "en-CA",
       "price": 40.99,
@@ -2997,8 +3031,8 @@
     "seo": {
       "title": "Symetrics Superfast II 84mm 88A Wheels (2 pack) | Buy Online in Canada | ProSkaters Place",
       "description": "Symetrics Superfast II 84mm 88A Wheels is a new 2025 version of these great wheels. They feature a speed profile for even stride control and fast rolling. It to",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-II-84mm-88A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast II 84mm 88A Wheels",
+      "image": "/images/default-product.jpg",
+      "imageAlt": "Symetrics Superfast II 84mm 88A Wheels (2 pack)",
       "type": "product",
       "locale": "en-CA",
       "price": 35.99,
@@ -3014,8 +3048,8 @@
     "seo": {
       "title": "Symetrics Superfast II 80mm 88A Wheels (4 pack) | Buy Online in Canada | ProSkaters Place",
       "description": "Symetrics Superfast II 80mm 88A Wheels is a new 2025 version of these great wheels. They feature a speed profile for even stride control and fast rolling. It to",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-II-80mm-88A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast II 80mm 88A Wheels",
+      "image": "/images/default-product.jpg",
+      "imageAlt": "Symetrics Superfast II 80mm 88A Wheels (4 pack)",
       "type": "product",
       "locale": "en-CA",
       "price": 70.99,
@@ -3023,23 +3057,6 @@
       "availability": "in stock",
       "category": "Inline Skate Wheels | Wheels For Rollerblades",
       "modified": "2026-05-05T03:25:02+00:00"
-    }
-  },
-  {
-    "slug": "symetrics-superfast-110mm-90a-wheels",
-    "url": "/product/symetrics-superfast-110mm-90a-wheels",
-    "seo": {
-      "title": "Symetrics Superfast 110mm 90A Wheels (2 pack) | Buy Online in Canada | ProSkaters Place",
-      "description": "Symetrics Superfast 110mm 90A Wheels feature a speed profile for even stride control and fast rolling. Adapt used a 90A compound that is unmatched in both speed",
-      "image": "https://proskatersplace.com/wp-content/uploads/2025/11/Symetrics-Superfast-110mm-90A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast 110mm 90A Wheels",
-      "type": "product",
-      "locale": "en-CA",
-      "price": 34.99,
-      "currency": "CAD",
-      "availability": "out of stock",
-      "category": "Clearance!",
-      "modified": "2026-07-27T18:42:44+00:00"
     }
   },
   {
@@ -3192,7 +3209,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
-      "modified": "2026-07-25T20:43:23+00:00"
+      "modified": "2026-07-29T22:32:27+00:00"
     }
   },
   {
@@ -7412,40 +7429,6 @@
     }
   },
   {
-    "slug": "symetrics-superfast-80mm-90a-wheels",
-    "url": "/product/symetrics-superfast-80mm-90a-wheels",
-    "seo": {
-      "title": "Symetrics Superfast 80mm 90A Wheels (4 pack) | Buy Online in Canada | ProSkaters Place",
-      "description": "Symetrics Superfast 80mm 90A Wheels feature a speed profile for even stride control and fast rolling. Adapt used a 90A compound that is unmatched in both speed ",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-80mm-90A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast 80mm 90A Wheels",
-      "type": "product",
-      "locale": "en-CA",
-      "price": 63.99,
-      "currency": "CAD",
-      "availability": "out of stock",
-      "category": "Inline Skate Wheels | Wheels For Rollerblades",
-      "modified": "2026-04-24T22:30:30+00:00"
-    }
-  },
-  {
-    "slug": "symetrics-superfast-100mm-90a-wheels",
-    "url": "/product/symetrics-superfast-100mm-90a-wheels",
-    "seo": {
-      "title": "Symetrics Superfast 100mm 90A Wheels (2 pack) | Buy Online in Canada | ProSkaters Place",
-      "description": "Symetrics Superfast 100mm 90A Wheels feature a speed profile for even stride control and fast rolling. Adapt used a 90A compound that is unmatched in both speed",
-      "image": "https://proskatersplace.com/wp-content/uploads/2024/06/Symetrics-Superfast-100mm-90A-Wheels.jpg",
-      "imageAlt": "Symetrics Superfast 100mm 90A Wheels",
-      "type": "product",
-      "locale": "en-CA",
-      "price": 34.99,
-      "currency": "CAD",
-      "availability": "out of stock",
-      "category": "Clearance!",
-      "modified": "2026-07-29T01:48:39+00:00"
-    }
-  },
-  {
     "slug": "symetrics-brand-7b-abec-9-608-bearings",
     "url": "/product/symetrics-brand-7b-abec-9-608-bearings",
     "seo": {
@@ -8513,7 +8496,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Inline Skates",
-      "modified": "2026-07-11T19:06:17+00:00"
+      "modified": "2026-07-29T22:00:15+00:00"
     }
   },
   {
@@ -14875,20 +14858,20 @@
     }
   },
   {
-    "slug": "chaya-neon-red-led-65mm-78a-roller-skate-wheels",
-    "url": "/product/chaya-neon-red-led-65mm-78a-roller-skate-wheels",
+    "slug": "chaya-neons-switch-pearl-led-62mm-85a-quad-wheels",
+    "url": "/product/chaya-neons-switch-pearl-led-62mm-85a-quad-wheels",
     "seo": {
-      "title": "Chaya Neon Red LED 65mm 78A Roller Skate Wheels | Buy Online in Canada | ProSkaters Place",
-      "description": "Chaya Neon Red LED 65mm 78A Roller Skate Wheels.  These outdoor quad wheels will ensure you stand out from the crowd. Built with long-lasting super high rebound",
-      "image": "https://proskatersplace.com/wp-content/uploads/2021/09/Chaya-Neon-Red-wheel-2.jpg",
-      "imageAlt": "Chaya Neon Red LED 65mm 78A Roller Skate Wheels Set",
+      "title": "Chaya Neons Switch Pearl LED 62mm 85A Quad Wheels | Buy Online in Canada | ProSkaters Place",
+      "description": "Chaya Neons Switch Pearl LED 62mm 85A Quad Wheels – Color in Motion. Light up your world like never before with the Chaya Neons Switch LED quad skate wheels – t",
+      "image": "https://proskatersplace.com/wp-content/uploads/2021/09/Chaya-Neons-Switch-Pearl-LED-62mm-85A-Quad-Wheels.jpg",
+      "imageAlt": "Chaya Neons Switch Pearl LED 62mm 85A Quad Wheels",
       "type": "product",
       "locale": "en-CA",
-      "price": 50.99,
+      "price": 56.99,
       "currency": "CAD",
-      "availability": "out of stock",
-      "category": "Roller Skate Wheels",
-      "modified": "2026-06-02T16:43:28+00:00"
+      "availability": "in stock",
+      "category": "New Arrivals",
+      "modified": "2026-07-29T22:40:15+00:00"
     }
   },
   {
@@ -18875,7 +18858,7 @@
     "seo": {
       "title": "Chaya Neon Pink LED 65mm 78A Roller Skate Wheels | Buy Online in Canada | ProSkaters Place",
       "description": "Chaya Neon Pink LED 65mm 78A Roller Skate Wheels will ensure you stand out from the crowd. Built with long-lasting super high rebound polyurethane (PU) this out",
-      "image": "https://proskatersplace.com/wp-content/uploads/2020/12/Chaya-Neon-Pink-Wheels-2.jpg",
+      "image": "/images/default-product.jpg",
       "imageAlt": "Chaya Neon Pink LED 65mm 78A Roller Skate Wheels",
       "type": "product",
       "locale": "en-CA",
@@ -22096,7 +22079,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Hand and Wrist Braces",
-      "modified": "2026-07-25T18:49:56+00:00"
+      "modified": "2026-07-29T22:00:15+00:00"
     }
   },
   {
@@ -25071,7 +25054,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Protection & Apparel",
-      "modified": "2026-07-27T19:43:01+00:00"
+      "modified": "2026-07-29T22:12:40+00:00"
     }
   },
   {
@@ -25777,8 +25760,8 @@
     "seo": {
       "title": "Chaya Big Softie Red 65mm 78A Roller Skate Wheels | Buy Online in Canada | ProSkaters Place",
       "description": "Chaya Big Softie Red 65mm 78A Roller Skate Wheels come in three vibrant colorways &#8211; clear purple, clear red, and clear teal. To keep you rolling comfortab",
-      "image": "https://proskatersplace.com/wp-content/uploads/2021/09/Chaya-Neon-Red-wheel-1.jpg",
-      "imageAlt": "Chaya Neon Red LED 65mm 78A Roller Skate Wheels",
+      "image": "/images/default-product.jpg",
+      "imageAlt": "Chaya Big Softie Red 65mm 78A Roller Skate Wheels",
       "type": "product",
       "locale": "en-CA",
       "price": 34.99,
@@ -26856,7 +26839,7 @@
       "currency": "CAD",
       "availability": "in stock",
       "category": "Clearance!",
-      "modified": "2026-07-26T18:44:48+00:00"
+      "modified": "2026-07-29T20:56:31+00:00"
     }
   },
   {

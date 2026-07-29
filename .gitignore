@@ -27,3 +27,5 @@ logs
 .netlify
 
 *.pem
+# Shared build-time product harvest cache (regenerated each build)
+data/.harvest-cache/

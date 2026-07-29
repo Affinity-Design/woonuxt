@@ -18,10 +18,30 @@ The Rex feed was broken in four ways that all suppressed Canadian Shopping perfo
 ## How the replacement works
 
 ```
-scripts/build-merchant-feed.js   →  data/merchant-feed-ca.json  →  Cloudflare KV
-                                                                        ↓
-                                          server/routes/merchant-feed.xml.ts renders RSS 2.0
+                    scripts/lib/product-harvest.js
+                    ├── harvestProducts()    ~18 GraphQL requests  (~45s)
+                    └── harvestLivePrices()  ~1,700 page fetches   (~4min)
+                                  │  (both cached to data/.harvest-cache/)
+                    ┌─────────────┴─────────────┐
+      build-sitemap.js                 build-merchant-feed.js
+   sitemap-data.json                 data/merchant-feed-ca.json
+   product-seo-meta.json                        │
+                                          Cloudflare KV
+                                                ↓
+                          server/routes/merchant-feed.xml.ts renders RSS 2.0
 ```
+
+**One catalogue pass per build, shared.** `build-sitemap.js` and
+`build-merchant-feed.js` used to run their own full GraphQL pagination — ~36
+round trips per build over the same 1,708 products. Both now call
+`harvestProducts()`, which caches to `data/.harvest-cache/` (gitignored, TTL
+`HARVEST_TTL_MIN`, default 45 min). Whichever script runs first pays for the
+harvest; the second gets a cache hit. Measured: `build-sitemap.js` went from a
+full pagination to **2.7s** on a warm cache.
+
+The page-price pass is cached the same way, so re-running either script inside
+the window costs nothing. `build-sitemap.js` keeps its original pagination as a
+fallback if the shared harvest ever fails.
 
 - **Catalogue metadata** (sku, brand, categories, images) comes from WPGraphQL.
 - **Brand** comes from the **`pa_manufacturer`** product attribute — `pwb-brand`, the taxonomy that powers the .com's `/brand/` pages, is *not* exposed to WPGraphQL. Products with no `pa_manufacturer` fall back to `ProSkaters Place`.
