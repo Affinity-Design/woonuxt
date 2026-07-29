@@ -41,7 +41,8 @@
     "test:product-loading": "node --test tests/fetchProductWithRetry.test.mjs",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
-    "preinstall": "npx only-allow npm"
+    "preinstall": "npx only-allow npm",
+    "build-merchant-feed": "node scripts/build-merchant-feed.js"
   },
   "dependencies": {
     "@google/genai": "^1.43.0",
