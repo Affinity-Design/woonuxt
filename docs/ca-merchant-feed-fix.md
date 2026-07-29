@@ -18,6 +18,49 @@
 | `<g:gtin>` | **absent entirely** (0 items) | GTIN where known | Medium — no GTIN + wrong brand means almost no product-entity matching. |
 | `<g:price>` | `70.95 CAD` ✓ | — | Correct. Currency is the one thing right. |
 
+## How to fix it in Rex Feed (feed `cad`, post ID 175966)
+
+Edit screen: `wp-admin/post.php?post=175966&action=edit`. It is a very heavy page (133 form controls + 3,006 products) — it repeatedly crashed the automation browser, so the steps below are written for a human driving the UI. Confirmed from the page before it died: the refresh control is the `rex_feed_google_schedule` select. Confirmed from the WP REST API: the brand taxonomy is **`pwb-brand`** (label "Brands", attached to `product`).
+
+Each row in Rex Feed's attribute table is: **Google attribute** | **Prefix** | **Type** (Attribute / Static / Pattern) | **Value** | **Suffix**.
+
+### 1. `link` → send shoppers to the .ca (the big one)
+
+A plain domain find-replace will NOT work: the two stores use different path shapes
+(`.com/shop/<cat>/<subcat>/<slug>/` vs `.ca/product/<slug>`). Rebuild the URL from the slug instead — the slug is shared between both stores (verified: 8/8 sampled `.com` product slugs resolve 200 on `.ca`).
+
+On the `link` row set:
+- **Prefix:** `https://proskatersplace.ca/product/`
+- **Type:** Attribute
+- **Value:** the product **slug** (may be listed as `Slug`, `post_name`, or `Product Slug`)
+- **Suffix:** *(leave empty — the .ca canonical form has no trailing slash)*
+
+If no slug attribute is offered, use Type = **Pattern** and compose `https://proskatersplace.ca/product/{slug}`.
+
+Repeat for the **CAD Local Ads** feed (post 167453).
+
+### 2. `brand` → `pwb-brand`
+
+Currently emitting the literal string `Shop` on every item, which means it is mapped to a static value (or a field returning a constant). Change Type to **Attribute** and pick **Brands / `pwb-brand`** from the taxonomy group.
+
+### 3. `availability` → real stock status
+
+Emitting `in_stock` for all 3,006 items. Map it to the dynamic stock-status attribute rather than a static value.
+
+### 4. Refresh interval
+
+`rex_feed_google_schedule` is set to **No** on `cad`, `CAD Local Ads`, `EUROPE`, `MX`, `UK`. Set `cad` (and CAD Local Ads) to **Daily** — the `US` feed is already on Weekly, which is the pattern to beat, not match, for a store with live stock.
+
+### 5. `image_link` → https
+
+All image URLs are `http://`. If Rex Feed has no protocol setting, add a find-replace rule on that field (`http://proskatersplace.com` → `https://proskatersplace.com`).
+
+---
+
+## Worth considering: generate the feed from the .ca instead
+
+The durable alternative is to stop depending on Rex Feed's mapping for the Canadian catalogue and emit the feed from the Nuxt app as a server route (the pattern already exists — `server/routes/sitemap.xml.ts`). That gives exact control over URLs, brand, availability and price, always matches what the .ca actually renders, and cannot drift from the storefront. Bigger build than the config fix; recommended once the config fix has proven the channel out.
+
 ## Fix, in priority order
 
 1. **Repoint `<g:link>` to the .ca** — in the Rex Feed config for `cad`, map the link field to the Canadian storefront URL (`https://proskatersplace.ca/product/<slug>`; the product slug is shared between both stores, which is exactly the mapping already proven in `wordpress/redirect-cad-traffic.php` and in the hreflang plugin). Same fix for **CAD Local Ads** (`feed-167453.xml`).
