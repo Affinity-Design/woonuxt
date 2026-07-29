@@ -137,6 +137,63 @@ function buildItem(product, pricing) {
   };
 }
 
+// ─── 3. Advertised-vs-charged direction check ────────────────────────────────
+
+/**
+ * The storefront displays USD × a locked exchange rate
+ * (NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE, maintained by hand), while checkout
+ * bills WooCommerce's own CAD total. Those two numbers differ on roughly half
+ * the catalogue — see docs/ca-price-integrity.md.
+ *
+ * That gap is tolerable in ONE direction only. While the locked rate sits at or
+ * above Woo's implied rate we advertise slightly high and the customer is
+ * charged slightly less — harmless. If the locked rate drifts BELOW Woo's, we
+ * start advertising less than we charge, which is the damaging direction
+ * (bait-and-switch exposure and Merchant Center disapprovals).
+ *
+ * This is purely advisory: it tells you when the rate needs bumping. It only
+ * runs when the harvest returned CAD-marked prices — in CI the GraphQL response
+ * may be USD-marked, in which case there is nothing to compare and we say so.
+ */
+function reportPriceDirection(catalogue, prices) {
+  let comparable = 0;
+  const underAdvertised = [];
+
+  for (const product of catalogue) {
+    // markedPrice carries the currency marker; price(format: RAW) strips it.
+    const marked = String(product.markedPrice ?? '');
+    // Only meaningful when WPGraphQL handed us a CAD price to compare against.
+    if (!/CAD/i.test(marked) || /US\$/i.test(marked)) continue;
+
+    const wooCad = parseFloat(String(product.price ?? '').split(',')[0].replace(/[^0-9.]/g, ''));
+    const shown = prices[product.slug]?.price;
+    if (!Number.isFinite(wooCad) || !Number.isFinite(shown)) continue;
+
+    comparable++;
+    if (shown < wooCad - 0.005) underAdvertised.push({slug: product.slug, shown, wooCad, gap: +(wooCad - shown).toFixed(2)});
+  }
+
+  if (!comparable) {
+    console.log('  price direction: not checked (GraphQL returned USD-marked prices — nothing to compare)');
+    return;
+  }
+
+  if (!underAdvertised.length) {
+    console.log(`  price direction: OK — ${comparable} products compared, none advertised below Woo's charge`);
+    return;
+  }
+
+  console.warn('\n' + '!'.repeat(70));
+  console.warn(`ADVERTISED BELOW CHARGED on ${underAdvertised.length}/${comparable} products.`);
+  console.warn('The locked exchange rate has drifted below Woo\'s — customers would be');
+  console.warn('billed MORE than the page shows. Raise NUXT_PUBLIC_BUILD_TIME_EXCHANGE_RATE.');
+  underAdvertised
+    .sort((a, b) => b.gap - a.gap)
+    .slice(0, 5)
+    .forEach((u) => console.warn(`  ${u.slug}: shown ${u.shown} vs charged ${u.wooCad} (-$${u.gap})`));
+  console.warn('!'.repeat(70) + '\n');
+}
+
 // ─── 4. Publish to Cloudflare KV ─────────────────────────────────────────────
 
 /**
@@ -218,6 +275,8 @@ async function uploadToKV(feed) {
 
   const missingBrand = items.filter((i) => i.brand === 'ProSkaters Place').length;
   const outOfStock = items.filter((i) => i.availability === 'out_of_stock').length;
+
+  reportPriceDirection(catalogue, prices);
 
   const feed = {
     generatedAt: new Date().toISOString(),

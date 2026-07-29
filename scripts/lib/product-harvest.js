@@ -72,6 +72,11 @@ const PRODUCTS_QUERY = `
         terms(first: 60) { nodes { taxonomyName name } }
         ... on SimpleProduct {
           price(format: RAW)
+          # Currency-marked variant ("$577.99 CAD" / "US$409.97"). RAW strips the
+          # marker, so this is the only way a consumer can tell which currency the
+          # backend actually returned — see reportPriceDirection in
+          # build-merchant-feed.js and docs/ca-price-integrity.md.
+          markedPrice: price
           regularPrice(format: RAW)
           onSale
           stockStatus
@@ -80,6 +85,11 @@ const PRODUCTS_QUERY = `
         }
         ... on VariableProduct {
           price(format: RAW)
+          # Currency-marked variant ("$577.99 CAD" / "US$409.97"). RAW strips the
+          # marker, so this is the only way a consumer can tell which currency the
+          # backend actually returned — see reportPriceDirection in
+          # build-merchant-feed.js and docs/ca-price-integrity.md.
+          markedPrice: price
           regularPrice(format: RAW)
           onSale
           stockStatus
