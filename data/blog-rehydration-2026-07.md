@@ -17,7 +17,7 @@
 
 ## Priority queue — write in this order
 
-### 1. Roller Rinks & Indoor Roller Skating Across Canada (2026) ⭐ WRITE FIRST
+### 1. Roller Rinks & Indoor Roller Skating Across Canada (2026) — ✅ PUBLISHED 2026-07-23
 
 - **Primary:** roller skating near me (4,400 sv, kd 23, currently pos 39 via wrong page)
 - **Cluster:** roller rinks near me (1,000, kd 5, pos 19) · indoor roller skating (880, kd 6, pos 22) · roller skating indoor (880, kd 7, pos 36) · roller skating places (590, kd 6, pos 37) · rollerskating (880, kd 24, pos 32) — **~8,600 sv combined, all striking distance**
@@ -26,7 +26,7 @@
 - **Cannibalization guard:** Toronto section stays short and links to `/blog/toronto-roller-skating-spots-2026` and `/blog/roller-skating-toronto-guide` — this page targets *national* near-me intent, the Toronto pages keep the city intent.
 - **Internal links:** `/product-category/roller-skates`, `/product-category/inline-skates`, `/roller-skates-size-calculator`, `/blog/complete-beginners-guide-inline-quad-skating`.
 
-### 2. How to Roller Skate: Step-by-Step for Adults
+### 2. How to Roller Skate: Step-by-Step for Adults — ✅ PUBLISHED 2026-07-29
 
 - **Primary:** how to roller skate (320 sv, kd 3)
 - **Cluster:** how to skate roller (320, kd 7) · how to skate on roller skates (320, kd 13) — ~960 sv, all informational, no dedicated page

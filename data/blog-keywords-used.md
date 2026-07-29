@@ -12,6 +12,16 @@
 
 ### High Priority Keywords (Already Published)
 
+- [x] **how to roller skate** (320 sv, 3 kd — rehydration doc topic #2)
+
+  - Post: `/blog/how-to-roller-skate`
+  - Published: 2026-07-29
+  - Status: âœ… Live
+  - Secondary: how to skate roller (320), how to skate on roller skates (320) — ~960 sv cluster, no dedicated page previously
+  - Angle: pure first-session technique for ADULT beginners (stand, ready position, march, V-stride, glide, stop, fall). Deliberately excludes gear/buying (owned by `/blog/complete-beginners-guide-inline-quad-skating`) and backwards skating (owned by `/blog/how-to-skate-backwards-tutorial`) — links to both instead
+  - Note: hero image reuses `/images/blog/posted/toronto-roller-skating.png` (previously unused) because agency image generation is out of Intelligence Credits — swap for a bespoke hero when funded
+  - Performance: Monitoring
+
 - [x] **roller skating near me** (4,400 sv, 23 kd — fresh 2026-07 data; rehydration doc topic #1)
 
   - Post: `/blog/roller-rinks-indoor-skating-canada`
