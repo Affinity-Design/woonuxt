@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
     if (turnstileToken) {
       try {
         console.log("Verifying Turnstile token");
-        const turnstileSecretKey = config.public.turnstyleSecretKey;
+        const turnstileSecretKey = config.turnstyleSecretKey;
 
         if (!turnstileSecretKey) {
           console.error("Missing Turnstile secret key in configuration");

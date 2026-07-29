@@ -4,7 +4,7 @@ import VueTurnstile from 'vue-turnstile'; // Remove curly braces :cite[2]:cite[7
 const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
-const {loginUser, isPending, registerUser, sendResetPasswordEmail, loginClients} = useAuth();
+const {loginUser, isPending, sendResetPasswordEmail, loginClients} = useAuth();
 const turnstileToken = ref<string>('');
 const turnstileMounted = ref(false);
 const turnstileSiteKey = useRuntimeConfig();
@@ -45,8 +45,6 @@ const verifyTurnstile = async () => {
 const updateFormView = () => {
   if (route.query.action === 'forgotPassword') {
     formView.value = 'forgotPassword';
-  } else if (route.query.action === 'register') {
-    formView.value = 'register';
   } else {
     formView.value = 'login';
   }
@@ -94,20 +92,7 @@ const handleFormSubmit = async () => {
     turnstileToken: turnstileToken.value, // Direct ref access
   };
 
-  if (formView.value === 'register') {
-    // Create a copy of credentials without rememberMe for registration
-    const {rememberMe, ...registrationCredentials} = credentials;
-    const {success, error} = await registerUser(registrationCredentials);
-    if (success) {
-      errorMessage.value = '';
-      message.value = t('messages.account.accountCreated') + ' ' + t('messages.account.loggingIn');
-      setTimeout(() => {
-        login(credentials);
-      }, 2000);
-    } else {
-      errorMessage.value = error;
-    }
-  } else if (formView.value === 'forgotPassword') {
+  if (formView.value === 'forgotPassword') {
     resetPassword(credentials);
   } else {
     await login(credentials);
@@ -130,8 +115,6 @@ const navigate = (view: string) => {
   formView.value = view;
   if (view === 'forgotPassword') {
     router.push({query: {action: 'forgotPassword'}});
-  } else if (view === 'register') {
-    router.push({query: {action: 'register'}});
   } else {
     router.push({query: {}});
   }
@@ -140,8 +123,6 @@ const navigate = (view: string) => {
 const formTitle = computed(() => {
   if (formView.value === 'login') {
     return t('messages.account.loginToAccount');
-  } else if (formView.value === 'register') {
-    return t('messages.account.accountRegister');
   } else if (formView.value === 'forgotPassword') {
     return t('messages.account.forgotPassword');
   }
@@ -150,14 +131,11 @@ const formTitle = computed(() => {
 const buttonText = computed(() => {
   if (formView.value === 'login') {
     return t('messages.account.login');
-  } else if (formView.value === 'register') {
-    return t('messages.account.register');
   } else if (formView.value === 'forgotPassword') {
     return t('messages.account.sendPasswordResetEmail');
   }
 });
 
-const emailLabel = computed(() => (formView.value === 'register' ? t('messages.billing.email') : t('messages.account.emailOrUsername')));
 const usernameLabel = computed(() => (formView.value === 'login' ? t('messages.account.emailOrUsername') : t('messages.account.username')));
 const passwordLabel = computed(() => t('messages.account.password'));
 
@@ -178,10 +156,10 @@ const inputPlaceholder = computed(() => {
       <p class="text-gray-500 mt-2">Welcome back! Select method to login.</p>
     </div>
 
-    <LoginProviders class="my-8" v-if="formView === 'login' || formView === 'register'" />
+    <LoginProviders class="my-8" v-if="formView === 'login'" />
 
     <form class="mt-6" @submit.prevent="handleFormSubmit">
-      <div v-if="formView === 'register' || formView === 'forgotPassword'" for="email">
+      <div v-if="formView === 'forgotPassword'" for="email">
         <input id="email" v-model="userInfo.email" :placeholder="inputPlaceholder.email" autocomplete="email" type="text" required />
       </div>
       <p v-if="formView === 'forgotPassword'" class="text-sm text-gray-500">
@@ -235,19 +213,6 @@ const inputPlaceholder = computed(() => {
       </button>
     </form>
 
-    <div v-if="formView === 'login'" class="my-6 text-center">
-      {{ $t('messages.account.noAccount') }}
-      <a class="font-semibold cursor-pointer text-primary" @click="navigate('register')"> {{ $t('messages.account.accountRegister') }} </a>.
-    </div>
-
-    <div v-if="formView === 'register'" class="my-2 text-center justify-center">
-      {{ $t('messages.account.hasAccount') }}
-      <a class="font-semibold cursor-pointer text-primary" @click="navigate('login')">
-        {{ $t('messages.general.please') }}
-        {{ $t('messages.account.accountLogin') }}
-      </a>
-    </div>
-
     <div class="my-8 text-center cursor-pointer" @click="navigate('login')" v-if="formView === 'forgotPassword'">
       {{ $t('messages.account.backToLogin') }}
     </div>
@@ -256,7 +221,7 @@ const inputPlaceholder = computed(() => {
     <div class="my-4">
       <ClientOnly>
         <VueTurnstile
-          v-if="formView === 'login' || formView === 'register'"
+          v-if="formView === 'login'"
           :site-key="turnstileSiteKey.public.turnstyleSiteKey"
           v-model="turnstileToken"
           @verify="

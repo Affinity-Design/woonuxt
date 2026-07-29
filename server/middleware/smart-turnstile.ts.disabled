@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Verify Turnstile token
-  if (!config.public.turnstyleSecretKey) {
+  if (!config.turnstyleSecretKey) {
     console.error('❌ Missing Turnstile secret key configuration');
     throw createError({
       statusCode: 500,
@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const formData = new FormData();
-    formData.append('secret', config.public.turnstyleSecretKey);
+    formData.append('secret', config.turnstyleSecretKey);
     formData.append('response', turnstileToken);
 
     // Get client IP

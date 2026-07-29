@@ -21,8 +21,8 @@ export default defineNitroPlugin((nitroApp) => {
 
       // Only override if it's not the specific admin order User-Agent
       if (currentUA !== 'WooNuxt-Test-GraphQL-Creator/1.0') {
-        // Force the User-Agent header
-        // This bypasses the WordPress Turnstile plugin which whitelists this specific User-Agent
+        // Identify first-party SSR traffic. WordPress must never treat this spoofable
+        // header as authorization for account creation or another privileged action.
         if (ctx.options.headers instanceof Headers) {
           ctx.options.headers.set('User-Agent', 'ProSkatersPlaceFrontend');
         } else {

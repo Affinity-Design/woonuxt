@@ -1,4 +1,4 @@
-import type {RegisterCustomerInput, CreateAccountInput, ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
+import type {CreateAccountInput, ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
 
 interface AuthCredentials extends LoginCredentials {
   turnstileToken: string;
@@ -117,26 +117,12 @@ export const useAuth = () => {
     }
   };
 
-  const registerUser = async (userInfo: RegisterCustomerInput & {turnstileToken?: string}): Promise<{success: boolean; error: any}> => {
-    isPending.value = true;
-    try {
-      const {turnstileToken, ...input} = userInfo;
-      await GqlRegisterCustomer(
-        {input},
-        {
-          headers: {
-            'X-Turnstile-Token': turnstileToken || '',
-          },
-        },
-      );
-      return {success: true, error: null};
-    } catch (error: any) {
-      logGQLError(error);
-      const gqlError = error?.gqlErrors?.[0];
-      isPending.value = false;
-      return {success: false, error: gqlError?.message};
-    }
-  };
+  // Kept in the composable contract because the read-only base layer references it.
+  // Standalone registration is intentionally disabled; checkout owns account creation.
+  const registerUser = async (_userInfo: unknown): Promise<{success: boolean; error: string}> => ({
+    success: false,
+    error: 'Accounts can only be created while placing an order.',
+  });
 
   // Update the user state
   // IMPORTANT: Merge billing/shipping to preserve locally-entered form data
