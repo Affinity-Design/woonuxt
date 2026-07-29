@@ -44,13 +44,37 @@ const OUTPUT_DIR = resolve(process.cwd(), 'data');
 const OUTPUT_FILE = resolve(OUTPUT_DIR, 'merchant-feed-ca.json');
 
 const BATCH_SIZE = 100; // products per GraphQL page
-const PAGE_CONCURRENCY = 8; // simultaneous product-page fetches
+const PAGE_CONCURRENCY = Number(process.env.FEED_CONCURRENCY || 16); // simultaneous product-page fetches
 const PAGE_RETRIES = 2;
+
+// Runs inside `npm run build`, so don't re-scrape 1,700 pages on back-to-back
+// deploys. Rebuild only when the existing feed is older than this.
+const MAX_AGE_HOURS = Number(process.env.FEED_MAX_AGE_HOURS || 12);
 
 const argLimit = (() => {
   const i = process.argv.indexOf('--limit');
   return i !== -1 && process.argv[i + 1] ? parseInt(process.argv[i + 1], 10) : null;
 })();
+const argForce = process.argv.includes('--force');
+
+/** True when a recent enough feed already exists and we can skip the rebuild. */
+function existingFeedIsFresh() {
+  if (argForce || argLimit) return false;
+  try {
+    const {readFileSync} = require('fs');
+    const existing = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'));
+    if (!existing?.generatedAt || !existing?.itemCount) return false;
+    const ageHours = (Date.now() - new Date(existing.generatedAt).getTime()) / 36e5;
+    if (ageHours < MAX_AGE_HOURS) {
+      console.log(`Merchant feed is ${ageHours.toFixed(1)}h old (< ${MAX_AGE_HOURS}h) with ${existing.itemCount} items — skipping rebuild.`);
+      console.log('Use --force or set FEED_MAX_AGE_HOURS=0 to rebuild anyway.');
+      return true;
+    }
+  } catch {
+    /* no usable existing feed — build it */
+  }
+  return false;
+}
 
 const BROWSER_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
@@ -316,8 +340,12 @@ async function uploadToKV(feed) {
 
 (async () => {
   const startedAt = Date.now();
+
+  if (existingFeedIsFresh()) return;
+
   console.log('Building Merchant Center feed for proskatersplace.ca');
   console.log(`  GraphQL: ${GQL_HOST}`);
+  console.log(`  concurrency: ${PAGE_CONCURRENCY}`);
   if (argLimit) console.log(`  LIMIT: ${argLimit} (smoke test)`);
 
   const catalogue = await fetchCatalogue();
@@ -359,9 +387,7 @@ async function uploadToKV(feed) {
   // delists them. A partial scrape must never overwrite a good feed.
   const MIN_ITEMS = 100;
   if (items.length < MIN_ITEMS) {
-    console.error(`\nREFUSING TO PUBLISH: only ${items.length} items (min ${MIN_ITEMS}).`);
-    console.error('Merchant Center would treat this as a mass product removal. Investigate the skips above.');
-    process.exit(1);
+    throw new Error(`only ${items.length} items collected (min ${MIN_ITEMS}) — Merchant Center would read this as a mass product removal`);
   }
 
   if (!existsSync(OUTPUT_DIR)) mkdirSync(OUTPUT_DIR, {recursive: true});
@@ -384,6 +410,16 @@ async function uploadToKV(feed) {
     skipped.slice(0, 8).forEach((s) => console.log(`    - ${s.slug}: ${s.reason}`));
   }
 })().catch((err) => {
-  console.error('\nFEED BUILD FAILED:', err.message);
-  process.exit(1);
+  console.error('\n' + '='.repeat(70));
+  console.error('MERCHANT FEED BUILD FAILED:', err.message);
+  console.error('The previously published feed (KV) stays live and unchanged.');
+  console.error('='.repeat(70) + '\n');
+
+  // Exit 0 by default so a feed problem can never block a deploy — the route
+  // keeps serving the last good KV copy, which is far better than a failed
+  // release. Handled here rather than with a shell `|| echo` because `&&`/`||`
+  // are left-associative: wrapping it in the npm chain would also have swallowed
+  // failures from the EARLIER build steps and let nuxt build run regardless.
+  // Use --strict for cron/manual runs where a failure should be surfaced.
+  process.exit(process.argv.includes('--strict') ? 1 : 0);
 });
