@@ -57,23 +57,32 @@ const argLimit = (() => {
 })();
 const argForce = process.argv.includes('--force');
 
-/** True when a recent enough feed already exists and we can skip the rebuild. */
-function existingFeedIsFresh() {
-  if (argForce || argLimit) return false;
+/**
+ * The committed feed, if it is recent enough to reuse. Returns null when a
+ * rebuild is needed.
+ *
+ * Returning the feed rather than a boolean matters: the route reads from KV in
+ * production (`fs` is not available in a Cloudflare Worker, so the file fallback
+ * never fires there). If the skip path returned early without uploading, a CI
+ * build that skipped the rebuild would leave KV empty and the route would answer
+ * 503 — which is exactly what happened on the first deploy.
+ */
+function freshExistingFeed() {
+  if (argForce || argLimit) return null;
   try {
     const {readFileSync} = require('fs');
     const existing = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'));
-    if (!existing?.generatedAt || !existing?.itemCount) return false;
+    if (!existing?.generatedAt || !existing?.itemCount) return null;
     const ageHours = (Date.now() - new Date(existing.generatedAt).getTime()) / 36e5;
     if (ageHours < MAX_AGE_HOURS) {
       console.log(`Merchant feed is ${ageHours.toFixed(1)}h old (< ${MAX_AGE_HOURS}h) with ${existing.itemCount} items — skipping rebuild.`);
       console.log('Use --force or set FEED_MAX_AGE_HOURS=0 to rebuild anyway.');
-      return true;
+      return existing;
     }
   } catch {
     /* no usable existing feed — build it */
   }
-  return false;
+  return null;
 }
 
 // ─── 1. Catalogue + pricing: shared harvest ──────────────────────────────────
@@ -240,7 +249,14 @@ async function uploadToKV(feed) {
 (async () => {
   const startedAt = Date.now();
 
-  if (existingFeedIsFresh()) return;
+  // Even when the rebuild is skipped, still publish to KV — that is the only
+  // source the production route can read.
+  const reusable = freshExistingFeed();
+  if (reusable) {
+    await uploadToKV(reusable);
+    console.log(`\n  Feed URL: ${SITE}/merchant-feed.xml`);
+    return;
+  }
 
   console.log('Building Merchant Center feed for proskatersplace.ca');
   console.log(`  GraphQL: ${GQL_HOST}`);
