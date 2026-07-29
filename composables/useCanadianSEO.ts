@@ -16,6 +16,26 @@
 
 type Locale = 'en-CA' | 'fr-CA';
 
+const SITE_ORIGIN = 'https://proskatersplace.ca';
+
+/**
+ * Open Graph and Twitter crawlers do NOT resolve relative image paths against
+ * the page URL — they drop the image entirely. Nearly every call site passes a
+ * site-relative path ('/images/…'), so previews on Facebook, LinkedIn, Slack and
+ * iMessage were rendering without an image (2026-07-23 audit).
+ *
+ * Normalizing centrally here means every setCanadianSEO() caller inherits the
+ * fix, including pages and components that pass images through untouched.
+ */
+const toAbsoluteImageUrl = (image?: string): string | undefined => {
+  if (!image) return undefined;
+  const trimmed = image.trim();
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
+  return `${SITE_ORIGIN}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+};
+
 interface CanadianSEOOptions {
   title: string;
   description: string;
@@ -207,6 +227,8 @@ export const useCanadianSEO = () => {
     const canonicalUrl = url || getCanonicalUrl(currentPath, locale);
     const hreflangTags = generateHreflangTags(currentPath, locale, usUrl);
     const canadianMeta = getCanadianMetaTags(locale);
+    // Social crawlers require absolute image URLs (see toAbsoluteImageUrl).
+    const absoluteImage = toAbsoluteImageUrl(image);
 
     // Determine language attribute
     const htmlLang = locale === 'fr-CA' ? 'fr-CA' : 'en-CA';
@@ -233,8 +255,8 @@ export const useCanadianSEO = () => {
     ];
 
     // Add image if provided
-    if (image) {
-      metaTags.push({property: 'og:image', content: image}, {name: 'twitter:image', content: image});
+    if (absoluteImage) {
+      metaTags.push({property: 'og:image', content: absoluteImage}, {property: 'og:image:secure_url', content: absoluteImage}, {name: 'twitter:image', content: absoluteImage});
     }
 
     // Add price/product info if provided
@@ -274,9 +296,12 @@ export const useCanadianSEO = () => {
       twitterCard: 'summary_large_image',
       twitterTitle: title,
       twitterDescription: description,
-      ...(image && {
-        ogImage: image,
-        twitterImage: image,
+      // Both this and the useHead meta array emit og:image/twitter:image (unhead
+      // dedupes by key) — both must carry the absolute URL or the winner could
+      // still be relative.
+      ...(absoluteImage && {
+        ogImage: absoluteImage,
+        twitterImage: absoluteImage,
       }),
     });
 

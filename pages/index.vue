@@ -39,35 +39,11 @@ setCanadianSEO({
 // Organization & WebSite structured data
 useHead({
   script: [
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        '@id': 'https://proskatersplace.ca/#organization',
-        name: 'ProSkaters Place',
-        url: 'https://proskatersplace.ca',
-        logo: 'https://proskatersplace.ca/icon.png',
-        description:
-          "Canada's most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 2011.",
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: '110 Galaxy Blvd',
-          addressLocality: 'Etobicoke',
-          addressRegion: 'ON',
-          postalCode: 'M9W 4Y6',
-          addressCountry: 'CA',
-        },
-        contactPoint: {
-          '@type': 'ContactPoint',
-          telephone: '+1-416-739-2929',
-          contactType: 'Customer Service',
-          areaServed: 'CA',
-          availableLanguage: ['en', 'fr'],
-        },
-        sameAs: ['https://www.facebook.com/proskatersplace', 'https://www.instagram.com/proskatersplace'],
-      }),
-    },
+    // NOTE: the Organization node that used to live here was merged into the
+    // single site-wide SportingGoodsStore node in nuxt.config.ts (2026-07-23) —
+    // two competing Organization entities were being emitted, and this one's
+    // logo (/icon.png) returned 404. The WebSite node below still references it
+    // by @id, which resolves against the consolidated node.
     {
       type: 'application/ld+json',
       innerHTML: JSON.stringify({

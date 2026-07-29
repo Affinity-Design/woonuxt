@@ -250,19 +250,41 @@ const selectProductInput = computed<AddToCartInput>(() => {
   return input;
 });
 
+const normalizeStockStatus = (status?: string | null): string =>
+  String(status ?? '')
+    .toUpperCase()
+    .replace(/[\s_-]/g, '');
+
+const matchesStockStatus = (status: string | undefined | null, enumValue: string): boolean =>
+  !!status && normalizeStockStatus(status) === normalizeStockStatus(enumValue);
+
+// SSR-safe availability for variable products. No variation is selected during
+// server rendering: AttributeSelections emits `attrs-changed` from its own setup,
+// which runs AFTER <StockStatus> has been serialized. Defaulting to OUT_OF_STOCK
+// therefore made every variable product ship a red "Out of Stock" in the server
+// HTML — what crawlers and first paint see — while the Product JSON-LD correctly
+// said InStock. Fall back to real product-level availability instead.
+const unselectedVariableStockStatus = computed<string>(() => {
+  if (matchesStockStatus(product.value?.stockStatus, StockStatusEnum.IN_STOCK)) return StockStatusEnum.IN_STOCK;
+
+  const variationStatuses = (product.value?.variations?.nodes ?? []).map((variationNode: any) => variationNode?.stockStatus).filter(Boolean) as string[];
+
+  if (variationStatuses.some((status) => matchesStockStatus(status, StockStatusEnum.IN_STOCK))) return StockStatusEnum.IN_STOCK;
+  if (variationStatuses.some((status) => matchesStockStatus(status, StockStatusEnum.ON_BACKORDER))) return StockStatusEnum.ON_BACKORDER;
+  if (matchesStockStatus(product.value?.stockStatus, StockStatusEnum.ON_BACKORDER)) return StockStatusEnum.ON_BACKORDER;
+
+  return StockStatusEnum.OUT_OF_STOCK;
+});
+
 const stockStatus = computed(() => {
-  // console.log("[[slug].vue] Computing stockStatus...");
   if (isVariableProduct.value && activeVariation.value) {
-    // console.log("[[slug].vue] Variable product with activeVariation. Stock status from activeVariation:", activeVariation.value.stockStatus);
     return activeVariation.value.stockStatus && String(activeVariation.value.stockStatus).trim() !== ''
       ? activeVariation.value.stockStatus
       : StockStatusEnum.OUT_OF_STOCK;
   }
   if (isVariableProduct.value && !activeVariation.value) {
-    // console.log("[[slug].vue] Variable product, but NO activeVariation. Defaulting to OUT_OF_STOCK for overall status.");
-    return StockStatusEnum.OUT_OF_STOCK;
+    return unselectedVariableStockStatus.value;
   }
-  // console.log("[[slug].vue] Simple or other product type. Stock status from product.value:", product.value?.stockStatus);
   return product.value?.stockStatus || StockStatusEnum.OUT_OF_STOCK;
 });
 

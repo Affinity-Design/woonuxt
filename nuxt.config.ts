@@ -270,9 +270,24 @@ export default defineNuxtConfig({
       cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
     }, // Rely on prerendering
     '/product/**': {cache: {maxAge: 60 * 60 * 72, base: 'cache'}}, // Use KV cache for products
-    '/checkout/**': {ssr: false},
-    '/cart': {ssr: false},
-    '/account/**': {ssr: false},
+
+    // Account/cart/checkout are client-only shells with no indexable content:
+    // they were serving 200 with the homepage title and canonical, and no robots
+    // directive at all (2026-07-23 audit). /search and bare /products are empty
+    // SSR shells for the same reason. robots.txt Disallow alone does not deindex.
+    '/cart': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/checkout/**': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/checkout': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/account/**': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/my-account/**': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/my-account': {ssr: false, headers: {'X-Robots-Tag': 'noindex, follow'}},
+    '/search': {headers: {'X-Robots-Tag': 'noindex, follow'}},
+
+    // Retired dev/duplicate pages (deleted 2026-07-23) — 301 the two that have a
+    // real equivalent so Google swaps them rather than keeping duplicates indexed.
+    '/privacy_new': {redirect: {to: '/privacy', statusCode: 301}},
+    '/terms_backup': {redirect: {to: '/terms', statusCode: 301}},
+
     '/contact': {prerender: true},
     '/terms': {prerender: true},
     '/privacy': {prerender: true},
@@ -331,27 +346,48 @@ export default defineNuxtConfig({
         // Structured data for Organization
         // NOTE: unhead v2 (Nuxt >= 3.16) removed the `children` prop — use
         // innerHTML, otherwise the script tag renders empty
+        // Single site-wide business entity.
+        // Until 2026-07-23 the homepage carried TWO conflicting Organization
+        // nodes — this one (name "ProSkaters Place Canada", no @id, city-only
+        // address) and one in pages/index.vue (@id #organization, full street
+        // address, telephone, sameAs, but a logo that 404'd). Google was handed
+        // two competing brand entities. Consolidated here, keyed by @id so the
+        // WebSite node in pages/index.vue still resolves its publisher.
+        //
+        // @type SportingGoodsStore is a subtype of both Organization and
+        // LocalBusiness, so the real Etobicoke retail location earns local
+        // signals — and currenciesAccepted/paymentAccepted become valid
+        // properties (they are not defined on bare Organization).
         {
           type: 'application/ld+json',
           innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: 'ProSkaters Place Canada',
+            '@type': 'SportingGoodsStore',
+            '@id': 'https://proskatersplace.ca/#organization',
+            name: 'ProSkaters Place',
+            alternateName: 'ProSkaters Place Canada',
             url: 'https://proskatersplace.ca',
             logo: 'https://proskatersplace.ca/logo.svg',
+            image: 'https://proskatersplace.ca/logo.svg',
             description:
-              "Canada's premier destination for inline skates, roller skates, and skating accessories. Expert advice and fast shipping across Canada.",
+              "Canada's most trusted online skate shop specializing in inline skates, roller skates, protective gear, and skating accessories. Serving Toronto and all of Canada since 2011.",
+            telephone: '+1-416-739-2929',
             address: {
               '@type': 'PostalAddress',
-              addressCountry: 'CA',
+              streetAddress: '110 Galaxy Blvd',
+              addressLocality: 'Etobicoke',
               addressRegion: 'ON',
-              addressLocality: 'Toronto',
+              postalCode: 'M9W 4Y6',
+              addressCountry: 'CA',
             },
             contactPoint: {
               '@type': 'ContactPoint',
+              telephone: '+1-416-739-2929',
               contactType: 'customer service',
+              areaServed: 'CA',
               availableLanguage: ['English', 'French'],
             },
+            sameAs: ['https://www.facebook.com/proskatersplace', 'https://www.instagram.com/proskatersplace'],
             currenciesAccepted: 'CAD',
             paymentAccepted: ['Credit Card', 'PayPal', 'Interac'],
             areaServed: {

@@ -57,7 +57,8 @@ useHead({
           name: 'ProSkaters Place',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://proskatersplace.ca/icon.png',
+            // /icon.png returned 404 — logo.svg is the real asset (2026-07-23).
+            url: 'https://proskatersplace.ca/logo.svg',
           },
           address: {
             '@type': 'PostalAddress',

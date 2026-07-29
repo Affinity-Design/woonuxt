@@ -4,7 +4,7 @@ const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoad
 
 // Core composables
 const {setProducts, updateProductList} = useProducts();
-const {isQueryEmpty} = useHelpers();
+const {isQueryEmpty, productsPerPage} = useHelpers();
 const {storeSettings} = useAppConfig();
 const route = useRoute();
 const nuxtApp = useNuxtApp();
@@ -417,9 +417,17 @@ watch(
   {immediate: true},
 );
 
+// Current page from the URL, so paginated views self-canonicalize and get their
+// own title instead of duplicating page 1 (2026-07-23 audit).
+const seoCurrentPage = computed(() => {
+  const raw = Array.isArray(route.query.page) ? route.query.page[0] : route.query.page;
+  const parsed = parseInt(String(raw ?? ''), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+});
+
 // Apply comprehensive SEO for category
 watch(
-  () => [productsInCategory.value, productCount.value],
+  () => [productsInCategory.value, productCount.value, seoCurrentPage.value],
   async ([products, count]) => {
     if (products && products.length > 0 && count > 0) {
       await setCategorySEO({
@@ -438,6 +446,8 @@ watch(
         })),
         totalProducts: count,
         locale: 'en-CA',
+        currentPage: seoCurrentPage.value,
+        totalPages: Math.max(1, Math.ceil((count as number) / productsPerPage)),
       });
     }
   },

@@ -39,6 +39,46 @@
 // powers the en-us hreflang alternate on category pages.
 import usCategoryPaths from '~/data/us-category-paths.json';
 
+/**
+ * Convert authored category copy (which is intentionally HTML — <CategoryContent>
+ * renders it on-page) into a clean plain-text meta description.
+ *
+ * Without this, the raw markup was emitted verbatim into meta description,
+ * og:description, twitter:description AND CollectionPage.description — ~825 chars
+ * beginning `<h2 class="text-2xl font-bold mb-4">` (2026-07-23 audit).
+ *
+ * Tags become a space (never welding words together), entities are decoded, and
+ * the result is cut at a sentence boundary when one lands late enough, otherwise
+ * at a word boundary. Idempotent: safe to apply to already-clean text.
+ */
+const toMetaDescription = (input?: string | null, maxLength = 155): string => {
+  if (!input) return '';
+
+  const text = String(input)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    // Tag removal leaves a space before punctuation ("inline skates ." ) — close it up.
+    .replace(/\s+([.,;:!?])/g, '$1')
+    .trim();
+
+  if (text.length <= maxLength) return text;
+
+  const clipped = text.slice(0, maxLength);
+
+  // Prefer ending on a complete sentence if one finishes in the last third.
+  const lastSentenceEnd = Math.max(clipped.lastIndexOf('. '), clipped.lastIndexOf('! '), clipped.lastIndexOf('? '));
+  if (lastSentenceEnd > maxLength * 0.6) return clipped.slice(0, lastSentenceEnd + 1).trim();
+
+  const lastSpace = clipped.lastIndexOf(' ');
+  return (lastSpace > 0 ? clipped.slice(0, lastSpace) : clipped).trim() + '…';
+};
+
 export interface CategorySEOProduct {
   name: string;
   slug: string;
@@ -265,30 +305,27 @@ export const useCategorySEO = () => {
    * Generate canonical URL with proper filter handling
    * Prevents duplicate content issues from faceted navigation
    */
-  const generateCanonicalUrl = (slug: string, filters?: Record<string, string[]>): string => {
+  const generateCanonicalUrl = (slug: string, filters?: Record<string, string[]>, currentPage = 1): string => {
     const baseUrl = `https://proskatersplace.ca/product-category/${slug}`;
-
-    // If no filters or only sorting, return base URL
-    if (!filters || Object.keys(filters).length === 0) {
-      return baseUrl;
-    }
 
     // Allow specific filter parameters in canonical (e.g., brand, size)
     // Block others (e.g., color, price range) to avoid duplication
     const allowedFilters = ['brand', 'size', 'skill-level'];
-    const canonicalFilters: string[] = [];
+    const params: string[] = [];
 
-    for (const [key, values] of Object.entries(filters)) {
+    for (const [key, values] of Object.entries(filters || {})) {
       if (allowedFilters.includes(key) && values.length > 0) {
-        canonicalFilters.push(`${key}=${values.sort().join(',')}`);
+        // Copy before sorting — .sort() mutates the caller's filter array.
+        params.push(`${key}=${[...values].sort().join(',')}`);
       }
     }
 
-    if (canonicalFilters.length === 0) {
-      return baseUrl;
-    }
+    // Paginated pages must self-canonicalize. Pointing page 2..N at page 1
+    // declared them duplicates, so Google dropped them — taking with them the
+    // only crawl path to the ~126 products beyond page 1 of a big category.
+    if (currentPage > 1) params.push(`page=${currentPage}`);
 
-    return `${baseUrl}?${canonicalFilters.join('&')}`;
+    return params.length ? `${baseUrl}?${params.join('&')}` : baseUrl;
   };
 
   /**
@@ -298,10 +335,16 @@ export const useCategorySEO = () => {
   const setCategorySEO = async (options: CategorySEOOptions): Promise<void> => {
     const {slug, name, description: customDescription, products, totalProducts, locale = 'en-CA', currentPage = 1, totalPages = 1, filters} = options;
 
-    // Generate optimized title and description
-    const title = generateCategoryTitle(name, totalProducts, locale);
-    const description = customDescription || generateCategoryDescription(name, totalProducts, slug, locale);
-    const canonicalUrl = generateCanonicalUrl(slug, filters);
+    // Generate optimized title and description.
+    // Page 2+ gets a distinct title — an identical title on every paginated URL
+    // is a duplicate-title signal now that those URLs self-canonicalize.
+    const baseTitle = generateCategoryTitle(name, totalProducts, locale);
+    const title = currentPage > 1 ? baseTitle.replace(' | ProSkaters Place', ` | Page ${currentPage} | ProSkaters Place`) : baseTitle;
+
+    // Category copy is authored as HTML for on-page rendering — strip it before
+    // it reaches any meta/schema string.
+    const description = toMetaDescription(customDescription) || generateCategoryDescription(name, totalProducts, slug, locale);
+    const canonicalUrl = generateCanonicalUrl(slug, filters, currentPage);
     const baseUrl = 'https://proskatersplace.ca';
     const url = `${baseUrl}/product-category/${slug}`;
 

@@ -16,10 +16,14 @@ const route = useRoute();
 const router = useRouter();
 const { productsPerPage } = useHelpers();
 
-// Get current page from URL query parameter (default to 1 if not present)
+// Get current page from URL query parameter (default to 1 if not present).
+// Hardened: this value now builds real hrefs, so a junk ?page=abc must not be
+// able to emit a crawlable ?page=NaN link.
 const currentPage = computed(() => {
   const pageParam = route.query.page;
-  return pageParam ? parseInt(pageParam as string) : 1;
+  const raw = Array.isArray(pageParam) ? pageParam[0] : pageParam;
+  const parsed = parseInt(String(raw ?? ''), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 });
 
 // Calculate total number of pages
@@ -52,6 +56,17 @@ const pageRange = computed(() => {
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
 
+// Real URL for a given page. Pagination used to render <button> elements with
+// no href, so crawlers saw a dead end and the ~5/6 of products beyond page 1 had
+// no path from their category (2026-07-23 audit). Page 1 drops ?page entirely so
+// it points at the clean canonical URL. Active filter params are preserved.
+const pageHref = (pageNumber: number): string => {
+  const query: Record<string, any> = {...route.query};
+  if (pageNumber <= 1) delete query.page;
+  else query.page = String(pageNumber);
+  return router.resolve({path: route.path, query}).href;
+};
+
 // Client-side navigation handlers
 const navigateToPage = (pageNumber: number) => {
   // Update URL without refreshing page
@@ -66,16 +81,12 @@ const navigateToPage = (pageNumber: number) => {
   );
 };
 
-const goToPrevPage = () => {
-  if (!isFirstPage.value) {
-    navigateToPage(currentPage.value - 1);
-  }
-};
-
-const goToNextPage = () => {
-  if (!isLastPage.value) {
-    navigateToPage(currentPage.value + 1);
-  }
+// Keep SPA navigation for plain left-clicks, but let modifier-clicks and
+// middle-clicks behave like real links (new tab, etc.).
+const onPageClick = (event: MouseEvent, pageNumber: number) => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  navigateToPage(pageNumber);
 };
 
 // Check if we're on the first page
@@ -101,68 +112,78 @@ const showLastPageButton = computed(
       class="inline-flex self-end -space-x-px rounded-md shadow-sm isolate"
       aria-label="Pagination"
     >
-      <!-- PREV -->
-      <button
-        @click="goToPrevPage"
+      <!-- PREV — a disabled control must not be a crawlable link, so it renders
+           as a <span> on page 1 (an <a> without href is not a link anyway). -->
+      <span v-if="isFirstPage" class="prev cursor-not-allowed" aria-disabled="true" aria-label="Previous">
+        <Icon name="ion:chevron-back-outline" size="20" class="w-5 h-5" />
+      </span>
+      <a
+        v-else
+        :href="pageHref(currentPage - 1)"
+        @click="onPageClick($event, currentPage - 1)"
         class="prev"
-        :disabled="isFirstPage"
-        :class="{ 'cursor-not-allowed': isFirstPage }"
-        :aria-disabled="isFirstPage"
+        rel="prev"
         aria-label="Previous"
       >
         <Icon name="ion:chevron-back-outline" size="20" class="w-5 h-5" />
-      </button>
+      </a>
 
-      <!-- First page button with ellipsis -->
+      <!-- First page link with ellipsis -->
       <template v-if="showFirstPageButton">
-        <button
-          @click="navigateToPage(1)"
+        <a
+          :href="pageHref(1)"
+          @click="onPageClick($event, 1)"
           :aria-current="1 === currentPage ? 'page' : undefined"
           class="page-number"
         >
           1
-        </button>
+        </a>
         <span v-if="pageRange[0] > 2" class="ellipsis">...</span>
       </template>
 
       <!-- NUMBERS -->
-      <button
+      <a
         v-for="pageNumber in pageRange"
         :key="pageNumber"
-        @click="navigateToPage(pageNumber)"
+        :href="pageHref(pageNumber)"
+        @click="onPageClick($event, pageNumber)"
         :aria-current="pageNumber === currentPage ? 'page' : undefined"
         class="page-number"
       >
         {{ pageNumber }}
-      </button>
+      </a>
 
-      <!-- Last page button with ellipsis -->
+      <!-- Last page link with ellipsis -->
       <template v-if="showLastPageButton">
         <span
           v-if="pageRange[pageRange.length - 1] < numberOfPages - 1"
           class="ellipsis"
           >...</span
         >
-        <button
-          @click="navigateToPage(numberOfPages)"
+        <a
+          :href="pageHref(numberOfPages)"
+          @click="onPageClick($event, numberOfPages)"
           :aria-current="numberOfPages === currentPage ? 'page' : undefined"
           class="page-number"
         >
           {{ numberOfPages }}
-        </button>
+        </a>
       </template>
 
       <!-- NEXT -->
-      <button
-        @click="goToNextPage"
+      <span v-if="isLastPage" class="next cursor-not-allowed" aria-disabled="true" aria-label="Next">
+        <Icon name="ion:chevron-forward-outline" size="20" class="w-5 h-5" />
+      </span>
+      <a
+        v-else
+        :href="pageHref(currentPage + 1)"
+        @click="onPageClick($event, currentPage + 1)"
         class="next"
-        :disabled="isLastPage"
-        :class="{ 'cursor-not-allowed': isLastPage }"
-        :aria-disabled="isLastPage"
+        rel="next"
         aria-label="Next"
       >
         <Icon name="ion:chevron-forward-outline" size="20" class="w-5 h-5" />
-      </button>
+      </a>
     </nav>
   </div>
 </template>

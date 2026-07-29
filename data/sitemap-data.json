@@ -1,674 +1,814 @@
 {
-  "lastGenerated": "2026-07-23T20:04:17.117Z",
-  "totalRoutes": 1784,
+  "lastGenerated": "2026-07-29T20:50:24.936Z",
+  "totalRoutes": 1802,
   "breakdown": {
     "static": 9,
     "blog": 21,
     "categories": 63,
-    "products": 1691
+    "products": 1709
   },
   "routes": [
     {
       "url": "/",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "1.0",
       "type": "static"
     },
     {
       "url": "/about",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/blog",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/categories",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/products",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/contact",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/terms",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/privacy",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/roller-skates-size-calculator",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/blog/best-inline-skates-2025",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-inline-skates-canada-2025",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-kids-roller-skates-2026",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-mens-roller-skates-2026",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-pink-roller-skates-canada-2026",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/complete-beginners-guide-inline-quad-skating",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/how-to-skate-backwards-tutorial",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/inline-skates-vs-roller-skates",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/inline-skating-guide",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/online-skate-shop-canada",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/pro-skates-professional-guide",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-rinks-indoor-skating-canada",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skate-size-chart",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-complete-guide-2025",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-for-women",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-toronto",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skating-toronto-guide",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/skate-maintenance-winter",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/skate-shop-toronto",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/toronto-roller-skating-spots-2026",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/where-to-buy-roller-skates-near-me-canada",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/product-category/accessories",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-accessories",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-clothing",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-poles",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-protection",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-ski-boots",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/alpine-skis",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/backpacks-bags-carriers",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/bindings-and-parts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/board-components-parts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/board-wheels",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/clearance-items",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/color-kits-laces",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/cross-country-skis",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/discount-products",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/complete-frame-sets",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/gloves-wrist-protection",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/protective-helmets",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/ice-skates",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-frames",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-skate-bearings",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/skate-heel-brakes",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-skate-liners",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-skate-wheels",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-skates",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-skating",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/knee-and-elbow-pads",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/shortboard-skateboards",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/new-arrivals",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/nordic-accessories",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/nordic-ski-boots",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/cross-country-poles",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/off-road-skates",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/penny-boards",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/children-products",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/protection-gear-and-apparel",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/protection-packs",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-derby",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skate-bearings",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skate-parts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skate-tool",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skate-wheels",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skates",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skating",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/roller-skis",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/inline-boots",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/rollerski-parts-accessoires",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/nordic-clothing",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/scooter-parts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/scooters",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/replacement-parts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/skate-tools",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/board-tools",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/skateboards-and-longboards",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/protective-shorts",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/ski-wax",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/skiboards",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/socks-foot-care",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/race-clothing",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/trick-scooters",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/uncategorized",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/vinylboards",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
       "url": "/product-category/winter-sports",
-      "lastmod": "2026-07-23",
+      "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
     },
     {
+      "url": "/product/rollerblade-hydrogen-spectre-blue-80mm-85a-wheels",
+      "lastmod": "2026-07-28T22:19:35+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/rollerblade-hydrogen-125mm-85a-wheels",
+      "lastmod": "2026-07-28T21:01:29+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/rollerblade-hydrogen-110mm-85a-wheels",
+      "lastmod": "2026-07-28T19:58:39+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/rollerblade-hydrogen-100mm-85a-wheels",
+      "lastmod": "2026-07-28T20:01:14+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/rollerblade-hydrogen-90mm-85a-wheels",
+      "lastmod": "2026-07-28T19:18:44+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/rollerblade-hydrogen-84mm-85a-wheels",
+      "lastmod": "2026-07-28T19:19:03+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/chaya-cozy-summer-breeze-yellow-roller-skates",
+      "lastmod": "2026-07-24T23:00:30+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/chaya-cozy-summer-breeze-orange-roller-skates",
+      "lastmod": "2026-07-24T22:59:31+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/chaya-cozy-summer-breeze-cream-roller-skates",
+      "lastmod": "2026-07-24T22:33:05+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/undercover-jay-yoon-58mm-88a-92a-wheels",
+      "lastmod": "2026-07-24T19:25:22+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/playlife-flash-blue-kids-inline-skates",
+      "lastmod": "2026-07-24T18:46:47+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/playlife-flash-pink-kids-inline-skates",
+      "lastmod": "2026-07-24T18:48:08+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/playlife-phantom-80-black-inline-skates",
+      "lastmod": "2026-07-24T18:48:52+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/swings-white-waxed-superlaces",
+      "lastmod": "2026-07-24T00:48:01+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/myfit-pro-waxed-skate-neongreen-laces",
+      "lastmod": "2026-07-24T00:35:36+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/fr-spin-ratchet-buckle",
+      "lastmod": "2026-07-23T23:30:11+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/fr-downtown-emperor-white-84mm-85a-wheels",
+      "lastmod": "2026-07-23T22:50:58+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/fr-downtown-emperor-white-90mm-85a-wheels",
+      "lastmod": "2026-07-23T22:51:46+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/fr-downtown-emperor-white-100mm-85a-wheels",
+      "lastmod": "2026-07-23T22:51:40+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
+      "url": "/product/myfit-pro-waxed-skate-neonorange-laces",
+      "lastmod": "2026-07-24T00:35:52+00:00",
+      "changefreq": "weekly",
+      "priority": "0.7",
+      "type": "product"
+    },
+    {
       "url": "/product/swings-pink-waxed-superlaces",
-      "lastmod": "2026-07-23T18:33:30+00:00",
+      "lastmod": "2026-07-24T00:43:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/swings-black-waxed-superlaces",
-      "lastmod": "2026-07-23T18:33:40+00:00",
+      "lastmod": "2026-07-24T00:48:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -696,7 +836,7 @@
     },
     {
       "url": "/product/powerslide-rocket-motley-kids-inline-skates",
-      "lastmod": "2026-07-23T16:59:03+00:00",
+      "lastmod": "2026-07-24T18:28:25+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -731,7 +871,7 @@
     },
     {
       "url": "/product/ennui-st-eugen-enin-pro-combo-pads",
-      "lastmod": "2026-07-21T13:35:07+00:00",
+      "lastmod": "2026-07-24T22:32:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -752,14 +892,14 @@
     },
     {
       "url": "/product/endless-blading-coburn-90-165mm-frames",
-      "lastmod": "2026-07-06T21:17:34+00:00",
+      "lastmod": "2026-07-29T18:47:02+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/fr-freestyle-80-68-68-80-165-rocker-inline-frames",
-      "lastmod": "2026-06-12T18:44:35+00:00",
+      "lastmod": "2026-07-23T21:58:49+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -857,7 +997,7 @@
     },
     {
       "url": "/product/dream-shiva-90mm-85a-wheels",
-      "lastmod": "2026-06-12T18:18:58+00:00",
+      "lastmod": "2026-07-28T22:40:17+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -871,7 +1011,7 @@
     },
     {
       "url": "/product/dream-michael-kraft-58mm-90a-wheels",
-      "lastmod": "2026-06-12T18:19:02+00:00",
+      "lastmod": "2026-07-28T22:46:26+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1053,7 +1193,7 @@
     },
     {
       "url": "/product/luminous-duo-led-100mm-85a-wheels",
-      "lastmod": "2026-07-03T06:11:04+00:00",
+      "lastmod": "2026-07-29T19:59:52+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1116,7 +1256,7 @@
     },
     {
       "url": "/product/endless-miami-blue-bullet-72mm-85a-wheels",
-      "lastmod": "2026-06-21T13:40:16+00:00",
+      "lastmod": "2026-07-29T20:30:11+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1165,7 +1305,7 @@
     },
     {
       "url": "/product/powerslide-infinity-black-80mm-85a-wheels",
-      "lastmod": "2026-07-22T18:09:39+00:00",
+      "lastmod": "2026-07-26T18:51:06+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1193,7 +1333,7 @@
     },
     {
       "url": "/product/iqon-access-dark-grey-64mm-85a-wheels",
-      "lastmod": "2026-07-10T17:56:26+00:00",
+      "lastmod": "2026-07-29T19:36:18+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1249,7 +1389,7 @@
     },
     {
       "url": "/product/iqon-access-dark-grey-84mm-85a-wheels",
-      "lastmod": "2026-07-07T17:03:35+00:00",
+      "lastmod": "2026-07-29T15:08:34+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1382,7 +1522,7 @@
     },
     {
       "url": "/product/powerslide-elite-fsk-90-black-trinity-frames",
-      "lastmod": "2026-05-29T22:02:46+00:00",
+      "lastmod": "2026-07-25T09:16:14+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1480,7 +1620,7 @@
     },
     {
       "url": "/product/fr-skates-m8-frame-mounting-bolt",
-      "lastmod": "2026-07-08T21:06:50+00:00",
+      "lastmod": "2026-07-23T23:07:58+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1508,7 +1648,7 @@
     },
     {
       "url": "/product/fr-4w-x3r-rockerable-inline-heel-brake",
-      "lastmod": "2026-07-08T21:05:31+00:00",
+      "lastmod": "2026-07-23T23:08:18+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1557,7 +1697,7 @@
     },
     {
       "url": "/product/endless-soft-pink-bullet-90mm-85a-wheels",
-      "lastmod": "2026-07-04T18:06:16+00:00",
+      "lastmod": "2026-07-29T20:29:38+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1732,28 +1872,28 @@
     },
     {
       "url": "/product/symetrics-superfast-ii-110mm-88a-wheels",
-      "lastmod": "2026-07-14T17:58:00+00:00",
+      "lastmod": "2026-07-23T22:45:00+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/symetrics-superfast-ii-100mm-88a-wheels",
-      "lastmod": "2026-06-25T18:22:34+00:00",
+      "lastmod": "2026-07-29T01:48:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/symetrics-superfast-ii-90mm-88a-wheels",
-      "lastmod": "2026-07-19T15:43:14+00:00",
+      "lastmod": "2026-07-27T18:24:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/symetrics-superfast-ii-84mm-88a-wheels",
-      "lastmod": "2026-07-09T15:38:37+00:00",
+      "lastmod": "2026-07-23T22:44:42+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1767,7 +1907,7 @@
     },
     {
       "url": "/product/symetrics-superfast-110mm-90a-wheels",
-      "lastmod": "2026-07-23T16:14:57+00:00",
+      "lastmod": "2026-07-27T18:42:44+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1830,7 +1970,7 @@
     },
     {
       "url": "/product/powerslide-pheme-leo-100-inline-skates",
-      "lastmod": "2026-07-23T00:16:26+00:00",
+      "lastmod": "2026-07-25T20:43:23+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1858,7 +1998,7 @@
     },
     {
       "url": "/product/playlife-imperial-violet-80-inline-skates",
-      "lastmod": "2026-05-27T23:14:32+00:00",
+      "lastmod": "2026-07-24T17:37:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1879,7 +2019,7 @@
     },
     {
       "url": "/product/powerslide-next-pro-110-inline-skates",
-      "lastmod": "2026-07-09T19:11:05+00:00",
+      "lastmod": "2026-07-23T23:42:50+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1935,14 +2075,14 @@
     },
     {
       "url": "/product/usd-glitch-adjustable-aggressive-kids-skates-2",
-      "lastmod": "2026-04-28T19:54:11+00:00",
+      "lastmod": "2026-07-27T23:38:44+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-twister-lightning-frame-mounting-screws",
-      "lastmod": "2026-04-21T20:49:03+00:00",
+      "lastmod": "2026-07-28T21:17:52+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -1962,64 +2102,64 @@
       "type": "product"
     },
     {
-      "url": "/product/rollerblade-hydrogen-spectre-yellow-80mm-85a-wheels",
-      "lastmod": "2026-06-11T11:40:35+00:00",
+      "url": "/product/rollerblade-hydrogen-spectre-sand-80mm-85a-wheels",
+      "lastmod": "2026-07-28T21:44:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
-      "url": "/product/rollerblade-hydrogen-spectre-pink-80mm-85a-wheels",
-      "lastmod": "2026-07-06T00:02:49+00:00",
+      "url": "/product/rollerblade-hydrogen-spectre-fuchsia-80mm-85a-wheels",
+      "lastmod": "2026-07-28T22:19:31+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-90mm-xx-firm-wheels-2-pack",
-      "lastmod": "2026-06-25T04:37:25+00:00",
+      "lastmod": "2026-07-28T21:09:57+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-100mm-firm-wheels",
-      "lastmod": "2026-06-01T19:40:08+00:00",
+      "lastmod": "2026-07-28T21:10:24+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-100mm-x-firm-wheels",
-      "lastmod": "2026-06-01T19:40:20+00:00",
+      "lastmod": "2026-07-28T21:10:46+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-110mm-firm-wheels",
-      "lastmod": "2026-06-01T19:40:33+00:00",
+      "lastmod": "2026-07-28T21:12:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-110mm-x-firm-wheels",
-      "lastmod": "2026-07-08T18:56:32+00:00",
+      "lastmod": "2026-07-28T21:12:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-125mm-firm-wheels",
-      "lastmod": "2026-06-01T19:40:59+00:00",
+      "lastmod": "2026-07-28T21:05:14+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-125mm-x-firm-wheels",
-      "lastmod": "2026-06-01T19:41:11+00:00",
+      "lastmod": "2026-07-28T21:16:25+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2082,7 +2222,7 @@
     },
     {
       "url": "/product/chaya-roller-skating-black-socks",
-      "lastmod": "2026-07-15T02:50:36+00:00",
+      "lastmod": "2026-07-27T14:14:55+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2222,7 +2362,7 @@
     },
     {
       "url": "/product/chaya-bliss-star-adjustable-roller-skates",
-      "lastmod": "2026-05-17T14:53:35+00:00",
+      "lastmod": "2026-07-24T22:32:46+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2285,7 +2425,7 @@
     },
     {
       "url": "/product/powerslide-standard-black-3-pack-protection-set",
-      "lastmod": "2026-07-23T00:25:02+00:00",
+      "lastmod": "2026-07-27T17:21:49+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2376,7 +2516,7 @@
     },
     {
       "url": "/product/fr-skates-25l-backpack",
-      "lastmod": "2026-06-24T21:05:07+00:00",
+      "lastmod": "2026-07-23T22:58:20+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2516,7 +2656,7 @@
     },
     {
       "url": "/product/endless-cloud-bullet-76mm-85a-wheels",
-      "lastmod": "2026-07-18T16:19:02+00:00",
+      "lastmod": "2026-07-29T18:59:29+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2684,28 +2824,28 @@
     },
     {
       "url": "/product/powerslide-urban-pro-liquid-grey-helmet",
-      "lastmod": "2026-06-01T20:02:36+00:00",
+      "lastmod": "2026-07-25T23:23:08+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/usd-team-anniversary-68mm-90a-wheels",
-      "lastmod": "2025-11-21T02:56:57+00:00",
+      "lastmod": "2026-07-24T17:49:58+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/powerslide-swell-bolt-3d-adapt-inline-boots",
-      "lastmod": "2026-06-03T19:01:45+00:00",
+      "lastmod": "2026-07-29T20:39:32+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/powerslide-swell-stellar-3d-adapt-inline-boots",
-      "lastmod": "2026-07-22T17:27:00+00:00",
+      "lastmod": "2026-07-27T17:36:54+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2852,7 +2992,7 @@
     },
     {
       "url": "/product/iqon-eqo-100mm-88a-wheels",
-      "lastmod": "2026-05-30T23:55:49+00:00",
+      "lastmod": "2026-07-24T17:43:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -2915,7 +3055,7 @@
     },
     {
       "url": "/product/chaya-miyu-pink-leopard-roller-skates",
-      "lastmod": "2026-07-09T00:43:12+00:00",
+      "lastmod": "2026-07-24T22:38:57+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3300,21 +3440,21 @@
     },
     {
       "url": "/product/fr-neo-2-dual-310-teal-inline-skates",
-      "lastmod": "2026-05-01T21:27:20+00:00",
+      "lastmod": "2026-07-27T17:41:19+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/fr-neo-2-80-black-inline-skates",
-      "lastmod": "2026-07-11T23:46:20+00:00",
+      "lastmod": "2026-07-23T23:44:17+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/fr-neo-1-dual-80-intuition-black-inline-skates",
-      "lastmod": "2026-07-14T15:32:59+00:00",
+      "lastmod": "2026-07-27T18:41:53+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3363,7 +3503,7 @@
     },
     {
       "url": "/product/powerslide-urban-sustained-grey-helmet",
-      "lastmod": "2026-04-18T18:45:13+00:00",
+      "lastmod": "2026-07-25T17:25:06+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3391,7 +3531,7 @@
     },
     {
       "url": "/product/powerslide-allround-black-matt-helmet",
-      "lastmod": "2026-07-22T18:09:43+00:00",
+      "lastmod": "2026-07-27T17:21:49+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3426,21 +3566,21 @@
     },
     {
       "url": "/product/fr-4w-long-inline-heel-brake",
-      "lastmod": "2026-07-08T21:20:02+00:00",
+      "lastmod": "2026-07-23T23:07:20+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/powerslide-next-multicolor-80-inline-skates",
-      "lastmod": "2026-07-12T22:52:10+00:00",
+      "lastmod": "2026-07-27T17:32:12+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/chaya-park-dark-soul-roller-skates",
-      "lastmod": "2026-06-09T12:32:59+00:00",
+      "lastmod": "2026-07-24T22:57:35+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3468,7 +3608,7 @@
     },
     {
       "url": "/product/endless-white-round-76mm-85a-wheels",
-      "lastmod": "2026-02-17T23:18:22+00:00",
+      "lastmod": "2026-07-29T18:59:12+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3524,7 +3664,7 @@
     },
     {
       "url": "/product/twincam-ilq9-classic-plus-608-bearings",
-      "lastmod": "2026-07-12T03:44:25+00:00",
+      "lastmod": "2026-07-29T15:08:36+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3580,7 +3720,7 @@
     },
     {
       "url": "/product/symetrics-superfast-100mm-90a-wheels",
-      "lastmod": "2026-07-18T14:56:31+00:00",
+      "lastmod": "2026-07-29T01:48:39+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3601,7 +3741,7 @@
     },
     {
       "url": "/product/chaya-cozy-wine-roller-skates",
-      "lastmod": "2026-07-18T17:10:18+00:00",
+      "lastmod": "2026-07-28T19:31:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3650,14 +3790,14 @@
     },
     {
       "url": "/product/endless-yellow-bullet-76mm-85a-wheels",
-      "lastmod": "2026-06-20T22:22:11+00:00",
+      "lastmod": "2026-07-29T18:58:50+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/endless-pink-bullet-76mm-85a-wheels",
-      "lastmod": "2026-02-27T23:26:24+00:00",
+      "lastmod": "2026-07-29T18:58:35+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3692,14 +3832,14 @@
     },
     {
       "url": "/product/endless-miami-blue-bullet-90mm-85a-wheels",
-      "lastmod": "2026-07-12T23:12:12+00:00",
+      "lastmod": "2026-07-29T19:12:06+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/endless-miami-blue-bullet-84mm-85a-wheels",
-      "lastmod": "2026-06-08T01:52:05+00:00",
+      "lastmod": "2026-07-29T18:57:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3790,14 +3930,14 @@
     },
     {
       "url": "/product/powerslide-next-core-80-inline-skates",
-      "lastmod": "2026-07-14T13:54:12+00:00",
+      "lastmod": "2026-07-28T00:15:26+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/flying-eagle-optimum-80-t-brown-inline-skates",
-      "lastmod": "2026-07-18T20:40:19+00:00",
+      "lastmod": "2026-07-29T01:41:01+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3909,7 +4049,7 @@
     },
     {
       "url": "/product/flying-eagle-x5f-shadow-black-inline-skates",
-      "lastmod": "2026-07-09T00:52:14+00:00",
+      "lastmod": "2026-07-25T21:26:05+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -3930,7 +4070,7 @@
     },
     {
       "url": "/product/bones-vato-rat-skate-park-wax",
-      "lastmod": "2026-05-02T21:56:34+00:00",
+      "lastmod": "2026-07-29T02:39:31+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4196,7 +4336,7 @@
     },
     {
       "url": "/product/endless-white-bullet-90mm-85a-wheels",
-      "lastmod": "2026-07-08T13:38:38+00:00",
+      "lastmod": "2026-07-29T20:29:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4210,7 +4350,7 @@
     },
     {
       "url": "/product/endless-black-bullet-80mm-85a-wheels",
-      "lastmod": "2026-07-04T15:06:00+00:00",
+      "lastmod": "2026-07-29T20:30:48+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4448,7 +4588,7 @@
     },
     {
       "url": "/product/fr-freeride-90-80-80-90-165-inline-frames",
-      "lastmod": "2026-06-12T18:22:43+00:00",
+      "lastmod": "2026-07-23T21:57:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4462,7 +4602,7 @@
     },
     {
       "url": "/product/fr-4d-273mm-90-165-flat-inline-frames",
-      "lastmod": "2026-06-17T22:09:25+00:00",
+      "lastmod": "2026-07-27T18:47:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4525,7 +4665,7 @@
     },
     {
       "url": "/product/epic-red-lava-grind-shoes",
-      "lastmod": "2026-03-05T20:40:17+00:00",
+      "lastmod": "2026-07-24T16:37:35+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -4637,7 +4777,7 @@
     },
     {
       "url": "/product/endless-white-bullet-80mm-85a-wheels",
-      "lastmod": "2026-06-27T18:04:51+00:00",
+      "lastmod": "2026-07-29T18:55:59+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5372,7 +5512,7 @@
     },
     {
       "url": "/product/fr-ufr-street-ap-flat-65-aggressive-inline-skates",
-      "lastmod": "2026-07-21T19:26:29+00:00",
+      "lastmod": "2026-07-28T02:24:50+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5392,8 +5532,8 @@
       "type": "product"
     },
     {
-      "url": "/product/rollerblade-hydrogen-84mm-85a-wheels",
-      "lastmod": "2026-06-21T23:33:42+00:00",
+      "url": "/product/rollerblade-hydrogen-84mm-85a-bw-wheels",
+      "lastmod": "2026-07-27T22:48:20+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5505,7 +5645,7 @@
     },
     {
       "url": "/product/wicked-pastel-abec-9-bearings",
-      "lastmod": "2026-07-23T00:26:46+00:00",
+      "lastmod": "2026-07-24T13:09:44+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5513,13 +5653,6 @@
     {
       "url": "/product/yoko-yxc-navy-women-nordic-jacket",
       "lastmod": "2026-02-12T00:17:30+00:00",
-      "changefreq": "weekly",
-      "priority": "0.7",
-      "type": "product"
-    },
-    {
-      "url": "/product/yoko-yxr-women-nordic-jacket",
-      "lastmod": "2026-07-23T16:29:17+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5554,7 +5687,7 @@
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-100mm-xx-firm-wheels",
-      "lastmod": "2026-06-01T19:42:22+00:00",
+      "lastmod": "2026-07-28T21:17:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5652,7 +5785,7 @@
     },
     {
       "url": "/product/fr-freestyle-84-72-72-84-165-inline-frames",
-      "lastmod": "2026-06-12T18:53:10+00:00",
+      "lastmod": "2026-07-23T21:58:00+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -5708,7 +5841,7 @@
     },
     {
       "url": "/product/endless-blading-90-lr-low-ride-trinity-frames",
-      "lastmod": "2026-06-12T00:06:33+00:00",
+      "lastmod": "2026-07-29T18:52:01+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -6618,14 +6751,14 @@
     },
     {
       "url": "/product/micro-mt-plus-yellow-urban-inline-skates",
-      "lastmod": "2026-07-03T05:37:24+00:00",
+      "lastmod": "2026-07-24T17:23:46+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/micro-mt-plus-red-urban-inline-skates",
-      "lastmod": "2026-07-17T21:44:31+00:00",
+      "lastmod": "2026-07-27T17:21:49+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -6940,7 +7073,7 @@
     },
     {
       "url": "/product/powerslide-ego-smart-3-x-100-trinity-frames",
-      "lastmod": "2026-07-23T00:31:08+00:00",
+      "lastmod": "2026-07-24T03:24:28+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7059,7 +7192,7 @@
     },
     {
       "url": "/product/ennui-street-st-knee-pads",
-      "lastmod": "2026-05-29T22:58:19+00:00",
+      "lastmod": "2026-07-25T18:49:56+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7101,7 +7234,7 @@
     },
     {
       "url": "/product/powerslide-swell-stellar-110-3d-adapt-inline-skates",
-      "lastmod": "2026-07-22T17:27:04+00:00",
+      "lastmod": "2026-07-27T17:39:39+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7164,7 +7297,7 @@
     },
     {
       "url": "/product/myfit-pro-waxed-skate-red-laces",
-      "lastmod": "2026-07-03T04:36:33+00:00",
+      "lastmod": "2026-07-24T00:36:06+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7199,14 +7332,14 @@
     },
     {
       "url": "/product/nn-skates-evo-90mm-85a-wheels",
-      "lastmod": "2026-07-03T05:20:07+00:00",
+      "lastmod": "2026-07-25T09:16:14+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/nn-skates-evo-80mm-85a-wheels",
-      "lastmod": "2026-07-22T19:17:26+00:00",
+      "lastmod": "2026-07-27T14:27:55+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7794,7 +7927,7 @@
     },
     {
       "url": "/product/usd-team-anniversary-58mm-90a-wheels",
-      "lastmod": "2026-07-04T21:40:02+00:00",
+      "lastmod": "2026-07-24T17:49:57+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -7927,7 +8060,7 @@
     },
     {
       "url": "/product/powerslide-next-black-red-80-inline-skates",
-      "lastmod": "2026-07-14T20:25:20+00:00",
+      "lastmod": "2026-07-27T17:19:48+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -8158,7 +8291,7 @@
     },
     {
       "url": "/product/undercover-earth-eco-110mm-88a-wheels",
-      "lastmod": "2025-05-29T21:43:15+00:00",
+      "lastmod": "2026-07-29T01:48:38+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9004,13 +9137,6 @@
       "type": "product"
     },
     {
-      "url": "/product/playlife-joker-yellow-kids-inline-skates",
-      "lastmod": "2026-07-22T20:41:26+00:00",
-      "changefreq": "weekly",
-      "priority": "0.7",
-      "type": "product"
-    },
-    {
       "url": "/product/fischer-xj-sprint-nordic-kids-ski-boots",
       "lastmod": "2025-12-17T22:26:09+00:00",
       "changefreq": "weekly",
@@ -9047,7 +9173,7 @@
     },
     {
       "url": "/product/endless-blading-80-classic-165mm-frames",
-      "lastmod": "2026-07-07T18:26:32+00:00",
+      "lastmod": "2026-07-27T18:21:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9131,7 +9257,7 @@
     },
     {
       "url": "/product/powerslide-spinner-100mm-88a-wheels",
-      "lastmod": "2026-07-23T06:26:37+00:00",
+      "lastmod": "2026-07-24T03:24:28+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9187,7 +9313,7 @@
     },
     {
       "url": "/product/sonic-swiss-608-skate-bearings",
-      "lastmod": "2026-06-01T04:55:16+00:00",
+      "lastmod": "2026-07-29T20:19:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9313,7 +9439,7 @@
     },
     {
       "url": "/product/sonic-6mm-608-bearing-spacer",
-      "lastmod": "2026-07-18T03:51:06+00:00",
+      "lastmod": "2026-07-28T18:39:10+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9327,7 +9453,7 @@
     },
     {
       "url": "/product/sonic-bearings-super-oil-lube",
-      "lastmod": "2026-07-18T20:26:14+00:00",
+      "lastmod": "2026-07-25T09:16:15+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9348,7 +9474,7 @@
     },
     {
       "url": "/product/sonic-pro-skate-tool-h-with-long-4mm-hex",
-      "lastmod": "2026-06-13T08:10:10+00:00",
+      "lastmod": "2026-07-25T17:29:25+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9376,7 +9502,7 @@
     },
     {
       "url": "/product/powerslide-reign-atlas-80-inline-hockey-skates",
-      "lastmod": "2026-04-20T21:24:30+00:00",
+      "lastmod": "2026-07-27T19:00:22+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9397,7 +9523,7 @@
     },
     {
       "url": "/product/chaya-melrose-deluxe-starry-night-roller-skates",
-      "lastmod": "2026-07-07T22:37:19+00:00",
+      "lastmod": "2026-07-29T20:28:36+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9446,14 +9572,14 @@
     },
     {
       "url": "/product/powerslide-phuzion-radon-80-black-white",
-      "lastmod": "2026-07-18T22:58:07+00:00",
+      "lastmod": "2026-07-24T16:36:54+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
-      "url": "/product/rollerblade-hydrogen-spectre-green-80mm-85a-wheels",
-      "lastmod": "2026-06-11T11:40:31+00:00",
+      "url": "/product/rollerblade-hydrogen-spectre-teal-80mm-85a-wheels",
+      "lastmod": "2026-07-28T22:23:16+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9481,7 +9607,7 @@
     },
     {
       "url": "/product/powerslide-reign-triton-80-inline-hockey-skates",
-      "lastmod": "2026-04-20T21:26:37+00:00",
+      "lastmod": "2026-07-27T18:59:26+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9558,7 +9684,7 @@
     },
     {
       "url": "/product/undercover-vortex-58mm-88a-wheels",
-      "lastmod": "2026-07-23T03:24:45+00:00",
+      "lastmod": "2026-07-24T19:25:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9628,7 +9754,7 @@
     },
     {
       "url": "/product/ennui-st-wrist-guard",
-      "lastmod": "2026-07-05T15:50:27+00:00",
+      "lastmod": "2026-07-25T18:49:56+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -9943,7 +10069,7 @@
     },
     {
       "url": "/product/just-swings-608-ceramic-bearings",
-      "lastmod": "2026-07-23T00:08:21+00:00",
+      "lastmod": "2026-07-26T22:47:13+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10048,7 +10174,7 @@
     },
     {
       "url": "/product/ennui-palm-slider-protection",
-      "lastmod": "2026-07-08T20:13:51+00:00",
+      "lastmod": "2026-07-26T17:14:07+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10139,7 +10265,7 @@
     },
     {
       "url": "/product/powerslide-swell-bolt-110-3d-adapt-inline-skates",
-      "lastmod": "2026-06-30T17:42:56+00:00",
+      "lastmod": "2026-07-29T20:00:44+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10216,7 +10342,7 @@
     },
     {
       "url": "/product/wicked-swiss-by-jesa-608-bearings",
-      "lastmod": "2025-08-04T22:56:19+00:00",
+      "lastmod": "2026-07-27T14:27:54+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10272,7 +10398,7 @@
     },
     {
       "url": "/product/myfit-high-cut-2mm-skater-footies",
-      "lastmod": "2026-07-12T17:21:22+00:00",
+      "lastmod": "2026-07-24T21:17:52+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10446,8 +10572,8 @@
       "type": "product"
     },
     {
-      "url": "/product/fr-300-232mm-3x100-165-inline-frames",
-      "lastmod": "2026-07-06T17:14:12+00:00",
+      "url": "/product/fr-300-232mm-100-165-inline-frames",
+      "lastmod": "2026-07-23T23:16:37+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10622,7 +10748,7 @@
     },
     {
       "url": "/product/luminous-led-62mm-85a-roller-skate-wheels",
-      "lastmod": "2026-07-22T21:11:45+00:00",
+      "lastmod": "2026-07-23T23:39:23+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10636,7 +10762,7 @@
     },
     {
       "url": "/product/fr-4w-short-72-84-inline-heel-brake",
-      "lastmod": "2026-07-01T15:07:37+00:00",
+      "lastmod": "2026-07-27T17:21:47+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10853,7 +10979,7 @@
     },
     {
       "url": "/product/myfit-race-speed-skating-socks",
-      "lastmod": "2026-06-04T10:07:05+00:00",
+      "lastmod": "2026-07-27T19:43:01+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -10986,7 +11112,7 @@
     },
     {
       "url": "/product/powerslide-phuzion-krypton-voltage-100-inline-skates",
-      "lastmod": "2026-07-02T18:31:14+00:00",
+      "lastmod": "2026-07-28T19:06:01+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11028,7 +11154,7 @@
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-90mm-x-firm-wheels",
-      "lastmod": "2026-06-01T19:43:31+00:00",
+      "lastmod": "2026-07-28T21:13:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11062,8 +11188,8 @@
       "type": "product"
     },
     {
-      "url": "/product/fr-3d-260mm-3x125-165-inline-frames",
-      "lastmod": "2026-07-06T18:31:10+00:00",
+      "url": "/product/fr-3d-260mm-125-165-inline-frames",
+      "lastmod": "2026-07-23T23:15:50+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11364,7 +11490,7 @@
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-125mm-xx-firm-wheels",
-      "lastmod": "2026-07-22T18:57:41+00:00",
+      "lastmod": "2026-07-28T21:04:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11385,7 +11511,7 @@
     },
     {
       "url": "/product/fr-seba-metal-upper-strap-set",
-      "lastmod": "2026-07-08T20:25:10+00:00",
+      "lastmod": "2026-07-23T23:17:31+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11406,7 +11532,7 @@
     },
     {
       "url": "/product/fr-logo-middle-strap-ratchet-buckle",
-      "lastmod": "2026-07-08T21:11:11+00:00",
+      "lastmod": "2026-07-23T23:31:34+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11434,7 +11560,7 @@
     },
     {
       "url": "/product/flying-eagle-s6-black-kids-inline-skates",
-      "lastmod": "2026-07-01T00:37:28+00:00",
+      "lastmod": "2026-07-29T18:35:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11476,14 +11602,14 @@
     },
     {
       "url": "/product/rollerblade-hydrogen-pro-110mm-xx-firm-wheels",
-      "lastmod": "2026-06-01T19:43:03+00:00",
+      "lastmod": "2026-07-28T21:13:58+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/rollerblade-hydrogen-80mm-85a-wheels",
-      "lastmod": "2026-03-26T21:39:42+00:00",
+      "lastmod": "2026-07-29T20:19:44+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11497,7 +11623,7 @@
     },
     {
       "url": "/product/wicked-abec-9-freespin-bearings",
-      "lastmod": "2026-07-18T18:02:36+00:00",
+      "lastmod": "2026-07-24T17:49:58+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11588,7 +11714,7 @@
     },
     {
       "url": "/product/fr-spin-carbon-inline-skates",
-      "lastmod": "2026-07-15T19:47:17+00:00",
+      "lastmod": "2026-07-26T18:44:48+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11665,7 +11791,7 @@
     },
     {
       "url": "/product/seba-igor-cj-sx-replacement-cuff-screw",
-      "lastmod": "2026-07-10T18:25:15+00:00",
+      "lastmod": "2026-07-23T21:51:38+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11686,14 +11812,14 @@
     },
     {
       "url": "/product/ennui-city-brace-ii-wrist-protection",
-      "lastmod": "2026-07-22T21:48:37+00:00",
+      "lastmod": "2026-07-29T15:39:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/roller-hockey-skates-heel-brake-set",
-      "lastmod": "2026-07-03T13:25:28+00:00",
+      "lastmod": "2026-07-26T18:33:40+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11791,7 +11917,7 @@
     },
     {
       "url": "/product/fr-brand-inline-skate-230mm-laces",
-      "lastmod": "2026-07-13T18:19:12+00:00",
+      "lastmod": "2026-07-23T23:11:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11833,7 +11959,7 @@
     },
     {
       "url": "/product/seba-freestyle-slalom-cones",
-      "lastmod": "2026-07-11T23:16:15+00:00",
+      "lastmod": "2026-07-23T23:49:55+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11903,7 +12029,7 @@
     },
     {
       "url": "/product/powerslide-mag-8mm-precision-spacers",
-      "lastmod": "2026-05-06T05:58:00+00:00",
+      "lastmod": "2026-07-27T18:42:45+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -11952,7 +12078,7 @@
     },
     {
       "url": "/product/powerslide-black-skate-bag",
-      "lastmod": "2026-07-11T21:44:15+00:00",
+      "lastmod": "2026-07-25T22:30:41+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -12092,7 +12218,7 @@
     },
     {
       "url": "/product/seba-fr-skates-cuff-buttons-set",
-      "lastmod": "2026-04-21T01:57:43+00:00",
+      "lastmod": "2026-07-24T00:46:33+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
@@ -12365,14 +12491,14 @@
     },
     {
       "url": "/product/seba-8mm-spacers-for-608-bearings-set",
-      "lastmod": "2026-07-21T00:20:59+00:00",
+      "lastmod": "2026-07-23T22:59:35+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
     },
     {
       "url": "/product/twincam-rustproof-608-bearings",
-      "lastmod": "2026-07-11T19:45:14+00:00",
+      "lastmod": "2026-07-29T19:42:09+00:00",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "product"
