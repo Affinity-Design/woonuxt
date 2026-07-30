@@ -52,6 +52,11 @@ const PURGE_TEST_CACHE = IS_TEST_ENV && process.env.PURGE_TEST_CACHE !== 'false'
 // navigation until the next fully successful build.
 const SCRIPT_DATA_PROTECTED_KEYS = ['products-list', 'categories-list', 'sitemap-data', 'product-seo-meta'];
 
+// Key prefixes protected in EVERY namespace: durable records that happen to live in a cache
+// namespace because their own KV binding is not bound yet. A purge would be silent data loss.
+//   - `calc-stats:`  size-calculator funnel telemetry + day rollups (server/utils/statsStorage.ts)
+const PROTECTED_KEY_PREFIXES = ['calc-stats:'];
+
 /**
  * Validate UUID format (32 hex chars, with or without hyphens)
  */
@@ -200,10 +205,11 @@ async function purgeNamespace(namespaceId, namespaceName, protectedKeys = []) {
     const allKeys = await listAllKeys(namespaceId);
 
     // Never delete protected keys — the live site depends on them and only the build repopulates them.
-    const keys = protectedKeys.length ? allKeys.filter((k) => !protectedKeys.includes(k.name)) : allKeys;
+    // Prefix-protected keys are durable records (not cache) and are never repopulated by a build.
+    const keys = allKeys.filter((k) => !protectedKeys.includes(k.name) && !PROTECTED_KEY_PREFIXES.some((prefix) => k.name.startsWith(prefix)));
     const preserved = allKeys.length - keys.length;
     if (preserved > 0) {
-      console.log(`🛡️  ${namespaceName}: Preserving ${preserved} protected key(s): ${protectedKeys.join(', ')}`);
+      console.log(`🛡️  ${namespaceName}: Preserving ${preserved} protected key(s): ${[...protectedKeys, ...PROTECTED_KEY_PREFIXES.map((p) => `${p}*`)].join(', ')}`);
     }
 
     if (keys.length === 0) {
