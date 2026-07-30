@@ -217,11 +217,18 @@ export default defineNuxtConfig({
       // The NUXT_PAYMENT_DATA KV binding must be added to the Pages project; until it is,
       // server/utils/paymentStorage.ts falls back to the cache store.
       payment: {driver: 'cloudflare-kv-binding', binding: 'NUXT_PAYMENT_DATA'},
+      // Size-calculator funnel telemetry (Admin ▸ Calculator Stats). Same reasoning as `payment`:
+      // the cache-clearing scripts wipe NUXT_CACHE and NUXT_SCRIPT_DATA completely, and analytics
+      // history must survive a cache rebuild. The NUXT_STATS_DATA binding must be added to the
+      // Pages project; until it is, server/utils/statsStorage.ts falls back to the script_data
+      // store and scripts/clear-kv-cache-safe.js protects the `calc-stats:` prefix from deletion.
+      stats: {driver: 'cloudflare-kv-binding', binding: 'NUXT_STATS_DATA'},
     },
     devStorage: {
       cache: {driver: 'fs', base: './.nuxt/dev-cache/isr'},
       script_data: {driver: 'fs', base: './.nuxt/dev-cache/script_data'},
       payment: {driver: 'fs', base: './.nuxt/dev-cache/payment'},
+      stats: {driver: 'fs', base: './.nuxt/dev-cache/stats'},
     },
     prerender: {
       crawlLinks: false,

@@ -31,6 +31,11 @@ interface CalculatorState {
   targetBrandId: string | null;
   browseMode: boolean; // user chose "not sure — show all" in step 5
   stepStartedAt: number;
+  // Funnel-telemetry identity. Deliberately null until the first client-side event: this page is
+  // prerendered, so an id minted in defaultState() would be baked into the HTML and shared by
+  // every visitor. See recordStats().
+  sessionId: string | null;
+  revealClicks: Array<{slug: string; region: string}>;
 }
 
 interface ResolvedReferenceSize {
@@ -98,6 +103,8 @@ const defaultState = (): CalculatorState => ({
   targetBrandId: null,
   browseMode: false,
   stepStartedAt: Date.now(),
+  sessionId: null,
+  revealClicks: [],
 });
 
 function trackCalculatorEvent(eventName: string, payload: Record<string, unknown>) {
@@ -110,6 +117,46 @@ function trackCalculatorEvent(eventName: string, payload: Record<string, unknown
 
   windowWithAnalytics.dataLayer?.push({event: eventName, ...payload});
   windowWithAnalytics.gtag?.('event', eventName, payload);
+}
+
+// ---------------------------------------------------------------------------------------------
+// First-party funnel telemetry → /api/calculator-event → KV → Admin ▸ Calculator Stats tab.
+//
+// GA4 (above) still gets every event, but it cannot answer the question the shop actually asks
+// ("which reference→target brand pairs are people sizing, and which step loses them?") without
+// dashboard work, and ad-blockers eat gtag for a large share of visitors. Each beacon carries a
+// FULL session snapshot so the server upsert is last-write-wins: a dropped or throttled beacon
+// costs nothing as long as a later one lands. Debounced so a burst of clicks is a single KV write.
+// ---------------------------------------------------------------------------------------------
+const STATS_BEACON_DEBOUNCE_MS = 1200;
+let statsBeaconTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** `YYYYMMDD-<hex>`: the day prefix keeps every write for one session on a single KV key. */
+function makeSessionId(): string {
+  const day = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const random = new Uint8Array(8);
+
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    crypto.getRandomValues(random);
+  } else {
+    for (let index = 0; index < random.length; index += 1) random[index] = Math.floor(Math.random() * 256);
+  }
+
+  return `${day}-${[...random].map((byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function postStatsBeacon(payload: Record<string, unknown>) {
+  const body = JSON.stringify(payload);
+
+  // sendBeacon survives navigation away from the page, which is exactly when the last snapshot of
+  // an abandoned session is worth having.
+  try {
+    if (navigator.sendBeacon?.('/api/calculator-event', new Blob([body], {type: 'application/json'}))) return;
+  } catch {
+    // sendBeacon unavailable or refused (payload too large) — fall through to fetch
+  }
+
+  fetch('/api/calculator-event', {method: 'POST', headers: {'Content-Type': 'application/json'}, body, keepalive: true}).catch(() => {});
 }
 
 function nearestByValue<T>(items: T[], target: number, getValue: (item: T) => number | undefined) {
@@ -297,8 +344,67 @@ export const useCalculator = () => {
 
   const stepDuration = () => Date.now() - state.value.stepStartedAt;
 
+  /** Whole-session snapshot for the stats store. Sizing/brand choices only — never any PII. */
+  const statsSnapshot = (eventName: string): Record<string, unknown> => {
+    const resolvedSize = resolvedReferenceSize.value;
+    const referenceBrand = selectedReferenceBrand.value;
+    const targetBrand = selectedTargetBrand.value;
+    const clicks = state.value.revealClicks || [];
+    const lastClick = clicks[clicks.length - 1];
+
+    return {
+      event: eventName,
+      sessionId: state.value.sessionId,
+      step: currentStep.value,
+      browseMode: state.value.browseMode,
+      referenceCategory: state.value.referenceCategory,
+      referenceBrandId: referenceBrand?.id ?? null,
+      referenceBrandName: referenceBrand?.name ?? null,
+      sizeField: resolvedSize?.field?.toLowerCase() ?? null,
+      resolvedMm: resolvedSize?.mm ?? null,
+      targetCategory: state.value.targetCategory,
+      targetBrandId: targetBrand?.id ?? null,
+      targetBrandName: targetBrand?.name ?? null,
+      recommendedLabel: recommendation.value?.range?.recommendedLabel ?? null,
+      // "No charted range covered this measurement" — the signal that says which brand's size
+      // chart needs filling in, which is why it is worth storing rather than just counting.
+      sizingGap: !!recommendation.value?.snapped,
+      revealClicks: clicks,
+      locale: process.client ? document.documentElement.lang || null : null,
+      region: lastClick?.region ?? null,
+    };
+  };
+
+  const recordStats = (eventName: string, immediate = false) => {
+    if (!process.client) return;
+    if (!state.value.sessionId) state.value.sessionId = makeSessionId();
+
+    if (statsBeaconTimer) {
+      clearTimeout(statsBeaconTimer);
+      statsBeaconTimer = null;
+    }
+
+    // The snapshot is built when the beacon fires, not when it is queued, so a coalesced burst
+    // reports the state the visitor actually ended up in.
+    if (immediate) {
+      postStatsBeacon(statsSnapshot(eventName));
+      return;
+    }
+
+    statsBeaconTimer = setTimeout(() => {
+      statsBeaconTimer = null;
+      postStatsBeacon(statsSnapshot(eventName));
+    }, STATS_BEACON_DEBOUNCE_MS);
+  };
+
+  /** Single choke point: GA4 for trends, our own store for the admin funnel view. */
+  const track = (eventName: string, payload: Record<string, unknown>, options?: {immediate?: boolean}) => {
+    trackCalculatorEvent(eventName, payload);
+    recordStats(eventName, options?.immediate);
+  };
+
   const markStepAdvance = (from: number, to: number) => {
-    trackCalculatorEvent('calc_step_advance', {
+    track('calc_step_advance', {
       from,
       to,
       durationMs: stepDuration(),
@@ -328,7 +434,7 @@ export const useCalculator = () => {
     state.value.targetBrandId = null;
     state.value.browseMode = false;
     markStepAdvance(from, 3);
-    trackCalculatorEvent('calc_reference_selected', {
+    track('calc_reference_selected', {
       category: brand.category,
       brandId: brand.id,
       brandName: brand.name,
@@ -363,7 +469,7 @@ export const useCalculator = () => {
     state.value.targetBrandId = null;
     state.value.browseMode = true;
     markStepAdvance(5, 6);
-    trackCalculatorEvent('calc_browse_mode', {targetCategory: state.value.targetCategory});
+    track('calc_browse_mode', {targetCategory: state.value.targetCategory});
   };
 
   // Go back one step from current position
@@ -400,7 +506,7 @@ export const useCalculator = () => {
     const from = currentStep.value;
     state.value.targetBrandId = brandId;
     markStepAdvance(from, 6);
-    trackCalculatorEvent('calc_target_selected', {
+    track('calc_target_selected', {
       intent: brand.productCategory,
       brandId: brand.id,
       brandName: brand.name,
@@ -415,25 +521,43 @@ export const useCalculator = () => {
     const recommendedRange = recommendation.value?.range;
     if (!resolvedSize || !targetBrand || !referenceBrand || !recommendedRange) return;
 
-    trackCalculatorEvent('calc_recommendation', {
-      referenceBrandId: referenceBrand.id,
-      referenceSize: resolvedSize.sourceLabel,
-      resolvedMm: resolvedSize.mm,
-      targetBrandId: targetBrand.id,
-      recommendedLabel: recommendedRange.recommendedLabel,
-    });
+    // The recommendation IS the submission — flush immediately rather than risk the debounce
+    // losing it to a click straight through to a product page.
+    track(
+      'calc_recommendation',
+      {
+        referenceBrandId: referenceBrand.id,
+        referenceSize: resolvedSize.sourceLabel,
+        resolvedMm: resolvedSize.mm,
+        targetBrandId: targetBrand.id,
+        recommendedLabel: recommendedRange.recommendedLabel,
+      },
+      {immediate: true},
+    );
   };
 
   const trackPriceRevealClick = (productSlug: string, storeBaseUrl: string, region: string) => {
     const targetBrand = selectedTargetBrand.value;
     if (!targetBrand) return;
 
-    trackCalculatorEvent('calc_price_reveal_click', {
-      region,
-      storeBaseUrl,
-      targetBrandId: targetBrand.id,
-      productSlug,
-    });
+    // Cumulative for the session: each snapshot carries the whole list, so the server never has to
+    // merge concurrent writes to know how many reveals a session produced.
+    // `region` is the storefront choice ('canada' | 'usa' | 'international') — it decides which
+    // store the reveal sends the visitor to, so it is the .ca-vs-.com split the shop wants.
+    if (!state.value.revealClicks.some((click) => click.slug === productSlug && click.region === region)) {
+      state.value.revealClicks = [...state.value.revealClicks, {slug: productSlug, region}];
+    }
+
+    track(
+      'calc_price_reveal_click',
+      {
+        region,
+        storeBaseUrl,
+        targetBrandId: targetBrand.id,
+        productSlug,
+      },
+      {immediate: true},
+    );
   };
 
   const resetCalculator = () => {

@@ -123,15 +123,33 @@ async function deleteKey(namespaceId, keyName) {
 }
 
 /**
+ * Key prefixes this script must NEVER delete, even with --all.
+ *
+ * These namespaces hold route/build cache that is safe to rebuild, but a few features fall back to
+ * them for durable records when their own KV binding is not bound yet. Deleting those keys is
+ * silent data loss, not a cache miss:
+ *   - `calc-stats:`  size-calculator funnel telemetry + day rollups (server/utils/statsStorage.ts)
+ */
+const PROTECTED_KEY_PREFIXES = ['calc-stats:'];
+
+const isProtectedKey = (keyName) => PROTECTED_KEY_PREFIXES.some((prefix) => keyName.startsWith(prefix));
+
+/**
  * Clear all keys from a KV namespace
  */
 async function clearNamespace(namespaceId, namespaceName) {
   try {
     console.log(`\n🔍 Listing keys in ${namespaceName}...`);
-    const keys = await listKeys(namespaceId);
+    const allKeys = await listKeys(namespaceId);
+    const protectedKeys = allKeys.filter((key) => isProtectedKey(key.name));
+    const keys = allKeys.filter((key) => !isProtectedKey(key.name));
+
+    if (protectedKeys.length > 0) {
+      console.log(`🛡️  Preserving ${protectedKeys.length} protected key(s) (${PROTECTED_KEY_PREFIXES.join(', ')})`);
+    }
 
     if (keys.length === 0) {
-      console.log(`✓ ${namespaceName} is already empty`);
+      console.log(`✓ ${namespaceName} has nothing clearable`);
       return;
     }
 

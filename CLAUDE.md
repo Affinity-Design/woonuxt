@@ -143,4 +143,4 @@ This project uses Nuxt Layers (`extends: './woonuxt_base'`). The base layer has 
 
 ## Documentation
 
-See `docs/` for detailed guides: `helcim-integration.md`, `how-caching-works.md`, `seo-master-guide.md`, `blog-master-guide.md`, `infrastructure-and-integrations.md`, `development.md`.
+See `docs/` for detailed guides: `helcim-integration.md`, `how-caching-works.md`, `seo-master-guide.md`, `blog-master-guide.md`, `infrastructure-and-integrations.md`, `development.md`, `calculator-stats.md`.

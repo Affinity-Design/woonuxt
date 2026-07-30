@@ -111,6 +111,14 @@ useSeoMeta({
                 <Icon name="ion:refresh-circle-outline" size="22" />
                 Recoverable Orders
               </NuxtLink>
+              <NuxtLink
+                to="/my-account?tab=calculator-stats"
+                class="flex items-center gap-4 p-2 px-4"
+                :class="{ active: activeTab == 'calculator-stats' }"
+              >
+                <Icon name="ion:bar-chart-outline" size="22" />
+                Calculator Stats
+              </NuxtLink>
             </template>
           </nav>
           <template class="hidden lg:block">
@@ -135,6 +143,9 @@ useSeoMeta({
           <WishList v-else-if="activeTab === 'wishlist'" />
           <RecoverableOrders
             v-else-if="activeTab === 'recoverable-orders' && isAdmin"
+          />
+          <CalculatorStats
+            v-else-if="activeTab === 'calculator-stats' && isAdmin"
           />
         </main>
       </div>
