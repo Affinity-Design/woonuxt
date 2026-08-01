@@ -33,6 +33,30 @@ try {
 
 const {resolve} = createResolver(import.meta.url);
 
+// KV route-cache entries outlive a deployment, and that is how the site served
+// "Error 500 — Couldn't resolve component "default" at "/product-category/:slug()"".
+//
+// Nitro derives a cached handler's `integrity` from hash([handler, opts]), which is
+// byte-identical from one build to the next. So HTML rendered by the PREVIOUS build
+// stays "valid" in KV after a deploy, while /_nuxt/* ships new content hashes. A
+// visitor landing on that stale HTML requests chunk URLs that now 404; Nuxt swallows
+// the vite:preloadError during hydration (nuxt/app/nuxt.js — event.preventDefault()
+// when isHydrating), which makes the page's dynamic import resolve to `undefined`
+// instead of rejecting, and vue-router then throws `Couldn't resolve component`.
+// Nuxt renders that as a 500 error page even though the document itself was a 200.
+//
+// Keying integrity to the deployment makes every entry written by an older build miss
+// and re-render, so a deploy can never serve HTML that predates its own assets.
+// scripts/prebuild-cache-purge.js cannot cover this: it runs BEFORE the build, while
+// the previous Worker is still live and refilling KV with old-build HTML.
+const BUILD_ID = process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || process.env.NUXT_BUILD_ID || 'dev';
+if (BUILD_ID === 'dev') {
+  console.warn('[Nuxt Config] No CF_PAGES_COMMIT_SHA/GITHUB_SHA/NUXT_BUILD_ID — KV route cache will NOT be invalidated by this build.');
+}
+
+/** KV-backed route cache, scoped to this deployment. See BUILD_ID above. */
+const kvCache = (maxAge: number) => ({maxAge, base: 'cache', integrity: BUILD_ID});
+
 console.log(`[Nuxt Config] Found ${categoryRoutesToPrerender.length} category routes to prerender from static file.`);
 console.log(`[Nuxt Config] Found ${blogRoutesToPrerender.length} blog routes to prerender from static file.`);
 console.log(`[Nuxt Config] Found ${Object.keys(blogRedirects).length} blog redirects configured.`);
@@ -259,14 +283,14 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': {prerender: true, cache: {maxAge: 60 * 60 * 24, base: 'cache'}},
+    '/': {prerender: true, cache: kvCache(60 * 60 * 24)},
     '/blog': {
       prerender: true,
-      cache: {maxAge: 60 * 60 * 24, base: 'cache'},
+      cache: kvCache(60 * 60 * 24),
     },
     '/blog/**': {
       prerender: true,
-      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+      cache: kvCache(60 * 60 * 24 * 7),
     }, // Prerender all blog posts
 
     // Dynamic blog post redirects (generated at build time)
@@ -274,9 +298,9 @@ export default defineNuxtConfig({
 
     '/product-category/**': {
       prerender: true,
-      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+      cache: kvCache(60 * 60 * 24 * 7),
     }, // Rely on prerendering
-    '/product/**': {cache: {maxAge: 60 * 60 * 72, base: 'cache'}}, // Use KV cache for products
+    '/product/**': {cache: kvCache(60 * 60 * 72)}, // Use KV cache for products
 
     // Account/cart/checkout are client-only shells with no indexable content:
     // they were serving 200 with the homepage title and canonical, and no robots
@@ -301,7 +325,7 @@ export default defineNuxtConfig({
     '/inline-skates-size-calculator': {redirect: {to: '/roller-skates-size-calculator', statusCode: 301}},
     '/roller-skates-size-calculator': {
       prerender: true,
-      cache: {maxAge: 60 * 60 * 24 * 7, base: 'cache'},
+      cache: kvCache(60 * 60 * 24 * 7),
     },
   },
 
