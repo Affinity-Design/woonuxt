@@ -57,6 +57,13 @@ const argLimit = (() => {
 })();
 const argForce = process.argv.includes('--force');
 
+// Deploys pass --reuse: publish the committed feed as-is and NEVER scrape.
+// The ~1,700-page price pass makes build duration hostage to live-site cache
+// state (18 min against a warm cache, 35+ min — past the Pages timeout —
+// right after a deploy invalidates it). Rebuilds are owned by the scheduled
+// .github/workflows/refresh-merchant-feed.yml instead.
+const argReuse = process.argv.includes('--reuse');
+
 /**
  * The committed feed, if it is recent enough to reuse. Returns null when a
  * rebuild is needed.
@@ -210,6 +217,27 @@ function reportPriceDirection(catalogue, prices) {
  * a redeploy — Merchant Center fetches daily, deploys are far less frequent.
  * Mirrors the KV upload in scripts/build-sitemap.js.
  */
+/**
+ * generatedAt of the feed currently in KV, or null when unreadable. Guards
+ * --reuse against overwriting a fresher feed (published straight to KV by a
+ * scheduled refresh) with an older committed one.
+ */
+async function kvFeedGeneratedAt() {
+  const accountId = process.env.CF_ACCOUNT_ID;
+  const apiToken = process.env.CF_API_TOKEN;
+  const namespaceId = process.env.CF_KV_NAMESPACE_ID_SCRIPT_DATA;
+  if (!accountId || !apiToken || !namespaceId) return null;
+  try {
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/merchant-feed-ca`;
+    const res = await fetch(url, {headers: {Authorization: `Bearer ${apiToken}`}});
+    if (!res.ok) return null;
+    const body = await res.json();
+    return body?.generatedAt || null;
+  } catch {
+    return null;
+  }
+}
+
 async function uploadToKV(feed) {
   const accountId = process.env.CF_ACCOUNT_ID;
   const apiToken = process.env.CF_API_TOKEN;
@@ -248,6 +276,31 @@ async function uploadToKV(feed) {
 
 (async () => {
   const startedAt = Date.now();
+
+  if (argReuse) {
+    const {readFileSync} = require('fs');
+    try {
+      const existing = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'));
+      if (!existing?.generatedAt || !existing?.itemCount) throw new Error('committed feed is empty or malformed');
+      const ageHours = (Date.now() - new Date(existing.generatedAt).getTime()) / 36e5;
+      console.log(`--reuse: committed feed has ${existing.itemCount} items, ${ageHours.toFixed(1)}h old — publishing without a rebuild.`);
+      if (ageHours > 48) {
+        console.warn('⚠️  Committed feed is over 48h old — check that the refresh-merchant-feed workflow is running and pushing.');
+      }
+      const kvGeneratedAt = await kvFeedGeneratedAt();
+      if (kvGeneratedAt && new Date(kvGeneratedAt) > new Date(existing.generatedAt)) {
+        console.log(`--reuse: KV already holds a newer feed (${kvGeneratedAt}) — leaving it in place.`);
+      } else {
+        await uploadToKV(existing);
+      }
+      console.log(`\n  Feed URL: ${SITE}/merchant-feed.xml`);
+    } catch (err) {
+      // Never fail a deploy over the feed: KV keeps whatever it already has.
+      console.error(`⚠️  --reuse: no usable committed feed (${err.message}).`);
+      console.error('   Run the refresh-merchant-feed workflow (or `npm run build-merchant-feed`) to publish a fresh one.');
+    }
+    return;
+  }
 
   // Even when the rebuild is skipped, still publish to KV — that is the only
   // source the production route can read.
