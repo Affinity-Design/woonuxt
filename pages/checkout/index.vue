@@ -18,7 +18,7 @@ const confirmShippingAddress = (): void => {
 };
 const {exchangeRate} = useExchangeRate();
 const {hasBackorderItems, hasClearanceItems, hasAnyNotices} = useCartNotices();
-const {clearAttemptId} = useCheckoutAttempt();
+const {getOrCreateAttemptId} = useCheckoutAttempt();
 const config = useRuntimeConfig();
 
 // Refs for managing checkout state
@@ -616,7 +616,13 @@ const attemptStrandedRecovery = async () => {
   try {
     const res: any = await $fetch('/api/recover-helcim-order', {
       method: 'POST',
-      body: {transactionId: paymentCapturedTxnId.value},
+      // Attempt id + email allow adoption of an order that completed server-side even when no
+      // stranded record was ever written (order created, response/redirect lost).
+      body: {
+        transactionId: paymentCapturedTxnId.value,
+        checkoutAttemptId: getOrCreateAttemptId(),
+        email: customer.value?.billing?.email || '',
+      },
     });
 
     if (res?.recovered && res.order) {
@@ -647,8 +653,9 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
   helcimPaymentComplete.value = true;
   isPaid.value = true;
   paymentError.value = null;
-  // Attempt resolved into an order — a future purchase of the same items is a new attempt.
-  clearAttemptId();
+  // NOTE: the attempt id is deliberately NOT cleared here. The receipt page clears it once it
+  // actually renders — if this navigation fails, the duplicate-charge guard stays armed and a
+  // retry is blocked + routed back to recovery instead of charging again.
 
   try {
     await emptyCart();
@@ -658,7 +665,22 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
   }
 
   const {orderId, orderKey, orderNumber} = order;
-  await navigateTo(`/checkout/order-received/${orderId}/?key=${orderKey || ''}&number=${encodeURIComponent(String(orderNumber ?? orderId))}`);
+  const receiptUrl = `/checkout/order-received/${orderId}/?key=${orderKey || ''}&number=${encodeURIComponent(String(orderNumber ?? orderId))}`;
+  try {
+    await navigateTo(receiptUrl);
+  } catch (navError) {
+    console.warn('[Checkout] SPA navigation to receipt failed — hard-navigating:', navError);
+    window.location.assign(receiptUrl);
+    return;
+  }
+  // Watchdog: a silent SPA-navigation failure (stale chunk after a deploy) must not strand a
+  // paid customer on the checkout page — hard-navigate to the receipt if it hasn't taken over.
+  setTimeout(() => {
+    if (!window.location.pathname.includes('order-received')) {
+      console.warn('[Checkout] Receipt page did not take over after recovery — hard-navigating');
+      window.location.assign(receiptUrl);
+    }
+  }, 4000);
 };
 
 const handleHelcimComplete = (result: any) => {

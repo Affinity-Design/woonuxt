@@ -192,8 +192,13 @@ export default defineEventHandler(async (event) => {
             lineItems: formattedLineItems,
           };
 
-          // Add invoice number if provided
-          if (invoiceNumber) {
+          // Stamp the attempt-derived invoice number so the charge itself carries the purchase
+          // identity. This is what lets the pre-charge guard above (and order recovery) ask
+          // HELCIM whether this attempt already paid — independent of our own storage.
+          const attemptInvoiceNumber = deriveAttemptInvoiceNumber(checkoutAttemptId);
+          if (attemptInvoiceNumber) {
+            invoiceRequest.invoiceNumber = attemptInvoiceNumber;
+          } else if (invoiceNumber) {
             invoiceRequest.invoiceNumber = invoiceNumber;
           }
 
@@ -383,10 +388,14 @@ export default defineEventHandler(async (event) => {
         // Duplicate-charge guard: block before asking Helcim for a new checkout token.
         // If the same cart was successfully charged moments ago, issuing another token gives
         // the customer a path to a second real charge. Fail open if KV is unavailable.
-        // Two signals, strongest first:
+        // Three signals, strongest first:
         //   1. checkoutAttemptId — exact match on the client-minted attempt id (survives reload,
         //      immune to the amount/line-item drift that can defeat the fingerprint).
         //   2. fingerprint (email+amount+items) — catches clients without an attempt id.
+        //   3. Helcim itself — the attempt id is stamped into each charge's invoice number
+        //      (see below), so Helcim's transaction log answers "did this attempt already pay?"
+        //      even when every KV/D1 record is stale, wiped, or unbound. This is the layer the
+        //      2026-08-03 triple-charge (orders 500048481/84/87) proved we were missing.
         try {
           const recent =
             (await findRecentAttemptChargeStrong(event, checkoutAttemptId)) ||
@@ -394,7 +403,16 @@ export default defineEventHandler(async (event) => {
               email: customerInfo?.email,
               amount: amountInDollars,
               lineItems,
-            }));
+            })) ||
+            (await (async () => {
+              const helcimCharge = await findHelcimChargeForAttempt(helcimApiToken as string, checkoutAttemptId);
+              if (!helcimCharge) return null;
+              return {
+                transactionId: helcimCharge.transactionId,
+                minutesAgo: minutesSinceHelcimDate(helcimCharge.dateCreated),
+                at: helcimCharge.dateCreated || new Date().toISOString(),
+              };
+            })());
 
           if (recent) {
             const recentChargeWarning = {transactionId: recent.transactionId, minutesAgo: recent.minutesAgo, at: recent.at};
@@ -446,15 +464,69 @@ export default defineEventHandler(async (event) => {
         // Log the FULL request body for debugging
         console.log('[Helcim API] Full request body being sent:', JSON.stringify(helcimRequestBody, null, 2));
 
-        const response = await fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
-          method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'api-token': helcimApiToken as string,
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(helcimRequestBody),
-        });
+        const initializeWithHelcim = (requestBody: any) =>
+          fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'api-token': helcimApiToken as string,
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+        let response = await initializeWithHelcim(helcimRequestBody);
+
+        // If Helcim rejects an initialize that carries our attempt-derived invoice number (e.g.
+        // an earlier initialize of this same attempt already created that invoice), do NOT fail
+        // the checkout. First re-confirm the attempt hasn't already PAID (a paid invoice must
+        // block, not retry); otherwise retry once without the stamp — the KV/D1 guard layers
+        // still cover that charge, we just lose the Helcim-side lookup for it.
+        const stampedInvoiceNumber = helcimRequestBody.invoiceRequest?.invoiceNumber;
+        if (!response.ok && stampedInvoiceNumber && stampedInvoiceNumber === deriveAttemptInvoiceNumber(checkoutAttemptId)) {
+          const rejectionText = await response.text().catch(() => '');
+          console.warn(`[Helcim API] Initialize rejected with attempt invoice number (${response.status}) — re-checking charge state`, {
+            traceId,
+            rejection: rejectionText.slice(0, 300),
+          });
+
+          const paidCharge = await findHelcimChargeForAttempt(helcimApiToken as string, checkoutAttemptId);
+          if (paidCharge) {
+            const recentChargeWarning = {
+              transactionId: paidCharge.transactionId,
+              minutesAgo: minutesSinceHelcimDate(paidCharge.dateCreated),
+              at: paidCharge.dateCreated || new Date().toISOString(),
+            };
+            console.warn('[Helcim Guard] Attempt already paid (found during initialize rejection) — blocking duplicate token', {
+              traceId,
+              ...recentChargeWarning,
+            });
+            await logCheckoutFailure(event, {
+              stage: 'duplicate_block',
+              reason: 'Blocked at initialize rejection — Helcim already holds an approved charge for this attempt',
+              transactionId: paidCharge.transactionId,
+              checkoutAttemptId,
+              email: customerInfo?.email,
+              cartTotal: amountInDollars,
+              requestId: traceId,
+            });
+            return {
+              success: false,
+              duplicateChargeBlocked: true,
+              traceId,
+              recentChargeWarning,
+              error: {
+                message: `A matching payment appears to have gone through recently. Please check your email for an order confirmation or contact ${CUSTOMER_SERVICE_EMAIL} before trying again.`,
+                code: 'recent_charge_detected',
+                statusCode: 409,
+              },
+            };
+          }
+
+          delete helcimRequestBody.invoiceRequest.invoiceNumber;
+          console.warn('[Helcim API] Retrying initialize without invoice number (attempt stays covered by KV/D1 guard layers)', {traceId});
+          response = await initializeWithHelcim(helcimRequestBody);
+        }
 
         if (!response.ok) {
           const errorData = await response.text();

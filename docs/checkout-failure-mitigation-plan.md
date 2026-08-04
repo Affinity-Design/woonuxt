@@ -5,6 +5,54 @@
 **Date:** 2026-07-15
 **Trigger:** Support incident — duplicate order (orders `500047991` + `500047994`, card charged twice) and a separate order placed with **no shipping address**.
 
+---
+
+## 0. ADDENDUM 2026-08-04 — the 2026-08-03 triple charge and the storage-independent guard
+
+**Incident:** orders `500048481`, `500048484`, `500048487` — one intended purchase, **three real charges,
+three Woo orders, three confirmation emails** (Aug 3). Confirmation emails fire only on the final
+status→processing update at the END of `create-admin-order`, so the server finished the FULL order flow
+all three times; the customer nonetheless saw failure UI after each payment ("There was an issue with
+your payment", then a dead-end page, then a redirect back to checkout that let them re-pay).
+
+**Why the July 17 mitigations didn't stop it:** every guard layer depended on state WE wrote —
+D1 (`NUXT_CHECKOUT_LOGS`, never created), the payment KV namespace (`NUXT_PAYMENT_DATA`, created but
+possibly still unbound → falls back to `NUXT_CACHE`, which cache clears wipe and whose eventual
+consistency a fast retry can outrun). And the self-service recovery required a **stranded-charge
+record** that is never written in the "order created fine, response/redirect lost in the browser"
+failure mode — so "Retrieve my order" dead-ended precisely when it was needed.
+
+**Shipped 2026-08-04 (this addendum's PR) — guards that need NO bindings:**
+
+1. **Helcim-authoritative charge guard** (`server/utils/helcimAttemptLink.ts`): every HelcimPay
+   initialize stamps the invoice with a deterministic invoice number derived from the
+   `checkoutAttemptId` (`PSP-<16 hex>`). Before issuing any new checkout token, `/api/helcim` asks
+   Helcim's own transaction log whether an APPROVED charge already carries this attempt's invoice
+   number — immune to KV wipes, propagation lag, and missing bindings. Fail-open with a 6s timeout.
+2. **WooCommerce-authoritative order guard** (`server/utils/wooOrderLookup.ts`): orders are stamped
+   with `_checkout_attempt_id` meta; `create-admin-order` searches recent orders for the billing
+   email and adopts an existing order for the same attempt instead of creating a second one
+   (stranding the duplicate charge for refund) — works with zero KV.
+3. **Recovery without a stranded record** (`/api/recover-helcim-order`): adopts completed orders via
+   the txn/attempt idempotency records, or — when KV knows nothing — verifies the charge belongs to
+   the caller's attempt via Helcim and finds the order via the stamped Woo meta. Possession of the
+   unguessable attempt id (plus Helcim/records confirming the link) is the authorization; a bare
+   transactionId can never unlock someone's receipt.
+4. **Early idempotency-complete write**: `create-admin-order` marks the attempt completed the moment
+   the order exists, before the 4s settle + status update that historically outlived client timeouts.
+5. **Receipt page can't dead-end a paid customer**: any order-fetch failure on a checkout arrival
+   (order id + key present) renders a soft confirmation with the order number and retries quietly —
+   never "Order Not Found / Try Again". The receipt page now also OWNS clearing the attempt id: it
+   is no longer cleared before the redirect, so a redirect that never lands keeps the guard armed.
+6. **Hard-navigation watchdogs** on the receipt redirect (checkout success + recovery): if SPA
+   navigation dies silently (e.g. stale HTML shell requesting deleted chunks post-deploy), we
+   `window.location.assign` to the receipt instead of stranding the customer on checkout.
+
+**Still required (ops, unchanged from §5/§6):** bind `NUXT_PAYMENT_DATA` (namespaces already exist)
+and create+bind the `NUXT_CHECKOUT_LOGS` D1 databases on both Pages projects. The new layers remove
+the hard dependency on those bindings, but the KV/D1 layers remain the fastest and most precise
+signals — bind them.
+
 > Scope note: this is a **plan only** — no code has been changed. It documents probable causes (grounded in current code) and the concrete changes needed to implement the precautions Paul described.
 
 ---

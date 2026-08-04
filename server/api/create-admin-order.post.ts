@@ -188,6 +188,67 @@ export default defineEventHandler(async (event) => {
       console.warn('⚠️ Idempotency storage unavailable (KV binding missing?), proceeding without duplicate protection:', storageError);
     }
 
+    // Authoritative order-level dedup against WooCommerce ITSELF. The KV idempotency above can
+    // silently know nothing (namespace unbound → cache fallback wiped by cache clears, or an
+    // eventual-consistency stale read on a fast retry) — that blind spot is how one purchase
+    // became three orders on 2026-08-03 (500048481/84/87). Every order we create is stamped with
+    // `_checkout_attempt_id`, so WooCommerce can always answer "does this attempt already have an
+    // order?" regardless of our storage. Fail open on lookup errors: the charge has already
+    // happened, and refusing here would strand it behind a transient search failure.
+    if (checkoutAttemptId) {
+      try {
+        const existingOrder = await findWooOrderForAttempt({
+          wpBaseUrl: config.public.wpBaseUrl,
+          authHeader: `Basic ${Buffer.from(`${config.wpAdminUsername}:${config.wpAdminAppPassword}`).toString('base64')}`,
+          email: billing?.email,
+          checkoutAttemptId,
+          transactionId,
+        });
+
+        if (existingOrder) {
+          const isSameCharge = String(existingOrder.transactionId || '') === String(transactionId);
+          if (!isSameCharge) {
+            // Same purchase, DIFFERENT charge — the duplicate-charge case. Never create a second
+            // order: return the original and strand this charge so support can refund it.
+            console.warn('🚨 Woo already has an order for this attempt (different charge) — returning it, stranding duplicate charge', {
+              checkoutAttemptId,
+              existingOrderId: existingOrder.databaseId,
+              originalTransactionId: existingOrder.transactionId,
+              duplicateTransactionId: transactionId,
+            });
+            await recordStrandedCharge(transactionId, body, `duplicate_charge_for_existing_woo_order:${existingOrder.databaseId}`);
+            await logCheckoutFailure(event, {
+              stage: 'duplicate_charge_detected',
+              reason: `Second charge for attempt with existing Woo order #${existingOrder.orderNumber} — original returned, duplicate stranded for refund`,
+              transactionId,
+              checkoutAttemptId,
+              email: billing?.email,
+              cartTotal: cartTotals?.total,
+              requestId,
+            });
+          } else {
+            console.log('🔁 Woo-side idempotency hit: attempt already has this order', {checkoutAttemptId, orderId: existingOrder.databaseId});
+          }
+
+          try {
+            await writeIdempotency({status: 'completed', completedAt: new Date().toISOString(), order: existingOrder, adoptedFromWoo: true});
+          } catch {
+            // best-effort backfill of the KV record
+          }
+
+          return {
+            success: true,
+            idempotent: true,
+            adoptedFromWoo: true,
+            duplicateChargeDetected: !isSameCharge,
+            order: existingOrder,
+          };
+        }
+      } catch (wooLookupError: any) {
+        console.warn('⚠️ Woo-side attempt lookup failed (continuing to create):', wooLookupError?.message || wooLookupError);
+      }
+    }
+
     // The card has ALREADY been charged by the time we reach this handler (charge-first/order-second).
     // So any failure below leaves a stranded payment. This helper marks BOTH idempotency keys failed
     // AND persists the full payload so /api/recover-helcim-order can reconcile the charge into an
@@ -491,6 +552,10 @@ export default defineEventHandler(async (event) => {
           // The Helcim plugin uses _transaction_id for refund lookups
           {key: '_transaction_id', value: transactionId},
           {key: '_helcim_transaction_id', value: transactionId},
+          // CRITICAL: The purchase identity. Lets WooCommerce itself answer "does this checkout
+          // attempt already have an order?" (see findWooOrderForAttempt) even when every KV/D1
+          // record is gone — the storage-independent half of the duplicate-order guard.
+          ...(checkoutAttemptId ? [{key: '_checkout_attempt_id', value: String(checkoutAttemptId)}] : []),
           // CRITICAL: Use 'helcimjs' to match the Helcim WooCommerce plugin for native refunds
           {key: '_payment_method', value: 'helcimjs'},
           {key: '_payment_method_title', value: 'Helcim Credit Card Payment'},
@@ -633,6 +698,32 @@ export default defineEventHandler(async (event) => {
     // Line items are already created by GraphQL mutation with all necessary data
     // No need to update them separately to avoid duplicates
     console.log('✅ Order created with complete line items via GraphQL');
+
+    // Mark the attempt completed the MOMENT the order exists — before the settle delay and
+    // status update below, which historically stretched this endpoint past client timeouts.
+    // If the response is lost from here on, a retry/recovery finds a completed record with the
+    // order instead of racing an 'in_progress' marker (and the final write below refreshes it
+    // with the finalized order number).
+    try {
+      await writeIdempotency({
+        status: 'completed',
+        completedAt: new Date().toISOString(),
+        order: {
+          id: orderData.databaseId,
+          databaseId: orderData.databaseId,
+          globalId: orderData.id,
+          orderNumber: orderData.orderNumber,
+          orderKey: orderData.orderKey,
+          status: orderData.status,
+          total: orderData.total,
+          transactionId: orderData.transactionId,
+          paymentMethod: orderData.paymentMethod,
+          date: orderData.date,
+        },
+      });
+    } catch (storageError) {
+      console.warn('⚠️ Failed to write early idempotency completion (continuing):', storageError);
+    }
 
     // Step 1: SKIP Applying coupons to avoid double-discounting logic
     // Since we already calculated the discounted totals in the line items, applying coupons again via API
