@@ -41,6 +41,7 @@ npm run debug:cache      # Debug cache state
 npm run build-all-routes # Generate blog routes, redirects, sitemap data
 npm run build-product-cache   # Generate product cache JSON
 npm run build-category-cache  # Generate category cache JSON
+npm run build-merchant-feed   # Full feed rebuild (~1,700 page scrape) — runs nightly via .github/workflows/refresh-merchant-feed.yml; deploys reuse the committed feed (--reuse) and never scrape
 
 # Utilities
 npm run clean:build      # Clean node_modules, reinstall, rebuild

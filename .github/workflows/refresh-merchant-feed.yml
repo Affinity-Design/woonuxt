@@ -1,0 +1,66 @@
+# Rebuild the CAD Merchant Center feed on a schedule, OUTSIDE the deploy path.
+#
+# Why: the feed's price pass fetches ~1,700 live product pages. Inside `npm run
+# build` that made deploy duration hostage to live-site cache state — 18 min
+# against a warm cache, 35+ min (past the Pages build timeout) right after a
+# deploy invalidated it. Deploys now run `build-merchant-feed.js --reuse`
+# (publish the committed feed, never scrape); this workflow owns the scrape.
+#
+# Flow: nightly at 07:15 UTC (~3:15am ET, quiet hours), rebuild with
+# --force --strict, and if the feed changed, commit data/merchant-feed-ca.json
+# to master. That push triggers a normal Pages deploy — fast, since it reuses
+# the feed just committed — which uploads the feed to KV and re-warms the cache
+# via the warm-cache-on-deploy workflow. No extra secrets needed.
+#
+# --strict makes a failed scrape a RED run instead of a silent skip, and the
+# feed script refuses to publish under 100 items, so a partial scrape can
+# neither overwrite a good feed nor mass-delist products in Merchant Center.
+name: Refresh merchant feed
+
+on:
+  schedule:
+    - cron: '15 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-merchant-feed
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # --ignore-scripts skips postinstall's `nuxt prepare`, which needs live
+      # GraphQL schema introspection — the feed scripts don't.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild feed (full scrape)
+        env:
+          FEED_CONCURRENCY: '16'
+        run: node scripts/build-merchant-feed.js --force --strict
+
+      - name: Commit and push if the feed changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/merchant-feed-ca.json
+          if git diff --cached --quiet; then
+            echo "Feed unchanged — nothing to commit."
+          else
+            git commit -m "chore(feed): scheduled merchant feed refresh"
+            git push
+          fi
