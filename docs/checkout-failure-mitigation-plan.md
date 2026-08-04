@@ -49,9 +49,17 @@ failure mode — so "Retrieve my order" dead-ended precisely when it was needed.
    `window.location.assign` to the receipt instead of stranding the customer on checkout.
 
 **Still required (ops, unchanged from §5/§6):** bind `NUXT_PAYMENT_DATA` (namespaces already exist)
-and create+bind the `NUXT_CHECKOUT_LOGS` D1 databases on both Pages projects. The new layers remove
+and create+bind the checkout-logs D1 databases on both Pages projects. The new layers remove
 the hard dependency on those bindings, but the KV/D1 layers remain the fastest and most precise
 signals — bind them.
+
+> ✅ **UPDATE 2026-08-04 (post-merge):** `NUXT_PAYMENT_DATA` is bound on prod, and the
+> `woonuxt-checkout-logs` D1 database exists and is bound under the variable name
+> **`woonuxt-checkout-logs`** (not the originally documented `NUXT_CHECKOUT_LOGS`). The code now
+> reads the dashed name first and falls back to the legacy name, so either binding style works.
+> Verify with `GET /api/checkout-failures?secret=…` → `"d1Bound": true`. Remember: Pages binding
+> changes only take effect on the next deployment, and Preview + testdev still need the same
+> bindings mirrored.
 
 > Scope note: this is a **plan only** — no code has been changed. It documents probable causes (grounded in current code) and the concrete changes needed to implement the precautions Paul described.
 

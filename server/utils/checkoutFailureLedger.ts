@@ -9,10 +9,11 @@
 // failure, recovery attempt) so support can query by email/stage/date without guessing.
 //
 // STORAGE (best available, in order):
-//   1. Cloudflare D1 (binding NUXT_CHECKOUT_LOGS) — strongly consistent, SQL-queryable. The
-//      schema is auto-created on first write, so binding the database is the ONLY setup step:
+//   1. Cloudflare D1 (binding `woonuxt-checkout-logs`; legacy name NUXT_CHECKOUT_LOGS also
+//      accepted) — strongly consistent, SQL-queryable. The schema is auto-created on first
+//      write, so binding the database is the ONLY setup step:
 //        npx wrangler d1 create woonuxt-checkout-logs
-//        Pages project → Settings → Bindings → D1 database → variable name NUXT_CHECKOUT_LOGS
+//        Pages project → Settings → Bindings → D1 database → variable name woonuxt-checkout-logs
 //   2. Payment KV store fallback (checkout-fail:* keys, 90-day TTL) when D1 isn't bound —
 //      including local dev, where the payment mount is filesystem-backed.
 //
@@ -41,9 +42,13 @@ const KV_KEY_PREFIX = 'checkout-fail:';
 const KV_TTL_SECONDS = 90 * 24 * 60 * 60; // 90 days
 const MAX_DETAIL_CHARS = 4000;
 
-/** The D1 database bound to the Pages project, or null when not configured (dev / pre-binding). */
+/** The D1 database bound to the Pages project, or null when not configured (dev / pre-binding).
+ *  The production dashboard binds it under the variable name `woonuxt-checkout-logs` (dashed —
+ *  needs bracket access); `NUXT_CHECKOUT_LOGS` is kept as a fallback so an environment bound
+ *  with the originally-documented name keeps working too. */
 export function getCheckoutLogsDb(event: any): any | null {
-  return event?.context?.cloudflare?.env?.NUXT_CHECKOUT_LOGS || null;
+  const env = event?.context?.cloudflare?.env;
+  return env?.['woonuxt-checkout-logs'] || env?.NUXT_CHECKOUT_LOGS || null;
 }
 
 // Schema bootstrap — once per isolate, so binding the database is the only manual setup step.
