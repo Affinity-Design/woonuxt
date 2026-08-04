@@ -50,7 +50,10 @@ const retrievePaidOrder = async () => {
   try {
     const res = (await $fetch('/api/recover-helcim-order', {
       method: 'POST',
-      body: {transactionId},
+      // The attempt id + email let the server adopt an order that completed even though no
+      // stranded record exists (e.g. the receipt redirect died in the browser). The attempt id
+      // is the authorization: an unguessable client UUID Helcim can confirm is stamped on the charge.
+      body: {transactionId, checkoutAttemptId: getOrCreateAttemptId(), email: props.customerInfo?.email || ''},
     })) as {
       recovered?: boolean;
       needsManualReview?: boolean;

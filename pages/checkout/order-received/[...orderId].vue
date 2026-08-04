@@ -5,6 +5,7 @@ const route = useRoute();
 const {query, params} = route;
 const {customer} = useAuth();
 const {formatDate, formatPrice} = useHelpers();
+const {clearAttemptId} = useCheckoutAttempt();
 const {t} = useI18n();
 
 const order = ref<Order | null>(null);
@@ -13,6 +14,10 @@ const delayLength = 1000;
 const isLoaded = ref<boolean>(false);
 const errorMessage = ref('');
 const initialOrderFetchSucceeded = ref(false);
+// True when the order fetch failed and we rendered the soft placeholder receipt instead.
+// Silent background retries then try to hydrate the real order without flashing the UI.
+const usedSoftFallback = ref(false);
+let softRetryTimer: ReturnType<typeof setTimeout> | null = null;
 
 const isGuest = computed(() => !customer.value?.email);
 const isSummaryPage = computed<boolean>(() => route.path.includes('/order-summary'));
@@ -50,6 +55,14 @@ onBeforeMount(() => {
 });
 
 onMounted(async () => {
+  // The receipt page OWNS clearing the checkout-attempt id (2026-08-03 triple-charge incident).
+  // Clearing anywhere earlier (e.g. right before the redirect) disarms the duplicate-charge
+  // guard for exactly the failure it exists for: a redirect that never lands. Reaching a
+  // rendered receipt is the one proof the purchase is finished.
+  if (isCheckoutPage.value && query.key) {
+    clearAttemptId();
+  }
+
   await getOrder();
 
   if (initialOrderFetchSucceeded.value && isCheckoutPage.value && fetchDelay.value && orderIsNotCompleted.value) {
@@ -59,6 +72,55 @@ onMounted(async () => {
   }
 });
 
+onUnmounted(() => {
+  if (softRetryTimer) clearTimeout(softRetryTimer);
+});
+
+async function fetchOrderFromApi(): Promise<Order> {
+  const orderIdFromParams = params.orderId as string;
+  if (!orderIdFromParams) {
+    throw new Error('Order ID is missing from route parameters.');
+  }
+
+  const queryVariables: {id: string; orderKey?: string} = {
+    id: orderIdFromParams,
+  };
+  if (isGuest.value && query.key) {
+    queryVariables.orderKey = query.key as string;
+  }
+
+  const data = await GqlGetOrder(queryVariables);
+
+  if (data?.order) return data.order as Order;
+
+  let errorDetail = 'Order not found or GraphQL query returned no order data.';
+  if (data?.errors?.[0]?.message) {
+    errorDetail = data.errors[0].message;
+  }
+  throw new Error(errorDetail);
+}
+
+// Retry the fetch quietly after the soft placeholder rendered — hydrate the real order details
+// without resetting/flashing the page. Gives up silently; the placeholder is already a valid
+// confirmation (the customer only reaches this page with an order id + key after the server
+// confirmed the order exists).
+function scheduleSilentOrderRetry(attempt = 1) {
+  const maxAttempts = 3;
+  if (attempt > maxAttempts) return;
+  if (softRetryTimer) clearTimeout(softRetryTimer);
+  softRetryTimer = setTimeout(async () => {
+    try {
+      const fresh = await fetchOrderFromApi();
+      order.value = fresh;
+      initialOrderFetchSucceeded.value = true;
+      usedSoftFallback.value = false;
+      console.log('[OrderReceived] Silent retry hydrated the real order details');
+    } catch {
+      scheduleSilentOrderRetry(attempt + 1);
+    }
+  }, 4000 * attempt);
+}
+
 async function getOrder() {
   isLoaded.value = false;
   errorMessage.value = '';
@@ -66,42 +128,18 @@ async function getOrder() {
   initialOrderFetchSucceeded.value = false;
 
   try {
-    const orderIdFromParams = params.orderId as string;
-    if (!orderIdFromParams) {
-      throw new Error('Order ID is missing from route parameters.');
-    }
-
-    const queryVariables: {id: string; orderKey?: string} = {
-      id: orderIdFromParams,
-    };
-    if (isGuest.value && query.key) {
-      queryVariables.orderKey = query.key as string;
-    }
-
-    const data = await GqlGetOrder(queryVariables);
-
-    if (data?.order) {
-      order.value = data.order;
-      initialOrderFetchSucceeded.value = true;
-    } else {
-      let errorDetail = 'Order not found or GraphQL query returned no order data.';
-      if (data?.errors?.[0]?.message) {
-        errorDetail = data.errors[0].message;
-      }
-      throw new Error(errorDetail);
-    }
+    order.value = await fetchOrderFromApi();
+    initialOrderFetchSucceeded.value = true;
+    usedSoftFallback.value = false;
   } catch (err: any) {
     const specificErrorMessage = err?.gqlErrors?.[0]?.message || err.message || 'Could not find order';
 
-    if (
-      isGuest.value &&
-      isCheckoutPage.value &&
-      params.orderId &&
-      query.key &&
-      (specificErrorMessage.includes('Not authorized to access this order') ||
-        specificErrorMessage.includes('Order not found') ||
-        specificErrorMessage.includes('Invalid ID'))
-    ) {
+    // A customer arriving here from checkout with an order id + key has ALREADY paid and has an
+    // order — this page is their receipt. Rendering a scary error ("Order Not Found") here for a
+    // transient fetch failure is what sent a paid customer back to re-purchase on 2026-08-03
+    // (orders 500048481/84/87). For ANY fetch failure on a checkout arrival, show the soft
+    // confirmation (order number from the redirect) and hydrate the details in the background.
+    if (isCheckoutPage.value && params.orderId && query.key) {
       order.value = {
         databaseId: params.orderId as string,
         orderNumber: orderNumberFromQuery.value,
@@ -120,6 +158,9 @@ async function getOrder() {
 
       errorMessage.value = '';
       initialOrderFetchSucceeded.value = false;
+      usedSoftFallback.value = true;
+      console.warn('[OrderReceived] Order fetch failed on checkout arrival — showing soft confirmation, retrying quietly:', specificErrorMessage);
+      scheduleSilentOrderRetry();
     } else {
       errorMessage.value = specificErrorMessage;
       order.value = null;
@@ -161,6 +202,7 @@ useSeoMeta({
             <div class="mt-2 text-sm text-gray-600">
               <p>We sent you an email confirmation.</p>
               <p>We will email you again when your order is shipped or the status has changed.</p>
+              <p v-if="usedSoftFallback" class="mt-2">Your payment was received — the full receipt details are in your confirmation email.</p>
               <p v-if="customer?.email">
                 If you have any questions please
                 <NuxtLink to="/contact" class="text-primary underline">Contact Us</NuxtLink>.
@@ -174,8 +216,8 @@ useSeoMeta({
         <hr class="my-8" />
       </div>
 
-      <!-- LoggedIn User -->
-      <div v-if="order && !isGuest" class="flex-1 w-full">
+      <!-- LoggedIn User (hidden while the soft placeholder is up — no real totals to show) -->
+      <div v-if="order && !isGuest && !usedSoftFallback" class="flex-1 w-full">
         <div class="flex items-start justify-between">
           <div class="w-[21%]">
             <div class="text-center mb-2 text-xs text-gray-400 uppercase">
@@ -250,8 +292,8 @@ useSeoMeta({
         </div>
       </div>
 
-      <!-- If Guest -->
-      <div v-if="order && isGuest" class="flex-1 w-full">
+      <!-- If Guest (hidden while the soft placeholder is up — no real totals to show) -->
+      <div v-if="order && isGuest && !usedSoftFallback" class="flex-1 w-full">
         <div class="flex items-start justify-between">
           <div class="w-[21%]">
             <div class="mb-2 text-xs text-gray-400 uppercase">

@@ -160,7 +160,7 @@ export function useCheckout() {
     const {customer, viewer, loginUser} = useAuth();
     const router = useRouter();
     const {cart, emptyCart, refreshCart, allProductsAreVirtual} = useCart();
-    const {getOrCreateAttemptId, clearAttemptId} = useCheckoutAttempt();
+    const {getOrCreateAttemptId} = useCheckoutAttempt();
 
     isProcessingOrder.value = true;
 
@@ -358,9 +358,10 @@ export function useCheckout() {
             const orderKey = adminOrderResult.order.orderKey;
             const orderNumber = adminOrderResult.order.orderNumber || orderId;
 
-            // The attempt is resolved into an order — clear its id so a future purchase of the
-            // same items is a NEW attempt and never collapses onto this finished one.
-            clearAttemptId();
+            // The attempt id is NOT cleared here (2026-08-03 incident): if the redirect below
+            // dies before the receipt renders, the customer lands back on checkout with the
+            // duplicate-charge guard still armed — a re-pay is blocked and routed to recovery.
+            // The receipt page clears the id once it actually renders.
 
             // Empty cart and redirect to order received page
             try {
@@ -371,8 +372,20 @@ export function useCheckout() {
               console.error('Error emptying cart:', cartError);
             }
 
-            // Redirect to order received page
-            router.push(`/checkout/order-received/${orderId}/?key=${orderKey}&number=${encodeURIComponent(String(orderNumber))}`);
+            // Redirect to order received page. SPA navigation can die silently (e.g. a stale
+            // HTML shell requesting deleted JS chunks right after a deploy) — that strands a
+            // PAID customer on the checkout page, which is how re-purchase cascades start. The
+            // watchdog hard-navigates if the receipt hasn't taken over shortly.
+            const receiptUrl = `/checkout/order-received/${orderId}/?key=${orderKey}&number=${encodeURIComponent(String(orderNumber))}`;
+            router.push(receiptUrl);
+            if (typeof window !== 'undefined') {
+              setTimeout(() => {
+                if (!window.location.pathname.includes('order-received')) {
+                  console.warn('[processCheckout] SPA redirect to receipt did not land — hard-navigating');
+                  window.location.assign(receiptUrl);
+                }
+              }, 4000);
+            }
 
             return {
               success: true,
@@ -650,8 +663,7 @@ export function useCheckout() {
       const orderId = checkout?.order?.databaseId;
       const orderKey = checkout?.order?.orderKey;
 
-      // Attempt resolved into an order via the GraphQL path — same cleanup as the admin path.
-      clearAttemptId();
+      // Attempt id clearing is owned by the receipt page (same rule as the admin path above).
 
       // Empty cart and redirect to order received page
       try {
