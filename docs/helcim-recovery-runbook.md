@@ -47,7 +47,7 @@ Useful filters (append with `&`):
 - `&since=2026-07-17T00:00:00Z` — only failures after a given time
 - `&limit=500` — raise the default 100-row cap
 
-The response includes `d1Bound` (true once the `NUXT_CHECKOUT_LOGS` D1 database is bound — see `docs/checkout-failure-mitigation-plan.md` §6) and a `failures` array. Grab the `transactionId` of the entry you want to recover.
+The response includes `d1Bound` (true once the `woonuxt-checkout-logs` D1 database is bound — the code also accepts the legacy variable name `NUXT_CHECKOUT_LOGS`; see `docs/checkout-failure-mitigation-plan.md` §6) and a `failures` array. Grab the `transactionId` of the entry you want to recover.
 
 ---
 
