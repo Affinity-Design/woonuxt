@@ -1,0 +1,112 @@
+# Warm the Cloudflare KV route cache after every successful production deploy.
+#
+# Why this exists: Cloudflare Pages never runs `npm run postdeploy`, and the
+# route cache (NUXT_CACHE) can only be filled through the live Worker — so
+# warming was a manual step after every deploy. Since the per-deployment cache
+# integrity fix (9bd8a92), every deploy also starts with an intentionally empty
+# route cache, which means ~1,700 non-prerendered product pages render cold on
+# their first visit until warmed.
+#
+# Trigger: Cloudflare Pages' GitHub integration reports deploys as GitHub
+# deployment_status events. Three Pages projects build from this repo
+# (prod/master, testdev/test, dev/dev), so events alone don't identify a
+# production deploy. Instead of trusting event metadata, the job probes
+# https://proskatersplace.ca/_nuxt/builds/latest.json and only warms when the
+# live build is genuinely fresh — events from the other projects find a stale
+# timestamp and skip. Manual runs (workflow_dispatch) always warm.
+#
+# Requires: repository secret REVALIDATION_SECRET (same value as the
+# Cloudflare Pages env var) — the warmer authenticates to
+# /api/internal/script-storage with it to load the product/category lists.
+name: Warm cache after production deploy
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      request_delay_ms:
+        description: 'Delay between warmed URLs (ms)'
+        required: false
+        default: '1000'
+
+permissions:
+  contents: read
+
+# A newer deploy supersedes an in-flight warm run.
+concurrency:
+  group: warm-cache-production
+  cancel-in-progress: true
+
+env:
+  SITE_URL: https://proskatersplace.ca
+  # A prod build writes latest.json at build start and promotes ~20 min later;
+  # anything older than this did not just deploy.
+  MAX_BUILD_AGE_MINUTES: 120
+
+jobs:
+  warm:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check the live site is serving a fresh build
+        id: freshness
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual run — skipping freshness gate."
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Cache-bust: /_nuxt/*.json is served immutable by public/_headers.
+          latest=$(curl -fsS "$SITE_URL/_nuxt/builds/latest.json?warm=$(date +%s)") || {
+            echo "::error::Could not fetch $SITE_URL/_nuxt/builds/latest.json"
+            exit 1
+          }
+          ts_ms=$(echo "$latest" | jq -r '.timestamp // empty')
+          if [ -z "$ts_ms" ]; then
+            echo "::error::latest.json had no timestamp: $latest"
+            exit 1
+          fi
+          age_min=$(( ( $(date +%s) - ts_ms / 1000 ) / 60 ))
+          echo "Live build is ${age_min} minutes old (max ${MAX_BUILD_AGE_MINUTES})."
+          if [ "$age_min" -le "$MAX_BUILD_AGE_MINUTES" ]; then
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Production build unchanged — this deployment event was for another Pages project (testdev/dev). Nothing to warm."
+            echo "fresh=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require REVALIDATION_SECRET
+        if: steps.freshness.outputs.fresh == 'true'
+        env:
+          REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
+        run: |
+          if [ -z "$REVALIDATION_SECRET" ]; then
+            echo "::error::Repository secret REVALIDATION_SECRET is not set. The warmer cannot load the product list without it (it would silently warm nothing)."
+            exit 1
+          fi
+
+      - name: Checkout
+        if: steps.freshness.outputs.fresh == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: steps.freshness.outputs.fresh == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Deliberately NOT `npm ci`: postinstall runs `nuxt prepare`, which needs
+      # live GraphQL schema introspection — the warmer only needs these two.
+      - name: Install warmer dependencies
+        if: steps.freshness.outputs.fresh == 'true'
+        run: npm install --no-save --ignore-scripts node-fetch@2.7.0 dotenv
+
+      - name: Warm caches slowly
+        if: steps.freshness.outputs.fresh == 'true'
+        env:
+          FRONTEND_URL: ${{ env.SITE_URL }}
+          NUXT_APP_URL: ${{ env.SITE_URL }}
+          REQUEST_DELAY: ${{ github.event.inputs.request_delay_ms || '1000' }}
+          REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
+        run: node scripts/cache-warmer.js all
