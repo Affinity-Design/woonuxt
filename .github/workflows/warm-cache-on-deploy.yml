@@ -154,6 +154,15 @@ jobs:
         if: steps.decide.outputs.warm == 'true'
         run: npm install --no-save --ignore-scripts node-fetch@2.7.0 dotenv
 
+      # The warmer exits 0 even when it has nothing to warm — a missing/empty
+      # products-list, or an auth failure, "completes" in ~2s having warmed
+      # only the homepage. That must FAIL the job: a no-op that succeeds would
+      # save the dedupe marker and permanently skip warming a build that never
+      # got warmed (observed 2026-08-04, run 30950060998). The list is missing
+      # by design while a deploy is mid-build — prebuild-cache-purge.js wipes
+      # the SCRIPT_DATA namespace at build start and setup-script.js
+      # repopulates products-list/categories-list only at build end — so a
+      # failed warm here just means "retry on the next trigger".
       - name: Warm caches slowly
         if: steps.decide.outputs.warm == 'true'
         env:
@@ -161,7 +170,12 @@ jobs:
           NUXT_APP_URL: ${{ env.SITE_URL }}
           REQUEST_DELAY: ${{ github.event.inputs.request_delay_ms || '1000' }}
           REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
-        run: node scripts/cache-warmer.js all
+        run: |
+          node scripts/cache-warmer.js all 2>&1 | tee warm.log
+          if ! grep -Eq "Successfully fetched [1-9][0-9]* products" warm.log; then
+            echo "::error::The warmer got no product list from /api/internal/script-storage/products-list, so nothing was warmed. If a Pages build is running right now this is expected — setup-script.js restores the list when the build finishes — and this run fails on purpose so the next trigger retries instead of marking the build warmed."
+            exit 1
+          fi
 
       # The cache action's post step persists .warm-marker under the key
       # warmed-<build_id> only if the job succeeds, which is exactly the
