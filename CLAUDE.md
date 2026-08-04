@@ -32,7 +32,7 @@ npm run preview          # Preview production build
 npm run preview:local    # Preview with local config
 
 # Cache management
-npm run warm-cache       # Warm all caches post-deploy
+npm run warm-cache       # Warm all caches post-deploy (auto-runs via .github/workflows/warm-cache-on-deploy.yml)
 npm run clear-cache-all  # Clear all KV cache namespaces
 npm run reset-cache      # Full reset (clear + setup + warm)
 npm run debug:cache      # Debug cache state
@@ -78,7 +78,7 @@ No Vuex/Pinia — uses Nuxt composables with `useState`:
 1. **Static prerender** (build-time) — Blog posts, categories, home, static pages
 2. **Cloudflare KV route cache** (ISR-style) — Products: 72h TTL, Categories: 7d TTL. Binding: `NUXT_CACHE`
 3. **KV script data** — Product/category lists for cache warmer. Binding: `NUXT_SCRIPT_DATA`
-4. Cache warming (`npm run warm-cache`) is required after deploy to avoid cold starts
+4. Cache warming (`npm run warm-cache`) is required after deploy to avoid cold starts — automated by `.github/workflows/warm-cache-on-deploy.yml` on successful production deploys (needs the `REVALIDATION_SECRET` repo secret)
 
 ### Payment Integration
 - **Stripe/PayPal** — Standard WooCommerce GraphQL integration

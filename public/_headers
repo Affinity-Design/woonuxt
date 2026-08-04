@@ -60,3 +60,11 @@
   X-Frame-Options: SAMEORIGIN
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Nuxt's app manifest must never be cached long-term: clients poll
+# /_nuxt/builds/latest.json to detect new deploys (stale-chunk recovery), and
+# the warm-cache workflow gates on its timestamp. Without this override the
+# generic /_nuxt/*.json rule above pins it as immutable for a year.
+/_nuxt/builds/latest.json
+  ! Cache-Control
+  Cache-Control: no-cache, must-revalidate
