@@ -1,11 +1,14 @@
 // Store-to-self email sender. Provider chain, first configured+working one wins:
 //   1. EMAIL_SENDER Service binding -> workers/email-sender (send_email binding lives there —
-//      Pages projects can't hold one directly). Tokenless; needs the binding added on the
-//      Pages project + a redeploy.
-//   2. Cloudflare Email Sending REST API — same delivery pipeline, needs an API token with
-//      "Email Sending: Edit" (kept as an alternative since account permissions may not allow
-//      minting that token).
-//   3. SendGrid (legacy fallback).
+//      Pages projects can't hold one directly). Tokenless, but needs account-admin dashboard
+//      steps (Email Routing + verified destination) that our Cloudflare role can't perform yet.
+//   2. WordPress backend relay -> /wp-json/psp/v1/contact-relay (wp_mail on the .com site,
+//      same transport as WooCommerce order emails). Fully under our admin control — the
+//      working path while the Cloudflare account role is blocked. Snippet:
+//      wordpress/psp-contact-relay-snippet.php.
+//   3. Cloudflare Email Sending REST API — needs an API token with "Email Sending: Edit"
+//      (account permissions currently can't mint one).
+//   4. SendGrid (legacy fallback).
 //
 // Free-tier constraint that makes 1 and 2 work without a Workers Paid plan: sends TO a verified
 // Email Routing destination address are free and unmetered, but the FROM must be on a domain
@@ -23,7 +26,7 @@ export interface StoreEmailInput {
 
 export interface StoreEmailResult {
   sent: boolean;
-  provider?: 'cloudflare-worker' | 'cloudflare-rest' | 'sendgrid';
+  provider?: 'cloudflare-worker' | 'wordpress' | 'cloudflare-rest' | 'sendgrid';
   errors: string[];
 }
 
@@ -78,7 +81,47 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
     errors.push('EMAIL_SENDER service binding not present');
   }
 
-  // --- 2. Cloudflare Email Service REST API ---
+  // --- 2. WordPress backend relay (wp_mail on the WooCommerce site) ---
+  const config = useRuntimeConfig(event) as Record<string, any>;
+  const wpBaseUrl = (config.public as any)?.wpBaseUrl || readSetting(event, 'BASE_URL');
+  const wpUsername = readSetting(event, 'wpAdminUsername') || readSetting(event, 'WP_ADMIN_USERNAME');
+  const wpAppPassword = readSetting(event, 'wpAdminAppPassword') || readSetting(event, 'WP_ADMIN_APP_PASSWORD');
+  if (wpBaseUrl && wpUsername && wpAppPassword) {
+    try {
+      // Same auth + header shape as create-admin-order.post.ts, which calls this
+      // WordPress daily without tripping the WAF.
+      const basicAuth = Buffer.from(`${wpUsername}:${wpAppPassword}`).toString('base64');
+      const response: any = await $fetch(`${wpBaseUrl}/wp-json/psp/v1/contact-relay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${basicAuth}`,
+          'User-Agent': 'WooNuxt-Contact-Relay/1.0',
+          Origin: wpBaseUrl,
+          Referer: wpBaseUrl,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: {
+          subject: input.subject,
+          text: input.text,
+          ...(input.replyTo ? {replyTo: input.replyTo} : {}),
+          source: 'proskatersplace.ca contact form',
+        },
+      });
+      if (response?.success) {
+        console.log('[emailSender] Sent via WordPress relay (wp_mail)');
+        return {sent: true, provider: 'wordpress', errors};
+      }
+      errors.push(`WordPress relay responded without success: ${response?.error || 'unknown error'}`);
+    } catch (error: any) {
+      const detail = error?.data?.error || error?.data?.message || error?.message || 'unknown error';
+      errors.push(`WordPress relay call failed: ${detail}`);
+    }
+  } else {
+    errors.push('WordPress relay not configured (needs BASE_URL + WP admin app password)');
+  }
+
+  // --- 3. Cloudflare Email Service REST API ---
   const cfAccountId = readSetting(event, 'CF_ACCOUNT_ID');
   const cfEmailToken = readSetting(event, 'CF_EMAIL_API_TOKEN');
   // FROM must be @proskatersplace.ca (a routing domain on the account) — the .com SendGrid
@@ -119,7 +162,7 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
     errors.push('Cloudflare email not configured (needs CF_ACCOUNT_ID, CF_EMAIL_API_TOKEN, CF_EMAIL_FROM)');
   }
 
-  // --- 3. SendGrid (legacy fallback) ---
+  // --- 4. SendGrid (legacy fallback) ---
   const sendgridApiKey = readSetting(event, 'SENDGRID_API_KEY');
   const sendgridFrom = readSetting(event, 'SENDING_EMAIL');
 

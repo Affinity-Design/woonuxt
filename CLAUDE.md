@@ -85,7 +85,7 @@ No Vuex/Pinia — uses Nuxt composables with `useState`:
 - **Helcim** — Special handling: WooCommerce GraphQL session limitations require admin-level order creation via WordPress REST API. Flow: cart (GraphQL) → Helcim payment → admin order creation (`server/api/create-admin-order.post.ts`). See `docs/helcim-integration.md`.
 
 ### Server API Routes (`server/api/`)
-Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (payment processing), `stripe.post.ts` (webhook), `contact.ts` (email via Cloudflare Email Service: EMAIL_SENDER service binding → `workers/email-sender`, REST API and SendGrid fallbacks — see `server/utils/emailSender.ts`), `cached-product.ts` (per-slug product KV cache), `sitemap.xml.ts`, `verify-turnstile.post.ts`, `stock-status.get.ts`.
+Key endpoints: `create-admin-order.post.ts` (Helcim orders), `helcim.post.ts` (payment processing), `stripe.post.ts` (webhook), `contact.ts` (email provider chain in `server/utils/emailSender.ts`: EMAIL_SENDER service binding → `workers/email-sender`, WordPress `psp/v1/contact-relay` wp_mail relay, Cloudflare REST API, SendGrid), `cached-product.ts` (per-slug product KV cache), `sitemap.xml.ts`, `verify-turnstile.post.ts`, `stock-status.get.ts`.
 
 ### Routing
 - Product pages: `/product/[slug]`
