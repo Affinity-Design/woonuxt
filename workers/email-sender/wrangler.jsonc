@@ -3,6 +3,7 @@
 // Deploy: npx wrangler deploy (from this directory, OAuth login — no API token needed).
 {
   "name": "psp-email-sender",
+  "account_id": "8d60a89b426a1f8f46584cc6887200df",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
   // No public URL: reachable only through Service bindings from our Pages projects.
