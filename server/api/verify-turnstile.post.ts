@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    if (!config.public.turnstyleSecretKey) {
+    // Secret lives in server-side runtimeConfig; the public fallback covers builds that
+    // predate moving it out of client-visible config.
+    const turnstileSecretKey = (config as any).turnstileSecretKey || (config.public as any).turnstyleSecretKey;
+    if (!turnstileSecretKey) {
       console.error('❌ Missing Turnstile secret key configuration');
       throw createError({
         statusCode: 500,
@@ -23,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
     // Prepare verification request
     const formData = new FormData();
-    formData.append('secret', config.public.turnstyleSecretKey);
+    formData.append('secret', turnstileSecretKey);
     formData.append('response', token);
 
     // Get client IP for additional security

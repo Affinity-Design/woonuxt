@@ -1,197 +1,103 @@
 // server/api/contact.ts
-import sgMail from "@sendgrid/mail";
-import { useRuntimeConfig } from "#imports";
+// Contact-form relay to the store inbox. Sends via Cloudflare Email Service with SendGrid
+// as fallback (server/utils/emailSender.ts). Errors return real HTTP status codes — the old
+// handler returned 200 with a {statusCode: 500} body, so the page showed "sent successfully"
+// while the email silently failed (how the 2026-08 SendGrid outage went unnoticed).
+import {sendStoreEmail} from '../utils/emailSender';
+
+const MAX_MESSAGE_LENGTH = 10000;
+
+const escapeHtml = (value: string): string =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+const fail = (event: any, statusCode: number, error: string, details?: any) => {
+  setResponseStatus(event, statusCode);
+  return {error, ...(details ? {details} : {})};
+};
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log("Contact API called");
+    console.log('Contact API called');
+    const config = useRuntimeConfig(event);
 
-    // Get runtime config to access environment variables
-    const config = useRuntimeConfig();
+    const body = await readBody(event);
+    const {name, email, message, turnstileToken} = body || {};
 
-    // SendGrid API key from environment variables
-    const SENDGRID_API_KEY = config.SENDGRID_API_KEY;
-    const SENDING_EMAIL = config.SENDING_EMAIL;
-    const RECEIVING_EMAIL = config.RECEIVING_EMAIL;
-
-    // Log credential availability (not values)
-    console.log("Credentials check:", {
-      hasSendGridApiKey: !!SENDGRID_API_KEY,
-      hasSendingEmail: !!SENDING_EMAIL,
-      hasReceivingEmail: !!RECEIVING_EMAIL,
-    });
-
-    // Validate that all required credentials are available
-    if (!SENDGRID_API_KEY || !SENDING_EMAIL || !RECEIVING_EMAIL) {
-      console.error("Missing SendGrid API credentials");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error:
-            "Server configuration error - missing SendGrid API credentials",
-        }),
-      };
+    if (!name || !email || !message) {
+      console.error('Missing required form fields');
+      return fail(event, 400, 'Missing required fields', {
+        hasName: !!name,
+        hasEmail: !!email,
+        hasMessage: !!message,
+        hasTurnstileToken: !!turnstileToken,
+      });
     }
 
-    // Set SendGrid API key
-    sgMail.setApiKey(SENDGRID_API_KEY);
-
-    // Get form data from request
-    const body = await readBody(event);
-    console.log("Form data received (excluding sensitive details)");
-
-    const { name, email, message, turnstileToken } = body;
-
-    // Input validation
-    if (!name || !email || !message) {
-      console.error("Missing required form fields");
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: "Missing required fields",
-          details: {
-            hasName: !!name,
-            hasEmail: !!email,
-            hasMessage: !!message,
-            hasTurnstileToken: !!turnstileToken,
-          },
-        }),
-      };
+    if (typeof message !== 'string' || message.length > MAX_MESSAGE_LENGTH) {
+      return fail(event, 400, 'Message is too long');
     }
 
     // Verify Turnstile token if present
     if (turnstileToken) {
       try {
-        console.log("Verifying Turnstile token");
-        const turnstileSecretKey = config.public.turnstyleSecretKey;
+        console.log('Verifying Turnstile token');
+        // Secret lives in server-side runtimeConfig; the public fallback covers builds that
+        // predate moving it out of client-visible config.
+        const turnstileSecretKey = (config as any).turnstileSecretKey || (config.public as any)?.turnstyleSecretKey;
 
         if (!turnstileSecretKey) {
-          console.error("Missing Turnstile secret key in configuration");
-          return {
-            statusCode: 500,
-            body: JSON.stringify({
-              error:
-                "Server configuration error - missing Turnstile secret key",
-            }),
-          };
+          console.error('Missing Turnstile secret key in configuration');
+          return fail(event, 500, 'Server configuration error - missing Turnstile secret key');
         }
 
         const formData = new FormData();
-        formData.append("secret", turnstileSecretKey);
-        formData.append("response", turnstileToken);
+        formData.append('secret', turnstileSecretKey);
+        formData.append('response', turnstileToken);
 
-        const ip =
-          event.node.req.headers["cf-connecting-ip"] ||
-          event.node.req.headers["x-forwarded-for"] ||
-          event.node.req.socket.remoteAddress;
-
+        const ip = event.node.req.headers['cf-connecting-ip'] || event.node.req.headers['x-forwarded-for'] || event.node.req.socket.remoteAddress;
         if (ip) {
-          formData.append("remoteip", ip);
+          formData.append('remoteip', Array.isArray(ip) ? ip[0] : ip);
         }
 
-        const turnstileResponse = await fetch(
-          "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          body: formData,
+        });
 
-        const turnstileResult = await turnstileResponse.json();
-        console.log("Turnstile verification result:", turnstileResult);
+        const turnstileResult: any = await turnstileResponse.json();
+        console.log('Turnstile verification result:', {success: turnstileResult.success, errorCodes: turnstileResult['error-codes']});
 
         if (!turnstileResult.success) {
-          console.error("Turnstile verification failed:", turnstileResult);
-          return {
-            statusCode: 400,
-            body: JSON.stringify({
-              error: "CAPTCHA verification failed",
-              details: turnstileResult["error-codes"] || [],
-            }),
-          };
+          return fail(event, 400, 'CAPTCHA verification failed', turnstileResult['error-codes'] || []);
         }
-
-        console.log("Turnstile verification successful");
-      } catch (error) {
-        console.error("Error during Turnstile verification:", error);
-        return {
-          statusCode: 500,
-          body: JSON.stringify({
-            error: "Failed to verify CAPTCHA",
-            details: error.message,
-          }),
-        };
+      } catch (error: any) {
+        console.error('Error during Turnstile verification:', error);
+        return fail(event, 500, 'Failed to verify CAPTCHA');
       }
     }
 
-    // Create email message for SendGrid
-    console.log("Creating email message");
-    const msg = {
-      to: RECEIVING_EMAIL,
-      from: SENDING_EMAIL,
+    console.log('Sending contact email');
+    const result = await sendStoreEmail(event, {
       subject: `New Contact Form Submission from ${name}`,
-      text: `
-Name: ${name}
-Email: ${email}
-
-Message:
-${message}
-      `,
-      html: `
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Email:</strong> ${email}</p>
-<p><strong>Message:</strong></p>
-<p>${message.replace(/\n/g, "<br>")}</p>
-      `,
       replyTo: email,
-    };
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      html: `
+<p><strong>Name:</strong> ${escapeHtml(name)}</p>
+<p><strong>Email:</strong> ${escapeHtml(email)}</p>
+<p><strong>Message:</strong></p>
+<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
+      `,
+    });
 
-    // Send the email using SendGrid
-    console.log("Sending email via SendGrid");
-    try {
-      const result = await sgMail.send(msg);
-
-      console.log("Email sent successfully:", result[0].statusCode);
-
-      // Return success response
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          success: true,
-          statusCode: result[0].statusCode,
-        }),
-      };
-    } catch (sendGridError) {
-      console.error("SendGrid API error:", sendGridError);
-
-      let errorDetails = {
-        message: sendGridError.message,
-      };
-
-      if (sendGridError.response) {
-        errorDetails.statusCode = sendGridError.response.statusCode;
-        errorDetails.body = sendGridError.response.body;
-      }
-
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: "SendGrid API error",
-          details: errorDetails,
-        }),
-      };
+    if (!result.sent) {
+      console.error('Contact email failed on all providers:', result.errors);
+      return fail(event, 502, 'We could not send your message right now. Please try again, or email us directly.');
     }
-  } catch (error) {
-    // Log the full error for debugging
-    console.error("Unhandled error in contact API:", error);
 
-    // Generic error response
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: "Failed to process contact form",
-        message: error.message || "Unknown error",
-      }),
-    };
+    console.log(`Contact email sent via ${result.provider}`);
+    return {success: true, provider: result.provider};
+  } catch (error: any) {
+    console.error('Unhandled error in contact API:', error);
+    return fail(event, 500, 'Failed to process contact form');
   }
 });
