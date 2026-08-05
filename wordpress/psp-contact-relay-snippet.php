@@ -1,6 +1,7 @@
 <?php
 /**
- * PSP Contact Relay — v1.1.1 (2026-08-05)
+ * PSP Contact Relay — v1.1.2 (2026-08-05)
+ *   v1.1.2: destination is customerservice@proskatersplace.com (was info@).
  *   v1.1.1: length cap counts characters (mb_strlen), not bytes — long
  *           CJK/Cyrillic messages passed the frontend's 10k-char cap but
  *           tripped the old 20k-BYTE check here.
@@ -39,7 +40,7 @@
  */
 
 if (!defined('PSP_CONTACT_RELAY_TO')) {
-    define('PSP_CONTACT_RELAY_TO', 'info@proskatersplace.com');
+    define('PSP_CONTACT_RELAY_TO', 'customerservice@proskatersplace.com');
 }
 
 // Safety valve: even an authenticated-but-buggy caller can't flood the inbox.

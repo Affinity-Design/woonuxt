@@ -16,7 +16,7 @@
       "name": "EMAIL",
       // Hard lock — this Worker can only ever deliver to the store inbox. With
       // destination_address set, send() calls omit `to` and anything else is rejected.
-      "destination_address": "info@proskatersplace.com"
+      "destination_address": "customerservice@proskatersplace.com"
     }
   ],
   "vars": {
