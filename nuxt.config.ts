@@ -97,6 +97,13 @@ export default defineNuxtConfig({
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     SENDING_EMAIL: process.env.SENDING_EMAIL,
     RECEIVING_EMAIL: process.env.RECEIVING_EMAIL,
+    // Cloudflare Email Service (primary contact-form sender; SendGrid is the fallback).
+    // FROM must be on a domain with Email Routing enabled on this account (.ca, not .com).
+    CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+    CF_EMAIL_API_TOKEN: process.env.CF_EMAIL_API_TOKEN,
+    CF_EMAIL_FROM: process.env.CF_EMAIL_FROM || 'noreply@proskatersplace.ca',
+    // Server-only: was in public config until 2026-08, which shipped the secret in the client bundle.
+    turnstileSecretKey: process.env.TURNSTYLE_SECRET_KEY,
     REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
     // Public config (available client+server/build)
     public: {
@@ -104,7 +111,6 @@ export default defineNuxtConfig({
       wpBaseUrl: process.env.BASE_URL,
       exchangeRateApiKey: process.env.EXCHANGE_RATE_API_KEY || 'default_key',
       turnstyleSiteKey: process.env.TURNSTYLE_SITE_KEY,
-      turnstyleSecretKey: process.env.TURNSTYLE_SECRET_KEY,
       turnstile: {
         siteKey: process.env.TURNSTYLE_SITE_KEY,
       },
