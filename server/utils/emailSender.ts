@@ -1,11 +1,13 @@
-// Store-to-self email sender: Cloudflare Email Service first, SendGrid as fallback.
+// Store-to-self email sender. Provider chain, first configured+working one wins:
+//   1. EMAIL_SENDER Service binding -> workers/email-sender (send_email binding lives there —
+//      Pages projects can't hold one directly). Tokenless; needs the binding added on the
+//      Pages project + a redeploy.
+//   2. Cloudflare Email Sending REST API — same delivery pipeline, needs an API token with
+//      "Email Sending: Edit" (kept as an alternative since account permissions may not allow
+//      minting that token).
+//   3. SendGrid (legacy fallback).
 //
-// Cloudflare Email Sending (public beta, Apr 2026) is used via the REST API rather than a
-// send_email Worker binding on purpose: bindings only apply on the next deployment and the
-// 2026-07-18 outage came from a dropped Pages binding — a plain HTTPS call has no such failure
-// mode and works identically in local dev, test, and prod.
-//
-// Free-tier constraint that makes this work without a Workers Paid plan: sends TO a verified
+// Free-tier constraint that makes 1 and 2 work without a Workers Paid plan: sends TO a verified
 // Email Routing destination address are free and unmetered, but the FROM must be on a domain
 // with Email Routing enabled (proskatersplace.ca). Arbitrary recipients would need the domain
 // onboarded under Email Sending + Workers Paid.
@@ -21,7 +23,7 @@ export interface StoreEmailInput {
 
 export interface StoreEmailResult {
   sent: boolean;
-  provider?: 'cloudflare' | 'sendgrid';
+  provider?: 'cloudflare-worker' | 'cloudflare-rest' | 'sendgrid';
   errors: string[];
 }
 
@@ -48,7 +50,35 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
     return {sent: false, errors: ['RECEIVING_EMAIL is not configured']};
   }
 
-  // --- Cloudflare Email Service (primary) ---
+  // --- 1. Service binding to workers/email-sender (tokenless) ---
+  const emailWorker = (event.context as any)?.cloudflare?.env?.EMAIL_SENDER;
+  if (emailWorker?.fetch) {
+    try {
+      // Host is arbitrary for service-binding fetches; the bound Worker always answers.
+      const response = await emailWorker.fetch('https://psp-email-sender/send', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({
+          subject: input.subject,
+          text: input.text,
+          ...(input.html ? {html: input.html} : {}),
+          ...(input.replyTo ? {replyTo: input.replyTo} : {}),
+        }),
+      });
+      const data: any = await response.json().catch(() => null);
+      if (response.ok && data?.success) {
+        console.log('[emailSender] Sent via email-sender Worker:', {messageId: data?.messageId});
+        return {sent: true, provider: 'cloudflare-worker', errors};
+      }
+      errors.push(`email-sender Worker responded ${response.status}: ${data?.code || ''} ${data?.error || 'unknown error'}`.trim());
+    } catch (error: any) {
+      errors.push(`email-sender Worker call failed: ${error?.message || 'unknown error'}`);
+    }
+  } else {
+    errors.push('EMAIL_SENDER service binding not present');
+  }
+
+  // --- 2. Cloudflare Email Service REST API ---
   const cfAccountId = readSetting(event, 'CF_ACCOUNT_ID');
   const cfEmailToken = readSetting(event, 'CF_EMAIL_API_TOKEN');
   // FROM must be @proskatersplace.ca (a routing domain on the account) — the .com SendGrid
@@ -66,17 +96,18 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
           subject: input.subject,
           text: input.text,
           ...(input.html ? {html: input.html} : {}),
-          ...(input.replyTo ? {replyTo: input.replyTo} : {}),
+          // REST API is snake_case here (the Workers binding uses replyTo).
+          ...(input.replyTo ? {reply_to: input.replyTo} : {}),
         },
       });
 
       if (response?.success) {
-        console.log('[emailSender] Sent via Cloudflare Email Service:', {
+        console.log('[emailSender] Sent via Cloudflare Email REST API:', {
           delivered: response?.result?.delivered?.length ?? 0,
           queued: response?.result?.queued?.length ?? 0,
           bounced: response?.result?.permanent_bounces?.length ?? 0,
         });
-        return {sent: true, provider: 'cloudflare', errors};
+        return {sent: true, provider: 'cloudflare-rest', errors};
       }
 
       errors.push(`Cloudflare Email API returned success=false: ${JSON.stringify(response?.errors || [])}`);
@@ -88,7 +119,7 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
     errors.push('Cloudflare email not configured (needs CF_ACCOUNT_ID, CF_EMAIL_API_TOKEN, CF_EMAIL_FROM)');
   }
 
-  // --- SendGrid (fallback) ---
+  // --- 3. SendGrid (legacy fallback) ---
   const sendgridApiKey = readSetting(event, 'SENDGRID_API_KEY');
   const sendgridFrom = readSetting(event, 'SENDING_EMAIL');
 

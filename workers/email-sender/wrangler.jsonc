@@ -1,0 +1,25 @@
+// Sidecar email Worker — Cloudflare Pages projects cannot hold a send_email binding,
+// so the WooNuxt app reaches this Worker through a Pages Service binding (EMAIL_SENDER).
+// Deploy: npx wrangler deploy (from this directory, OAuth login — no API token needed).
+{
+  "name": "psp-email-sender",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  // No public URL: reachable only through Service bindings from our Pages projects.
+  "workers_dev": false,
+  "observability": {
+    "enabled": true
+  },
+  "send_email": [
+    {
+      "name": "EMAIL",
+      // Hard lock — this Worker can only ever deliver to the store inbox. With
+      // destination_address set, send() calls omit `to` and anything else is rejected.
+      "destination_address": "info@proskatersplace.com"
+    }
+  ],
+  "vars": {
+    // Must be on a domain with Email Routing enabled on this account (.ca, not .com).
+    "EMAIL_FROM": "noreply@proskatersplace.ca"
+  }
+}
