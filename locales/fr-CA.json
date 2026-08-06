@@ -34,7 +34,9 @@
       "newsletter": "Newsletter",
       "customerService": "Service Client",
       "processing": "En cours de traitement",
-      "readOnly": "Lecture seule"
+      "readOnly": "Lecture seule",
+      "error": "Une erreur s'est produite",
+      "tryAgain": "Réessayer"
     },
     "account": {
       "changePassword": "Modifier le mot de passe",
@@ -115,6 +117,7 @@
       "rating": "Note | Notes",
       "cart": "Panier",
       "cartEmpty": "Votre panier est vide.",
+      "cartLoadError": "Impossible d'actualiser votre panier. Votre dernière modification est toujours enregistrée.",
       "addProductsInYourCart": "Veuillez ajouter des produits à votre panier.",
       "browseOurProducts": "Parcourez nos produits",
       "checkout": "Commander",

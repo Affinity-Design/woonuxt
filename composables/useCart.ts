@@ -1,10 +1,26 @@
 import type {AddToCartInput} from '#gql';
+import {createCartRefreshCoordinator, finalizeSuccessfulCartMutation, prepareCartSessionForMutation} from '~/utils/cartRefreshCoordinator.mjs';
+
+const CART_REFRESH_TIMEOUT_MILLISECONDS = 15_000;
+const cartRefreshCoordinators = new WeakMap<object, ReturnType<typeof createCartRefreshCoordinator>>();
+
+interface RefreshCartOptions {
+  preserveStateOnError?: boolean;
+}
 
 /**
  * @name useCart
  * @description A composable that handles the cart in local storage
  */
 export function useCart() {
+  const nuxtApp = useNuxtApp();
+  let cartRefreshCoordinator = cartRefreshCoordinators.get(nuxtApp);
+
+  if (!cartRefreshCoordinator) {
+    cartRefreshCoordinator = createCartRefreshCoordinator();
+    cartRefreshCoordinators.set(nuxtApp, cartRefreshCoordinator);
+  }
+
   const {storeSettings} = useAppConfig();
 
   const cart = useState<Cart | null>('cart', () => null);
@@ -12,6 +28,7 @@ export function useCart() {
   const isUpdatingCart = useState<boolean>('isUpdatingCart', () => false);
   const isUpdatingCoupon = useState<boolean>('isUpdatingCoupon', () => false);
   const isRefreshPending = useState<boolean>('isRefreshPending', () => false);
+  const cartLoadError = useState<string | null>('cartLoadError', () => null);
   const paymentGateways = useState<PaymentGateways | null>('paymentGateways', () => null);
   const {logGQLError, clearAllCookies} = useHelpers();
 
@@ -19,27 +36,43 @@ export function useCart() {
    * @returns {Promise<boolean>} - A promise that resolves
    * to true if the cart was successfully refreshed
    */
-  async function refreshCart(): Promise<boolean> {
-    try {
-      const {cart, customer, viewer, paymentGateways, loginClients} = await GqlGetCart();
-      const {updateCustomer, updateViewer, updateLoginClients} = useAuth();
+  function refreshCart(options: RefreshCartOptions = {}): Promise<boolean> {
+    isRefreshPending.value = true;
 
-      if (cart) updateCart(cart);
-      if (customer) updateCustomer(customer);
-      if (viewer) updateViewer(viewer);
-      if (paymentGateways) updatePaymentGateways(paymentGateways);
-      if (loginClients) updateLoginClients(loginClients.filter((client) => client !== null));
+    return cartRefreshCoordinator.runRefresh(async () => {
+      let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
 
-      return true; // Cart was successfully refreshed
-    } catch (error: any) {
-      logGQLError(error);
-      clearAllCookies();
-      resetInitialState();
-      return false; // Cart was not successfully refreshed
-    } finally {
-      isRefreshPending.value = false;
-      isUpdatingCart.value = false;
-    }
+      try {
+        cartLoadError.value = null;
+        const refreshTimeoutPromise = new Promise<never>((_, reject) => {
+          refreshTimeout = setTimeout(() => reject(new Error('Cart refresh timed out')), CART_REFRESH_TIMEOUT_MILLISECONDS);
+        });
+        const {cart, customer, viewer, paymentGateways, loginClients} = await Promise.race([GqlGetCart(), refreshTimeoutPromise]);
+        const {updateCustomer, updateViewer, updateLoginClients} = useAuth();
+
+        if (cart) updateCart(cart);
+        if (customer) updateCustomer(customer);
+        if (viewer) updateViewer(viewer);
+        if (paymentGateways) updatePaymentGateways(paymentGateways);
+        if (loginClients) updateLoginClients(loginClients.filter((client) => client !== null));
+
+        return true;
+      } catch (error: any) {
+        logGQLError(error);
+        cartLoadError.value = 'messages.shop.cartLoadError';
+
+        if (!options.preserveStateOnError) {
+          clearAllCookies();
+          resetInitialState();
+        }
+
+        return false;
+      } finally {
+        if (refreshTimeout) clearTimeout(refreshTimeout);
+        isRefreshPending.value = false;
+        isUpdatingCart.value = false;
+      }
+    });
   }
 
   function resetInitialState() {
@@ -62,12 +95,17 @@ export function useCart() {
 
   // add an item to the cart - uses server-side API to avoid 403 errors from WordPress
   async function addToCart(input: AddToCartInput): Promise<{success: boolean; message?: string}> {
-    isUpdatingCart.value = true;
     const toast = useToast();
+    isUpdatingCart.value = true;
 
     try {
+      // Lazy store initialization begins on the same first interaction as Add to Cart.
+      // Complete one refresh first, even for click-only accessibility interactions.
+      await prepareCartSessionForMutation({refreshCoordinator: cartRefreshCoordinator, refreshCart});
+      isUpdatingCart.value = true;
+
       // Use server-side API to bypass CORS/security blocks on client-side GraphQL
-      const response = await $fetch<{success: boolean; cart?: Cart; message?: string}>('/api/add-to-cart', {
+      const response = await $fetch<{success: boolean; cart?: Cart; sessionToken?: string | null; message?: string}>('/api/add-to-cart', {
         method: 'POST',
         body: {
           productId: input.productId,
@@ -77,20 +115,27 @@ export function useCart() {
         },
       });
 
-      if (response?.cart) {
-        cart.value = response.cart;
-      }
-
-      // Auto open the cart when an item is added to the cart if the setting is enabled
-      const {storeSettings} = useAppConfig();
-      if (storeSettings.autoOpenCart && !isShowingCart.value) toggleCart(true);
-
-      // Refresh cart in the background to get complete price fields
-      // (addToCart mutation may return incomplete variation price data)
-      // Don't reset isUpdatingCart here — refreshCart() will reset it when done,
-      // keeping the skeleton visible until final cart data arrives.
-      isRefreshPending.value = true;
-      refreshCart();
+      await finalizeSuccessfulCartMutation({
+        refreshCoordinator: cartRefreshCoordinator,
+        successfulCart: response?.cart || null,
+        sessionToken: response?.sessionToken,
+        installSessionToken: (sessionToken: string) => {
+          useGqlHeaders({'woocommerce-session': `Session ${sessionToken}`});
+          useCookie('woocommerce-session', {
+            path: '/',
+            sameSite: 'lax',
+            secure: import.meta.env.PROD,
+          }).value = sessionToken;
+        },
+        updateCart,
+        markMutationFinalizationPending: () => {
+          isUpdatingCart.value = true;
+        },
+        afterMutationApplied: () => {
+          if (storeSettings.autoOpenCart && !isShowingCart.value) toggleCart(true);
+        },
+        refreshCart,
+      });
 
       return {success: true};
     } catch (error: any) {
@@ -121,8 +166,8 @@ export function useCart() {
       // Show toast notification with error message (HTML entities decoded automatically)
       toast.error(errorMessage);
 
-      // Only reset loading state on error — success path relies on refreshCart() to reset
       isUpdatingCart.value = false;
+      isRefreshPending.value = false;
       return {success: false, message: errorMessage};
     }
   }
@@ -249,6 +294,7 @@ export function useCart() {
     isShowingCart,
     isUpdatingCart,
     isUpdatingCoupon,
+    cartLoadError,
     paymentGateways,
     isBillingAddressEnabled,
     allProductsAreVirtual,

@@ -147,7 +147,11 @@ export const useAuth = () => {
     const sessionToken = payload?.sessionToken;
     if (sessionToken) {
       useGqlHeaders({'woocommerce-session': `Session ${sessionToken}`});
-      const newToken = useCookie('woocommerce-session');
+      const newToken = useCookie('woocommerce-session', {
+        path: '/',
+        sameSite: 'lax',
+        secure: import.meta.env.PROD,
+      });
       newToken.value = sessionToken;
     }
 

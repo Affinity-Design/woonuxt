@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
 
-const {cart, toggleCart, isUpdatingCart} = useCart();
+const {cart, toggleCart, isUpdatingCart, cartLoadError, refreshCart} = useCart();
 const {exchangeRate} = useExchangeRate();
+
+const handleCartRetry = async () => {
+  await refreshCart();
+};
 
 // Parse a WooCommerce price string into a number
 const parseWooPrice = (priceStr: string | null | undefined): number => {
@@ -76,6 +80,13 @@ const formattedCartTotal = computed(() => {
       </template>
       <!-- Empty Cart Message -->
       <EmptyCartMessage v-else-if="cart && cart.isEmpty" />
+      <!-- Cart Load Error -->
+      <div v-else-if="cartLoadError" class="flex flex-col items-center justify-center flex-1 gap-4 px-8 mb-20 text-center">
+        <p>{{ $t(cartLoadError) }}</p>
+        <button class="px-5 py-2 text-white bg-gray-800 rounded-lg hover:bg-gray-900" type="button" @click="handleCartRetry">
+          {{ $t('messages.general.tryAgain') }}
+        </button>
+      </div>
       <!-- Cart Loading -->
       <div v-else class="flex flex-col items-center justify-center flex-1 mb-20">
         <LoadingIcon />

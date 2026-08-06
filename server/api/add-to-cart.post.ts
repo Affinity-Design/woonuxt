@@ -5,6 +5,8 @@
  * from WordPress/Cloudflare security blocking client-side GraphQL calls.
  */
 
+import {normalizeWooCommerceSessionToken} from '../utils/woocommerceSession.mjs';
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const {productId, quantity, variationId, extraData} = body;
@@ -43,7 +45,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const response = await $fetch<{
+    const upstreamResponse = await $fetch.raw<{
       data?: {
         addToCart?: {
           cart?: any;
@@ -150,8 +152,16 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Extract session token from response and set it in response cookies
-    // Note: The response headers with woocommerce-session are handled by the fetch
+    const response = upstreamResponse._data;
+    const responseSessionToken = normalizeWooCommerceSessionToken(upstreamResponse.headers.get('woocommerce-session'));
+
+    if (responseSessionToken) {
+      setCookie(event, 'woocommerce-session', responseSessionToken, {
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      });
+    }
 
     if (response?.errors && response.errors.length > 0) {
       console.error('[add-to-cart] GraphQL errors:', response.errors);
@@ -165,6 +175,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       cart: response?.data?.addToCart?.cart || null,
+      sessionToken: responseSessionToken,
     };
   } catch (error: any) {
     console.error('[add-to-cart] Error:', error);

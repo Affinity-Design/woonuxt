@@ -119,6 +119,7 @@
       "rating": "Rating | Ratings",
       "cart": "Cart",
       "cartEmpty": "Your cart is empty.",
+      "cartLoadError": "We could not refresh your cart. Your last cart change is still saved.",
       "addProductsInYourCart": "Please, add some products to your cart.",
       "browseOurProducts": "Browse our products",
       "checkout": "Checkout",
