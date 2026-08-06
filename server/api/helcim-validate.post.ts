@@ -51,12 +51,20 @@ export default defineEventHandler(async (event) => {
     const cleanedJsonData = JSON.stringify(dataToHash);
 
     // Web Crypto — node:crypto's createHash is an unimplemented stub on the Workers runtime
-    // (took checkout down 2026-08-05). This also retires the old "crypto unavailable"
-    // validation-bypass path: sha256Hex always works, so validation always actually runs.
+    // (took checkout down 2026-08-05). Both old "crypto unavailable" bypass branches are gone;
+    // the hash now always computes.
     const expectedHash = await sha256Hex(cleanedJsonData + secretToken);
 
     const receivedHash = transactionData.data?.hash || transactionData.hash;
     const isValid = expectedHash === receivedHash;
+
+    // MONITOR MODE: prod never actually enforced this comparison — until 2026-08-05 the
+    // crypto-error bypass approved every request on Workers, so the comparison is unproven
+    // against real Helcim responses there (client-side JSON.parse -> server JSON.stringify
+    // may not round-trip Helcim's exact serialization). Failing here AFTER the card was
+    // charged creates charged-but-no-order, so a mismatch passes through loudly logged
+    // instead. Flip to true once a real order logs expectedHash === receivedHash.
+    const HASH_VALIDATION_ENFORCED = false;
 
     console.log('[Helcim Validation]', {
       dataStructure: Object.keys(transactionData),
@@ -69,19 +77,31 @@ export default defineEventHandler(async (event) => {
       isValid,
     });
 
-    // Only record genuinely successful (validated) charges for the duplicate-charge guard.
     if (isValid) {
+      // Only record genuinely successful (validated) charges for the duplicate-charge guard.
       await recordChargeForGuard(dataToHash?.transactionId);
     } else {
+      console.error('[Helcim Validation] HASH MISMATCH', {expectedHash, receivedHash, enforced: HASH_VALIDATION_ENFORCED});
       await logCheckoutFailure(event, {
         stage: 'validate_failed',
-        reason: 'Helcim transaction hash validation failed',
+        reason: `Helcim transaction hash validation failed (${HASH_VALIDATION_ENFORCED ? 'enforced' : 'monitor mode — passed through'})`,
         transactionId: dataToHash?.transactionId,
         checkoutAttemptId: chargeContext?.checkoutAttemptId,
         email: chargeContext?.email,
         cartTotal: chargeContext?.amount,
         requestId: chargeContext?.traceId,
       });
+      if (!HASH_VALIDATION_ENFORCED) {
+        await recordChargeForGuard(dataToHash?.transactionId);
+        return {
+          success: true,
+          isValid: true,
+          expectedHash,
+          receivedHash,
+          transactionId: dataToHash?.transactionId,
+          warning: 'hash_mismatch_monitor_mode',
+        };
+      }
     }
 
     return {
@@ -92,22 +112,17 @@ export default defineEventHandler(async (event) => {
       transactionId: dataToHash?.transactionId,
     };
   } catch (error: any) {
+    // Fail CLOSED — the old catch here approved any error mentioning 'crypto'/'unenv',
+    // which is the branch that silently disabled validation on Workers for months.
     console.error('[Helcim Validation] Validation error:', error);
-
-    // TEMPORARY: If validation fails due to environment issues, allow transaction
-    if (error.message?.includes('crypto') || error.message?.includes('unenv')) {
-      console.warn('[Helcim Validation] WARNING: Crypto error detected, allowing transaction without validation');
-      const fallbackTxnId = transactionData.data?.data?.transactionId || transactionData.data?.transactionId;
-      await recordChargeForGuard(fallbackTxnId);
-      return {
-        success: true,
-        isValid: true, // TEMPORARY - allow payment through
-        expectedHash: 'error_fallback',
-        receivedHash: 'error_fallback',
-        transactionId: fallbackTxnId,
-        warning: `Validation bypassed due to crypto error: ${error.message}`,
-      };
-    }
+    await logCheckoutFailure(event, {
+      stage: 'validate_failed',
+      reason: `Validation endpoint error: ${error?.message || 'unknown'}`,
+      checkoutAttemptId: chargeContext?.checkoutAttemptId,
+      email: chargeContext?.email,
+      cartTotal: chargeContext?.amount,
+      requestId: chargeContext?.traceId,
+    });
 
     return {
       success: false,
