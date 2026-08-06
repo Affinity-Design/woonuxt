@@ -195,7 +195,7 @@ export default defineEventHandler(async (event) => {
           // Stamp the attempt-derived invoice number so the charge itself carries the purchase
           // identity. This is what lets the pre-charge guard above (and order recovery) ask
           // HELCIM whether this attempt already paid — independent of our own storage.
-          const attemptInvoiceNumber = deriveAttemptInvoiceNumber(checkoutAttemptId);
+          const attemptInvoiceNumber = await deriveAttemptInvoiceNumber(checkoutAttemptId);
           if (attemptInvoiceNumber) {
             invoiceRequest.invoiceNumber = attemptInvoiceNumber;
           } else if (invoiceNumber) {
@@ -483,7 +483,8 @@ export default defineEventHandler(async (event) => {
         // block, not retry); otherwise retry once without the stamp — the KV/D1 guard layers
         // still cover that charge, we just lose the Helcim-side lookup for it.
         const stampedInvoiceNumber = helcimRequestBody.invoiceRequest?.invoiceNumber;
-        if (!response.ok && stampedInvoiceNumber && stampedInvoiceNumber === deriveAttemptInvoiceNumber(checkoutAttemptId)) {
+        const expectedAttemptInvoiceNumber = !response.ok && stampedInvoiceNumber ? await deriveAttemptInvoiceNumber(checkoutAttemptId) : null;
+        if (!response.ok && stampedInvoiceNumber && stampedInvoiceNumber === expectedAttemptInvoiceNumber) {
           const rejectionText = await response.text().catch(() => '');
           console.warn(`[Helcim API] Initialize rejected with attempt invoice number (${response.status}) — re-checking charge state`, {
             traceId,
@@ -574,28 +575,9 @@ export default defineEventHandler(async (event) => {
           const dataToHash = transactionData.data?.data || transactionData.data || transactionData;
           const cleanedJsonData = JSON.stringify(dataToHash);
 
-          let expectedHash;
-
-          // Check if we're in a Node.js environment with crypto module
-          try {
-            // Try Node.js crypto first (server-side)
-            const crypto = await import('crypto');
-            expectedHash = crypto
-              .createHash('sha256')
-              .update(cleanedJsonData + secretToken)
-              .digest('hex');
-          } catch (nodeError) {
-            // Fallback to Web Crypto API if Node.js crypto not available
-            if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.subtle) {
-              const encoder = new TextEncoder();
-              const data = encoder.encode(cleanedJsonData + secretToken);
-              const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
-              const hashArray = Array.from(new Uint8Array(hashBuffer));
-              expectedHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-            } else {
-              throw new Error('No crypto implementation available');
-            }
-          }
+          // Web Crypto — node:crypto's createHash is an unimplemented stub on the Workers
+          // runtime (took checkout down 2026-08-05); sha256Hex works on Workers and Node.
+          const expectedHash = await sha256Hex(cleanedJsonData + secretToken);
 
           const receivedHash = transactionData.data?.hash || transactionData.hash;
           const isValid = expectedHash === receivedHash;

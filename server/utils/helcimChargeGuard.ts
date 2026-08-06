@@ -29,7 +29,7 @@
 // paymentStorage.ts so cache clears can't disarm the guard mid-window; reads fall back to the
 // legacy cache location for records written before the migration.
 
-import {createHash} from 'node:crypto';
+import {sha256Hex} from './sha256';
 
 export interface ChargeFingerprintInput {
   email?: string | null;
@@ -55,7 +55,7 @@ const KV_TTL_SECONDS = 30 * 60; // 30 minutes
  * /api/helcim (initialize) and /api/helcim-validate. Inputs are normalized so the same cart
  * produces the same fingerprint on both calls.
  */
-export function computeChargeFingerprint(input: ChargeFingerprintInput): string {
+export async function computeChargeFingerprint(input: ChargeFingerprintInput): Promise<string> {
   const email = (input.email || '').trim().toLowerCase();
 
   // Normalize amount to a 2-decimal string (handles number or string input).
@@ -74,7 +74,7 @@ export function computeChargeFingerprint(input: ChargeFingerprintInput): string 
     .join('|');
 
   const raw = `${email}::${amount}::${itemsSig}`;
-  return createHash('sha256').update(raw).digest('hex').slice(0, 32);
+  return (await sha256Hex(raw)).slice(0, 32);
 }
 
 function keyFor(fingerprint: string): string {
@@ -90,7 +90,7 @@ function attemptKeyFor(attemptId: string): string {
  */
 export async function recordSuccessfulCharge(input: ChargeFingerprintInput, charge: Omit<RecordedCharge, 'at'>): Promise<void> {
   try {
-    const fingerprint = computeChargeFingerprint(input);
+    const fingerprint = await computeChargeFingerprint(input);
     const record: RecordedCharge = {...charge, at: new Date().toISOString()};
     // Pass ttl when supported by the KV driver; harmlessly ignored otherwise (we also
     // window-check on read, so an ignored TTL never causes a stale warning).
@@ -208,7 +208,7 @@ export async function findRecentAttemptCharge(attemptId: string | undefined | nu
  */
 export async function findRecentCharge(input: ChargeFingerprintInput): Promise<(RecordedCharge & {minutesAgo: number}) | null> {
   try {
-    const fingerprint = computeChargeFingerprint(input);
+    const fingerprint = await computeChargeFingerprint(input);
     const record = await paymentGetItem<RecordedCharge>(keyFor(fingerprint));
     if (!record?.at) return null;
 

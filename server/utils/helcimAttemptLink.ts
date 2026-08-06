@@ -24,7 +24,7 @@
 // All lookups are best-effort with a hard timeout: any error/timeout fails OPEN so checkout is
 // never broken by this layer (the KV/D1 layers still ran first).
 
-import {createHash} from 'node:crypto';
+import {sha256Hex} from './sha256';
 
 export interface HelcimTransactionSummary {
   transactionId: string;
@@ -47,9 +47,9 @@ const LOOKUP_TIMEOUT_MS = 6000;
  * raw attempt UUID (which authorizes recovery) is never exposed on the invoice itself.
  * Returns null when there is no attempt id (e.g. legacy clients).
  */
-export function deriveAttemptInvoiceNumber(attemptId: string | null | undefined): string | null {
+export async function deriveAttemptInvoiceNumber(attemptId: string | null | undefined): Promise<string | null> {
   if (!attemptId || typeof attemptId !== 'string') return null;
-  const digest = createHash('sha256').update(`psp-attempt:${attemptId}`).digest('hex').slice(0, 16);
+  const digest = (await sha256Hex(`psp-attempt:${attemptId}`)).slice(0, 16);
   return `PSP-${digest.toUpperCase()}`;
 }
 
@@ -82,7 +82,7 @@ export async function findHelcimChargeForAttempt(
   helcimApiToken: string | undefined | null,
   attemptId: string | null | undefined,
 ): Promise<HelcimTransactionSummary | null> {
-  const invoiceNumber = deriveAttemptInvoiceNumber(attemptId);
+  const invoiceNumber = await deriveAttemptInvoiceNumber(attemptId);
   if (!helcimApiToken || !invoiceNumber) return null;
 
   try {

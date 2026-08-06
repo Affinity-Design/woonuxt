@@ -45,39 +45,15 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('[Helcim Validation] Server-side validation starting...');
 
-    // Import crypto in a way that works with different Node.js environments
-    let crypto;
-    try {
-      // Try to import Node.js crypto module
-      crypto = await import('node:crypto').catch(() => import('crypto'));
-    } catch (importError) {
-      console.error('[Helcim Validation] Failed to import crypto:', importError);
-
-      // TEMPORARY: Allow validation to pass if crypto is not available
-      // This is a fallback for production environment issues
-      console.warn('[Helcim Validation] WARNING: Crypto not available, allowing transaction without validation');
-      const bypassTxnId = transactionData.data?.data?.transactionId || transactionData.data?.transactionId;
-      await recordChargeForGuard(bypassTxnId);
-      return {
-        success: true,
-        isValid: true, // TEMPORARY - allow payment through
-        expectedHash: 'crypto_unavailable',
-        receivedHash: 'crypto_unavailable',
-        transactionId: bypassTxnId,
-        warning: 'Validation bypassed due to crypto unavailability',
-      };
-    }
-
     // The hash should be calculated from the data object + secret token
     // Helcim response structure: {"data":{"hash":"...","data":{"transactionId":"..."}}}
     const dataToHash = transactionData.data?.data || transactionData.data || transactionData;
     const cleanedJsonData = JSON.stringify(dataToHash);
 
-    // Use Node.js crypto directly (server-side only)
-    const expectedHash = crypto
-      .createHash('sha256')
-      .update(cleanedJsonData + secretToken)
-      .digest('hex');
+    // Web Crypto — node:crypto's createHash is an unimplemented stub on the Workers runtime
+    // (took checkout down 2026-08-05). This also retires the old "crypto unavailable"
+    // validation-bypass path: sha256Hex always works, so validation always actually runs.
+    const expectedHash = await sha256Hex(cleanedJsonData + secretToken);
 
     const receivedHash = transactionData.data?.hash || transactionData.hash;
     const isValid = expectedHash === receivedHash;
