@@ -289,6 +289,12 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    // Nitro otherwise emits a one-year immutable rule for every /_nuxt asset.
+    // A zero asset-cache TTL suppresses that blanket rule; Cloudflare Pages can
+    // still revalidate real fingerprinted files by ETag, while a missing chunk
+    // cannot become a year-long CDN/browser cache entry.
+    '/_nuxt/**': {cache: {maxAge: 0}},
+
     '/': {prerender: true, cache: kvCache(60 * 60 * 24)},
     '/blog': {
       prerender: true,
