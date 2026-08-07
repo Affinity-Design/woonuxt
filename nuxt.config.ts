@@ -65,6 +65,18 @@ export default defineNuxtConfig({
   extends: ['./woonuxt_base'],
   components: [{path: './components', pathPrefix: false, priority: 1000}],
 
+  // Lowercase-only hashes retire any previously cached mixed-case asset URL
+  // while preserving Rollup's full eight-character content-hash entropy.
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          hashCharacters: 'base36',
+        },
+      },
+    },
+  },
+
   'graphql-client': {
     clients: {
       default: {

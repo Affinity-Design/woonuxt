@@ -21,6 +21,12 @@ test('Nitro does not generate a blanket immutable rule for Nuxt assets', async (
   assert.match(nuxtConfig, /'\/_nuxt\/\*\*': \{cache: \{maxAge: 0\}\}/);
 });
 
+test('client asset hashes use a fresh lowercase-only alphabet', async () => {
+  const nuxtConfig = await readFile(nuxtConfigPath, 'utf8');
+
+  assert.match(nuxtConfig, /hashCharacters: 'base36'/);
+});
+
 test('Cloudflare Pages has a top-level static 404 document', async () => {
   const notFound = await readFile(notFoundPath, 'utf8');
 
