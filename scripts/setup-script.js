@@ -174,6 +174,14 @@ async function main() {
       process.exit(0);
     }
 
+    const hasCloudflareKvConfiguration =
+      CONFIG.CF_ACCOUNT_ID && CONFIG.CF_API_TOKEN && CONFIG.CF_KV_NAMESPACE_ID_SCRIPT_DATA;
+
+    if (!hasCloudflareKvConfiguration) {
+      console.warn('Cloudflare KV credentials are not configured; skipping optional KV population.');
+      process.exit(0);
+    }
+
     // COMMENTED OUT: Do not purge KV cache here.
     // The build process runs 'scripts/build-sitemap.js' BEFORE this script,
     // which uploads 'product-seo-meta' and 'sitemap-data' to KV.
