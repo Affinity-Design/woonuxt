@@ -34,13 +34,14 @@
 - **Angle:** pure technique tutorial (stance, first strides, stopping, falling safely, 30-day progression). Distinct from the beginners *buying/starting* guide — link to it, don't overlap gear advice.
 - **Internal links:** `/blog/complete-beginners-guide-inline-quad-skating`, `/blog/how-to-skate-backwards-tutorial`, `/roller-skates-size-calculator`.
 
-### 3. Is Roller Skating Good Exercise? Calories, Benefits & Workouts
+### 3. Is Roller Skating Good Exercise? Calories, Benefits & Workouts — DRAFTED ON TEST 2026-08-11
 
 - **Primary:** skating exercise (390 sv, kd 0)
 - **Cluster:** is skating good exercise (170, kd 3) · speed skating exercise (170) · roller skating benefits/calories long-tail — ~750+ sv, zero competition
 - **Slug:** `/blog/roller-skating-exercise-benefits`
 - **Angle:** fitness TOFU — calories/hour tables vs running/cycling, muscle groups, beginner workout plans, physio-friendly framing.
 - **Internal links:** both beginner guides, `/product-category/inline-skates`, protection gear category.
+- **Status:** Drafted on `test`; publish status and performance monitoring still pending production deployment.
 
 ### 4. Inline Skating & Rollerblading in Vancouver: Best Spots (2026)
 

@@ -35,6 +35,12 @@
       "statusCode": 301
     }
   },
+  "/how-to-roller-skate": {
+    "redirect": {
+      "to": "/blog/how-to-roller-skate",
+      "statusCode": 301
+    }
+  },
   "/how-to-skate-backwards-tutorial": {
     "redirect": {
       "to": "/blog/how-to-skate-backwards-tutorial",
@@ -65,6 +71,12 @@
       "statusCode": 301
     }
   },
+  "/roller-rinks-indoor-skating-canada": {
+    "redirect": {
+      "to": "/blog/roller-rinks-indoor-skating-canada",
+      "statusCode": 301
+    }
+  },
   "/roller-skate-size-chart": {
     "redirect": {
       "to": "/blog/roller-skate-size-chart",
@@ -86,6 +98,12 @@
   "/roller-skates-toronto": {
     "redirect": {
       "to": "/blog/roller-skates-toronto",
+      "statusCode": 301
+    }
+  },
+  "/roller-skating-exercise-benefits": {
+    "redirect": {
+      "to": "/blog/roller-skating-exercise-benefits",
       "statusCode": 301
     }
   },
