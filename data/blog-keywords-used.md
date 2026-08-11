@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-07-23
+**Last Updated:** 2026-08-11
 
 > **Current pipeline:** `data/blog-rehydration-2026-07.md` (fresh DataForSEO research, July 2026). The keyword lists below this point are the historical record — pick new topics from the rehydration doc, not from here.
 
@@ -11,6 +11,15 @@
 ## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **skating exercise** (390 sv, 0 kd — rehydration doc topic #3)
+
+  - Post: `/blog/roller-skating-exercise-benefits`
+  - Drafted: 2026-08-11
+  - Status: Draft on `test`
+  - Secondary: is skating good exercise (170), speed skating exercise (170), roller skating benefits, roller skating calories, roller skating workout
+  - Angle: evidence-based fitness guide with MET-derived calorie estimates, muscles worked, beginner workouts, Canadian activity guidance, and safety limits
+  - Performance: Monitor after production publication
 
 - [x] **how to roller skate** (320 sv, 3 kd — rehydration doc topic #2)
 
