@@ -10,6 +10,7 @@ import {
 } from '#woo';
 import {defineAsyncComponent, computed, ref, onMounted, watch} from 'vue';
 import {useRoute, useNuxtApp, useAppConfig, useCart, useI18n, useHead, useAsyncData, useRuntimeConfig} from '#imports';
+import {getDefaultProductAttributes} from '~/utils/productDefaultAttributes.mjs';
 // import {useHelpers} from '~/composables/useHelpers';
 // import {useExchangeRate} from '~/composables/useExchangeRate';
 // import {useProductSEO} from '~/composables/useProductSEO';
@@ -538,7 +539,7 @@ watch(
                 v-if="isVariableProduct && product.attributes && product.variations?.nodes?.length"
                 class="mb-6"
                 :attributes="product.attributes.nodes"
-                :defaultAttributes="product.defaultAttributes"
+                :defaultAttributes="getDefaultProductAttributes(product.defaultAttributes)"
                 :variations="product.variations.nodes"
                 @attrs-changed="updateSelectedVariations" />
               <div v-else-if="isVariableProduct && (!product.attributes || !product.variations?.nodes?.length)" class="mb-6 text-sm text-gray-500">
