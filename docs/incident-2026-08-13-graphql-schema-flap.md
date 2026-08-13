@@ -37,3 +37,12 @@ Coordinated staging migration: WooGraphQL 0.21.1 → WPGraphQL for eCommerce
 migration. Requires reviving test.proskatersplace.com (origin down since
 2026-08-07, blocking all preview builds). Remove the temporary snippets and
 the error beacon once migrated.
+
+## Update 22:15Z
+
+Builds 2 and 3 (20:41Z, 21:57Z) failed identically at codegen introspection
+despite the stability snippet being active, while ad-hoc schema probes kept
+passing. That pattern implicates WPGraphQL Smart Cache replaying a poisoned
+cached response for the (byte-identical) introspection query. Smart Cache
+has been deactivated pending the plugin migration; this commit retriggers
+the build.
