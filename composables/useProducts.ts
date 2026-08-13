@@ -12,14 +12,6 @@ export function useProducts() {
     if (!Array.isArray(newProducts)) throw new Error('Products must be an array.');
     products.value = newProducts ?? [];
     allProducts = JSON.parse(JSON.stringify(newProducts));
-
-    // Debug: Log product terms structure
-    if (newProducts.length > 0) {
-      console.log(
-        '[useProducts] Sample product terms:',
-        newProducts[0]?.terms?.nodes?.map((t) => ({taxonomyName: t.taxonomyName, slug: t.slug})),
-      );
-    }
   }
 
   const updateProductList = async (): Promise<void> => {

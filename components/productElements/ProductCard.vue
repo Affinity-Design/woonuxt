@@ -27,8 +27,8 @@ const mainImage = computed<string>(() => props.node?.image?.producCardSourceUrl 
 
 const imagetoDisplay = computed<string>(() => {
   if (paColor.value.length) {
-    const activeColorImage = props.node?.variations?.nodes.filter((variation) => {
-      const hasMatchingAttributes = variation.attributes?.nodes.some((attribute) => paColor.value.some((color) => attribute?.value?.includes(color)));
+    const activeColorImage = props.node?.variations?.nodes?.filter((variation) => {
+      const hasMatchingAttributes = variation.attributes?.nodes?.some((attribute) => paColor.value.some((color) => attribute?.value?.includes(color)));
       const hasMatchingSlug = paColor.value.some((color) => variation.slug?.includes(color));
       return hasMatchingAttributes || hasMatchingSlug;
     });

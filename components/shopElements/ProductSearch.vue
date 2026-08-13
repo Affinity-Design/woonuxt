@@ -112,7 +112,6 @@ const handleBlur = () => {
 watch(searchQuery, (newComposableQuery) => {
   if (newComposableQuery !== localInputValue.value) {
     localInputValue.value = newComposableQuery;
-    console.log(searchResults.value);
   }
 });
 
@@ -262,7 +261,7 @@ const handleEnterKeyNavigation = () => {
                 <!-- Image Container -->
                 <div class="w-[30%] pr-3 flex-shrink-0">
                   <img
-                    v-if="product.image.sourceUrl"
+                    v-if="product.image?.sourceUrl"
                     :src="product.image.sourceUrl"
                     :alt="product.image.altText || product.name"
                     class="object-contain w-full h-auto max-h-20 rounded border"
