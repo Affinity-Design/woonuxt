@@ -70,6 +70,13 @@ const {data, pending, error, refresh} = await useAsyncData(cacheKey, () => getPr
 });
 
 const product = computed(() => data.value);
+
+// Stable reference for AttributeSelections (variant snap-back fix): calling
+// getDefaultProductAttributes() inline in the template returned a NEW array on
+// every parent re-render for products without preset defaults, so the child's
+// deep watcher on defaultAttributes treated each render as a defaults change
+// and reset the user's selection back to the first available option (e73ed03).
+const defaultAttributes = computed(() => getDefaultProductAttributes(product.value?.defaultAttributes));
 const productLoadErrorMessage = computed(() => {
   if (error.value?.statusCode === 404 || error.value?.message?.includes('Product not found')) {
     return t('messages.shop.productNotFound', 'This product could not be found.');
@@ -539,7 +546,7 @@ watch(
                 v-if="isVariableProduct && product.attributes && product.variations?.nodes?.length"
                 class="mb-6"
                 :attributes="product.attributes.nodes"
-                :defaultAttributes="getDefaultProductAttributes(product.defaultAttributes)"
+                :defaultAttributes="defaultAttributes"
                 :variations="product.variations.nodes"
                 @attrs-changed="updateSelectedVariations" />
               <div v-else-if="isVariableProduct && (!product.attributes || !product.variations?.nodes?.length)" class="mb-6 text-sm text-gray-500">
