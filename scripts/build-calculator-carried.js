@@ -66,7 +66,7 @@ const CARRIED_HEADERS = [
 
 const PRODUCTS_QUERY = `
   query CalcCarried($category: [String], $first: Int!, $after: String) {
-    products(first: $first, after: $after, where: { categoryIn: $category, status: "publish", orderby: { field: DATE, order: DESC } }) {
+    products(first: $first, after: $after, where: { categoryIn: $category, status: "publish", orderby: { field: DATE, order: DESC }, typeIn: [SIMPLE, VARIABLE] }) {
       pageInfo { hasNextPage endCursor }
       nodes {
         name

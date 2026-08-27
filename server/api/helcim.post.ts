@@ -1,5 +1,6 @@
 // server/api/helcim.post.ts
 import {defineEventHandler, createError, readBody} from 'h3';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 // Types for Helcim line items
 interface HelcimLineItem {
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
   if (!helcimApiToken) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Helcim API token is missing. Please check your configuration.',
+      statusMessage: 'The payment service is temporarily unavailable. Please try again later.',
     });
   }
 
@@ -366,7 +367,7 @@ export default defineEventHandler(async (event) => {
             };
 
             helcimRequestBody.customerRequest = customerRequest;
-            console.log('[Helcim API] Including customer info (user has filled in details):', customerRequest);
+            console.log('[Helcim API] Customer details included in the provider request. Customer values were withheld.');
           } else {
             console.log('[Helcim API] Skipping customerRequest - user has not filled in required details yet', {
               hasName,
@@ -444,7 +445,7 @@ export default defineEventHandler(async (event) => {
             };
           }
         } catch (guardError: any) {
-          console.warn('[Helcim Guard] pre-initialize duplicate check failed (continuing):', guardError?.message || guardError);
+          console.warn('[Helcim Guard] pre-initialize duplicate check failed; continuing. Sensitive details were withheld.');
         }
 
         // Concise, greppable trace line: pairs with the client failure beacon (/api/helcim-log)
@@ -460,9 +461,6 @@ export default defineEventHandler(async (event) => {
           discountAmount: Number(discountAmount) || 0,
           hasCoupon: (Number(discountAmount) || 0) > 0,
         });
-
-        // Log the FULL request body for debugging
-        console.log('[Helcim API] Full request body being sent:', JSON.stringify(helcimRequestBody, null, 2));
 
         const initializeWithHelcim = (requestBody: any) =>
           fetch('https://api.helcim.com/v2/helcim-pay/initialize', {
@@ -488,7 +486,7 @@ export default defineEventHandler(async (event) => {
           const rejectionText = await response.text().catch(() => '');
           console.warn(`[Helcim API] Initialize rejected with attempt invoice number (${response.status}) — re-checking charge state`, {
             traceId,
-            rejection: rejectionText.slice(0, 300),
+            responseBodyReceived: !!rejectionText,
           });
 
           const paidCharge = await findHelcimChargeForAttempt(helcimApiToken as string, checkoutAttemptId);
@@ -530,9 +528,9 @@ export default defineEventHandler(async (event) => {
         }
 
         if (!response.ok) {
-          const errorData = await response.text();
-          console.error(`[Helcim API] HTTP Error ${response.status}:`, errorData);
-          throw new Error(`Helcim API error: ${response.status} - ${errorData}`);
+          await response.text().catch(() => '');
+          console.error(`[Helcim API] HTTP request failed with status ${response.status}. Sensitive details were withheld.`);
+          throw new Error('Payment initialization failed');
         }
 
         const data = await response.json();
@@ -586,23 +584,19 @@ export default defineEventHandler(async (event) => {
             dataStructure: Object.keys(transactionData),
             hasDataProperty: !!transactionData.data,
             hasHashProperty: !!transactionData.hash,
-            expectedHash,
-            receivedHash,
             isValid,
           });
 
           return {
             success: true,
             isValid,
-            expectedHash,
-            receivedHash,
             transactionId: dataToHash.transactionId,
           };
         } catch (cryptoError: any) {
-          console.error('[Helcim Validation] Crypto error:', cryptoError);
+          console.error('[Helcim Validation] Crypto error:', getSafeErrorLogDetails(cryptoError));
           throw createError({
             statusCode: 500,
-            statusMessage: `Validation failed: ${cryptoError.message}`,
+            statusMessage: 'Payment validation failed. Please try again.',
           });
         }
 
@@ -613,13 +607,13 @@ export default defineEventHandler(async (event) => {
         });
     }
   } catch (error: any) {
-    console.error(`[Helcim API] Error (${action}):`, error);
+    console.error(`[Helcim API] Error (${action}):`, getSafeErrorLogDetails(error));
 
     return {
       success: false,
       error: {
-        message: error.message || 'An error occurred with Helcim API',
-        code: error.code || 'unknown_error',
+        message: getSafePaymentErrorMessage(error),
+        code: 'payment_error',
         statusCode: error.statusCode || 500,
       },
     };

@@ -57,7 +57,7 @@ signals — bind them.
 > `woonuxt-checkout-logs` D1 database exists and is bound under the variable name
 > **`woonuxt-checkout-logs`** (not the originally documented `NUXT_CHECKOUT_LOGS`). The code now
 > reads the dashed name first and falls back to the legacy name, so either binding style works.
-> Verify with `GET /api/checkout-failures?secret=…` → `"d1Bound": true`. Remember: Pages binding
+> Verify with `GET /api/checkout-failures` and `x-internal-secret: <secret>` → `"d1Bound": true`. Remember: Pages binding
 > changes only take effect on the next deployment, and Preview + testdev still need the same
 > bindings mirrored.
 
@@ -126,7 +126,7 @@ Address entry is enforced **only** by HTML5 `required` attributes. There is no p
 
 The stranded-charge recovery infrastructure is solid and under-used:
 
-- **`server/utils/helcimOrderRecovery.ts`** — persists every stranded charge (full replay payload + email/name/total/reason) to KV under `helcim-recovery:${transactionId}`, 7-day TTL. Exposes `getStrandedCharge`, `updateStrandedCharge`, `listStrandedCharges`.
+- **`server/utils/helcimOrderRecovery.ts`** — persists every stranded charge (credential-sanitized replay payload + email/name/total/reason) to KV under `helcim-recovery:${transactionId}`, 7-day TTL. Exposes `getStrandedCharge`, `updateStrandedCharge`, `listStrandedCharges`.
 - **`server/api/recover-helcim-order.post.ts`** — reconciles a stranded charge into a real order **without re-charging**: checks the idempotency record, verifies against Woo (adopts an existing order if found), and only recreates if genuinely absent. Has secret-gated `list` and `recover-all` admin actions.
 - **`HelcimCard.vue`** already contains the correct **"Your payment already went through … do not re-order … contact customerservice@"** messaging — but it's gated on the duplicate-charge block, so it never appears on the *first* order-post failure.
 
@@ -149,7 +149,7 @@ Ordered by priority. P0 = stops customers being double-charged or stranded.
 > - **P1-4**: every `alert()` removed from `processCheckout`; raw GraphQL/transport errors are no longer shown to shoppers (logged, replaced with a customer-safe message + support contact).
 > - **P2-1**: pre-refresh billing/shipping snapshot is now FULLY restored after `refreshCart()` (the old gap-fill restore let stale values survive).
 > - **P2-2**: all-virtual carts pass `isVirtualOrder` — shipping validation is skipped and the order is marked `_psp_no_shipping_required: yes` instead of silently carrying a blank address.
-> - **§6 Tier 1 (D1 failure ledger)**: `server/utils/checkoutFailureLedger.ts` writes a structured record at every failure stage (`charge_failed_beacon`, `duplicate_block`, `validate_failed`, `order_create_failed`, `duplicate_charge_detected`, `recovery_attempt`) to D1 (`checkout_failures` table, schema auto-created) with payment-KV fallback; queryable via secret-gated `GET /api/checkout-failures?secret=…&email=…&stage=…&since=…`.
+> - **§6 Tier 1 (D1 failure ledger)**: `server/utils/checkoutFailureLedger.ts` writes a structured record at every failure stage (`charge_failed_beacon`, `duplicate_block`, `validate_failed`, `order_create_failed`, `duplicate_charge_detected`, `recovery_attempt`) to D1 (`checkout_failures` table, schema auto-created) with payment-KV fallback; queryable via admin-session or `x-internal-secret` header-gated `GET /api/checkout-failures?email=…&stage=…&since=…`.
 >
 > **Deploy prerequisite (one-time), status as of 2026-07-17:**
 > - ✅ KV namespaces **created** (via API): `proskatersplace-payment-data` (`e9e47db0641f4e1699d82c7c295fd417`) and `proskatersplace-test-payment-data` (`fa9b5b6df900400a8ff6b46e5d9eee7b`). Still to do: bind each in its Pages project (main → prod namespace, test → test namespace) as variable **`NUXT_PAYMENT_DATA`**, Production + Preview.

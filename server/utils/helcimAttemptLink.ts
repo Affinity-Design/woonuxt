@@ -131,7 +131,7 @@ export async function findHelcimChargeForAttempt(
       customerCode: tx.customerCode ? String(tx.customerCode) : undefined,
     };
   } catch (error: any) {
-    console.warn('[Helcim Attempt Link] transaction lookup failed (failing open):', error?.message || error);
+    console.warn('[Helcim Attempt Link] transaction lookup failed open. Sensitive details were withheld.');
     return null;
   }
 }

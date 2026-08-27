@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {OrderStatusEnum} from '#woo';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const route = useRoute();
 const {query, params} = route;
@@ -93,11 +94,7 @@ async function fetchOrderFromApi(): Promise<Order> {
 
   if (data?.order) return data.order as Order;
 
-  let errorDetail = 'Order not found or GraphQL query returned no order data.';
-  if (data?.errors?.[0]?.message) {
-    errorDetail = data.errors[0].message;
-  }
-  throw new Error(errorDetail);
+  throw new Error('Order details are temporarily unavailable.');
 }
 
 // Retry the fetch quietly after the soft placeholder rendered — hydrate the real order details
@@ -132,7 +129,7 @@ async function getOrder() {
     initialOrderFetchSucceeded.value = true;
     usedSoftFallback.value = false;
   } catch (err: any) {
-    const specificErrorMessage = err?.gqlErrors?.[0]?.message || err.message || 'Could not find order';
+    const safeErrorMessage = 'We could not load this order right now. Please try again or contact customer service.';
 
     // A customer arriving here from checkout with an order id + key has ALREADY paid and has an
     // order — this page is their receipt. Rendering a scary error ("Order Not Found") here for a
@@ -159,10 +156,10 @@ async function getOrder() {
       errorMessage.value = '';
       initialOrderFetchSucceeded.value = false;
       usedSoftFallback.value = true;
-      console.warn('[OrderReceived] Order fetch failed on checkout arrival — showing soft confirmation, retrying quietly:', specificErrorMessage);
+      console.warn('[OrderReceived] Order fetch failed on checkout arrival; showing soft confirmation and retrying quietly:', getSafeErrorLogDetails(err));
       scheduleSilentOrderRetry();
     } else {
-      errorMessage.value = specificErrorMessage;
+      errorMessage.value = safeErrorMessage;
       order.value = null;
       initialOrderFetchSucceeded.value = false;
     }

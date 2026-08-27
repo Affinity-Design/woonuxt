@@ -1,6 +1,7 @@
 <!-- components/shopElements/HelcimCard.vue -->
 <script setup lang="ts">
 import {ref, onMounted, onUnmounted, computed, watch} from 'vue';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested', 'order-recovered']);
 
@@ -21,7 +22,7 @@ const customerServiceMailto = `mailto:${customerServiceEmail}`;
 // Error classification
 const isCardDecline = ref(false); // True = card was declined by issuing bank
 const isTechnicalError = ref(false); // True = unexpected/integration error
-const rawErrorMessage = ref(''); // Unmodified error from Helcim for debug logs
+const safeDebugErrorMessage = ref('');
 const debugLogsCopied = ref(false); // Tracks if user copied debug info
 
 // Duplicate-charge guard: set when the server detects that this exact cart already produced
@@ -61,7 +62,7 @@ const retrievePaidOrder = async () => {
     };
 
     if (res?.recovered && res.order) {
-      captureLog('INFO', 'Stranded charge recovered into order:', res.order);
+      captureLog('INFO', 'Stranded charge recovered into an order.');
       emit('order-recovered', {
         orderId: res.order.databaseId ?? res.order.id,
         orderKey: res.order.orderKey || '',
@@ -73,8 +74,8 @@ const retrievePaidOrder = async () => {
       recoveryError.value = `We could not retrieve your order automatically. Please check your email for a confirmation, or contact ${customerServiceEmail} and we will help.`;
     }
   } catch (error: any) {
-    console.error('[HelcimCard] Order recovery failed:', error);
-    captureLog('ERROR', 'Order recovery failed:', error?.message || error);
+    console.error('[HelcimCard] Order recovery failed:', getSafeErrorLogDetails(error));
+    captureLog('ERROR', 'Order recovery failed. Sensitive details were withheld.');
     recoveryError.value = `Something went wrong retrieving your order. Your payment is safe — please contact ${customerServiceEmail} and we will complete your order.`;
   } finally {
     isRecovering.value = false;
@@ -216,7 +217,7 @@ const initializePayment = async () => {
     paymentError.value = null;
     isCardDecline.value = false;
     isTechnicalError.value = false;
-    rawErrorMessage.value = '';
+    safeDebugErrorMessage.value = '';
     debugLogsCopied.value = false;
     recentChargeWarning.value = null;
 
@@ -292,8 +293,8 @@ const initializePayment = async () => {
       traceId.value = response.traceId || '';
       recentChargeWarning.value = response.recentChargeWarning || null;
       initializedChargeContextKey.value = getCurrentChargeContextKey();
-      console.warn('[HelcimCard] Duplicate charge blocked:', recentChargeWarning.value);
-      captureLog('WARN', 'Duplicate charge blocked:', recentChargeWarning.value);
+      console.warn('[HelcimCard] Duplicate charge blocked. Payment identifiers were withheld.');
+      captureLog('WARN', 'Duplicate charge blocked. Payment identifiers were withheld.');
       return;
     }
 
@@ -313,14 +314,14 @@ const initializePayment = async () => {
         secretToken: secretToken.value,
       });
     } else {
-      throw new Error(response.error?.message || 'Failed to initialize Helcim payment');
+      throw new Error(getSafePaymentErrorMessage(response.error, 'We could not open the secure payment form. Please try again.'));
     }
   } catch (error: any) {
-    console.error('[HelcimCard] Initialization error:', error);
-    captureLog('ERROR', 'Initialization failed:', error.message);
-    paymentError.value = error.message;
+    console.error('[HelcimCard] Initialization error:', getSafeErrorLogDetails(error));
+    captureLog('ERROR', 'Initialization failed. Sensitive details were withheld.');
+    paymentError.value = getSafePaymentErrorMessage(error, 'We could not open the secure payment form. Please try again.');
     isTechnicalError.value = true;
-    emit('error', error.message);
+    emit('error', paymentError.value);
   } finally {
     isInitializing.value = false;
   }
@@ -390,10 +391,9 @@ const setupEventListeners = () => {
 
 const handlePaymentSuccess = async (eventMessage: any) => {
   try {
-    console.log('[HelcimCard] Payment successful - raw event data:', {
+    console.log('[HelcimCard] Payment success event received:', {
       type: typeof eventMessage,
       isString: typeof eventMessage === 'string',
-      data: eventMessage,
     });
 
     // Parse the transaction response according to official Helcim format
@@ -402,7 +402,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       try {
         responseData = JSON.parse(eventMessage);
       } catch (parseError) {
-        console.error('[HelcimCard] Failed to parse event message:', parseError);
+        console.error('[HelcimCard] Failed to parse payment event:', getSafeErrorLogDetails(parseError));
         responseData = eventMessage;
       }
     } else {
@@ -410,16 +410,8 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     }
 
     console.log('[HelcimCard] Parsed response structure:', {
-      keys: Object.keys(responseData || {}),
       hasData: !!responseData?.data,
       hasHash: !!responseData?.hash,
-      dataKeys: responseData?.data ? Object.keys(responseData.data) : null,
-      hashValue: responseData?.hash,
-      sampleFields: {
-        transactionId: responseData?.data?.transactionId || responseData?.transactionId,
-        amount: responseData?.data?.amount || responseData?.amount,
-        status: responseData?.data?.status || responseData?.status,
-      },
     });
 
     // Extract transaction data from the response
@@ -428,7 +420,6 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     console.log('[HelcimCard] Sending to validation:', {
       hasSecretToken: !!secretToken.value,
       responseStructure: {
-        keys: Object.keys(responseData || {}),
         hasHash: !!responseData?.hash,
         hasData: !!responseData?.data,
       },
@@ -453,38 +444,24 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       },
     })) as any;
 
-    console.log('[HelcimCard] Validation response:', validation);
+    console.log('[HelcimCard] Validation response received:', {success: !!validation?.success, isValid: !!validation?.isValid});
 
     if (!validation.success || !validation.isValid) {
-      console.error('[HelcimCard] Transaction validation failed:', validation);
-      const errorMsg = validation.error?.message || validation.note || 'Unknown validation error';
-      handlePaymentFailed(`Transaction validation failed: ${errorMsg}`);
+      console.error('[HelcimCard] Transaction validation failed. Sensitive details were withheld.');
+      handlePaymentFailed('Transaction validation failed');
       return;
     }
 
     // Log warning if validation was bypassed
     if (validation.warning) {
-      console.warn('[HelcimCard] Validation warning:', validation.warning);
+      console.warn('[HelcimCard] Validation warning received. Details were withheld.');
     }
 
-    console.log('[HelcimCard] Transaction validated successfully:', validation);
+    console.log('[HelcimCard] Transaction validated successfully.');
     transactionData.value = extractedTransactionData;
 
     // Extract cardToken from Helcim response for refund support
     // Helcim may return cardToken at various levels depending on the response structure
-    // Log all possible locations to debug
-    console.log('[HelcimCard] Looking for cardToken in response:', {
-      'extractedTransactionData.cardToken': extractedTransactionData?.cardToken,
-      'extractedTransactionData.data?.cardToken': extractedTransactionData?.data?.cardToken,
-      'responseData.cardToken': responseData?.cardToken,
-      'responseData.data?.cardToken': responseData?.data?.cardToken,
-      'extractedTransactionData.card?.cardToken': extractedTransactionData?.card?.cardToken,
-      'responseData.card?.cardToken': responseData?.card?.cardToken,
-      // Full structure for debugging
-      'extractedTransactionData keys': Object.keys(extractedTransactionData || {}),
-      'responseData keys': Object.keys(responseData || {}),
-    });
-
     // Try all possible locations for cardToken
     const cardToken =
       extractedTransactionData?.cardToken ||
@@ -497,10 +474,7 @@ const handlePaymentSuccess = async (eventMessage: any) => {
       extractedTransactionData?.transaction?.cardToken ||
       responseData?.transaction?.cardToken;
 
-    console.log(
-      '[HelcimCard] Extracted cardToken for refund support:',
-      cardToken ? `present (${cardToken.substring(0, 8)}...)` : 'MISSING - refunds will fail!',
-    );
+    console.log('[HelcimCard] Refund token status:', cardToken ? 'present' : 'missing');
 
     paymentComplete.value = true;
     paymentError.value = null;
@@ -518,23 +492,23 @@ const handlePaymentSuccess = async (eventMessage: any) => {
     // Remove the iframe after successful payment
     removeHelcimIframe();
   } catch (error) {
-    console.error('[HelcimCard] Error processing successful payment:', error);
+    console.error('[HelcimCard] Error processing successful payment:', getSafeErrorLogDetails(error));
     handlePaymentFailed('Error processing payment data');
   }
 };
 
 const handlePaymentFailed = (eventMessage: any) => {
-  const rawError = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
-  rawErrorMessage.value = rawError;
+  const untrustedPaymentError = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
+  const safePaymentMessage = getSafePaymentErrorMessage(untrustedPaymentError, 'We could not process this payment and your card was not charged. Please try again or contact customer service.');
+  safeDebugErrorMessage.value = safePaymentMessage;
   debugLogsCopied.value = false;
 
-  console.error('[HelcimCard] Payment failed - raw event message:', eventMessage);
-  captureLog('ERROR', 'Payment failed - raw:', rawError);
+  console.error('[HelcimCard] Payment failed. Sensitive details were withheld.');
+  captureLog('ERROR', 'Payment failed. Sensitive details were withheld.');
   captureLog('INFO', 'checkoutToken present:', !!checkoutToken.value);
   captureLog('INFO', 'amount:', props.amount, 'currency:', props.currency);
   captureLog('INFO', 'lineItems:', props.lineItems?.length || 0);
   captureLog('INFO', 'taxAmount:', props.taxAmount, 'shippingAmount:', props.shippingAmount, 'discountAmount:', props.discountAmount);
-  captureLog('INFO', 'customerInfo:', props.customerInfo);
 
   // Classify the error
   // Card declines: bank/issuer rejected the card (customer can fix)
@@ -555,19 +529,19 @@ const handlePaymentFailed = (eventMessage: any) => {
     'not permitted',
   ];
 
-  const isDecline = declinePatterns.some((p) => rawError.includes(p));
+  const isDecline = declinePatterns.some((pattern) => untrustedPaymentError.includes(pattern));
   // "Could not complete CC transaction" is NOT a bank decline — it's a pre-authorization
   // rejection (usually invoice/amount validation). The card is never charged and Helcim
   // creates no transaction record. We MUST NOT tell the customer their card was declined.
   // See docs/helcim-cc-rejection-critical-patch.md.
-  const isCCFailure = rawError.includes('Could not complete CC transaction');
+  const isCCFailure = untrustedPaymentError.includes('Could not complete CC transaction');
 
   if (isDecline) {
     // Genuine bank/issuer decline (keyword-matched). "Card Declined" wording is correct here.
     isCardDecline.value = true;
     isTechnicalError.value = false;
-    paymentError.value = `Your card was declined: ${rawError}. Please try a different card or contact your bank.`;
-  } else if (isCCFailure || rawError.includes('Invalid card transaction request')) {
+    paymentError.value = 'Your card was declined. Please check your card details, try another card, or contact your bank.';
+  } else if (isCCFailure || untrustedPaymentError.includes('Invalid card transaction request')) {
     // Processing/config rejection — card was NOT charged. Show as a technical error
     // (orange UI with the "Copy error details" support button), not a decline.
     isCardDecline.value = false;
@@ -582,14 +556,13 @@ const handlePaymentFailed = (eventMessage: any) => {
   paymentComplete.value = false;
 
   // Instrumentation: these failures leave NO trace in Helcim or WooCommerce, so report the
-  // raw Helcim error + order context server-side (visible in `wrangler tail` + persisted for
-  // failures). Fire-and-forget; must never affect the payment UI. See critical patch doc.
+  // fixed failure classification and bounded non-customer metadata server-side. Raw provider
+  // errors, payment payloads, and customer information are never transmitted.
   try {
     $fetch('/api/helcim-log', {
       method: 'POST',
       body: {
         traceId: traceId.value,
-        rawError,
         classification: isDecline ? 'bank_decline' : isCCFailure ? 'cc_processing_rejection' : 'unknown',
         amount: props.amount,
         currency: props.currency,
@@ -604,7 +577,7 @@ const handlePaymentFailed = (eventMessage: any) => {
     /* never block the failure UI on logging */
   }
 
-  emit('payment-failed', eventMessage);
+  emit('payment-failed', paymentError.value);
   emit('payment-complete', {
     success: false,
     error: paymentError.value,
@@ -620,7 +593,7 @@ const copyDebugInfo = async () => {
     const info = [
       '--- ProSkatersPlace Payment Debug Info ---',
       `Date: ${new Date().toISOString()}`,
-      `Error: ${rawErrorMessage.value}`,
+      `Error: ${safeDebugErrorMessage.value}`,
       `Amount: ${props.amount} ${props.currency}`,
       `Line Items: ${props.lineItems?.length || 0}`,
       `Tax: ${props.taxAmount} | Shipping: ${props.shippingAmount} | Discount: ${props.discountAmount}`,
@@ -637,7 +610,7 @@ const copyDebugInfo = async () => {
       debugLogsCopied.value = false;
     }, 3000);
   } catch (err) {
-    console.error('[HelcimCard] Failed to copy debug info:', err);
+    console.error('[HelcimCard] Failed to copy safe debug information:', getSafeErrorLogDetails(err));
     // Fallback: select text in a textarea
     alert(`Could not copy automatically. Please contact ${customerServiceEmail} with details about this error.`);
   }
@@ -681,7 +654,7 @@ const processPayment = async () => {
     (window as any).appendHelcimPayIframe(checkoutToken.value, true); // allowExit = true
     return true;
   } catch (error) {
-    console.error('[HelcimCard] Error opening payment modal:', error);
+    console.error('[HelcimCard] Error opening payment modal:', getSafeErrorLogDetails(error));
     paymentError.value = 'Failed to open payment form';
     emit('error', paymentError.value);
     return false;
@@ -752,7 +725,7 @@ const removeHelcimIframe = () => {
 
     console.log('[HelcimCard] Cleanup completed');
   } catch (error) {
-    console.error('[HelcimCard] Error removing iframe:', error);
+    console.error('[HelcimCard] Error removing payment frame:', getSafeErrorLogDetails(error));
   }
 };
 

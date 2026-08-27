@@ -40,9 +40,6 @@ class Helcim_Refund_Error_Handler {
         // Store error in transient for display
         add_action('woocommerce_order_refunded', array($this, 'clear_error_transient'), 10, 2);
         
-        // Hook into the Helcim gateway's process_refund if possible
-        add_action('woocommerce_api_request_url', array($this, 'log_api_request'), 10, 2);
-        
         // JavaScript to enhance the refund error display
         add_action('admin_footer', array($this, 'add_error_enhancement_script'));
     }
@@ -56,25 +53,18 @@ class Helcim_Refund_Error_Handler {
             $body = wp_remote_retrieve_body($response);
             $status_code = wp_remote_retrieve_response_code($response);
             
-            // Log the response for debugging
-            error_log('[Helcim Refund Debug] API URL: ' . $url);
-            error_log('[Helcim Refund Debug] Status Code: ' . $status_code);
-            error_log('[Helcim Refund Debug] Response Body: ' . $body);
-            
             // Try to parse the response
             $data = json_decode($body, true);
             
             if ($status_code !== 200 || (isset($data['errors']) && !empty($data['errors']))) {
-                $error_message = $this->extract_error_message($data, $status_code, $body);
+                error_log('[Helcim Refund] Provider request failed with HTTP status ' . absint($status_code) . '. Response details were withheld.');
+                $error_message = $this->get_safe_error_message($status_code, $body);
                 $this->last_api_error = $error_message;
                 
                 // Store in transient for display
                 set_transient('helcim_last_refund_error', $error_message, 60);
                 set_transient('helcim_last_refund_error_details', array(
-                    'url' => $url,
-                    'status_code' => $status_code,
-                    'response' => $data,
-                    'raw_body' => $body,
+                    'status_code' => absint($status_code),
                     'timestamp' => current_time('mysql')
                 ), 60);
             }
@@ -86,70 +76,34 @@ class Helcim_Refund_Error_Handler {
     /**
      * Extract meaningful error message from Helcim response
      */
-    private function extract_error_message($data, $status_code, $raw_body) {
-        $messages = array();
-        
-        // Check for common Helcim error patterns
-        if (isset($data['errors']) && is_array($data['errors'])) {
-            foreach ($data['errors'] as $error) {
-                if (is_string($error)) {
-                    $messages[] = $error;
-                } elseif (isset($error['message'])) {
-                    $messages[] = $error['message'];
-                } elseif (isset($error['error'])) {
-                    $messages[] = $error['error'];
-                }
-            }
-        }
-        
-        if (isset($data['error'])) {
-            $messages[] = is_string($data['error']) ? $data['error'] : json_encode($data['error']);
-        }
-        
-        if (isset($data['message'])) {
-            $messages[] = $data['message'];
-        }
-        
+    private function get_safe_error_message($status_code, $raw_body) {
         // Check for batch-related errors
         if (strpos(strtolower($raw_body), 'batch') !== false) {
             if (strpos(strtolower($raw_body), 'open') !== false) {
-                $messages[] = 'The card batch is still OPEN. Refunds can only be processed after the batch closes (usually end of day). Try using REVERSE instead, or wait for batch settlement.';
+                return 'The refund could not be completed because the card batch may still be open. Try a reversal or wait for settlement, then try again.';
             }
         }
         
         // Check for transaction not found
         if (strpos(strtolower($raw_body), 'not found') !== false || 
             strpos(strtolower($raw_body), 'invalid transaction') !== false) {
-            $messages[] = 'Transaction not found in Helcim system. The transaction ID may be incorrect or the transaction may have been processed on a different account.';
+            return 'The payment transaction could not be found. Confirm the transaction in the Helcim dashboard and try again.';
         }
         
         // HTTP status code based messages
-        if (empty($messages)) {
-            switch ($status_code) {
-                case 400:
-                    $messages[] = 'Bad Request - The refund request was malformed. Check transaction ID format.';
-                    break;
-                case 401:
-                    $messages[] = 'Unauthorized - Helcim API credentials may be invalid or expired.';
-                    break;
-                case 403:
-                    $messages[] = 'Forbidden - Your Helcim account may not have permission for this operation.';
-                    break;
-                case 404:
-                    $messages[] = 'Not Found - The transaction was not found in Helcim system.';
-                    break;
-                case 422:
-                    $messages[] = 'Unprocessable - The refund could not be processed. The batch may still be open (try REVERSE instead of REFUND).';
-                    break;
-                case 500:
-                    $messages[] = 'Helcim server error. Please try again later.';
-                    break;
-                default:
-                    $messages[] = 'Unknown error (HTTP ' . $status_code . '). Check Helcim dashboard for details.';
-            }
+        switch ($status_code) {
+            case 400:
+                return 'The refund request could not be processed. Confirm the payment transaction and try again.';
+            case 401:
+            case 403:
+                return 'The refund service could not authorize this request. Check the Helcim connection and try again.';
+            case 404:
+                return 'The payment transaction could not be found. Confirm it in the Helcim dashboard and try again.';
+            case 422:
+                return 'The refund could not be processed. The card batch may still be open; try a reversal or wait for settlement.';
+            default:
+                return 'The refund service could not complete this request. Check the Helcim dashboard and try again.';
         }
-        
-        return implode(' | ', array_unique($messages));
     }
     
     /**
@@ -205,23 +159,13 @@ class Helcim_Refund_Error_Handler {
     }
     
     /**
-     * Log API requests for debugging
-     */
-    public function log_api_request($url, $request) {
-        if (strpos($url, 'helcim') !== false) {
-            error_log('[Helcim Refund Debug] Request URL: ' . $url);
-        }
-        return $url;
-    }
-    
-    /**
      * Add JavaScript to enhance the alert box with more details
      */
     public function add_error_enhancement_script() {
         global $post;
         
         // Only on order edit pages
-        if (!is_admin() || !isset($post) || $post->post_type !== 'shop_order') {
+        if (!is_admin() || !current_user_can('manage_woocommerce') || !isset($post) || $post->post_type !== 'shop_order') {
             return;
         }
         ?>
@@ -272,6 +216,12 @@ add_action('plugins_loaded', function() {
 // AJAX handler to get detailed error
 add_action('wp_ajax_get_helcim_refund_error', function() {
     check_ajax_referer('helcim_error_nonce', 'nonce');
+
+    if (!current_user_can('manage_woocommerce')) {
+        wp_send_json_error(array(
+            'message' => 'You do not have permission to view refund diagnostics.'
+        ), 403);
+    }
     
     $error = get_transient('helcim_last_refund_error');
     $details = get_transient('helcim_last_refund_error_details');

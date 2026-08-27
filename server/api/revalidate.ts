@@ -1,12 +1,13 @@
 // server/api/revalidate.ts
-import { defineEventHandler, readBody, createError, getQuery } from "h3";
+import { defineEventHandler, readBody, createError, getHeader, getQuery } from "h3";
 
 export default defineEventHandler(async (event) => {
-  // Get the secret and path from the request body or query
+  // Credentials are accepted only in the request body or a header so they never enter URLs,
+  // browser history, analytics, or access logs.
   const query = getQuery(event);
   const body = await readBody(event).catch(() => ({}));
 
-  const secret = body.secret || query.secret;
+  const secret = body.secret || getHeader(event, 'x-internal-secret');
   const path = body.path || query.path;
   const pattern = body.pattern || query.pattern;
   const type = body.type || query.type || 'page'; // 'page', 'product', 'category', or 'all'
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
   // Check for secret to confirm this is a valid request
   if (secret !== process.env.REVALIDATION_SECRET) {
-    console.log(`Invalid token provided: ${secret}`);
+    console.warn('Revalidation request rejected because its token was invalid. The supplied token was withheld.');
     return createError({
       statusCode: 401,
       statusMessage: "Invalid token",
@@ -104,11 +105,11 @@ export default defineEventHandler(async (event) => {
       remainingCacheCount: remainingKeys.length,
     };
   } catch (err) {
-    console.error("Revalidation error:", err);
+    console.error('Revalidation failed. Sensitive details were withheld.');
     // If there was an error, return it
     return createError({
       statusCode: 500,
-      statusMessage: `Error revalidating: ${err.message}`,
+      statusMessage: 'Revalidation failed. Review the server logs and try again.',
     });
   }
 });

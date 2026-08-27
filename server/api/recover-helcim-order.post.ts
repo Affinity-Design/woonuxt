@@ -16,10 +16,11 @@
 //
 // Actions:
 //   - default / { transactionId }      → recover a single charge (customer self-service from the block).
-//   - { action: 'list', secret }       → admin: list stranded charges (REVALIDATION_SECRET required).
+//   - { action: 'list', secret }       → admin: list stranded charges (body/header credential or WP admin session).
 //   - { action: 'recover-all', secret }→ admin: attempt recovery of every pending charge.
-import {defineEventHandler, readBody, getQuery, createError} from 'h3';
+import {defineEventHandler, readBody, getHeader, getQuery, createError} from 'h3';
 import type {RecoveredOrderRef} from '../utils/helcimOrderRecovery';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 interface WooRestOrder {
   id: number;
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event).catch(() => ({}) as any);
 
   const action = (body?.action || query?.action || 'recover') as string;
-  const secret = body?.secret || query?.secret;
+  const secret = body?.secret || getHeader(event, 'x-internal-secret');
 
   const wpBaseUrl = config.public?.wpBaseUrl;
   const hasWpCreds = !!(config.wpAdminUsername && config.wpAdminAppPassword && wpBaseUrl);
@@ -133,7 +134,7 @@ export default defineEventHandler(async (event) => {
         console.warn('[Helcim Recovery] Completed idempotency record found but caller lacks matching attempt id — not adopting', {transactionId});
       }
     } catch (e: any) {
-      console.warn('[Helcim Recovery] idempotency lookup failed (continuing):', e?.message || e);
+      console.warn('[Helcim Recovery] idempotency lookup failed (continuing):', getSafeErrorLogDetails(e));
     }
 
     // 1b. Attempt-keyed idempotency record: possession of the attempt id authorizes directly.
@@ -159,7 +160,7 @@ export default defineEventHandler(async (event) => {
           return {recovered: true, order: attemptIdem.order, via: 'attempt_idempotency', duplicateChargeDetected: !isSameCharge};
         }
       } catch (e: any) {
-        console.warn('[Helcim Recovery] attempt idempotency lookup failed (continuing):', e?.message || e);
+        console.warn('[Helcim Recovery] attempt idempotency lookup failed (continuing):', getSafeErrorLogDetails(e));
       }
     }
 
@@ -170,9 +171,9 @@ export default defineEventHandler(async (event) => {
         existing = await findExistingWooOrder(transactionId, record.customerEmail || record.payload?.billing?.email);
       } catch (e: any) {
         // We could not confirm the order is absent — refuse to auto-create to avoid a duplicate.
-        await updateStrandedCharge(transactionId, {lastError: `verification_failed: ${e?.message || e}`});
-        console.warn('[Helcim Recovery] Verification failed — flagging for manual review', {transactionId, error: e?.message});
-        return {recovered: false, reason: 'verification_failed', needsManualReview: true, error: e?.message || String(e)};
+        await updateStrandedCharge(transactionId, {lastError: 'WooCommerce verification failed. Sensitive details were withheld.'});
+        console.warn('[Helcim Recovery] Verification failed; flagging for manual review:', {transactionId, ...getSafeErrorLogDetails(e)});
+        return {recovered: false, reason: 'verification_failed', needsManualReview: true, error: 'We could not safely verify the order. Customer service must review this payment.'};
       }
 
       if (existing) {
@@ -187,11 +188,12 @@ export default defineEventHandler(async (event) => {
           await updateStrandedCharge(transactionId, {status: 'recovered', recoveredOrder: result.order, recoveredVia: 'recreated'});
           return {recovered: true, order: result.order, via: 'recreated', created: true};
         }
-        await updateStrandedCharge(transactionId, {attempts: (record.attempts || 0) + 1, lastError: result?.error || 'recreate returned no order'});
-        return {recovered: false, reason: 'recreate_failed', error: result?.error || 'no order returned'};
+        await updateStrandedCharge(transactionId, {attempts: (record.attempts || 0) + 1, lastError: 'Order recreation did not return an order.'});
+        return {recovered: false, reason: 'recreate_failed', error: 'We could not recreate the order automatically. Customer service must review this payment.'};
       } catch (e: any) {
-        await updateStrandedCharge(transactionId, {attempts: (record.attempts || 0) + 1, lastError: e?.message || String(e)});
-        return {recovered: false, reason: 'recreate_failed', error: e?.message || String(e)};
+        await updateStrandedCharge(transactionId, {attempts: (record.attempts || 0) + 1, lastError: 'Order recreation failed. Sensitive details were withheld.'});
+        console.warn('[Helcim Recovery] Order recreation failed:', getSafeErrorLogDetails(e));
+        return {recovered: false, reason: 'recreate_failed', error: 'We could not recreate the order automatically. Customer service must review this payment.'};
       }
     }
 
@@ -222,8 +224,8 @@ export default defineEventHandler(async (event) => {
           });
           return {recovered: false, reason: 'verified_charge_without_order', needsManualReview: true};
         } catch (e: any) {
-          console.warn('[Helcim Recovery] Helcim-verified Woo lookup failed — manual review', {transactionId, error: e?.message});
-          return {recovered: false, reason: 'verification_failed', needsManualReview: true, error: e?.message || String(e)};
+          console.warn('[Helcim Recovery] Helcim-verified Woo lookup failed; manual review required:', {transactionId, ...getSafeErrorLogDetails(e)});
+          return {recovered: false, reason: 'verification_failed', needsManualReview: true, error: 'We could not safely verify the order. Customer service must review this payment.'};
         }
       }
     }
@@ -258,8 +260,8 @@ export default defineEventHandler(async (event) => {
           customerEmail: c.customerEmail,
           customerName: c.customerName,
           cartTotal: c.cartTotal,
-          failureReason: c.failureReason,
-          lastError: c.lastError,
+          failureReason: c.failureReason ? 'Order creation failed; sensitive details were withheld.' : undefined,
+          lastError: c.lastError ? 'The latest recovery attempt failed; sensitive details were withheld.' : undefined,
           createdAt: c.createdAt,
           updatedAt: c.updatedAt,
           recoveredOrder: c.recoveredOrder,
@@ -284,7 +286,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // --- Single recovery (customer self-service from the duplicate-charge block) ------------------
-  const transactionId = body?.transactionId || query?.transactionId;
+  const transactionId = body?.transactionId;
   if (!transactionId) {
     throw createError({statusCode: 400, statusMessage: 'transactionId is required'});
   }

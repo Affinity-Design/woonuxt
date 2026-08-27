@@ -31,6 +31,7 @@ const makeQuery = (taxonomy: 'PA_SIZE' | 'PA_SIZE_PARTS_ACCESSORIES') => `
         { taxonomy: ${taxonomy}, terms: [$size], operator: IN }
       ]}
       status: "publish"
+      typeIn: [SIMPLE, VARIABLE]
     }) {
       nodes { ${PRODUCT_FIELDS} }
     }
@@ -45,6 +46,7 @@ const QUERY_BROWSE = `
     products(first: ${FETCH_LIMIT}, where: {
       categoryIn: $category
       status: "publish"
+      typeIn: [SIMPLE, VARIABLE]
       orderby: { field: PRICE, order: ASC }
     }) {
       nodes { ${PRODUCT_FIELDS} }

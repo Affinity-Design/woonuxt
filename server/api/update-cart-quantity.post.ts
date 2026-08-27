@@ -1,6 +1,7 @@
 // server/api/update-cart-quantity.post.ts
 // Server-side proxy for cart quantity updates to avoid 403 errors from WordPress/Cloudflare
 import {defineEventHandler, createError, readBody} from 'h3';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   if (!gqlHost) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'GraphQL host not configured',
+      statusMessage: 'The cart service is temporarily unavailable. Please try again.',
     });
   }
 
@@ -173,8 +174,8 @@ export default defineEventHandler(async (event) => {
     });
 
     if (response.errors && response.errors.length > 0) {
-      console.error('[update-cart-quantity] GraphQL errors:', response.errors);
-      const errorMessage = response.errors[0]?.message || 'Failed to update cart';
+      console.error('[update-cart-quantity] Upstream GraphQL request failed. Sensitive details were withheld.');
+      const errorMessage = getSafeCartErrorMessage(response.errors[0], 'We could not update your cart. Please try again.');
       throw createError({
         statusCode: 400,
         statusMessage: errorMessage,
@@ -196,15 +197,11 @@ export default defineEventHandler(async (event) => {
       cart: response.data.updateItemQuantities.cart,
     };
   } catch (error: any) {
-    console.error('[update-cart-quantity] Error:', error.message || error);
-
-    if (error.statusCode) {
-      throw error;
-    }
+    console.error('[update-cart-quantity] Request failed:', getSafeErrorLogDetails(error));
 
     throw createError({
-      statusCode: 500,
-      statusMessage: error.message || 'Failed to update cart',
+      statusCode: Number(error?.statusCode) >= 400 && Number(error?.statusCode) < 500 ? 400 : 500,
+      statusMessage: getSafeCartErrorMessage(error, 'We could not update your cart. Please try again.'),
     });
   }
 });

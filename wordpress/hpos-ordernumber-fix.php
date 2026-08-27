@@ -68,9 +68,8 @@ function psp_assign_missing_sequential_order_number_for_hpos_order( $order_id, $
 	} catch ( Throwable $exception ) {
 		error_log(
 			sprintf(
-				'PSP order number bridge failed for order ID %d: %s',
-				$order_id,
-				$exception->getMessage()
+				'PSP order number bridge failed for order ID %d. Exception details were withheld.',
+				$order_id
 			)
 		);
 	} finally {

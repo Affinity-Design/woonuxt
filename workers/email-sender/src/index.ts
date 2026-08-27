@@ -41,9 +41,8 @@ export default {
         ...(typeof replyTo === 'string' && replyTo ? {replyTo} : {}),
       });
       return Response.json({success: true, messageId: result?.messageId});
-    } catch (error: any) {
-      // error.code is an E_* code from the binding (e.g. E_SENDER_NOT_VERIFIED).
-      return Response.json({success: false, code: error?.code, error: error?.message || 'send failed'}, {status: 502});
+    } catch {
+      return Response.json({success: false, error: 'We could not send the email.'}, {status: 502});
     }
   },
 };

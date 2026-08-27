@@ -1,6 +1,7 @@
 // server/api/helcim-validate.post.ts
 // Dedicated server-side validation endpoint
 import {defineEventHandler, createError, readBody} from 'h3';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   // Force server-side execution check
@@ -72,8 +73,6 @@ export default defineEventHandler(async (event) => {
       hasHashProperty: !!transactionData.hash,
       dataToHashKeys: Object.keys(dataToHash || {}),
       cleanedJsonLength: cleanedJsonData.length,
-      expectedHash,
-      receivedHash,
       isValid,
     });
 
@@ -81,7 +80,7 @@ export default defineEventHandler(async (event) => {
       // Only record genuinely successful (validated) charges for the duplicate-charge guard.
       await recordChargeForGuard(dataToHash?.transactionId);
     } else {
-      console.error('[Helcim Validation] HASH MISMATCH', {expectedHash, receivedHash, enforced: HASH_VALIDATION_ENFORCED});
+      console.error('[Helcim Validation] Hash mismatch detected. Hash values were withheld.', {enforced: HASH_VALIDATION_ENFORCED});
       await logCheckoutFailure(event, {
         stage: 'validate_failed',
         reason: `Helcim transaction hash validation failed (${HASH_VALIDATION_ENFORCED ? 'enforced' : 'monitor mode — passed through'})`,
@@ -93,31 +92,18 @@ export default defineEventHandler(async (event) => {
       });
       if (!HASH_VALIDATION_ENFORCED) {
         await recordChargeForGuard(dataToHash?.transactionId);
-        return {
-          success: true,
-          isValid: true,
-          expectedHash,
-          receivedHash,
-          transactionId: dataToHash?.transactionId,
-          warning: 'hash_mismatch_monitor_mode',
-        };
+        return {success: true, isValid: true, transactionId: dataToHash?.transactionId, warning: 'hash_mismatch_monitor_mode'};
       }
     }
 
-    return {
-      success: true,
-      isValid,
-      expectedHash,
-      receivedHash,
-      transactionId: dataToHash?.transactionId,
-    };
+    return {success: true, isValid, transactionId: dataToHash?.transactionId};
   } catch (error: any) {
     // Fail CLOSED — the old catch here approved any error mentioning 'crypto'/'unenv',
     // which is the branch that silently disabled validation on Workers for months.
-    console.error('[Helcim Validation] Validation error:', error);
+    console.error('[Helcim Validation] Validation error:', getSafeErrorLogDetails(error));
     await logCheckoutFailure(event, {
       stage: 'validate_failed',
-      reason: `Validation endpoint error: ${error?.message || 'unknown'}`,
+      reason: 'Validation endpoint error. Sensitive details were withheld.',
       checkoutAttemptId: chargeContext?.checkoutAttemptId,
       email: chargeContext?.email,
       cartTotal: chargeContext?.amount,
@@ -127,7 +113,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       error: {
-        message: error.message || 'Validation failed',
+        message: 'We could not validate the payment. Please contact customer service before trying again.',
         code: 'validation_error',
         statusCode: 500,
       },

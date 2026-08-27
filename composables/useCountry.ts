@@ -35,7 +35,7 @@ export const useCountry = () => {
                 );
             }
         } catch (error) {
-            console.error('Failed to retrieve allowed countries', error);
+            console.error('Failed to retrieve allowed countries. Sensitive details were withheld.');
         } finally {
             isLoadingAllowedCountries.value = false;
         }
@@ -55,7 +55,7 @@ export const useCountry = () => {
                 countryStatesDict.value[countryCode] = countryStates as GeoLocation[];
             }
         } catch (error) {
-            console.error(`Failed to retrieve states for country ${countryCode}`, error);
+            console.error(`Failed to retrieve states for country ${countryCode}. Sensitive details were withheld.`);
         } finally {
             isLoadingCountryStates.value[countryCode] = false;
         }

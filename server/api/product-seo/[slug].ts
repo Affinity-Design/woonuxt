@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         }
       }
     } catch (kvError) {
-      console.warn('[product-seo API] Failed to read from KV, trying local file:', kvError);
+      console.warn('[product-seo API] Failed to read from KV; trying local file. Sensitive details were withheld.');
     }
 
     // Fallback to local file (development)
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
           console.log('[product-seo API] Using SEO data from local file for:', slug);
         }
       } catch (fileError) {
-        console.warn('[product-seo API] Failed to read from local file:', fileError);
+        console.warn('[product-seo API] Failed to read from local file. Sensitive details were withheld.');
       }
     }
 
@@ -56,18 +56,17 @@ export default defineEventHandler(async (event) => {
     if (!productSEOData) {
       throw createError({
         statusCode: 404,
-        statusMessage: `SEO data not found for product: ${slug}`,
+        statusMessage: 'Product SEO data was not found.',
       });
     }
 
     // Return the SEO data
     return productSEOData;
   } catch (error: any) {
-    // Re-throw H3 errors (like our 404) without wrapping in 500
-    if (error?.statusCode) {
-      throw error;
+    if (error?.statusCode === 404) {
+      throw createError({statusCode: 404, statusMessage: 'Product SEO data was not found.'});
     }
-    console.error('[product-seo API] Error fetching SEO data:', error);
+    console.error('[product-seo API] Error fetching SEO data. Sensitive details were withheld.');
     throw createError({
       statusCode: 500,
       statusMessage: 'Error fetching product SEO data',

@@ -80,7 +80,8 @@ const categoryMapping = [
   {display: 'Scooters', slug: 'scooters'},
 ];
 const productCategories = computed(() => {
-  const categoriesMap = new Map(data.value.productCategories?.nodes.map((cat: ProductCategory) => [cat.slug, cat]));
+  const categoryNodes = data.value?.productCategories?.nodes || [];
+  const categoriesMap = new Map(categoryNodes.map((category: ProductCategory) => [category.slug, category]));
 
   return categoryMapping
     .map((category) => {
@@ -101,21 +102,21 @@ const {data: newProductsData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   orderby: ProductsOrderByEnum.DATE,
 });
-const newProducts = newProductsData.value.products?.nodes || [];
+const newProducts = newProductsData.value?.products?.nodes || [];
 
 // Get products for clearance
 const {data: clearanceProductsData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   slug: 'clearance-items',
 });
-const clearanceProducts = clearanceProductsData.value.products?.nodes || [];
+const clearanceProducts = clearanceProductsData.value?.products?.nodes || [];
 
 // Get products for POP
 const {data: productData} = await useAsyncGql('getProductsForCards', {
   first: 5,
   orderby: ProductsOrderByEnum.POPULARITY,
 });
-const popularProducts = productData.value.products?.nodes || [];
+const popularProducts = productData.value?.products?.nodes || [];
 
 // Get latest 6 blog posts
 const {data: latestPosts} = await useAsyncData('latest-blog-posts', () => queryContent('blog').sort({date: -1}).limit(6).find());

@@ -43,7 +43,7 @@ const restorePaymentMethod = () => {
       }
     }
   } catch (e) {
-    console.warn('Failed to restore payment method from storage:', e);
+    console.warn('Failed to restore payment method from storage. Sensitive details were withheld.');
   }
   return null;
 };

@@ -1,3 +1,5 @@
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
+
 // server/api/validate-stock.post.ts
 // Validates stock availability for cart items before payment processing
 // This is a critical safeguard against overselling due to race conditions
@@ -89,7 +91,7 @@ export default defineEventHandler(async (event) => {
     const result = await response.json();
 
     if (result.errors) {
-      console.error('[Stock Validation] GraphQL errors:', result.errors);
+      console.error('[Stock Validation] GraphQL request failed. Sensitive details were withheld.');
       return {
         success: true,
         warning: 'Stock validation skipped due to GraphQL errors',
@@ -195,11 +197,11 @@ export default defineEventHandler(async (event) => {
       outOfStockItems: [],
     };
   } catch (error: any) {
-    console.error('[Stock Validation] Error:', error);
+    console.error('[Stock Validation] Request failed:', getSafeErrorLogDetails(error));
     // Fail open - allow order to proceed but log the error
     return {
       success: true,
-      warning: `Stock validation error: ${error.message}`,
+      warning: 'Live stock validation is temporarily unavailable.',
       outOfStockItems: [],
     };
   }

@@ -1,6 +1,7 @@
 // Admin Order Creation API - Creates orders directly via WPGraphQL with Application Password authentication
 // Bypasses all session-based GraphQL issues by using admin-level authentication
 // Enhanced with retry logic and better error handling for reliability
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // Helper function for retry with exponential backoff
 async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {
@@ -24,7 +25,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       return response;
     } catch (error: any) {
       lastError = error;
-      console.warn(`⚠️ Fetch attempt ${attempt}/${maxRetries} failed:`, error.message);
+      console.warn(`Fetch attempt ${attempt}/${maxRetries} failed:`, getSafeErrorLogDetails(error));
 
       if (attempt < maxRetries) {
         // Exponential backoff: 1s, 2s, 4s
@@ -185,7 +186,7 @@ export default defineEventHandler(async (event) => {
 
       await writeIdempotency({status: 'in_progress', startedAt: new Date().toISOString()});
     } catch (storageError) {
-      console.warn('⚠️ Idempotency storage unavailable (KV binding missing?), proceeding without duplicate protection:', storageError);
+      console.warn('Idempotency storage unavailable; proceeding without duplicate protection. Sensitive details were withheld.');
     }
 
     // Authoritative order-level dedup against WooCommerce ITSELF. The KV idempotency above can
@@ -245,7 +246,7 @@ export default defineEventHandler(async (event) => {
           };
         }
       } catch (wooLookupError: any) {
-        console.warn('⚠️ Woo-side attempt lookup failed (continuing to create):', wooLookupError?.message || wooLookupError);
+        console.warn('Woo-side attempt lookup failed; continuing to create. Sensitive details were withheld.');
       }
     }
 
@@ -257,7 +258,7 @@ export default defineEventHandler(async (event) => {
       try {
         await writeIdempotency({status: 'failed', failedAt: new Date().toISOString(), error: reason});
       } catch (e) {
-        console.warn('⚠️ Failed to mark idempotency failed:', e);
+        console.warn('Failed to mark idempotency record:', getSafeErrorLogDetails(e));
       }
       await recordStrandedCharge(transactionId, body, reason);
       await logCheckoutFailure(event, {
@@ -589,8 +590,6 @@ export default defineEventHandler(async (event) => {
 
     console.log('📋 Order data prepared:', {
       clientMutationId: variables.input.clientMutationId,
-      transactionId: transactionId,
-      email: variables.input.billing.email,
       lineItemCount: variables.input.lineItems.length,
       appliedCoupons: coupons?.length || 0,
       requestId: requestId,
@@ -599,7 +598,7 @@ export default defineEventHandler(async (event) => {
     // Make GraphQL request with Application Password authentication
     // Uses retry logic for better reliability
     const graphqlUrl = `${config.public.wpBaseUrl}/graphql`;
-    console.log('🌐 Making GraphQL request to:', graphqlUrl);
+    console.log('🌐 Making authenticated GraphQL order request. Backend URL was withheld.');
 
     const response = await fetchWithRetry(graphqlUrl, {
       method: 'POST',
@@ -619,31 +618,25 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      await response.text().catch(() => '');
       console.error(`❌ GraphQL HTTP Error [${requestId}]:`, {
         status: response.status,
         statusText: response.statusText,
-        error: errorText,
       });
 
       await persistFailureForRecovery(`GraphQL HTTP Error: ${response.status} - ${response.statusText}`);
       return {
         success: false,
         recoverable: true,
-        error: `GraphQL HTTP Error: ${response.status} - ${response.statusText}`,
-        details: errorText,
-        requestUrl: graphqlUrl,
-        authMethod: 'Application Password (Basic Auth)',
+        error: 'Your payment was received, but we could not finish creating the order automatically. Do not pay again; contact customer service.',
+        requestId,
       };
     }
 
     const result = await response.json().catch(async () => {
-      const rawText = await response
-        .clone()
-        .text()
-        .catch(() => '<unable to read response>');
-      console.error(`❌ GraphQL response is not JSON [${requestId}]:`, rawText.substring(0, 500));
-      return {_parseError: true, rawText: rawText.substring(0, 500)};
+      await response.clone().text().catch(() => '');
+      console.error(`GraphQL response is not JSON [${requestId}]. Response body was withheld.`);
+      return {_parseError: true};
     });
 
     if (result._parseError) {
@@ -651,24 +644,20 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         recoverable: true,
-        error: 'GraphQL returned non-JSON response (possible WordPress error page or security block)',
-        details: result.rawText,
-        requestUrl: graphqlUrl,
-        authMethod: 'Application Password (Basic Auth)',
+        error: 'Your payment was received, but we could not finish creating the order automatically. Do not pay again; contact customer service.',
+        requestId,
       };
     }
 
     // Check for GraphQL errors
     if (result.errors) {
-      console.error('❌ GraphQL mutation errors:', result.errors);
+      console.error(`GraphQL order mutation failed [${requestId}]. Sensitive details were withheld.`);
       await persistFailureForRecovery('GraphQL mutation failed');
       return {
         success: false,
         recoverable: true,
-        error: 'GraphQL mutation failed',
-        graphqlErrors: result.errors,
-        requestUrl: graphqlUrl,
-        authMethod: 'Application Password (Basic Auth)',
+        error: 'Your payment was received, but we could not finish creating the order automatically. Do not pay again; contact customer service.',
+        requestId,
       };
     }
 
@@ -679,20 +668,16 @@ export default defineEventHandler(async (event) => {
       return {
         success: false,
         recoverable: true,
-        error: 'Order creation failed - no order data returned from GraphQL',
-        result: result,
-        requestUrl: graphqlUrl,
-        authMethod: 'Application Password (Basic Auth)',
+        error: 'Your payment was received, but we could not finish creating the order automatically. Do not pay again; contact customer service.',
+        requestId,
       };
     }
 
     console.log('✅ TEST ORDER created successfully via GraphQL:', {
       orderId: orderData.databaseId,
       orderNumber: orderData.orderNumber,
-      orderKey: orderData.orderKey,
       status: orderData.status,
       total: orderData.total,
-      globalId: orderData.id,
     });
 
     // Line items are already created by GraphQL mutation with all necessary data
@@ -722,7 +707,7 @@ export default defineEventHandler(async (event) => {
         },
       });
     } catch (storageError) {
-      console.warn('⚠️ Failed to write early idempotency completion (continuing):', storageError);
+      console.warn('Failed to write early idempotency completion; continuing. Sensitive details were withheld.');
     }
 
     // Step 1: SKIP Applying coupons to avoid double-discounting logic
@@ -770,7 +755,7 @@ export default defineEventHandler(async (event) => {
 
       if (!couponResponse.ok) {
         const errorText = await couponResponse.text();
-        console.warn('⚠️ Failed to apply coupons:', errorText);
+        console.warn('Failed to apply coupons. Upstream response details were withheld.');
       } else {
         console.log('✅ Coupons applied and totals recalculated');
       }
@@ -849,10 +834,10 @@ export default defineEventHandler(async (event) => {
         console.log('✅ Order status updated to processing (Email triggered)');
       } else {
         const errorText = await statusResponse.text();
-        console.warn('⚠️ Failed to update status:', errorText);
+        console.warn('Failed to update order status. Upstream response details were withheld.');
       }
     } catch (finalError: any) {
-      console.warn('⚠️ Failed to finalize order:', finalError.message);
+      console.warn('Failed to finalize order. Sensitive details were withheld.');
     }
 
     const responsePayload = {
@@ -867,12 +852,8 @@ export default defineEventHandler(async (event) => {
         orderKey: orderData.orderKey,
         status: orderData.status,
         total: orderData.total,
-        transactionId: orderData.transactionId,
         paymentMethod: orderData.paymentMethod,
         date: orderData.date,
-        billing: orderData.billing,
-        lineItems: orderData.lineItems?.nodes || [],
-        metaData: orderData.metaData || [],
       },
       nextSteps: [
         '✅ Order successfully created with admin authentication',
@@ -890,17 +871,12 @@ export default defineEventHandler(async (event) => {
         order: responsePayload.order,
       });
     } catch (storageError) {
-      console.warn('⚠️ Failed to write idempotency completion:', storageError);
+      console.warn('Failed to write idempotency completion:', getSafeErrorLogDetails(storageError));
     }
 
     return responsePayload;
   } catch (error: any) {
-    console.error(`❌ Admin order creation failed [${requestId}]:`, {
-      message: error.message,
-      transactionId: body.transactionId,
-      email: body.billing?.email,
-      stack: error.stack,
-    });
+    console.error(`Admin order creation failed [${requestId}]:`, getSafeErrorLogDetails(error));
 
     // Best-effort mark both idempotency keys as failed (if we had a transactionId)
     try {
@@ -910,7 +886,7 @@ export default defineEventHandler(async (event) => {
           transactionId: body.transactionId,
           checkoutAttemptId: body?.checkoutAttemptId || undefined,
           failedAt: new Date().toISOString(),
-          error: error?.message || 'Unknown error',
+          error: 'Admin order creation failed. Sensitive details were withheld.',
         };
         await paymentSetItem(`idempotency:admin-order:${body.transactionId}`, failureRecord);
         if (body?.checkoutAttemptId) {
@@ -921,29 +897,18 @@ export default defineEventHandler(async (event) => {
       // ignore
     }
 
-    // The charge already succeeded in Helcim — persist the full payload so the payment can be
-    // reconciled into an order out-of-band instead of stranding the customer. Best-effort.
-    await recordStrandedCharge(body?.transactionId, body, error?.message || 'Admin order creation threw');
+    // The charge already succeeded in Helcim — persist the recovery payload after the recovery
+    // store removes account credentials. This prevents the customer from being stranded.
+    await recordStrandedCharge(body?.transactionId, body, 'Admin order creation threw. Sensitive details were withheld.');
 
-    // Return detailed error info for debugging
-    // The transaction was successful in Helcim, but WP order failed
-    // Include enough info to manually recover the order if needed
+    // The transaction succeeded in Helcim, but WordPress order creation failed.
+    // Return only the identifiers the recovery flow needs; keep diagnostics server-side.
     return {
       success: false,
       recoverable: !!body?.transactionId,
-      error: error.message || 'Admin order creation failed',
-      requestId: requestId,
+      error: 'Your payment was received, but we could not finish creating the order automatically. Do not pay again; contact customer service.',
+      requestId,
       transactionId: body.transactionId,
-      recoveryInfo: {
-        helcimTransactionId: body.transactionId,
-        customerEmail: body.billing?.email,
-        customerName: `${body.billing?.firstName || ''} ${body.billing?.lastName || ''}`.trim(),
-        cartTotal: body.cartTotals?.total,
-        timestamp: new Date().toISOString(),
-        // If Helcim has the invoice data, it can be used to recover
-        helcimHasInvoice: !!body.helcimInvoiceData,
-      },
-      details: error.stack || 'No additional details available',
     };
   }
 });

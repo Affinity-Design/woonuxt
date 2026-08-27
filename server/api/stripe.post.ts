@@ -2,6 +2,7 @@
 import Stripe from "stripe";
 import { defineEventHandler, createError, readBody } from "h3";
 import { useRuntimeConfig } from "#imports";
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();
@@ -11,8 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!stripeSecretKey) {
     throw createError({
       statusCode: 500,
-      statusMessage:
-        "Stripe secret key is missing. Please check your configuration.",
+      statusMessage: "The payment service is temporarily unavailable. Please try again later.",
     });
   }
 
@@ -93,13 +93,13 @@ export default defineEventHandler(async (event) => {
         });
     }
   } catch (error) {
-    console.error(`Stripe API Error (${action}):`, error);
+    console.error(`Stripe API Error (${action}):`, getSafeErrorLogDetails(error));
 
     return {
       success: false,
       error: {
-        message: error.message || "An error occurred with Stripe",
-        code: error.code || "unknown_error",
+        message: getSafePaymentErrorMessage(error),
+        code: "payment_error",
         statusCode: error.statusCode || 500,
       },
     };

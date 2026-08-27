@@ -87,7 +87,7 @@ export const useExchangeRate = () => {
           cookie.value = ''; // Clear invalid cookie
         }
       } catch (e) {
-        console.warn('[useExchangeRate] Cookie parsing failed:', e);
+        console.warn('[useExchangeRate] Cookie parsing failed. Sensitive details were withheld.');
         cookie.value = ''; // Clear invalid cookie
       }
     }
@@ -146,7 +146,7 @@ export const useExchangeRate = () => {
       });
 
       if (error.value) {
-        console.warn('[useExchangeRate] Fetch error:', error.value);
+        console.warn('[useExchangeRate] Fetch error. Sensitive details were withheld.');
         // Don't throw - keep existing rate if available
         if (exchangeRate.value === null) {
           const buildTimeRate = getBuildTimeFallbackRate();
@@ -182,7 +182,7 @@ export const useExchangeRate = () => {
         }
       }
     } catch (fetchError) {
-      console.error('[useExchangeRate] Fetch failed:', fetchError);
+      console.error('[useExchangeRate] Fetch failed. Sensitive details were withheld.');
       // Keep existing rate if we have one, don't crash the page
       if (exchangeRate.value === null) {
         const buildTimeRate = getBuildTimeFallbackRate();

@@ -53,8 +53,8 @@ export function useProducts() {
       if (isSortingActive.value) newProducts = sortProducts(newProducts);
 
       products.value = newProducts;
-    } catch (error) {
-      console.error(error);
+    } catch {
+      console.error('Product list update failed. Sensitive details were withheld.');
     }
   };
 

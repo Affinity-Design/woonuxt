@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from 'vue';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
 // Core composables
@@ -12,9 +13,13 @@ const nuxtApp = useNuxtApp();
 // SEO composables
 const {setCategorySEO} = useCategorySEO();
 
-// Get the GQL host for direct $fetch calls (avoids composable context issues in async loops)
+// Resolve an endpoint for direct $fetch calls. GQL_HOST is not guaranteed to be
+// available to the deployed Worker at runtime, while wpBaseUrl is public runtime
+// configuration and always points at the WordPress origin.
 const runtimeConfig = useRuntimeConfig();
-const GQL_HOST = runtimeConfig.public.GQL_HOST || process.env.GQL_HOST;
+const wordpressBaseUrl = String(runtimeConfig.public.wpBaseUrl || 'https://proskatersplace.com').replace(/\/$/, '');
+const graphQlEndpoint =
+  (runtimeConfig.public as {GQL_HOST?: string}).GQL_HOST || process.env.GQL_HOST || `${wordpressBaseUrl}/graphql`;
 
 // GraphQL query for batched fetching (must include fragments inline for $fetch)
 const PRODUCTS_PAGED_QUERY = `
@@ -22,7 +27,7 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
   products(
     first: $first
     after: $after
-    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: DATE, order: DESC}, status: "publish"}
+    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: DATE, order: DESC}, status: "publish", typeIn: [SIMPLE, VARIABLE]}
   ) {
     found
     pageInfo {
@@ -198,7 +203,7 @@ const categoryContent = getCategoryContent(slug);
 // Get product count first using direct $fetch (consistent with batch fetching)
 const COUNT_QUERY = `
 query getProductsTotal($slug: [String]) {
-  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish" }) {
+  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish", typeIn: [SIMPLE, VARIABLE] }) {
     found
   }
 }
@@ -206,7 +211,7 @@ query getProductsTotal($slug: [String]) {
 
 let productCountValue = 150; // Default fallback
 try {
-  const countResponse: any = await $fetch(GQL_HOST as string, {
+  const countResponse: any = await $fetch(graphQlEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -220,13 +225,13 @@ try {
   });
 
   if (countResponse?.errors) {
-    console.error(`⚠️ Count query errors:`, countResponse.errors);
+    console.error('⚠️ Category count query failed. Sensitive details were withheld.');
   }
 
   productCountValue = countResponse?.data?.products?.found || 150;
   console.log(`📊 Category "${slug}" - Total count from GraphQL: ${productCountValue}`);
 } catch (err) {
-  console.error(`❌ Error fetching product count for ${slug}:`, err);
+  console.error(`Error fetching product count for ${slug}:`, getSafeErrorLogDetails(err));
 }
 
 const productCount = ref(productCountValue);
@@ -235,7 +240,7 @@ const productCount = ref(productCountValue);
 const allLoadedProducts = ref<any[]>([]);
 const isLoadingProducts = ref(true);
 const loadingProgress = ref(0);
-const loadError = ref<Error | null>(null);
+const loadError = ref(false);
 
 // Function to fetch all products in batches using direct $fetch (avoids composable context issues)
 async function fetchAllProductsInBatches() {
@@ -264,7 +269,7 @@ async function fetchAllProductsInBatches() {
     try {
       // Use $fetch directly to avoid Nuxt composable context issues in async loops
       // This preserves caching since useAsyncData wraps this entire function
-      const response: any = await $fetch(GQL_HOST as string, {
+      const response: any = await $fetch(graphQlEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -281,7 +286,7 @@ async function fetchAllProductsInBatches() {
 
       // Check for GraphQL errors
       if (response?.errors) {
-        console.error(`⚠️ GraphQL errors:`, response.errors);
+        console.error('Product-category GraphQL request failed. Sensitive details were withheld.');
       }
 
       const result = response?.data;
@@ -309,8 +314,8 @@ async function fetchAllProductsInBatches() {
 
       console.log(`✅ Batch complete: fetched ${nodes.length}, total now ${totalFetched}, hasNextPage: ${hasNextPage}`);
     } catch (err) {
-      console.error(`❌ Error fetching batch for ${slug}:`, err);
-      loadError.value = err as Error;
+      console.error(`Error fetching a product batch for ${slug}:`, getSafeErrorLogDetails(err));
+      loadError.value = true;
       break; // Stop on error, return what we have
     }
   }
@@ -515,7 +520,7 @@ onUnmounted(() => {
     <!-- Error State: Only show if error AND no products AND not pending -->
     <div v-else-if="(error || loadError) && productsInCategory.length === 0 && !pending" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error?.message || loadError?.message || 'Failed to load products' }}
+        We could not load these products. Please try again.
       </div>
       <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark">Try Again</button>
     </div>

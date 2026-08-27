@@ -1,16 +1,16 @@
-import {defineEventHandler, getQuery, createError} from 'h3';
+import {defineEventHandler, createError} from 'h3';
+import {createSafeClientErrorReport} from '../utils/clientErrorReport';
 
 /**
  * TEMPORARY diagnostic error-beacon reader (see plugins/error-beacon.client.ts).
- * Lists recent client error reports captured in KV. Guarded by a static token —
- * acceptable for short-lived, low-sensitivity diagnostics. Remove after incident.
+ * Lists recent client error reports captured in KV. Access requires a server-verified
+ * WordPress administrator session, and legacy records are reshaped before being returned.
  */
-const READ_TOKEN = 'psp-diag-7y81v8';
 const MAX_REPORTS = 50;
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event);
-  if (query.key !== READ_TOKEN) {
+  const adminUser = await verifyAdminSession(event);
+  if (!adminUser.isAdmin) {
     throw createError({statusCode: 404, statusMessage: 'Not Found'});
   }
 
@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
   for (const key of keys) {
     try {
       const item = await storage.getItem(key);
-      if (item) reports.push({key, ...item});
+      const safeReport = createSafeClientErrorReport(item);
+      if (safeReport) reports.push({key, ...safeReport});
     } catch {
       /* skip unreadable entries */
     }

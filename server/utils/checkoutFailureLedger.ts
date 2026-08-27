@@ -17,8 +17,9 @@
 //   2. Payment KV store fallback (checkout-fail:* keys, 90-day TTL) when D1 isn't bound —
 //      including local dev, where the payment mount is filesystem-backed.
 //
-// Read side: /api/checkout-failures (secret-gated) merges both sources.
+// Read side: /api/checkout-failures (header- or WP-admin-gated) merges both sources.
 // All operations are best-effort and never throw into a checkout flow.
+import {removeSensitiveFields} from '#shared/utils/publicErrorMessages.mjs';
 
 export interface CheckoutFailureEntry {
   stage: string; // e.g. charge_failed_beacon | duplicate_block | validate_failed | order_create_failed | duplicate_charge_detected | recovery_attempt
@@ -41,6 +42,20 @@ export interface CheckoutFailureRecord extends CheckoutFailureEntry {
 const KV_KEY_PREFIX = 'checkout-fail:';
 const KV_TTL_SECONDS = 90 * 24 * 60 * 60; // 90 days
 const MAX_DETAIL_CHARS = 4000;
+const SAFE_REASON_BY_STAGE: Record<string, string> = {
+  charge_failed_beacon: 'A payment attempt failed before order creation.',
+  duplicate_block: 'A possible duplicate payment attempt was blocked.',
+  validate_failed: 'Payment validation failed.',
+  order_create_failed: 'Order creation failed after payment processing.',
+  duplicate_charge_detected: 'A duplicate payment was detected.',
+  recovery_attempt: 'A payment recovery action was attempted.',
+};
+const SAFE_LEDGER_DETAIL_TEXT_FIELDS: Record<string, RegExp> = {
+  at: /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/,
+  classification: /^(?:bank_decline|cc_processing_rejection|unknown)$/,
+  currency: /^[A-Z]{3}$/,
+  traceId: /^[A-Za-z0-9_-]{1,100}$/,
+};
 
 /** The D1 database bound to the Pages project, or null when not configured (dev / pre-binding).
  *  The production dashboard binds it under the variable name `woonuxt-checkout-logs` (dashed —
@@ -96,13 +111,36 @@ export function ensureLedgerSchema(db: any): Promise<void> {
   return schemaReady;
 }
 
+function sanitizeLedgerDetail(detail: any, key = '', depth = 0): any {
+  if (depth > 5 || detail === undefined || detail === null) return null;
+  if (typeof detail === 'boolean' || (typeof detail === 'number' && Number.isFinite(detail))) return detail;
+  if (typeof detail === 'string') {
+    const allowedPattern = SAFE_LEDGER_DETAIL_TEXT_FIELDS[key];
+    return allowedPattern?.test(detail) ? detail : '[text withheld]';
+  }
+  if (Array.isArray(detail)) return detail.slice(0, 50).map((item) => sanitizeLedgerDetail(item, '', depth + 1));
+  if (typeof detail === 'object') {
+    return Object.fromEntries(Object.entries(detail).map(([nestedKey, value]) => [nestedKey, sanitizeLedgerDetail(value, nestedKey, depth + 1)]));
+  }
+  return null;
+}
+
 function serializeDetail(detail: any): string | null {
   if (detail === undefined || detail === null) return null;
   try {
-    const text = typeof detail === 'string' ? detail : JSON.stringify(detail);
+    const text = JSON.stringify(sanitizeLedgerDetail(removeSensitiveFields(detail)));
     return text.length > MAX_DETAIL_CHARS ? `${text.slice(0, MAX_DETAIL_CHARS)}…[truncated]` : text;
   } catch {
-    return String(detail).slice(0, MAX_DETAIL_CHARS);
+    return null;
+  }
+}
+
+function sanitizeStoredDetail(detail: any): string | null {
+  if (typeof detail !== 'string') return serializeDetail(detail);
+  try {
+    return serializeDetail(JSON.parse(detail));
+  } catch {
+    return null;
   }
 }
 
@@ -115,7 +153,7 @@ export async function logCheckoutFailure(event: any, entry: CheckoutFailureEntry
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
     at: new Date().toISOString(),
     stage: entry.stage,
-    reason: entry.reason || null,
+    reason: SAFE_REASON_BY_STAGE[entry.stage] || 'A checkout operation failed.',
     detail: serializeDetail(entry.detail),
     transactionId: entry.transactionId || null,
     checkoutAttemptId: entry.checkoutAttemptId || null,
@@ -125,8 +163,14 @@ export async function logCheckoutFailure(event: any, entry: CheckoutFailureEntry
     userAgent: event?.node?.req?.headers?.['user-agent'] || null,
   };
 
-  // Always visible in real-time logs, greppable by stage/transactionId.
-  console.error('[Checkout Ledger]', JSON.stringify(record));
+  console.error('[Checkout Ledger]', {
+    id: record.id,
+    at: record.at,
+    stage: record.stage,
+    hasTransactionId: !!record.transactionId,
+    hasCustomerEmail: !!record.email,
+    hasDetail: !!record.detail,
+  });
 
   const db = getCheckoutLogsDb(event);
   if (db) {
@@ -154,14 +198,14 @@ export async function logCheckoutFailure(event: any, entry: CheckoutFailureEntry
         .run();
       return;
     } catch (error: any) {
-      console.warn('[Checkout Ledger] D1 write failed, falling back to KV:', error?.message || error);
+      console.warn('[Checkout Ledger] D1 write failed; falling back to KV. Sensitive details were withheld.');
     }
   }
 
   try {
     await paymentSetItem(`${KV_KEY_PREFIX}${record.at}:${record.id}`, {...record, source: 'kv'}, {ttl: KV_TTL_SECONDS});
   } catch (error: any) {
-    console.warn('[Checkout Ledger] KV fallback write failed (record only in live logs):', error?.message || error);
+    console.warn('[Checkout Ledger] KV fallback write failed; record remains only in live logs. Sensitive details were withheld.');
   }
 }
 
@@ -211,15 +255,15 @@ export async function queryCheckoutFailures(event: any, query: LedgerQuery): Pro
           checkoutAttemptId: row.checkout_attempt_id,
           email: row.email,
           cartTotal: row.cart_total,
-          reason: row.reason,
-          detail: row.detail,
+          reason: SAFE_REASON_BY_STAGE[row.stage] || 'A checkout operation failed.',
+          detail: sanitizeStoredDetail(row.detail),
           requestId: row.request_id,
           userAgent: row.user_agent,
           source: 'd1',
         });
       }
     } catch (error: any) {
-      console.warn('[Checkout Ledger] D1 query failed:', error?.message || error);
+      console.warn('[Checkout Ledger] D1 query failed. Sensitive details were withheld.');
     }
   }
 
@@ -232,10 +276,15 @@ export async function queryCheckoutFailures(event: any, query: LedgerQuery): Pro
       if (query.email && !String(rec.email || '').toLowerCase().includes(query.email.toLowerCase())) continue;
       if (query.stage && rec.stage !== query.stage) continue;
       if (query.since && String(rec.at) < query.since) continue;
-      results.push({...rec, source: 'kv'});
+      results.push({
+        ...rec,
+        reason: SAFE_REASON_BY_STAGE[rec.stage] || 'A checkout operation failed.',
+        detail: sanitizeStoredDetail(rec.detail),
+        source: 'kv',
+      });
     }
   } catch (error: any) {
-    console.warn('[Checkout Ledger] KV fallback query failed:', error?.message || error);
+    console.warn('[Checkout Ledger] KV fallback query failed. Sensitive details were withheld.');
   }
 
   return results.sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, limit);

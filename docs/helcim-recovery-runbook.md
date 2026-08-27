@@ -33,13 +33,14 @@ Run that once per PowerShell session, then the commands below just reference `$s
 
 ## 1. View the failure ledger
 
-Browser-friendly (GET request) — paste directly into a browser tab, or run:
+Use a WordPress admin session in the site UI, or send the secret in a request header. Never put
+the secret in the URL because URLs can be retained in browser history and access logs:
 
 ```powershell
-Invoke-RestMethod -Uri "$site/api/checkout-failures?secret=$secret"
+Invoke-RestMethod -Uri "$site/api/checkout-failures" -Headers @{ "x-internal-secret" = $secret }
 ```
 
-Useful filters (append with `&`):
+Useful filters (start with `?`, then append additional filters with `&`):
 
 - `&stage=order_create_failed` — just order-creation failures (the scenario above)
 - `&stage=duplicate_charge_detected` — a second charge landed on an already-completed attempt

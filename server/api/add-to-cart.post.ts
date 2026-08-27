@@ -6,6 +6,7 @@
  */
 
 import {normalizeWooCommerceSessionToken} from '../utils/woocommerceSession.mjs';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
   if (!gqlHost) {
     throw createError({
       statusCode: 500,
-      message: 'GraphQL host not configured',
+      message: 'The cart service is temporarily unavailable. Please try again.',
     });
   }
 
@@ -164,11 +165,10 @@ export default defineEventHandler(async (event) => {
     }
 
     if (response?.errors && response.errors.length > 0) {
-      console.error('[add-to-cart] GraphQL errors:', response.errors);
+      console.error('[add-to-cart] Upstream GraphQL request failed. Sensitive details were withheld.');
       throw createError({
         statusCode: 400,
-        message: response.errors[0]?.message || 'GraphQL error',
-        data: {errors: response.errors},
+        message: getSafeCartErrorMessage(response.errors[0], 'We could not add this item to your cart. Please try again.'),
       });
     }
 
@@ -178,16 +178,11 @@ export default defineEventHandler(async (event) => {
       sessionToken: responseSessionToken,
     };
   } catch (error: any) {
-    console.error('[add-to-cart] Error:', error);
-
-    // If it's a createError, re-throw it
-    if (error.statusCode) {
-      throw error;
-    }
+    console.error('[add-to-cart] Request failed:', getSafeErrorLogDetails(error));
 
     throw createError({
-      statusCode: 500,
-      message: error?.message || 'Failed to add item to cart',
+      statusCode: Number(error?.statusCode) >= 400 && Number(error?.statusCode) < 500 ? 400 : 500,
+      message: getSafeCartErrorMessage(error, 'We could not add this item to your cart. Please try again.'),
     });
   }
 });

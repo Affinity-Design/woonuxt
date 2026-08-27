@@ -12,7 +12,7 @@
  * 3. Must-use plugin: Upload to wp-content/mu-plugins/
  *
  * Plugin Name: Helcim Refund Error Handler
- * Description: Shows detailed error messages when Helcim refunds fail
+ * Description: Shows safe, actionable messages when Helcim refunds fail
  * Version: 1.1.0
  */
 
@@ -45,9 +45,8 @@ add_filter('http_response', function($response, $parsed_args, $url) {
 
     // Check for errors and store them temporarily
     if ($status !== 200) {
-        $error_msg = helcim_parse_error($body, $status);
+        $error_msg = helcim_get_safe_refund_error($body, $status);
         set_transient('helcim_refund_error', $error_msg, 120);
-        set_transient('helcim_refund_error_raw', $body, 120);
     }
 
     return $response;
@@ -56,42 +55,26 @@ add_filter('http_response', function($response, $parsed_args, $url) {
 /**
  * 2. Helper: Parse Helcim error responses into readable text
  */
-function helcim_parse_error($body, $status) {
-    $data = json_decode($body, true);
-    $messages = [];
-
-    // Extract error messages from response
-    if (isset($data['errors'])) {
-        foreach ((array)$data['errors'] as $err) {
-            $messages[] = is_string($err) ? $err : ($err['message'] ?? json_encode($err));
-        }
-    }
-    if (isset($data['error'])) {
-        $messages[] = is_string($data['error']) ? $data['error'] : json_encode($data['error']);
-    }
-    if (isset($data['message'])) {
-        $messages[] = $data['message'];
-    }
-
+function helcim_get_safe_refund_error($body, $status) {
     // Check for batch-related issues (Common refund failure)
     $body_lower = strtolower($body);
     if (strpos($body_lower, 'batch') !== false || $status === 422) {
-        $messages[] = '⚠️ BATCH NOT SETTLED: The card batch may still be open. Refunds only work AFTER the batch closes (usually end of day). Use REVERSE in Helcim dashboard for same-day returns.';
+        return 'The card batch may still be open. Try a reversal for a same-day return, or wait for settlement and try the refund again.';
     }
 
-    // Fallback status code hints
-    if (empty($messages)) {
-        switch ($status) {
-            case 400: $messages[] = 'Bad Request - Check transaction ID format'; break;
-            case 401: $messages[] = 'Unauthorized - Check Helcim API credentials'; break;
-            case 403: $messages[] = 'Forbidden - Account may not have refund permissions'; break;
-            case 404: $messages[] = 'Transaction not found in Helcim - Verify transaction ID'; break;
-            case 422: $messages[] = 'Cannot process - Batch may be open (use Reverse instead)'; break;
-            default: $messages[] = "HTTP Error $status - Check Helcim dashboard";
-        }
+    if (strpos($body_lower, 'not found') !== false || strpos($body_lower, 'invalid transaction') !== false || $status === 404) {
+        return 'The payment transaction could not be found. Confirm it in the Helcim dashboard and try again.';
     }
 
-    return implode(' | ', array_unique($messages));
+    switch ($status) {
+        case 400:
+            return 'The refund request could not be processed. Confirm the payment transaction and try again.';
+        case 401:
+        case 403:
+            return 'The refund service could not authorize this request. Check the Helcim connection and try again.';
+        default:
+            return 'The refund service could not complete this request. Check the Helcim dashboard and try again.';
+    }
 }
 
 /**
@@ -99,7 +82,7 @@ function helcim_parse_error($body, $status) {
  *    (HPOS order screen is 'woocommerce_page_wc-orders', legacy is 'shop_order')
  */
 add_action('admin_notices', function() {
-    if (!is_admin()) return;
+    if (!is_admin() || !current_user_can('manage_woocommerce')) return;
 
     $screen = get_current_screen();
     if (!$screen || !in_array($screen->id, ['shop_order', helcim_order_screen_id()], true)) return;
@@ -107,17 +90,10 @@ add_action('admin_notices', function() {
     $error = get_transient('helcim_refund_error');
     if (!$error) return;
 
-    $raw = get_transient('helcim_refund_error_raw');
     ?>
     <div class="notice notice-error is-dismissible">
         <p><strong>🔴 Helcim Refund Failed:</strong></p>
         <p><?php echo esc_html($error); ?></p>
-        <?php if ($raw): ?>
-        <details style="margin: 10px 0;">
-            <summary style="cursor:pointer; color:#0073aa;">Show raw API response</summary>
-            <pre style="background:#f5f5f5; padding:10px; font-size:11px; overflow:auto;"><?php echo esc_html($raw); ?></pre>
-        </details>
-        <?php endif; ?>
         <p><strong>Quick Fix Options:</strong></p>
         <ul style="list-style:disc; margin-left:20px;">
             <li>If batch is open → Use <strong>Reverse</strong> in Helcim dashboard (same-day)</li>
@@ -127,7 +103,6 @@ add_action('admin_notices', function() {
     </div>
     <?php
     delete_transient('helcim_refund_error');
-    delete_transient('helcim_refund_error_raw');
 });
 
 /**

@@ -64,7 +64,7 @@ const load = async (): Promise<void> => {
     loadError.value =
       statusCode === 401
         ? 'The server did not recognize your login as an admin, so it refused the stats.'
-        : error?.data?.statusMessage || error?.message || 'Failed to load calculator stats.';
+        : 'We could not load calculator statistics. Please try again.';
   } finally {
     isLoading.value = false;
   }

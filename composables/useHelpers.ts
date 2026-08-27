@@ -218,10 +218,7 @@ export function useHelpers() {
    */
   const logGQLError = (error: any) => {
     if (!isDev && !route.query.debug) return;
-    const errorMessage = error?.gqlErrors?.[0]?.message;
-    if (errorMessage) {
-      console.error(errorMessage);
-    }
+    if (error) console.error('GraphQL request failed. Sensitive request and response details were withheld.');
   };
 
   /**

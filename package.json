@@ -40,6 +40,7 @@
     "verify-env": "node scripts/verify-env.js",
     "test:product-loading": "node --test tests/fetchProductWithRetry.test.mjs",
     "test:cart-session": "node --test tests/cartSessionRace.test.mjs",
+    "test:error-messages": "node --test tests/publicErrorMessages.test.mjs",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
     "optimize-blog-images": "node scripts/optimize-blog-images.js",

@@ -37,7 +37,7 @@ export async function paymentGetItem<T>(key: string): Promise<T | null> {
     const hit = await paymentStore().getItem<T>(key);
     if (hit !== null && hit !== undefined) return hit;
   } catch (error: any) {
-    console.warn('[Payment Storage] payment store read failed, trying legacy cache:', error?.message || error);
+    console.warn('[Payment Storage] payment store read failed; trying legacy cache. Sensitive details were withheld.');
   }
 
   try {
@@ -56,7 +56,7 @@ export async function paymentSetItem(key: string, value: any, opts?: any): Promi
     await paymentStore().setItem(key, value, opts);
     return;
   } catch (error: any) {
-    console.warn('[Payment Storage] payment store write failed, falling back to legacy cache:', error?.message || error);
+    console.warn('[Payment Storage] payment store write failed; falling back to legacy cache. Sensitive details were withheld.');
   }
 
   await legacyCacheStore().setItem(key, value, opts);
@@ -69,7 +69,7 @@ export async function paymentGetKeys(prefix: string): Promise<string[]> {
   try {
     for (const key of (await paymentStore().getKeys(prefix)) || []) keys.add(key);
   } catch (error: any) {
-    console.warn('[Payment Storage] payment store getKeys failed:', error?.message || error);
+    console.warn('[Payment Storage] payment store key lookup failed. Sensitive details were withheld.');
   }
 
   try {

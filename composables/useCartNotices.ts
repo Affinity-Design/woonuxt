@@ -51,7 +51,7 @@ export function useCartNotices() {
         categoryData.value = {...categoryData.value, ...(result as any).data};
       }
     } catch (error) {
-      console.error('[useCartNotices] Failed to fetch categories:', error);
+      console.error('[useCartNotices] Failed to fetch categories. Sensitive details were withheld.');
     } finally {
       isFetchingCategories.value = false;
     }

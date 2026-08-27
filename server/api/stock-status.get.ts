@@ -1,3 +1,5 @@
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
+
 /**
  * Stock Status API Endpoint
  *
@@ -116,11 +118,10 @@ export default defineEventHandler(async (event) => {
 
     // @ts-ignore
     if (response?.errors) {
-      console.error('[stock-status] GraphQL errors:', response.errors);
+      console.error('[stock-status] Upstream GraphQL request failed. Sensitive details were withheld.');
       throw createError({
         statusCode: 500,
-        // @ts-ignore
-        message: response.errors[0]?.message || 'GraphQL error',
+        message: 'Live stock information is temporarily unavailable.',
       });
     }
 
@@ -133,7 +134,7 @@ export default defineEventHandler(async (event) => {
     // @ts-ignore
     return response?.data?.product || null;
   } catch (error: any) {
-    console.error('[stock-status] Error fetching stock status:', error);
+    console.error('[stock-status] Stock lookup failed:', getSafeErrorLogDetails(error));
 
     // Return null instead of throwing - allow page to continue without live stock
     return null;

@@ -112,7 +112,7 @@ const loadProducts = async () => {
       calculator.trackRecommendation();
     }
   } catch (error) {
-    productError.value = error instanceof Error ? error.message : 'Live product data unavailable.';
+    productError.value = 'Live product data is unavailable right now. Please try again.';
   } finally {
     loadingProducts.value = false;
   }

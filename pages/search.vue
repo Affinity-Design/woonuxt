@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {ref, computed, watch, onMounted, onUnmounted} from 'vue';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // Core composables
 const {setProducts, updateProductList} = useProducts();
@@ -68,8 +69,8 @@ const fetchSearchResults = async () => {
       await updateProductList();
     }
   } catch (err) {
-    console.error('Error searching for products:', err);
-    error.value = err;
+    console.error('Product search failed:', getSafeErrorLogDetails(err));
+    error.value = true;
   } finally {
     pending.value = false;
   }
@@ -153,7 +154,7 @@ watch(
 
     <div v-else-if="error" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ (error instanceof Error ? error.message : '') || t('messages.general.error', 'Failed to load search results') }}
+        {{ t('messages.general.error', 'We could not load the search results. Please try again.') }}
       </div>
       <button @click="fetchSearchResults" class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark">
         {{ t('messages.general.tryAgain', 'Try Again') }}

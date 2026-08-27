@@ -358,7 +358,7 @@ const updateSelectedVariations = (variationsFromChild: {name: string; value: str
     // }
     activeVariation.value = matchingVariationNode;
   } catch (e) {
-    console.error('[[slug].vue] Error in updateSelectedVariations:', e);
+    console.error('Product variation update failed. Sensitive details were withheld.');
     activeVariation.value = null;
   }
 };
@@ -381,7 +381,7 @@ const handleAddToCart = async () => {
     // console.log('[[slug].vue] handleAddToCart: Adding to cart with input:', JSON.parse(JSON.stringify(selectProductInput.value)));
     await addToCart(selectProductInput.value);
   } catch (e) {
-    console.error('[[slug].vue] Add to cart error:', e);
+    console.error('Add to cart failed. Sensitive details were withheld.');
   }
 };
 
@@ -438,9 +438,9 @@ onMounted(async () => {
         // console.log('[[slug].vue] onMounted: Live stock status fetched:', stockProduct);
         mergeLiveStockStatus(stockProduct);
       }
-    } catch (e: any) {
+    } catch {
       // Silently fail - cached stock data is still valid
-      console.warn(`[${slug}] Stock status refresh failed:`, e?.message || e);
+      console.warn(`[${slug}] Stock status refresh failed. Sensitive details were withheld.`);
     }
   }
 });
