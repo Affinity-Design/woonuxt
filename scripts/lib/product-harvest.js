@@ -36,6 +36,7 @@ const SITE = 'https://proskatersplace.ca';
 const CACHE_DIR = resolve(process.cwd(), 'data', '.harvest-cache');
 const PRODUCTS_CACHE = resolve(CACHE_DIR, 'products.json');
 const PRICES_CACHE = resolve(CACHE_DIR, 'prices.json');
+const PRODUCTS_CACHE_VERSION = 2;
 
 // Default TTL covers a single CI build comfortably without letting a stale
 // harvest leak into tomorrow's build.
@@ -71,6 +72,7 @@ const PRODUCTS_QUERY = `
         productCategories { nodes { name slug } }
         terms(first: 60) { nodes { taxonomyName name } }
         ... on SimpleProduct {
+          weight
           price(format: RAW)
           # Currency-marked variant ("$577.99 CAD" / "US$409.97"). RAW strips the
           # marker, so this is the only way a consumer can tell which currency the
@@ -84,6 +86,7 @@ const PRODUCTS_QUERY = `
           galleryImages(first: 9) { nodes { sourceUrl } }
         }
         ... on VariableProduct {
+          weight
           price(format: RAW)
           # Currency-marked variant ("$577.99 CAD" / "US$409.97"). RAW strips the
           # marker, so this is the only way a consumer can tell which currency the
@@ -150,7 +153,7 @@ async function pool(items, concurrency, worker, onProgress) {
 async function harvestProducts({gqlHost = process.env.GQL_HOST, ttlMinutes = DEFAULT_TTL_MIN, force = false} = {}) {
   if (!force) {
     const cached = readCache(PRODUCTS_CACHE, ttlMinutes);
-    if (cached?.products?.length) {
+    if (cached?.version === PRODUCTS_CACHE_VERSION && cached?.products?.length) {
       console.log(`   ↻ product harvest cache hit (${cached.products.length} products, ${cached.ageMin.toFixed(1)}m old) — no GraphQL calls`);
       return cached.products;
     }
@@ -192,7 +195,7 @@ async function harvestProducts({gqlHost = process.env.GQL_HOST, ttlMinutes = DEF
     throw new Error(`harvest truncated: ${products.length} of ${reportedTotal} products (unstable cursor)`);
   }
 
-  writeCache(PRODUCTS_CACHE, {harvestedAt: new Date().toISOString(), total: reportedTotal, products});
+  writeCache(PRODUCTS_CACHE, {version: PRODUCTS_CACHE_VERSION, harvestedAt: new Date().toISOString(), total: reportedTotal, products});
   return products;
 }
 

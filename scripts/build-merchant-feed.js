@@ -38,6 +38,7 @@
 const {writeFileSync, existsSync, mkdirSync} = require('fs');
 const {resolve} = require('path');
 const {harvestProducts, harvestLivePrices} = require('./lib/product-harvest');
+const {normalizeShippingWeight} = require('./lib/merchant-feed');
 
 const SITE = 'https://proskatersplace.ca';
 const GQL_HOST = process.env.GQL_HOST || 'https://proskatersplace.com/graphql';
@@ -46,6 +47,9 @@ const OUTPUT_FILE = resolve(OUTPUT_DIR, 'merchant-feed-ca.json');
 
 const PAGE_CONCURRENCY = Number(process.env.FEED_CONCURRENCY || 16); // simultaneous product-page fetches
 const PAGE_RETRIES = 2;
+// WooCommerce stores weights in kilograms for this catalogue. Keep the unit
+// override explicit so a future store-unit change cannot silently corrupt rates.
+const SHIPPING_WEIGHT_UNIT = process.env.FEED_WEIGHT_UNIT || 'kg';
 
 // Runs inside `npm run build`, so don't re-scrape 1,700 pages on back-to-back
 // deploys. Rebuild only when the existing feed is older than this.
@@ -150,6 +154,7 @@ function buildItem(product, pricing) {
     identifier_exists: product.sku && brand ? undefined : 'no',
     condition: 'new',
     product_type: categories.join(' > ') || undefined,
+    shipping_weight: normalizeShippingWeight(product.weight, SHIPPING_WEIGHT_UNIT),
   };
 }
 
@@ -344,6 +349,7 @@ async function uploadToKV(feed) {
 
   const missingBrand = items.filter((i) => i.brand === 'ProSkaters Place').length;
   const outOfStock = items.filter((i) => i.availability === 'out_of_stock').length;
+  const withShippingWeight = items.filter((i) => i.shipping_weight).length;
 
   reportPriceDirection(catalogue, prices);
 
@@ -371,6 +377,7 @@ async function uploadToKV(feed) {
   console.log(`  items:        ${items.length}`);
   console.log(`  skipped:      ${skipped.length}`);
   console.log(`  out of stock: ${outOfStock}`);
+  console.log(`  shipping weight: ${withShippingWeight}/${items.length}`);
   console.log(`  fallback brand (no pa_manufacturer): ${missingBrand}`);
   console.log(`  wrote ${OUTPUT_FILE}`);
 

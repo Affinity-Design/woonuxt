@@ -43,7 +43,7 @@ The page-price pass is cached the same way, so re-running either script inside
 the window costs nothing. `build-sitemap.js` keeps its original pagination as a
 fallback if the shared harvest ever fails.
 
-- **Catalogue metadata** (sku, brand, categories, images) comes from WPGraphQL.
+- **Catalogue metadata** (sku, brand, categories, images, shipping weight) comes from WPGraphQL.
 - **Brand** comes from the **`pa_manufacturer`** product attribute — `pwb-brand`, the taxonomy that powers the .com's `/brand/` pages, is *not* exposed to WPGraphQL. Products with no `pa_manufacturer` fall back to `ProSkaters Place`.
 - **Price and availability** are read from each **live .ca product page's Product JSON-LD**, not from GraphQL. This is deliberate — see below.
 - The route reads KV first and falls back to the file bundled at build time, mirroring `server/api/sitemap.xml.ts`.
@@ -85,7 +85,8 @@ Add `CF_ACCOUNT_ID`, `CF_API_TOKEN` and `CF_KV_NAMESPACE_ID_SCRIPT_DATA` to the 
 - **Parent-level items only** (~1,707). The Rex feed shipped variations as separate items (830 simple + 2,176 variations). For sized goods like skates, per-variation items with `item_group_id` + `size` convert better — worth adding once this feed is proven.
 - **No GTINs** in the catalogue; items ship with `brand` + `mpn` and `identifier_exists: no` where either is missing.
 - **Images are hosted on proskatersplace.com** (Woo uploads) and many are ~530px. Google prefers 1,200px+.
-- Shipping is declared as a bare `CA / Standard` block; set real rates in Merchant Center account settings (free over $135 CAD).
+- **Merchant Center account domain:** the Canadian feed uses `.ca` landing pages, so it must live in a Merchant Center account or advanced-account sub-account whose verified and claimed online store is `proskatersplace.ca`. A `.com` claim disapproves the entire Canadian source as a mismatched online store URL; changing the feed links back to `.com` would recreate the original Canadian-store defect.
+- **Shipping:** products with a valid WooCommerce weight publish `shipping_weight` in kilograms, matching the Canadian account's weight-based policy. Products without a catalogue weight omit the attribute rather than inventing one and still need their source data completed.
 
 ## After you point Merchant Center at it
 
