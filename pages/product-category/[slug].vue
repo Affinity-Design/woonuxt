@@ -3,8 +3,10 @@ import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
 // Core composables
-const {setProducts, updateProductList} = useProducts();
+const {products: visibleProducts, setProducts, updateProductList} = useProducts();
 const {isQueryEmpty, productsPerPage} = useHelpers();
+const {isFiltersActive, filterProducts} = useFiltering();
+const {isSortingActive, sortProducts} = useSorting();
 const {storeSettings} = useAppConfig();
 const route = useRoute();
 const nuxtApp = useNuxtApp();
@@ -17,12 +19,11 @@ const {setCategorySEO} = useCategorySEO();
 // configuration and always points at the WordPress origin.
 const runtimeConfig = useRuntimeConfig();
 const wordpressBaseUrl = String(runtimeConfig.public.wpBaseUrl || 'https://proskatersplace.com').replace(/\/$/, '');
-const graphQlEndpoint =
-  (runtimeConfig.public as {GQL_HOST?: string}).GQL_HOST || process.env.GQL_HOST || `${wordpressBaseUrl}/graphql`;
+const graphQlEndpoint = (runtimeConfig.public as {GQL_HOST?: string}).GQL_HOST || process.env.GQL_HOST || `${wordpressBaseUrl}/graphql`;
 
 // GraphQL query for batched fetching (must include fragments inline for $fetch)
 const PRODUCTS_PAGED_QUERY = `
-query getProductsPaged($after: String, $slug: [String], $first: Int) {
+query getProductsPaged($after: String, $slug: [String], $first: Int, $includeVariations: Boolean!) {
   products(
     first: $first
     after: $after
@@ -47,8 +48,6 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
         }
       }
       ... on SimpleProduct {
-        name
-        slug
         price
         rawPrice: price(format: RAW)
         date
@@ -56,17 +55,7 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
         rawRegularPrice: regularPrice(format: RAW)
         salePrice
         rawSalePrice: salePrice(format: RAW)
-        stockStatus
-        stockQuantity
-        lowStockAmount
-        averageRating
-        weight
-        length
-        width
-        height
-        reviewCount
         onSale
-        virtual
         attributes {
           nodes {
             ... on GlobalProductAttribute {
@@ -82,19 +71,9 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
           title
           cartSourceUrl: sourceUrl(size: THUMBNAIL)
           producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
-        }
-        galleryImages(first: 20) {
-          nodes {
-            sourceUrl
-            altText
-            title
-            databaseId
-          }
         }
       }
       ... on VariableProduct {
-        name
-        slug
         price
         rawPrice: price(format: RAW)
         date
@@ -102,15 +81,6 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
         rawRegularPrice: regularPrice(format: RAW)
         salePrice
         rawSalePrice: salePrice(format: RAW)
-        stockStatus
-        stockQuantity
-        lowStockAmount
-        averageRating
-        weight
-        length
-        width
-        height
-        reviewCount
         onSale
         attributes {
           nodes {
@@ -128,30 +98,15 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
           cartSourceUrl: sourceUrl(size: THUMBNAIL)
           producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
         }
-        galleryImages(first: 20) {
+        variations(first: 50) @include(if: $includeVariations) {
           nodes {
-            sourceUrl
-            altText
-            title
-            databaseId
-          }
-        }
-        variations(first: 50) {
-          nodes {
-            name
-            databaseId
-            price
-            regularPrice
-            salePrice
             slug
-            stockQuantity
-            stockStatus
-            hasAttributes
             image {
               sourceUrl
               altText
               title
               cartSourceUrl: sourceUrl(size: THUMBNAIL)
+              producCardSourceUrl: sourceUrl(size: WOOCOMMERCE_THUMBNAIL)
             }
             attributes {
               nodes {
@@ -196,146 +151,114 @@ const formatSlug = (slugValue: string | string[]): string => {
 const isDesktop = ref(false);
 const categoryTitle = computed(() => formatSlug(slug));
 
+// Direct requests to paginated category URLs must render enough products for
+// that page. Page one is intentionally limited to one product grid so the
+// initial HTML does not serialize the entire catalogue before mobile LCP.
+const requestedPage = computed(() => {
+  const rawPage = Array.isArray(route.query.page) ? route.query.page[0] : route.query.page;
+  const pageNumber = parseInt(String(rawPage ?? ''), 10);
+  return Number.isFinite(pageNumber) && pageNumber > 0 ? pageNumber : 1;
+});
+const initialProductTarget = computed(() => requestedPage.value * productsPerPage);
+const hasActiveColourFilter = computed(() => String(route.query.filter || '').includes('pa_color['));
+
 // Get SEO content for this category
 const categoryContent = getCategoryContent(slug);
+const productCount = ref(0);
 
-// Get product count first using direct $fetch (consistent with batch fetching)
-const COUNT_QUERY = `
-query getProductsTotal($slug: [String]) {
-  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish", typeIn: [SIMPLE, VARIABLE] }) {
-    found
-  }
+// Reactive state for progressive loading
+const isLoadingProducts = ref(true);
+const loadError = ref<Error | null>(null);
+let backgroundCatalogueController: AbortController | null = null;
+let backgroundLoadIdleCallback: number | null = null;
+const completeCatalogueHasVariationImages = ref(false);
+
+interface CategoryProductBatch {
+  found: number;
+  nodes: Product[];
+  pageInfo: {
+    hasNextPage: boolean;
+    endCursor: string | null;
+  };
 }
-`;
 
-let productCountValue = 150; // Default fallback
-try {
-  const countResponse: any = await $fetch(graphQlEndpoint, {
+async function fetchProductBatch(first: number, after: string | null, includeVariations: boolean, signal?: AbortSignal): Promise<CategoryProductBatch> {
+  const response: any = await $fetch(graphQlEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: {
-      query: COUNT_QUERY,
+      query: PRODUCTS_PAGED_QUERY,
       variables: {
-        slug: [slug], // GraphQL expects [String] array
+        slug: [slug],
+        first,
+        after,
+        includeVariations,
       },
     },
+    signal,
   });
 
-  if (countResponse?.errors) {
-    console.error(`⚠️ Count query errors:`, countResponse.errors);
+  if (response?.errors) {
+    throw new Error(`GraphQL errors while loading ${slug}: ${JSON.stringify(response.errors)}`);
   }
 
-  productCountValue = countResponse?.data?.products?.found || 150;
-  console.log(`📊 Category "${slug}" - Total count from GraphQL: ${productCountValue}`);
-} catch (err) {
-  console.error(`❌ Error fetching product count for ${slug}:`, err);
+  const products = response?.data?.products;
+  return {
+    found: Number(products?.found || 0),
+    nodes: products?.nodes || [],
+    pageInfo: {
+      hasNextPage: products?.pageInfo?.hasNextPage === true,
+      endCursor: products?.pageInfo?.endCursor || null,
+    },
+  };
 }
 
-const productCount = ref(productCountValue);
-
-// Reactive state for progressive loading
-const allLoadedProducts = ref<any[]>([]);
-const isLoadingProducts = ref(true);
-const loadingProgress = ref(0);
-const loadError = ref<Error | null>(null);
-
-// Function to fetch all products in batches using direct $fetch (avoids composable context issues)
-async function fetchAllProductsInBatches() {
-  console.log(`🔄 Fetching products for category: ${slug}`);
-  console.log(`🎯 Target count: ${productCount.value}`);
-
-  const targetCount = productCount.value;
-  const batchSize = 100;
-  let allNodes: any[] = [];
+async function fetchProductsUntil(targetCount: number, includeVariations: boolean, signal?: AbortSignal): Promise<CategoryProductBatch> {
+  const loadedProducts: Product[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  let totalFetched = 0;
+  let found = 0;
 
-  isLoadingProducts.value = true;
-  loadError.value = null;
-
-  // Fetch in batches to avoid server limits/timeouts
-  while (hasNextPage && totalFetched < targetCount) {
-    const fetchSize = Math.min(batchSize, targetCount - totalFetched);
-
-    // Don't fetch 0
+  while (hasNextPage && loadedProducts.length < targetCount) {
+    const fetchSize = Math.min(100, targetCount - loadedProducts.length);
     if (fetchSize <= 0) break;
 
-    console.log(`📦 Fetching batch: size=${fetchSize}, cursor=${cursor || 'start'}, total so far: ${totalFetched}`);
+    const batch = await fetchProductBatch(fetchSize, cursor, includeVariations, signal);
+    found = batch.found || found;
+    loadedProducts.push(...batch.nodes);
+    hasNextPage = batch.pageInfo.hasNextPage;
+    cursor = batch.pageInfo.endCursor;
 
-    try {
-      // Use $fetch directly to avoid Nuxt composable context issues in async loops
-      // This preserves caching since useAsyncData wraps this entire function
-      const response: any = await $fetch(graphQlEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {
-          query: PRODUCTS_PAGED_QUERY,
-          variables: {
-            slug: [slug], // GraphQL expects [String] array
-            first: fetchSize,
-            after: cursor,
-          },
-        },
-      });
-
-      // Check for GraphQL errors
-      if (response?.errors) {
-        console.error(`⚠️ GraphQL errors:`, response.errors);
-      }
-
-      const result = response?.data;
-      const nodes = result?.products?.nodes || [];
-      if (nodes.length === 0) {
-        console.log(`📭 No more products returned, stopping`);
-        break;
-      }
-
-      allNodes = [...allNodes, ...nodes];
-      totalFetched += nodes.length;
-
-      // Update progress for UI feedback
-      loadingProgress.value = Math.round((totalFetched / targetCount) * 100);
-
-      // IMPORTANT: Update the reactive ref after each batch so UI can react
-      allLoadedProducts.value = [...allNodes];
-
-      // Also update the products store progressively
-      setProducts([...allNodes]);
-
-      const pageInfo = result?.products?.pageInfo;
-      hasNextPage = pageInfo?.hasNextPage === true;
-      cursor = pageInfo?.endCursor || null;
-
-      console.log(`✅ Batch complete: fetched ${nodes.length}, total now ${totalFetched}, hasNextPage: ${hasNextPage}`);
-    } catch (err) {
-      console.error(`❌ Error fetching batch for ${slug}:`, err);
-      loadError.value = err as Error;
-      break; // Stop on error, return what we have
-    }
+    if (batch.nodes.length === 0) break;
   }
 
-  console.log(`🏁 Finished fetching: total ${allNodes.length} products for ${slug}`);
-  isLoadingProducts.value = false;
-
-  return allNodes;
+  return {
+    found: found || loadedProducts.length,
+    nodes: loadedProducts,
+    pageInfo: {hasNextPage, endCursor: cursor},
+  };
 }
 
-// Start fetching on component setup
+// Render only the products needed for the requested page. The complete product
+// set is loaded after first paint so filters keep their existing client-side
+// behaviour without holding back the category heading and introductory copy.
 const {data, pending, error, refresh, status} = await useAsyncData(
   cacheKey,
   async () => {
-    const products = await fetchAllProductsInBatches();
-    return {
-      products: {
-        found: productCount.value,
-        nodes: products,
-      },
-    };
+    isLoadingProducts.value = true;
+    loadError.value = null;
+
+    try {
+      const products = await fetchProductsUntil(initialProductTarget.value, hasActiveColourFilter.value);
+      return {products};
+    } catch (fetchError) {
+      loadError.value = fetchError as Error;
+      throw fetchError;
+    } finally {
+      isLoadingProducts.value = false;
+    }
   },
   {
     // Caching options per Nuxt docs
@@ -355,16 +278,11 @@ const {data, pending, error, refresh, status} = await useAsyncData(
       // Added type for key
       console.log(`🔍 Checking for cached data with key: ${key}`);
 
-      // Helper to validate cached data has enough products
       const isValidCache = (cachedData: any) => {
         const cachedCount = cachedData?.products?.nodes?.length || 0;
-        const expectedCount = productCount.value;
-        // If we expect more than 100 products but cache only has ~100, it's stale
-        if (expectedCount > 150 && cachedCount < expectedCount * 0.9) {
-          console.log(`⚠️ Stale cache detected: has ${cachedCount} but expected ~${expectedCount}`);
-          return false;
-        }
-        return cachedCount > 0;
+        const totalCount = cachedData?.products?.found || cachedCount;
+        const requiredCount = Math.min(initialProductTarget.value, totalCount);
+        return cachedCount >= requiredCount && requiredCount > 0;
       };
 
       // Check in payload first (client-side navigation)
@@ -400,21 +318,20 @@ const displayProductCount = computed(() => {
   const loadedCount = productsInCategory.value?.length;
   if (loadedCount && loadedCount > 0) return loadedCount;
 
-  // Fallback to the initial productCount ref
-  return productCount.value;
+  return productCount.value || loadedCount || 0;
 });
 
 // Set products when data becomes available from useAsyncData
 watch(
-  () => productsInCategory.value,
-  (products) => {
+  () => data.value?.products,
+  (categoryProducts) => {
+    const products = categoryProducts?.nodes || [];
     if (products && products.length > 0) {
       console.log(`📦 Setting ${products.length} products for display from initial fetch`);
-      setProducts(products); // This sets the base list of products for the category
-
-      // Update productCount if we got more products than expected (from cache)
-      if (products.length > productCount.value) {
-        productCount.value = products.length;
+      setProducts(products);
+      productCount.value = categoryProducts?.found || products.length;
+      if (!categoryProducts?.pageInfo?.hasNextPage && hasActiveColourFilter.value) {
+        completeCatalogueHasVariationImages.value = true;
       }
     }
   },
@@ -423,11 +340,51 @@ watch(
 
 // Current page from the URL, so paginated views self-canonicalize and get their
 // own title instead of duplicating page 1 (2026-07-23 audit).
-const seoCurrentPage = computed(() => {
-  const raw = Array.isArray(route.query.page) ? route.query.page[0] : route.query.page;
-  const parsed = parseInt(String(raw ?? ''), 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-});
+const seoCurrentPage = requestedPage;
+
+async function loadCompleteCatalogueForFilters(includeVariationImages = false) {
+  const initialProducts = data.value?.products;
+  if (!initialProducts) return;
+
+  const needsRemainingProducts = initialProducts.pageInfo?.hasNextPage === true;
+  const needsVariationImageRefresh = includeVariationImages && !completeCatalogueHasVariationImages.value;
+  if (!needsRemainingProducts && !needsVariationImageRefresh) return;
+
+  backgroundCatalogueController?.abort();
+  backgroundCatalogueController = new AbortController();
+
+  try {
+    // Re-fetch from the beginning so filtering has the complete catalogue.
+    // Variation images are included only when a colour filter needs them, so
+    // they do not belong in the normal server-rendered page-one payload.
+    const completeCatalogue = await fetchProductsUntil(initialProducts.found, includeVariationImages, backgroundCatalogueController.signal);
+    setProducts(completeCatalogue.nodes);
+    completeCatalogueHasVariationImages.value = includeVariationImages;
+
+    // A shopper can select a filter while the background request is running.
+    // Reapply the current view without calling updateProductList(), which would
+    // unexpectedly scroll the page back to the top.
+    let productsForCurrentView = [...completeCatalogue.nodes];
+    if (isFiltersActive.value) productsForCurrentView = filterProducts(productsForCurrentView);
+    if (isSortingActive.value) productsForCurrentView = sortProducts(productsForCurrentView);
+    visibleProducts.value = productsForCurrentView;
+  } catch (backgroundError) {
+    if ((backgroundError as Error)?.name !== 'AbortError') {
+      console.error(`[Category Page] Could not finish background catalogue load for ${slug}:`, backgroundError);
+    }
+  }
+}
+
+function scheduleCompleteCatalogueLoad() {
+  if (!data.value?.products?.pageInfo?.hasNextPage) return;
+
+  if ('requestIdleCallback' in window) {
+    backgroundLoadIdleCallback = window.requestIdleCallback(() => void loadCompleteCatalogueForFilters(hasActiveColourFilter.value), {timeout: 2500});
+    return;
+  }
+
+  window.setTimeout(() => void loadCompleteCatalogueForFilters(hasActiveColourFilter.value), 0);
+}
 
 // Apply comprehensive SEO for category
 watch(
@@ -464,6 +421,13 @@ watch(
   () => {
     console.log('[Category Page] route.query changed, updating product list with filters');
     updateProductList(); // Update filtered product list when query params change
+
+    // Variation images are only requested when a colour filter needs them.
+    // This keeps the normal category payload small without removing the
+    // existing colour-specific product-card image behaviour.
+    if (hasActiveColourFilter.value && !completeCatalogueHasVariationImages.value) {
+      void loadCompleteCatalogueForFilters(true);
+    }
   },
 );
 
@@ -488,6 +452,7 @@ onMounted(() => {
   // Log cache status for debugging
   console.log(`[Category Page] Mount: Cache status: ${pending.value ? 'pending' : error.value ? 'error' : 'ready'}`);
   console.log(`[Category Page] Mount: Found ${productsInCategory.value.length} products initially.`);
+  scheduleCompleteCatalogueLoad();
 });
 
 function handleResize() {
@@ -497,6 +462,10 @@ function handleResize() {
 // Clean up
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
+  if (backgroundLoadIdleCallback !== null && 'cancelIdleCallback' in window) {
+    window.cancelIdleCallback(backgroundLoadIdleCallback);
+  }
+  backgroundCatalogueController?.abort();
 });
 
 // Note: SEO meta tags are now handled by setCategorySEO composable
@@ -510,9 +479,6 @@ onUnmounted(() => {
       <div class="text-center">
         <PulseLoader :loading="true" :color="'#38bdf8'" :size="'15px'" />
         <p class="mt-4 text-gray-500">Loading products...</p>
-        <p v-if="loadingProgress > 0 && loadingProgress < 100" class="mt-2 text-sm text-gray-400">
-          {{ loadingProgress }}% loaded ({{ allLoadedProducts.length }} of {{ productCount }} products)
-        </p>
       </div>
     </div>
 
