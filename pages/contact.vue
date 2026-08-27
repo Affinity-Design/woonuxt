@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VueTurnstile from 'vue-turnstile';
-import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
 const businessStartYear = 2011;

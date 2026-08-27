@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from 'vue';
-import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
 // Core composables

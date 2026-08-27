@@ -1,7 +1,7 @@
 <!-- components/shopElements/HelcimCard.vue -->
 <script setup lang="ts">
 import {ref, onMounted, onUnmounted, computed, watch} from 'vue';
-import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 const emit = defineEmits(['ready', 'error', 'payment-success', 'payment-failed', 'payment-complete', 'checkout-requested', 'order-recovered']);
 

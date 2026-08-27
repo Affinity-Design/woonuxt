@@ -1,6 +1,6 @@
 <!-- components/StripeCard.vue -->
 <script setup lang="ts">
-import {getSafePaymentErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRuntimeConfig } from "#app";
 

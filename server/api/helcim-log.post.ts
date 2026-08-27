@@ -9,7 +9,7 @@
 //
 // This endpoint is diagnostic only. It must never throw back to the checkout UI.
 import {defineEventHandler, readBody} from 'h3';
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   try {

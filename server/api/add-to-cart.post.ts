@@ -6,7 +6,7 @@
  */
 
 import {normalizeWooCommerceSessionToken} from '../utils/woocommerceSession.mjs';
-import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);

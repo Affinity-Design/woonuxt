@@ -1,4 +1,4 @@
-import {getSafePublicErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafePublicErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 /**
  * Toast notification composable

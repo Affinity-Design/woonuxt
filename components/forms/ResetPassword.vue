@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {getSafeAuthenticationErrorMessage, getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeAuthenticationErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const {t} = useI18n();
 const router = useRouter();

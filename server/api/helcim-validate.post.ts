@@ -1,7 +1,7 @@
 // server/api/helcim-validate.post.ts
 // Dedicated server-side validation endpoint
 import {defineEventHandler, createError, readBody} from 'h3';
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   // Force server-side execution check

@@ -1,7 +1,7 @@
 // server/api/update-cart-quantity.post.ts
 // Server-side proxy for cart quantity updates to avoid 403 errors from WordPress/Cloudflare
 import {defineEventHandler, createError, readBody} from 'h3';
-import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {ref, computed, watch, onMounted, onUnmounted} from 'vue';
-import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // Core composables
 const {setProducts, updateProductList} = useProducts();

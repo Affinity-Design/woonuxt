@@ -1,5 +1,5 @@
 import type {CreateAccountInput} from '#gql';
-import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 // Detect device type from user agent
 function detectDeviceType(): string {

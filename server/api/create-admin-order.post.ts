@@ -1,7 +1,7 @@
 // Admin Order Creation API - Creates orders directly via WPGraphQL with Application Password authentication
 // Bypasses all session-based GraphQL issues by using admin-level authentication
 // Enhanced with retry logic and better error handling for reliability
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // Helper function for retry with exponential backoff
 async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3): Promise<Response> {

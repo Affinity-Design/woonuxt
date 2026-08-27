@@ -1,5 +1,5 @@
 import type {ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
-import {getSafeAuthenticationErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafeAuthenticationErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 interface RegistrationCredentials {
   email: string;

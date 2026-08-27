@@ -1,6 +1,6 @@
 import type {AddToCartInput} from '#gql';
 import {createCartRefreshCoordinator, finalizeSuccessfulCartMutation, prepareCartSessionForMutation} from '~/utils/cartRefreshCoordinator.mjs';
-import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const CART_REFRESH_TIMEOUT_MILLISECONDS = 15_000;
 const cartRefreshCoordinators = new WeakMap<object, ReturnType<typeof createCartRefreshCoordinator>>();

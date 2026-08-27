@@ -2,7 +2,7 @@
 import Stripe from "stripe";
 import { defineEventHandler, createError, readBody } from "h3";
 import { useRuntimeConfig } from "#imports";
-import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig();

@@ -1,6 +1,6 @@
 // server/api/helcim.post.ts
 import {defineEventHandler, createError, readBody} from 'h3';
-import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 // Types for Helcim line items
 interface HelcimLineItem {

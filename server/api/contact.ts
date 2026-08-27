@@ -4,7 +4,7 @@
 // handler returned 200 with a {statusCode: 500} body, so the page showed "sent successfully"
 // while the email silently failed (how the 2026-08 SendGrid outage went unnoticed).
 import {sendStoreEmail} from '../utils/emailSender';
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const MAX_MESSAGE_LENGTH = 10000;
 

@@ -20,7 +20,7 @@
 //   - { action: 'recover-all', secret }→ admin: attempt recovery of every pending charge.
 import {defineEventHandler, readBody, getHeader, getQuery, createError} from 'h3';
 import type {RecoveredOrderRef} from '../utils/helcimOrderRecovery';
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 interface WooRestOrder {
   id: number;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 const {viewer, loginUser} = useAuth();
 const {t} = useI18n();

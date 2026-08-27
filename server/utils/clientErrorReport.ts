@@ -1,4 +1,4 @@
-import {getSafeDiagnosticUrl} from '../../utils/publicErrorMessages.mjs';
+import {getSafeDiagnosticUrl} from '#shared/utils/publicErrorMessages.mjs';
 
 const ALLOWED_EVENT_TYPES = new Set(['error', 'unhandledrejection', 'vue:error', 'mounted']);
 

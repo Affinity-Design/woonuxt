@@ -1,4 +1,4 @@
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // server/api/validate-stock.post.ts
 // Validates stock availability for cart items before payment processing

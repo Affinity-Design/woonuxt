@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {OrderStatusEnum} from '#woo';
-import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 const route = useRoute();
 const {query, params} = route;

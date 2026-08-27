@@ -1,4 +1,4 @@
-import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 
 // Turnstile Server-Side Verification Endpoint
 // Validates tokens with Cloudflare's Siteverify API

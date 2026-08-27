@@ -1,4 +1,4 @@
-import {getSafeErrorLogDetails, removeSensitiveFields} from '../../utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, removeSensitiveFields} from '#shared/utils/publicErrorMessages.mjs';
 
 // server/utils/helcimOrderRecovery.ts
 //

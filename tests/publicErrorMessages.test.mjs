@@ -10,7 +10,7 @@ import {
   getSafePublicErrorMessage,
   getSafeDiagnosticUrl,
   removeSensitiveFields,
-} from '../utils/publicErrorMessages.mjs';
+} from '../shared/utils/publicErrorMessages.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -179,6 +179,23 @@ test('global Nuxt and Nitro error fallbacks never serialize raw error text', asy
   assert.match(serverSanitizerSource, /replaceErrorProperty\(error, 'message', publicMessage\)/);
   assert.match(serverSanitizerSource, /replaceErrorProperty\(error, 'stack', undefined\)/);
   assert.match(serverSanitizerSource, /replaceErrorProperty\(error, 'data', undefined\)/);
+});
+
+test('app and server imports use Nuxt shared alias for the sanitizer', async () => {
+  const sourceDirectories = ['components', 'composables', 'pages', 'plugins', 'server'].map((directory) => path.join(repositoryRoot, directory));
+  const sourceFiles = (await Promise.all(sourceDirectories.map(listSourceFiles))).flat();
+  const importViolations = [];
+
+  await readFile(path.join(repositoryRoot, 'shared/utils/publicErrorMessages.mjs'), 'utf8');
+
+  for (const sourceFile of sourceFiles) {
+    const source = await readFile(sourceFile, 'utf8');
+    if (/from ['"](?:~|\.\.\/\.\.)\/utils\/publicErrorMessages\.mjs['"]/.test(source)) {
+      importViolations.push(path.relative(repositoryRoot, sourceFile));
+    }
+  }
+
+  assert.deepEqual(importViolations, []);
 });
 
 test('WordPress payment diagnostics never persist or return raw provider errors', async () => {

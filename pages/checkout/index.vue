@@ -2,7 +2,7 @@
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
 import {convertToCAD} from '~/utils/priceConverter';
-import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '~/utils/publicErrorMessages.mjs';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
 
 const {t} = useI18n();
 const {query} = useRoute();

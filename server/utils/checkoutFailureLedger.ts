@@ -19,7 +19,7 @@
 //
 // Read side: /api/checkout-failures (header- or WP-admin-gated) merges both sources.
 // All operations are best-effort and never throw into a checkout flow.
-import {removeSensitiveFields} from '../../utils/publicErrorMessages.mjs';
+import {removeSensitiveFields} from '#shared/utils/publicErrorMessages.mjs';
 
 export interface CheckoutFailureEntry {
   stage: string; // e.g. charge_failed_beacon | duplicate_block | validate_failed | order_create_failed | duplicate_charge_detected | recovery_attempt
