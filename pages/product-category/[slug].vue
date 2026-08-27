@@ -202,7 +202,7 @@ const categoryContent = getCategoryContent(slug);
 // Get product count first using direct $fetch (consistent with batch fetching)
 const COUNT_QUERY = `
 query getProductsTotal($slug: [String]) {
-  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish" }) {
+  products(where: { categoryIn: $slug, visibility: VISIBLE, minPrice: 0, status: "publish", typeIn: [SIMPLE, VARIABLE] }) {
     found
   }
 }
