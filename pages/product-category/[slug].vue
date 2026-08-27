@@ -12,9 +12,13 @@ const nuxtApp = useNuxtApp();
 // SEO composables
 const {setCategorySEO} = useCategorySEO();
 
-// Get the GQL host for direct $fetch calls (avoids composable context issues in async loops)
+// Resolve an endpoint for direct $fetch calls. GQL_HOST is not guaranteed to be
+// available to the deployed Worker at runtime, while wpBaseUrl is public runtime
+// configuration and always points at the WordPress origin.
 const runtimeConfig = useRuntimeConfig();
-const GQL_HOST = runtimeConfig.public.GQL_HOST || process.env.GQL_HOST;
+const wordpressBaseUrl = String(runtimeConfig.public.wpBaseUrl || 'https://proskatersplace.com').replace(/\/$/, '');
+const graphQlEndpoint =
+  (runtimeConfig.public as {GQL_HOST?: string}).GQL_HOST || process.env.GQL_HOST || `${wordpressBaseUrl}/graphql`;
 
 // GraphQL query for batched fetching (must include fragments inline for $fetch)
 const PRODUCTS_PAGED_QUERY = `
@@ -22,7 +26,7 @@ query getProductsPaged($after: String, $slug: [String], $first: Int) {
   products(
     first: $first
     after: $after
-    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: DATE, order: DESC}, status: "publish"}
+    where: {categoryIn: $slug, visibility: VISIBLE, minPrice: 0, orderby: {field: DATE, order: DESC}, status: "publish", typeIn: [SIMPLE, VARIABLE]}
   ) {
     found
     pageInfo {
@@ -206,7 +210,7 @@ query getProductsTotal($slug: [String]) {
 
 let productCountValue = 150; // Default fallback
 try {
-  const countResponse: any = await $fetch(GQL_HOST as string, {
+  const countResponse: any = await $fetch(graphQlEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -264,7 +268,7 @@ async function fetchAllProductsInBatches() {
     try {
       // Use $fetch directly to avoid Nuxt composable context issues in async loops
       // This preserves caching since useAsyncData wraps this entire function
-      const response: any = await $fetch(GQL_HOST as string, {
+      const response: any = await $fetch(graphQlEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
