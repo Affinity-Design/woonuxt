@@ -1,6 +1,6 @@
 # FlavorCloud WooCommerce Plugin Research and Build Plan
 
-Status: Research phase complete for implementation planning on 2026-08-27
+Status: Research and read-only production audit complete for implementation planning on 2026-08-27; vendor-contract, credential, and catalog-wide customs-data gates remain open
 
 Target: `proskatersplace.com` WordPress and WooCommerce storefront
 
@@ -12,7 +12,7 @@ Build FlavorCloud as a standalone, project-owned WooCommerce plugin with its own
 
 FlavorCloud currently lists Shopify and BigCommerce as native connectors; WooCommerce is handled through the REST API path for other platforms. The proposed plugin is therefore an API integration owned by ProSkaters Place, not a wrapper around a supported FlavorCloud WooCommerce extension.
 
-The first production release should provide `.com` international DDP quotes, preserve the selected quote on the order, and support a controlled manual fulfillment handoff. Automated order push must wait until FlavorCloud provides a documented non-fulfilling order-ingestion contract.
+The first production release should provide `.com` international DDP quotes for approved rest-of-world markets excluding US/CA, preserve the selected quote on the order, and support a controlled manual fulfillment handoff. Automated order push must wait until FlavorCloud provides a documented non-fulfilling order-ingestion contract.
 
 The public FlavorCloud API has a critical mismatch with the operational workflow described on the technical call:
 
@@ -23,9 +23,11 @@ The public FlavorCloud API has a critical mismatch with the operational workflow
 
 Therefore, the plugin must not call `POST /Shipments` when an order changes to `processing` until FlavorCloud resolves the contract and billing questions in this document.
 
-The second major constraint is storefront isolation. `proskatersplace.com` and `proskatersplace.ca` share WooCommerce infrastructure. Canada is an international destination for the `.com` store but is the domestic market for `.ca`, so destination country alone cannot separate the storefronts. Eligibility must combine storefront channel and destination:
+The second major constraint is storefront isolation. `proskatersplace.com` and `proskatersplace.ca` share WooCommerce infrastructure. Destination country alone cannot separate the storefronts, and the production backend's base location is Ontario even though the `.com` storefront operates in USD. Eligibility must combine a positively identified storefront channel with an approved destination allowlist:
 
-> `.com` storefront AND destination outside the United States AND not a WooNuxt/`.ca` request or order
+> positively identified `.com` storefront AND approved international destination AND not a WooNuxt/`.ca` request or order
+
+The United States and Canada are both excluded from version 1. FlavorCloud's email described the proposal as Canada-origin rates to the rest of world and requested historical international shipment data excluding US/CA. This matches the requirement to leave existing US and Canadian rates intact and prevents `.ca` leakage. Any later inclusion of either country is a new scoped decision, not a settings toggle assumed by this plan.
 
 ## Recommended Scope
 
@@ -40,8 +42,8 @@ The second major constraint is storefront isolation. `proskatersplace.com` and `
 - Safe coexistence with Table Rate Shipping, PSP Dynamic Table Rates, Price Based on Country, POS shipping, Code Snippets, ShipStation, and the `.ca` WooNuxt flow.
 - Persistence of the selected provider quote and landed-cost components on the Woo order.
 - A FlavorCloud-confirmed non-fulfilling handoff; manual CSV export is a candidate pending quote-preservation testing.
-- HPOS support and classic checkout support.
-- Checkout Blocks support only after the live checkout type and Store API behavior are verified.
+- HPOS support and the live classic shortcode checkout.
+- Store API safeguards for `.ca`; customer-facing Checkout Blocks support is deferred unless the checkout page is migrated later.
 
 ### Deferred Until FlavorCloud Confirms the Contract
 
@@ -57,22 +59,41 @@ The second major constraint is storefront isolation. `proskatersplace.com` and `
 
 This plan separates confirmed evidence from vendor statements and unresolved assumptions.
 
-| Evidence type                         | What was reviewed                                                                                                                                                                  | Confidence and limitation                                                                                             |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| FlavorCloud official documentation    | Developer Hub, merchant guide, OpenAPI, Rates, Landed Cost, Classification, Shipments, Tracking, Webhooks, and CSV import documentation                                            | High confidence for the published API shape; several operational details conflict or remain undocumented              |
-| Current `woonuxt` repository          | `.com` WordPress snippets, `.ca` checkout, Helcim order creation, GraphQL request markers, shipping UI, and catalog artifacts at commit `5945ca10691aaacbf4b9a98b5b0585d796e46936` | High confidence for checked-in behavior; a snippet in Git is not proof that the same revision is active on production |
-| Private `psp-theme` repository        | Read-only audit through existing workstation GitHub authorization at commit `257d5eeee235b96bec26e03d29f3bbc443bc6677`                                                             | High confidence for repository source; activation and production settings remain unverified                           |
-| Public WooCommerce Store API snapshot | 1,719 published product records across 18 pages on 2026-08-27                                                                                                                      | Useful for parent-product weight and dimension readiness; private metadata and variation coverage are not exposed     |
-| Technical call and email              | Merchant workflow, account access, pricing statements, and testing-rights statements                                                                                               | Treat as vendor guidance pending confirmation against the signed contract and a safe test account                     |
-| Live WordPress administration         | Not completed                                                                                                                                                                      | Required before implementation sign-off                                                                               |
+| Evidence type                         | What was reviewed                                                                                                                                                                                                                                                | Confidence and limitation                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| FlavorCloud official documentation    | Developer Hub, merchant guide, OpenAPI, Rates, Landed Cost, Classification, Shipments, Tracking, Webhooks, and CSV import documentation                                                                                                                          | High confidence for the published API shape; several operational details conflict or remain undocumented                            |
+| Current `woonuxt` repository          | `.com` WordPress snippets, `.ca` checkout, Helcim order creation, GraphQL request markers, shipping UI, and catalog artifacts at commit `5945ca10691aaacbf4b9a98b5b0585d796e46936`                                                                               | High confidence for checked-in behavior; a snippet in Git is not proof that the same revision is active on production               |
+| Private `psp-theme` repository        | Read-only audit through existing workstation GitHub authorization at commit `257d5eeee235b96bec26e03d29f3bbc443bc6677`                                                                                                                                           | High confidence for repository source; relevant plugin versions were subsequently confirmed live                                    |
+| Public WooCommerce Store API snapshot | 1,719 published product records across 18 pages on 2026-08-27                                                                                                                                                                                                    | Useful for parent-product weight and dimension readiness; private metadata and variation coverage are not exposed                   |
+| Technical call and email              | Merchant workflow, account access, pricing statements, and testing-rights statements                                                                                                                                                                             | Treat as vendor guidance pending confirmation against the signed contract and a safe test account                                   |
+| Live WordPress administration         | Read-only browser audit of the confirmed `.com` website connection: versions, active plugins, all shipping zones, international Table Rate rows, PSP Dynamic Rates, PBC, tax, checkout, relevant snippets, one product editor, exporter columns, and ShipStation | High confidence for values visible on 2026-08-27; no settings were changed and a catalog-wide private-meta export was not performed |
 
 Credential material received with the request was deliberately not copied into this document, logs, source, or test commands. Any web-account password transmitted in the research request must now be treated as exposed: rotate it, revoke existing sessions if FlavorCloud supports that action, and create a separate least-privilege API credential set for the integration.
 
+FlavorCloud stated by email on 2026-08-25 that the account had testing rights and could proceed with live API calls. That is sufficient evidence to plan controlled `/Auth` and `/Rates` tests after credential rotation, but it does not prove that `/Shipments`, label generation, or carrier tender is non-billable. Shipment tests remain blocked until FlavorCloud documents the safe test procedure.
+
+The Affinity client and production website connection were confirmed, but both the generic WordPress REST path and MCP Adapter execution returned authentication failures. Ability discovery still worked, which means the connection record exists but its WordPress application-password credentials must be refreshed before implementation automation. The audit continued through an already authenticated administrator browser session and remained read-only. Do not replace or rotate the WordPress credential as part of the plugin build without a separate authorized access-maintenance task.
+
 ## Current System Audit
+
+### Production Baseline
+
+The live `.com` backend reported:
+
+- WordPress 7.1, WooCommerce 11.0.1, PHP 8.0.17, MariaDB 10.6.7, Apache, and production environment mode.
+- WooCommerce database version 11.0.1 and Action Scheduler 4.0.0.
+- HPOS/custom order tables enabled, with compatibility-mode data synchronization disabled.
+- Shoptimizer 2.9.1 as the parent theme.
+- Store/base currency USD and WooCommerce base location `CA:ON`.
+- FlavorCloud's proposal describes a Canada-origin to rest-of-world program and explicitly excludes US/CA from the requested international volume analysis.
+- WordPress and WooCommerce addresses reported as `http://proskatersplace.com` even though the audited administration session used HTTPS. Resolve that canonical-URL/proxy mismatch before any callback or webhook URL is generated.
+- Relevant active plugins: WooCommerce Table Rate Shipping 3.6.1, PSP TRS Dynamic Rates 1.0.2, Price Based on Country 4.1.1 plus Pro 4.0.1, Code Snippets 3.10.0, ShipStation for WooCommerce 5.3.4, WooCommerce Shipping 2.3.15, WooCommerce Tax 3.6.13, Autocomplete Address and Location Picker 1.2.2, Checkout Field Editor Pro 3.6.0, Custom Order Status for WooCommerce 3.0.1, WooNuxt Settings 2.2.3, WPGraphQL 2.9.1, and WPGraphQL for WooCommerce 0.21.1.
+
+PHP 8.0 is end-of-life upstream. Schedule a supported-PHP upgrade as an infrastructure task before public rollout where practical. Until that happens, the plugin must declare and continuously test PHP 8.0 compatibility and must not use PHP 8.1+ syntax or APIs.
 
 ### 1. Table Rate Shipping
 
-The private theme repository contains WooCommerce Table Rate Shipping version 3.6.1. It registers the shipping method ID `table_rate` and provides the `woocommerce_table_rate_get_shipping_rates` filter over its stored rate rows.
+The private theme repository contains WooCommerce Table Rate Shipping version 3.6.1, and that exact version is active in production. It registers the shipping method ID `table_rate` and provides the `woocommerce_table_rate_get_shipping_rates` filter over its stored rate rows.
 
 The new provider must register its own shipping method and must not write FlavorCloud quotes into the Table Rate Shipping database. Keeping the methods separate provides a stable compatibility boundary and allows Table Rate to remain a fallback.
 
@@ -87,7 +108,50 @@ Audited private paths at `psp-theme` commit `257d5eeee235b96bec26e03d29f3bbc443b
 
 WooCommerce assigns an address to the first matching shipping zone and shows methods from that zone only. A new FlavorCloud-only zone could therefore hide the intended Table Rate fallback even when the fallback exists in a later zone.
 
-For every applicable matched international zone, configure `psp_flavorcloud` and its mapped legacy fallback in the same zone, or deliberately duplicate the approved fallback there. Audit zone ordering from the narrowest geography to the broadest, including Rest of World, before enabling the provider. The plugin's rate arbitration can hide the mapped fallback after a successful FlavorCloud quote, but it cannot recover a method from a different zone WooCommerce never evaluated.
+Production has 15 named zones plus the built-in Rest of the World zone. The order and enabled method instances are:
+
+| Order    | Zone ID | Zone                       | Enabled method instances |
+| -------- | ------- | -------------------------- | ------------------------ |
+| 1        | 3       | POS                        | Local pickup `8`         |
+| 2        | 8       | GTA 50km                   | Table Rate `17`, `20`    |
+| 3        | 13      | GTA 100km                  | Table Rate `24`, `25`    |
+| 4        | 12      | Rest of Ontario            | Table Rate `22`, `23`    |
+| 5        | 20      | Alberta BC Quebec Manitoba | Table Rate `43`, `44`    |
+| 6        | 14      | Rest of Canada             | Table Rate `26`, `27`    |
+| 7        | 25      | Canada catch-all           | Table Rate `55`          |
+| 8        | 19      | US Military                | Table Rate `41`, `42`    |
+| 9        | 16      | USA Zone 2                 | Table Rate `30`, `31`    |
+| 10       | 15      | USA Zone 1                 | Table Rate `28`, `29`    |
+| 11       | 18      | USA Non Contiguous         | Table Rate `35`, `36`    |
+| 12       | 22      | Euro Zone                  | Table Rate `47`, `48`    |
+| 13       | 24      | The Rest of Europe         | Table Rate `53`, `54`    |
+| 14       | 21      | Mexico                     | Table Rate `45`, `46`    |
+| 15       | 23      | Australia                  | Table Rate `49`, `50`    |
+| fallback | 0       | Rest of the world          | Table Rate `51`, `52`    |
+
+Every current international zone has an enabled `Under $150` and `Over $150` Table Rate instance. Those pairs use an aborting price boundary plus weight bands and non-taxable `Courier Expedited` labels. The live fallback matrix is:
+
+| Zone              | Under-$150 instance and weight-band costs                  | Over-$150 instance and weight-band costs | Label             |
+| ----------------- | ---------------------------------------------------------- | ---------------------------------------- | ----------------- |
+| Euro Zone         | `47`: $34.97 / $54.97 / $68.97 for 0-1.99 / 2-4.99 / 5+ kg | `48`: $24.97 / $34.97 / $49.97           | 5-7 business days |
+| Rest of Europe    | `53`: $44.97 / $64.97 / $78.97                             | `54`: $34.97 / $48.97 / $64.97           | 5-7 business days |
+| Mexico            | `45`: $28.97 / $44.97 / $58.97 for 0-2.99 / 3-4.99 / 5+ kg | `46`: $16.97 / $24.97 / $39.97           | 5-7 business days |
+| Australia         | `49`: $38.97 / $64.97 / $88.97                             | `50`: $28.97 / $48.97 / $68.97           | 5-8 business days |
+| Rest of the world | `51`: $44.97 / $78.97 / $98.97                             | `52`: $34.97 / $64.97 / $78.97           | 6-9 business days |
+
+All fallback dollar amounts and the $150 boundary above are values stored in the USD-base WooCommerce administration before Price Based on Country transforms a customer-facing rate. The `Under $150` instance aborts at a minimum discounted, tax-exclusive cart value of $150; the `Over $150` instance aborts through a maximum of $149.99. Test $149.99, $150.00, rounding edges, and the converted equivalent in every active PBC currency before relying on those labels or suppression mappings.
+
+The actual target-zone geography is also confirmed:
+
+- `Euro Zone` contains 33 explicit countries/territories: Åland Islands, Andorra, Austria, Belgium, Cyprus, Estonia, Finland, France, French Guiana, French Southern Territories, Germany, Greece, Guadeloupe, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malta, Martinique, Mayotte, Monaco, Montenegro, Netherlands, Portugal, Saint Barthélemy, Saint Martin (French part), Saint Pierre and Miquelon, San Marino, Slovakia, Slovenia, Spain, and Vatican.
+- `The Rest of Europe` contains WooCommerce's Europe continent region. Because it follows the explicit Euro Zone, it receives remaining European destinations such as the United Kingdom.
+- `Mexico` and `Australia` contain their respective countries only.
+- `Rest of the world` has no explicit regions and receives any destination not matched earlier.
+- Canadian zones occupy positions 1-7 and US zones positions 8-11, before the target international zones. Version-1 eligibility excludes both countries even when one of those zones is evaluated.
+
+The resulting canary routing is deterministic: a listed euro-country maps to shipping zone `22` and EUR PBC; the United Kingdom maps to zone `24` and GBP PBC; Mexico maps to zone `21` and MXN PBC; Australia maps to zone `23` and AUD PBC; Japan or another otherwise-unmatched approved country maps to Rest of the World zone `0` and the default USD price zone. Revalidate this mapping immediately before launch because administrators can reorder zones independently of plugin code.
+
+Configure `psp_flavorcloud` in each approved existing zone rather than creating a broader FlavorCloud-only zone. Keep both legacy Table Rate instances enabled during dark launch. After a valid FlavorCloud result, suppress only the explicitly mapped instances from that same matched zone; on timeout, validation failure, unsupported country, or API error, leave the mapped pair untouched.
 
 ### 3. PSP Dynamic Table Rates
 
@@ -104,6 +168,8 @@ Compatibility rule: never reuse `table_rate`, never inject ephemeral FlavorCloud
 
 The current dynamic plugin's free-shipping threshold will not automatically apply to the separate FlavorCloud method. That is the safe default unless the business explicitly approves subsidized international shipping. If a threshold must apply, preserve the undiscounted FlavorCloud liability and DDP components separately from the zero/reduced customer-facing rate, then test the subsidy in every pricing-zone currency.
 
+The production screen confirms a single global threshold of CAD 135, currently converted to USD 97.22. Eleven checked database boundaries are managed, all in Canadian zones: GTA 50km, GTA 100km, Rest of Ontario, Rest of Canada, Alberta/BC/Quebec/Manitoba, and the Canada catch-all maximum. No US or current international Table Rate row is checked. This materially lowers collision risk, but the new provider must still remain outside the Table Rate database.
+
 ### 4. Existing PSP Shipping and POS Snippets
 
 The checked-in [master payment and shipping snippet](../psp-master-payment-shipping-code-snippets.php) filters `woocommerce_package_rates` at priority 10. It intentionally preserves normal `table_rate` methods and removes only methods or labels recognized as POS/local-store choices. A distinct, customer-facing FlavorCloud method should survive this filter as long as it avoids the reserved POS identifiers and phrases.
@@ -116,6 +182,8 @@ Reserved compatibility hazards include:
 - A staff-only zero-cost POS rate added at priority 100.
 
 The same file contains a legacy fixed-dollar US tariff fee. It is disabled by default and scoped to US destinations. FlavorCloud's DDP duty and tax values must remain entirely separate from that approximation.
+
+Production confirms Code Snippets 3.10.0 with 46 snippets total and 43 active. The live `WOO - Conditional Processors + Tariff tax + POS` snippet is 918 lines, filters package rates at priorities 10 and 100, reserves POS zone `3` and instance `8`, and currently defines both tariff toggles as false. The priority-10 filter only removes explicitly POS-labelled methods for non-staff customers; the priority-100 filter adds the POS method for staff. A normally labelled `psp_flavorcloud` rate survives both.
 
 ### 5. Checkout Refresh Behavior
 
@@ -131,6 +199,8 @@ Without a plugin-owned cache, one shopper typing an address could cause multiple
 
 The existing checkout code rejects PO boxes in both classic and Store API flows. FlavorCloud eligibility should run the same validation before requesting a quote so a rate is not shown for an address WooCommerce later refuses.
 
+The active production checkout is page ID `3` with the classic `[woocommerce_checkout]` shortcode, not Checkout Blocks. The live `Woo Commerce - Checkout Rules` snippet is 252 lines and filters `woocommerce_cart_ready_to_calc_shipping`, `woocommerce_shipping_packages`, and `woocommerce_package_rates`. Its priority-9999 rate filter returns an empty set until street address line 1 exists, while address changes clear shipping state and trigger another checkout recalculation. FlavorCloud should therefore make no request before the full address is valid and must deduplicate the repeated recalculation after it becomes valid.
+
 ### 6. Price Based on Country and Multi-Currency
 
 The private repository contains WooCommerce Price Based on Country version 4.1.1. When `wc_price_based_country_shipping_exchange_rate` is enabled, its priority-10 `woocommerce_package_rates` filter converts every non-zero shipping rate using the current pricing-zone exchange rate and recalculates rate taxes.
@@ -141,10 +211,23 @@ Two technically viable strategies require a live decision:
 
 | Strategy                                                                                                                                       | Benefit                                                                       | Risk                                                                                                                                                                     |
 | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Request FlavorCloud in the `.com` base/store currency, currently expected to be USD, then let Price Based on Country convert the Woo rate      | Matches the existing shipping-rate pipeline and avoids an undocumented bypass | Must prove that product prices, landed costs, quote hashes, checkout totals, and later fulfillment remain internally consistent when the Woo order uses another currency |
+| Request FlavorCloud in the confirmed `.com` base/store currency of USD, then let Price Based on Country convert the Woo rate                   | Matches the existing shipping-rate pipeline and avoids an undocumented bypass | Must prove that product prices, landed costs, quote hashes, checkout totals, and later fulfillment remain internally consistent when the Woo order uses another currency |
 | Request FlavorCloud in the shopper's active currency and restore only `psp_flavorcloud` rates after Price Based on Country's conversion filter | Matches the technical-call requirement and the provider quote currency        | Requires a carefully tested plugin-specific compatibility adapter and must not affect other rates or taxes                                                               |
 
-Do not choose solely from source inspection. First confirm the live option value, pricing zones, supported FlavorCloud account currencies, rate response behavior, and shipment hash requirements. The selected strategy must be verified in USD, CAD, and EUR.
+The live option is enabled: Price Based on Country currently applies its exchange rate to shipping costs and chooses a pricing zone from the customer's shipping country. The production zones on 2026-08-27 were:
+
+| Zone           | Currency and exchange-rate mode                     |
+| -------------- | --------------------------------------------------- |
+| United States  | USD, `1 USD = 1 USD`, manual                        |
+| Canada         | CAD, `1 USD = 1.38855631 CAD`, automatic            |
+| Euro zone      | EUR, `1 USD = 0.8838813881 EUR`, automatic plus 3%  |
+| Mexico         | MXN, `1 USD = 17.4514272784 MXN`, automatic plus 3% |
+| United Kingdom | GBP, `1 USD = 0.7432632622 GBP`, automatic plus 1%  |
+| Australia      | AUD, `1 USD = 1.4339412491 AUD`, automatic plus 3%  |
+
+The Australia pricing zone is displayed as AUD but has the stored slug `chf`; treat the currency code, not the slug, as authoritative and verify that anomaly before relying on zone slugs.
+
+The default implementation decision for dark mode is now to request and store the provider quote in base USD, then allow the existing PBC shipping filter to convert the customer-facing Woo rate once. This is the least invasive fit with live behavior, but it is not cleared for customer launch until FlavorCloud confirms whether its checkout and shipment hashes can be fulfilled after Woo/PBC currency conversion. The alternative shopper-currency adapter remains available if the provider requires currency-identical hashes. Both paths must be reconciled in USD, CAD, and EUR before launch.
 
 ### 7. `.ca` WooNuxt Isolation
 
@@ -156,22 +239,26 @@ The Canadian storefront is not an independent WooCommerce backend. It sends iden
 - [The checkout composable](../../composables/useCheckout.ts) records `.ca` source metadata.
 - [The Helcim admin-order route](../../server/api/create-admin-order.post.ts) stores `_order_source` and `_customer_source = proskatersplace.ca` and deliberately advances paid Canadian orders to `processing`.
 
-A generic `woocommerce_order_status_processing` callback would therefore export Canadian Helcim orders. Destination `CA` cannot be globally blocked because `.com` shipments to Canada are valid FlavorCloud candidates.
+A generic `woocommerce_order_status_processing` callback would therefore export Canadian Helcim orders. Destination `CA` is not a sufficient channel test, but Canada is also outside the approved version-1 FlavorCloud market scope and must produce zero provider calls.
 
 The plugin needs defense-in-depth at both quote and fulfillment time:
 
 1. Resolve the storefront channel before calculating a rate.
 2. Deny WooNuxt, GraphQL, `.ca` origin/referrer, and known `.ca` source contexts.
-3. Allow `.com` classic checkout only when the destination is outside the United States.
-4. For REST/Store API requests, require an explicit `.com` origin or another verified `.com` channel marker; do not assume every REST request is `.ca` or every request without a header is `.com`.
+3. Allow `.com` classic checkout only when the destination is in the explicit FlavorCloud allowlist; always exclude the United States and Canada in version 1.
+4. Disable all REST, Store API, and GraphQL customer rate calls in version 1. A later Blocks release requires a new signed/trusted `.com` channel contract rather than trusting a client-supplied header.
 5. At fulfillment, require an order line whose method ID is exactly `psp_flavorcloud`.
 6. Reject orders with `.ca` source metadata even if their status is `processing`.
 7. Recheck the destination and selected quote metadata before any export.
 8. Exclude POS/local-pickup orders.
 
+For version 1, the positive quote-time `.com` identity is a server-side conjunction: the configured canonical host is exactly `proskatersplace.com`; WooCommerce reports classic cart/checkout or its classic `wc-ajax` rate-recalculation endpoint; a valid Woo customer session exists; and the request is not REST, Store API, GraphQL, admin, CLI, cron, or a WooNuxt-marked request. Derive the canonical host from trusted WordPress/plugin configuration after the live HTTP/HTTPS mismatch is resolved, not from an unvalidated forwarded or client-supplied header. Missing or contradictory evidence fails closed with zero FlavorCloud calls.
+
+When a customer selects a FlavorCloud rate, persist a plugin-owned `.com` channel marker on the shipping item from that server-validated context. Fulfillment must require that marker, the exact method ID, and the absence of `.ca` `_order_source`/`_customer_source` values. Customer-submitted order metadata or headers never satisfy fulfillment eligibility.
+
 ### 8. Catalog Readiness
 
-No product customs implementation was found in the current `woonuxt` source. The `woo-origin-sort` plugin is about order-attribution origin, not manufacturing Country of Origin, and must not be reused.
+No product customs implementation was found in the current `woonuxt` source. The active `WOO - Sort origin` snippet uses `_order_origin` only for order-attribution display/sorting, not manufacturing Country of Origin, and must not be reused for product customs data.
 
 A public Store API snapshot on 2026-08-27 returned 1,719 published product records:
 
@@ -179,7 +266,9 @@ A public Store API snapshot on 2026-08-27 returned 1,719 published product recor
 - 24 records had complete non-zero parent-product length, width, and height.
 - 1,695 records were missing at least one parent-product dimension.
 
-This does not prove variation readiness and does not expose private HS/COO metadata. A privileged product-and-variation audit is still required before launch.
+The production editor for a representative simple product exposed Woo weight and dimensions plus GTIN/EAN, but no Country of Origin, HS code, tariff, or customs-description control. That product had a 0.4 kg weight and blank dimensions. The standard product CSV exporter likewise offered weight and dimension columns but no named HS/COO columns; it can optionally export all custom metadata. These observations strongly support adding canonical product and variation customs fields in the new plugin, but they do not prove that no legacy private meta key exists elsewhere in the catalog.
+
+The stale MCP credentials prevented a safe catalog-wide private-meta query, and no full custom-meta CSV was generated during this read-only pass. Variation readiness and definitive HS/COO coverage counts therefore remain a launch gate, not a research assumption.
 
 FlavorCloud's current rate guidance expects each customs line to have:
 
@@ -200,9 +289,17 @@ Version 1 should support one verified Woo shipping package unless the live audit
 
 Coupon allocation is also part of customs valuation. The plugin must not assume whether `Pieces[].SalePrice` is list price, sale price, or the post-discount transaction value. FlavorCloud must confirm how product-level and order-level discounts, taxes, gift cards, and zero-price promotional lines should be represented before the request builder is finalized.
 
-### 10. ShipStation and Tracking Ownership
+### 10. WooCommerce Tax Treatment
 
-No current ShipStation integration source is checked into this repository. Existing artifacts show that orders have previously carried `_shipstation_exported`, and [the Canadian redirect snippet](../redirect-cad-traffic.php) exempts ShipStation/API/webhook requests, but the active tracking plugin and metadata contract are not confirmed.
+Production prices are entered and displayed exclusive of tax, tax is calculated from the customer shipping address, and the global shipping tax class is Standard. The current international Table Rate instances override that global setting with `Tax Status = none`.
+
+The new FlavorCloud method should follow the existing international behavior and be non-taxable in WooCommerce unless accounting and FlavorCloud explicitly approve another treatment. DDP duties, import taxes, AIT, platform fees, and shipping must be stored as separately identifiable quote components, but Woo must not calculate another Standard-rate tax on provider tax/duty components. The active `0$ Tax for US` snippet only renders a visual zero-sales-tax line for US billing countries; it does not change tax calculation.
+
+### 11. ShipStation and Tracking Ownership
+
+ShipStation for WooCommerce 5.3.4 is active, but its production settings report **Not connected yet** because the previously generated REST API keys are missing. WordPress.com transport is disabled. It is configured to export `processing`, `on-hold`, `completed`, and `cancelled` orders, treat `completed` as shipped, and log requests with a warning that personal data may be included. The visible plugin-managed status mapping also appears to map ShipStation `Completed` to Woo `cancelled` and ShipStation `Cancelled` to Woo `completed`; verify this apparent inversion before reconnecting.
+
+This means ShipStation cannot currently be assumed to receive the FlavorCloud workflow or own tracking. Reconnection, status-map correction, and log-retention review are separate operational tasks. Existing artifacts show that orders have previously carried `_shipstation_exported`, and [the Canadian redirect snippet](../redirect-cad-traffic.php) exempts ShipStation/API/webhook requests, but the active tracking metadata contract is still unconfirmed.
 
 Version 1 must not automatically complete orders or send tracking notifications. The fulfillment design must first identify whether ShipStation, YITH Order Tracking, WooCommerce, or another plugin owns tracking and customer emails so one shipment does not produce duplicate notices.
 
@@ -317,7 +414,7 @@ Names are intentionally explicit so provider, checkout, catalog, and fulfillment
 flowchart TD
     A[WooCommerce requests package rates] --> B{Verified dot-com channel?}
     B -- No --> Z[Zero FlavorCloud API calls]
-    B -- Yes --> C{Destination outside US?}
+    B -- Yes --> C{Destination in approved allowlist?}
     C -- No --> Z
     C -- Yes --> D{Complete address and valid package?}
     D -- No --> F[Leave current rates unchanged]
@@ -344,7 +441,8 @@ flowchart TD
 - Mark customer labels clearly as DDP, for example `International Standard — duties & taxes included`.
 - Do not expose internal hash keys in customer-facing labels, emails, or order notes.
 - Declare HPOS compatibility.
-- Declare Checkout Blocks compatibility only after Store API tests pass.
+- Use `WC_Order`, `WC_Order_Item_Shipping`, and their metadata CRUD APIs exclusively for orders and shipping items. Never read or write order state through `wp_posts`, `wp_postmeta`, direct SQL, `get_post_meta()`, or `update_post_meta()`.
+- Do not declare customer-facing Checkout Blocks compatibility in version 1; the production checkout is classic. Keep Store API request detection and `.ca` exclusion tests because WooNuxt uses programmatic checkout paths.
 
 ### Storefront Eligibility
 
@@ -352,15 +450,16 @@ Create one `StorefrontEligibility` service used by quote calculation and fulfill
 
 Expected outcomes:
 
-| Context                                               | Destination             | FlavorCloud result                                                      |
-| ----------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------- |
-| `.com` classic checkout                               | US                      | Disabled; existing domestic methods unchanged                           |
-| `.com` classic checkout                               | Canada                  | Eligible as international                                               |
-| `.com` classic checkout                               | Other supported country | Eligible as international                                               |
-| `.ca` WooNuxt/GraphQL                                 | Canada                  | Disabled; zero provider calls                                           |
-| `.ca` WooNuxt/GraphQL synthetic international request | Any                     | Disabled; zero provider calls                                           |
-| Staff/POS/local-pickup order                          | Any                     | Disabled for fulfillment unless an explicit later policy says otherwise |
-| Ambiguous programmatic request                        | Any                     | Disabled by default and logged only as a safe reason code               |
+| Context                                               | Destination            | FlavorCloud result                                                      |
+| ----------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `.com` classic checkout                               | US                     | Disabled; existing domestic methods unchanged                           |
+| `.com` classic checkout                               | Canada                 | Disabled in version 1; existing Canadian methods remain                 |
+| `.com` classic checkout                               | Approved country       | Eligible as international                                               |
+| `.com` classic checkout                               | Unsupported/unapproved | Disabled; mapped legacy fallback remains                                |
+| `.ca` WooNuxt/GraphQL                                 | Canada                 | Disabled; zero provider calls                                           |
+| `.ca` WooNuxt/GraphQL synthetic international request | Any                    | Disabled; zero provider calls                                           |
+| Staff/POS/local-pickup order                          | Any                    | Disabled for fulfillment unless an explicit later policy says otherwise |
+| Ambiguous programmatic request                        | Any                    | Disabled by default and logged only as a safe reason code               |
 
 ### Product Customs Resolution
 
@@ -382,7 +481,7 @@ Resolution rules:
 7. Never silently invent an HS code or COO.
 8. Support WooCommerce CSV import/export so classification work can be reviewed in bulk.
 
-The readiness report should cover published simple products and every purchasable variation, not just parent products. It should filter by missing weight, missing HS, missing COO, missing customs description, and inherited values requiring review.
+The readiness report should cover published simple products and every purchasable variation, not just parent products. It should filter by missing weight, missing HS, missing COO, missing customs description, and inherited values requiring review. Because no canonical HS/COO editor fields were found live, the provisional project-owned keys above are the recommended implementation unless the final private-meta export discovers a deliberate legacy field that should be migrated or adapted.
 
 ### Quote Request and Cache
 
@@ -422,9 +521,9 @@ The implementation needs fixtures proving whether the displayed DDP total is:
 ShippingCost + LandedCostDetail.LandedCost
 ```
 
-and whether the six-percent platform fee described in sales correspondence is already represented, merchant-absorbed, or separately passed to the customer.
+FlavorCloud's sales email describes three separate economic components: shipping, landed cost, and a platform fee equal to 6% of cart value. Its $150 example yields a $9 platform fee, and the email says merchants usually pass shipping and landed cost to the customer while deciding whether to absorb the platform fee or incorporate it into product prices. The checkout shipping method must therefore not silently add 6% to a FlavorCloud API rate. Confirm the signed-contract basis, excluded cart items/discounts/refunds, settlement method, and approved accounting treatment before deciding whether that merchant expense affects product pricing elsewhere.
 
-Once confirmed, store every component as provider metadata but add one atomic Woo shipping rate total. Avoid a separate mutable Woo fee that could become stale when the shopper changes service. The international rate should not cause WooCommerce to assess sales tax again on import duty or destination tax already included in DDP; the final `tax_status` requires verification against live Woo tax settings.
+Once confirmed, store every component as provider metadata but add one atomic Woo shipping rate total. Avoid a separate mutable Woo fee that could become stale when the shopper changes service. Production's existing international Table Rate instances are non-taxable even though the global shipping tax class is Standard, so `psp_flavorcloud` should also use `tax_status = none` unless an approved accounting test proves otherwise. WooCommerce must not assess Standard-rate tax again on import duty or destination tax already included in DDP.
 
 ### Rate Arbitration and Fallback
 
@@ -437,7 +536,7 @@ After a valid FlavorCloud quote is added, a later `woocommerce_package_rates` fi
 - Domestic `.com` choices.
 - Unrelated pickup or provider methods not explicitly mapped as competitors.
 
-Because the current PSP and Price Based on Country filters run at priority 10 and the staff POS rate is added at priority 100, a tentative arbitration priority around 50 is reasonable. Confirm the live hook order before locking that priority.
+Production confirms the PSP/POS package filter at priority 10, the Price Based on Country rate conversion at priority 10, the staff POS addition at priority 100, and the incomplete-address checkout filter at priority 9999. An arbitration priority around 50 is therefore appropriate: it runs after PBC conversion, removes only mapped Table Rate fallbacks, and still allows the staff-only POS rate to be added later. Lock the final priority with an integration test rather than relying on the number alone.
 
 Failure policy is a business decision:
 
@@ -496,7 +595,7 @@ Recommended settings:
 
 - Enabled/dark mode.
 - Environment label and API base URL allowlist.
-- Eligible countries or exclusion set, with US always excluded for this `.com` method.
+- Explicit eligible-country allowlist, with both the US and Canada always excluded in version 1.
 - DDP-only toggle fixed on for the initial release.
 - Enabled service levels.
 - International free-shipping/subsidy policy, disabled by default.
@@ -523,7 +622,7 @@ Before launch, document FlavorCloud as an international shipping/customs service
 
 ## Implementation Phases
 
-### Phase 0: Contract and Live-Site Audit
+### Phase 0: Contract Closure and Remaining Readiness Audit
 
 Goal: remove assumptions that could charge customers incorrectly or affect `.ca`.
 
@@ -535,19 +634,24 @@ Tasks:
 - Rotate the web-account credential transmitted during discovery, revoke prior sessions where supported, and generate separate API credentials.
 - Confirm whether the API expects raw-token or `Bearer` authorization syntax.
 - Confirm the DDP charge formula, platform-fee treatment, supported currencies, service levels, hash lifetime, and billing event.
-- Audit live active plugins, versions, Code Snippets, shipping zones, Table Rate rows, Price Based on Country options/zones, checkout type, HPOS, taxes, ShipStation, and tracking ownership.
+- Preserve the completed sanitized production audit in this plan; no live configuration change is needed for the research phase.
+- Refresh the Affinity WordPress/MCP application-password connection before implementation automation.
+- Resolve the exact trusted classic-checkout `.com` channel signal and canonical HTTPS host behavior; all REST/Store API/GraphQL rate contexts remain disabled in version 1.
 - Audit every filter that creates or splits Woo shipping packages and decide the supported package count.
-- Audit product and variation metadata for HS, COO, weight, dimensions, customs description, material, and SKU.
-- Confirm whether `.com` international means every non-US destination supported by FlavorCloud, including Canada.
+- Run a catalog-wide privileged product and variation export/query for HS, COO, weight, dimensions, customs description, material, and SKU.
+- Approve an explicit `.com` destination allowlist beyond the excluded US and Canada markets.
 - Confirm the failure policy, staff/manual-order policy, and whether any free-shipping threshold subsidizes international rates.
+- Decide whether ShipStation will be reconnected and own tracking, or whether FlavorCloud/WooCommerce will be the sole initial tracking path.
+- Decide whether production PHP is upgraded first; otherwise record PHP 8.0 as a hard plugin compatibility target.
 
 Exit criteria:
 
 - No unresolved billing or label-generation ambiguity.
-- Live routing and currency behavior are documented.
+- Live routing, fallbacks, checkout type, currency, tax, and snippet behavior are documented.
 - Canonical product metadata keys are chosen without duplicating an active plugin.
 - A safe sandbox or vendor-approved test procedure exists.
 - The target shipping-zone order and same-zone fallback topology are documented.
+- The authoritative `.com` classic-checkout trust boundary and fail-closed reason codes are documented.
 
 ### Phase 1: Plugin Foundation and Catalog Readiness
 
@@ -557,6 +661,8 @@ Tasks:
 
 - Scaffold the standalone plugin with readable classes and namespaces.
 - Declare HPOS compatibility.
+- Use WooCommerce order/order-item CRUD only and add no dependency on compatibility-mode post synchronization.
+- Set `Requires PHP: 8.0`, lint on PHP 8.0, and avoid PHP 8.1+ language features until production is upgraded.
 - Add settings and environment-based credentials.
 - Build authentication, defensive response parsing, safe logs, and an admin connection check.
 - Add canonical product/variation customs fields or adapters to confirmed existing fields.
@@ -569,6 +675,7 @@ Exit criteria:
 - No secrets appear in Git, HTML, logs, or metadata.
 - Every purchasable SKU can be classified as ready or blocked with a clear reason.
 - API authentication works in a non-billable environment.
+- Quote, shipping-item, export, and idempotency metadata round-trip under HPOS with synchronization disabled.
 
 ### Phase 2: Dark-Mode Rate Engine
 
@@ -576,7 +683,7 @@ Goal: calculate and compare rates without showing them to customers.
 
 Tasks:
 
-- Implement storefront eligibility and prove zero calls for `.ca` and `.com` US requests.
+- Implement storefront eligibility and prove zero calls for `.ca`, `.com` US, and `.com` Canada.
 - Build request mapping, response parsing, quote caching, and deduplication.
 - Normalize numeric strings/numbers and capture provider request IDs.
 - Implement the selected multi-currency strategy.
@@ -589,7 +696,7 @@ Exit criteria:
 
 - Repeated checkout refreshes reuse the same valid quote.
 - Quote components reconcile exactly to approved fixtures.
-- No `.ca`, domestic US, incomplete-address, or incomplete-catalog request reaches FlavorCloud.
+- No `.ca`, US, unapproved-country, incomplete-address, or incomplete-catalog request reaches FlavorCloud.
 - Timeouts and malformed responses do not break checkout.
 
 ### Phase 3: Non-Customer Fulfillment Pilot
@@ -623,7 +730,7 @@ Tasks:
 - Persist selected quote components onto live canary orders.
 - Suppress only mapped legacy international rates after provider success.
 - Preserve the approved same-zone fallback after failure.
-- Verify classic checkout and, if active, Checkout Blocks/Store API.
+- Verify the live classic checkout plus Store API exclusion tests for `.ca`.
 - Expand countries only after checkout-to-portal reconciliation.
 
 Exit criteria:
@@ -674,7 +781,7 @@ Exit criteria:
 ### Storefront and Destination
 
 - `.com` to US: no FlavorCloud API call; current domestic rate set unchanged.
-- `.com` to Canada: FlavorCloud eligible; `.ca` logic does not intercept it.
+- `.com` to Canada: no FlavorCloud call; current Canadian Table Rate behavior remains.
 - `.com` to UK, EU, Australia, Japan, and another approved country.
 - `.com` to an unsupported or restricted country.
 - `.ca` to Canada: no FlavorCloud call; CAD and Helcim flow unchanged.
@@ -706,12 +813,13 @@ Exit criteria:
 - Table Rate fallback and FlavorCloud-success suppression.
 - First-match shipping-zone ordering, same-zone fallback presence, and Rest of World behavior.
 - PO box and invalid address.
-- Classic checkout and Checkout Blocks if active.
+- Classic shortcode checkout; Store API tests are isolation tests rather than a declaration that `.com` uses Checkout Blocks.
 
 ### Currency and Totals
 
 - USD, CAD, and EUR with Price Based on Country enabled.
 - Price Based on Country shipping conversion enabled and disabled.
+- Existing fallback at discounted, tax-exclusive cart values immediately below, exactly at, and immediately above the stored USD $150 boundary in every active pricing-zone currency.
 - Provider monetary fields as numbers and numeric strings.
 - Zero-duty/de-minimis destination.
 - Shipping, duty, sales tax, AIT, landed cost, platform fee, Woo shipping total, payment total, and order total reconciliation.
@@ -725,9 +833,11 @@ Exit criteria:
 - Repeated export of the same order.
 - Processing hook fired more than once.
 - `.ca` Helcim order moved to `processing`.
+- HPOS with compatibility synchronization disabled: shipping-item quote metadata, export state, tracking metadata, and Action Scheduler retry/idempotency state.
 - Manual fulfillment, label generation, commercial invoice, tracking entry, and completion.
 - Label void/cancel and unscanned-label billing scenario.
 - Duplicate notification and ShipStation interaction.
+- ShipStation disconnected state and the apparent Completed/Cancelled mapping inversion.
 
 ### Security and Operations
 
@@ -737,6 +847,7 @@ Exit criteria:
 - Redacted logs under API failure.
 - Rate cache invalidation after product customs data changes.
 - Concurrent requests and Action Scheduler retry behavior.
+- PHP 8.0 syntax lint and integration execution, plus the supported-PHP target if infrastructure is upgraded.
 - Privacy disclosure, data minimization, retention, and personal-data export/erasure behavior.
 
 ## Rollback Plan
@@ -761,10 +872,13 @@ Do not enable live customer rates until all of the following are true:
 - Live Price Based on Country settings and the chosen currency strategy pass reconciliation.
 - Product and variation readiness meets the agreed coverage threshold.
 - `.ca` and `.com` US tests prove zero FlavorCloud calls.
+- The approved destination allowlist is documented and both US and Canada are excluded.
 - Existing domestic, international fallback, POS, and checkout snippets pass regression tests.
 - FlavorCloud and its mapped fallback coexist in the actual first-matching international zones.
 - The selected rate's hashes and customs snapshot survive into the Woo order.
 - The warehouse handoff preserves or formally reconciles the paid quote before any real customer launch.
+- The canonical WordPress/WooCommerce URL is HTTPS or every plugin-generated external URL is proven to use the correct HTTPS origin.
+- HPOS-with-sync-off and PHP-runtime compatibility tests pass without direct order-table or postmeta access.
 
 Do not enable automated order push until all of the following are true:
 
@@ -772,6 +886,7 @@ Do not enable automated order push until all of the following are true:
 - Billing timing and cancellation are contractually clear.
 - Idempotency and retry behavior are proven.
 - ShipStation/tracking ownership is confirmed.
+- The current disconnected ShipStation state is deliberately resolved by reconnection or an approved alternative workflow.
 - Warehouse acceptance testing is complete.
 
 ## Blocking Questions for FlavorCloud
@@ -782,7 +897,7 @@ Do not enable automated order push until all of the following are true:
 4. When does billing occur: `/Shipments` request, portal fulfillment, label generation, carrier tender, first scan, or another event?
 5. How are an unused label and a duplicate/ambiguous shipment request voided and credited?
 6. What exact amount should WooCommerce charge for each DDP response? Is it always `ShippingCost + LandedCostDetail.LandedCost`?
-7. Is the six-percent platform fee included in an API amount, billed to the merchant separately, or eligible to be passed through?
+7. The sales email says the platform fee is a separate 6% of cart value. How is it invoiced/settled, which cart amounts and adjustments are included, and does the signed contract permit any customer pass-through?
 8. Which currencies and service groups are enabled for this merchant, and must `/Shipments` use the same currency as the rate hash?
 9. What is the TTL and single-use behavior of `HashKey` and `DutyHashKey`?
 10. What are the rate limits, concurrency limits, timeouts, retry guidance, and `429` behavior?
@@ -801,25 +916,19 @@ Do not enable automated order push until all of the following are true:
 23. How can CSV or another draft handoff preserve the checkout `HashKey`, `DutyHashKey`, currency, shipping price, and DDP landed cost when those hashes are absent from the public CSV schema?
 24. Should `.com` international shipping ever be free/subsidized at a cart threshold? If yes, which amount remains payable to FlavorCloud and how should the subsidy be represented?
 
-## Live WordPress Audit Still Required
+## Production Audit Result and Remaining Inputs
 
-Before implementation, capture and attach a sanitized configuration report containing:
+The exact Affinity client and production website were confirmed by the user. A read-only authenticated WordPress audit captured the production baseline, relevant active plugin versions, every shipping zone and method instance, international Table Rate fallback rules, Dynamic Rates selections, PBC settings and current exchange rates, checkout type, tax treatment, relevant active snippets, a representative product editor, exporter columns, and ShipStation state. No WordPress setting, snippet, product, order, plugin, credential, or shipping method was changed.
 
-- WordPress, WooCommerce, PHP, and HPOS versions/status.
-- Active shipping, currency, checkout, tax, tracking, and Code Snippets plugins/versions.
-- Active shipping zones, method instance IDs, Table Rate rows, and rate labels.
-- Exact first-match zone order and confirmation that every FlavorCloud zone contains its approved fallback.
-- Shipping-class rules and filters that split or merge Woo shipping packages.
-- Active Code Snippets that use shipping, checkout, order-status, payment, or tracking hooks.
-- Price Based on Country zones, exchange rates, and `wc_price_based_country_shipping_exchange_rate` value.
-- Classic vs Checkout Blocks status.
-- Woo tax settings applicable to international shipping.
-- Product and variation customs-meta keys and coverage counts.
-- Store origin/return address, package profiles, insurance policy, and coupon/customs-value rules.
-- ShipStation/YITH/other tracking plugin status and metadata ownership.
-- A test order through each `.com`, `.ca`, POS, and international path.
+The remaining implementation inputs are narrower and explicit:
 
-The Affinity agency MCP matched the client name **ProSkaters Place**, but its selected record did not return a domain. Client confirmation was requested before further client-scoped operations, so no privileged live WordPress reads were made during this pass. Public REST evidence and repository source were used instead. This live audit is an implementation gate, not a reason to weaken the isolation rules.
+- Refresh the stale Affinity WordPress/MCP application-password credentials.
+- Run a catalog-wide product and variation private-meta/readiness audit; the public 1,719-product snapshot and one editor sample cannot establish variation HS/COO coverage.
+- Confirm the warehouse ship-from/return address and FlavorCloud package profiles rather than inferring them from Woo's `CA:ON` base location.
+- Audit any package-splitting logic not represented in the reviewed snippets and prove the supported package count with a test cart.
+- Decide the approved country allowlist beyond US/CA, fallback wording, international subsidy policy, and tracking owner.
+- Resolve ShipStation's disconnected state and apparent status-map inversion if ShipStation remains in scope.
+- Execute test orders through `.com`, `.ca`, POS, US, and one canary international destination only after a non-billable FlavorCloud procedure exists.
 
 ## Recommended First Build Ticket
 
