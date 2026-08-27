@@ -1,21 +1,24 @@
 ---
-title: 'Inline Skating: The Complete Beginner Guide (Canada 2026)'
-description: 'New to inline skating? Learn what it is, the gear you need, core techniques, and how to start skating safely in Canada with this complete 2026 beginner guide.'
+title: 'Inline Skating Guide: How to Start in Canada (2026)'
+description: 'Learn inline skating basics, safety gear, stopping, skate types, fit, maintenance, and where beginners can practise across Canada.'
 category: 'Guides'
 date: 2026-06-04
+modified: 2026-08-27
 author: 'ProSkaters Place Team'
-authorBio: "Toronto-based skating specialists who've fitted and coached inline skaters across Canada since 2010."
-image: '/images/blog/posted/inline-skating-guide.png'
-ogImage: '/images/blog/posted/inline-skating-guide.png'
+authorBio: 'Toronto skating specialists fitting and servicing skates for Canadian customers since 2011.'
+image: '/images/blog/posted/inline-skating-guide.webp'
+ogImage: '/images/blog/posted/inline-skating-guide.webp'
 alt: 'Inline skater gliding along a Canadian waterfront trail in 2026'
 tags: ['inline skating', 'inline skates', 'rollerblading', 'beginner guide', 'canada', 'toronto']
 readTime: '11 min read'
 featured: true
 ---
 
-# Inline Skating: The Complete Beginner Guide (Canada 2026)
+# Inline Skating Guide: How to Start in Canada (2026)
 
 **Inline skating** is one of the most accessible, joint-friendly, and genuinely fun ways to get outside and move — whether you're cruising Toronto's Martin Goodman Trail, the Vancouver Seawall, or an indoor rink during a Canadian winter. If you've ever watched someone glide past on a single line of wheels and wondered how to start, this guide covers everything: what inline skating is, the gear you actually need, the first techniques to learn, and where to skate across Canada.
+
+**The short version:** start with supportive recreational skates that fit snugly, wear a certified helmet plus wrist, knee, and elbow protection, and practise stance, stride, turning, and heel-brake stops on a level traffic-free surface. Learn to stop before adding speed or hills.
 
 > **Ready to roll already?** Browse our full range of [inline skates](/product-category/inline-skates) — shipped from inside Canada with real fit advice from a Toronto showroom.
 
@@ -29,7 +32,7 @@ Inline skating became a mainstream activity in the late 1980s and 1990s, and the
 
 ### Inline Skating vs. Rollerblading
 
-These two terms mean the same thing. "Rollerblade" is actually a brand name — Rollerblade was the company that popularized inline skates in North America — and the name stuck as a generic verb, the same way people say "Kleenex" for tissue. So "rollerblading" and "inline skating" describe the identical activity. Throughout this guide we'll mostly say *inline skating*, but you'll hear both at any Canadian rink or trail.
+These two terms mean the same thing. "Rollerblade" is actually a brand name — Rollerblade was the company that popularized inline skates in North America — and the name stuck as a generic verb, the same way people say "Kleenex" for tissue. So "rollerblading" and "inline skating" describe the identical activity. Throughout this guide we'll mostly say _inline skating_, but you'll hear both at any Canadian rink or trail.
 
 If you're still deciding between inline and traditional quad skates, our [inline skates vs. roller skates comparison](/blog/inline-skates-vs-roller-skates) breaks down the trade-offs in detail.
 
@@ -61,11 +64,15 @@ Urban (or "freeskate") skates are tougher and more maneuverable, built for navig
 
 ### Speed Skating
 
-Speed skates use a long frame with larger wheels (often 100–125 mm) and a low-cut boot for maximum stride efficiency. They're built for distance and racing — fast, but less forgiving for beginners.
+Speed skates use a long frame with larger wheels and a low-cut boot for maximum stride efficiency. They're built for distance and racing — fast, but less forgiving for beginners. Our [inline speed skating guide](/blog/inline-speed-skating-guide) explains how to progress safely from fitness skates.
 
 ### Aggressive Skating
 
-Aggressive skates are designed for skateparks, grinds, and tricks. They have small, hard wheels, a flat space in the frame for grinding rails, and a heavily reinforced boot.
+Aggressive skates are designed for skateparks, grinds, and tricks. They have small, hard wheels, a grind space in the frame, soul plates, and a heavily reinforced boot. Read the [aggressive inline skating beginner guide](/blog/aggressive-inline-skating-guide) before taking recreational skates onto obstacles.
+
+### Inline Hockey
+
+Inline hockey skates use a supportive hockey-style boot and a manoeuvrable wheel setup for rapid starts, stops, and direction changes on sport court or smooth concrete. New players can use our [roller hockey starter guide](/blog/roller-hockey-starter-guide) to separate essential protective equipment from optional upgrades.
 
 ### Off-Road Skating
 
@@ -121,7 +128,7 @@ Stopping is the skill beginners skip and regret. Start with the **heel brake**: 
 
 ### Step 4: Fall Safely
 
-If you feel yourself going down, crouch low and fall *forward* onto your pads — knees first, then wrist guards — never backward onto your tailbone or wrists alone. This is exactly why the protective gear above matters.
+If you feel yourself going down, crouch low and fall _forward_ onto your pads — knees first, then wrist guards — never backward onto your tailbone or wrists alone. This is exactly why the protective gear above matters.
 
 Once you're comfortable rolling and stopping, our [complete beginner's guide to skating](/blog/complete-beginners-guide-inline-quad-skating) and our [how to skate backwards tutorial](/blog/how-to-skate-backwards-tutorial) are great next steps.
 
@@ -132,7 +139,7 @@ Once you're comfortable rolling and stopping, our [complete beginner's guide to 
 Canada has world-class skating spots. A few favourites:
 
 - **Toronto** — the [Martin Goodman Trail](https://www.toronto.ca/explore-enjoy/recreation/trails/) runs ~56 km along the waterfront, smooth and mostly flat. See our [Toronto skating guide](/blog/roller-skating-toronto-guide) for indoor rinks and more spots.
-- **Vancouver** — the Seawall around Stanley Park is one of the most scenic skates anywhere.
+- **Vancouver** — the Seawall around Stanley Park is one of the most scenic skates anywhere. Plan the route, surface, and shared-path etiquette with our [Vancouver inline skating guide](/blog/inline-skating-vancouver-guide).
 - **Montreal** — the Lachine Canal path offers long, flat, paved kilometres.
 - **Winter** — when trails ice over, head to indoor rinks, community centres, and skate-friendly gyms to keep your stride sharp year-round.
 
@@ -165,7 +172,7 @@ Yes — it's a low-impact, high-calorie cardio workout that builds leg and core 
 
 ### What's the difference between inline skating and rollerblading?
 
-None. "Rollerblade" is a brand name that became a generic term, so rollerblading *is* inline skating. Both refer to skates with wheels in a single line.
+None. "Rollerblade" is a brand name that became a generic term, so rollerblading _is_ inline skating. Both refer to skates with wheels in a single line.
 
 ### How much do inline skates cost in Canada?
 

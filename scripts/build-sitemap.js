@@ -18,7 +18,7 @@
 require('dotenv').config();
 const fetch = require('node-fetch');
 const {resolve} = require('path');
-const {readdir, writeFileSync, existsSync, mkdirSync} = require('fs');
+const {readdir, writeFileSync, existsSync, mkdirSync, readFileSync} = require('fs');
 const {promisify} = require('util');
 
 const readdirAsync = promisify(readdir);
@@ -105,6 +105,17 @@ const CATEGORIES_QUERY = `
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function readJsonFile(filePath, fallbackValue) {
+  if (!existsSync(filePath)) return fallbackValue;
+
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    console.warn(`⚠️  Could not read fallback data from ${filePath}: ${error.message}`);
+    return fallbackValue;
+  }
+}
+
 /**
  * Fetch all products from GraphQL for sitemap
  */
@@ -161,7 +172,7 @@ async function fetchAllProducts() {
       const result = await response.json();
 
       if (result.errors) {
-        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
+        console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map((e) => e.message).join('; '));
         // Continue processing — partial errors (e.g. unsupported product types) still return valid data
       }
 
@@ -182,7 +193,7 @@ async function fetchAllProducts() {
         break;
       }
 
-      const products = result.data.products.nodes.filter(p => p && p.slug);
+      const products = result.data.products.nodes.filter((p) => p && p.slug);
       allProducts.push(...products);
       console.log(`   Fetched ${products.length} products. Total: ${allProducts.length}`);
 
@@ -231,7 +242,7 @@ async function fetchAllCategories() {
     const result = await response.json();
 
     if (result.errors) {
-      console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map(e => e.message).join('; '));
+      console.warn('⚠️  GraphQL partial errors (non-fatal):', result.errors.map((e) => e.message).join('; '));
     }
 
     if (!result.data?.productCategories?.nodes) {
@@ -428,32 +439,59 @@ async function generateCompleteSitemap() {
     mkdirSync(CONFIG.OUTPUT_DIR, {recursive: true});
   }
 
+  const sitemapPath = resolve(CONFIG.OUTPUT_DIR, CONFIG.SITEMAP_FILE);
+  const previousSitemap = readJsonFile(sitemapPath, {routes: []});
+  const previousRoutesByUrl = new Map((previousSitemap.routes || []).map((route) => [route.url, route]));
+
   // Fetch all data
   const [products, categories, blogRoutes] = await Promise.all([fetchAllProducts(), fetchAllCategories(), getBlogRoutes()]);
 
-  // Generate product SEO metadata
-  const productSEO = generateProductSEOMetadata(products);
+  const productSEOPath = resolve(CONFIG.OUTPUT_DIR, CONFIG.PRODUCT_SEO_FILE);
+  const productSEO = products.length ? generateProductSEOMetadata(products) : readJsonFile(productSEOPath, []);
+  if (!products.length) console.warn(`⚠️  Preserving ${productSEO.length} committed product SEO records because GraphQL returned no products.`);
 
   // Static routes
   const staticRoutes = ['/', '/about', '/blog', '/categories', '/products', '/contact', '/terms', '/privacy', '/roller-skates-size-calculator'];
 
   // Build product routes
-  const productRoutes = products.map((product) => ({
-    url: `/product/${product.slug}`,
-    lastmod: product.modified || new Date().toISOString().split('T')[0],
-    changefreq: 'weekly',
-    priority: '0.7',
-    type: 'product',
-  }));
+  const productRoutes = products.length
+    ? products.map((product) => ({
+        url: `/product/${product.slug}`,
+        lastmod: product.modified || new Date().toISOString().split('T')[0],
+        changefreq: 'weekly',
+        priority: '0.7',
+        type: 'product',
+      }))
+    : readJsonFile(resolve(CONFIG.OUTPUT_DIR, 'product-routes.json'), []).map(
+        (url) =>
+          previousRoutesByUrl.get(url) || {
+            url,
+            lastmod: new Date().toISOString().split('T')[0],
+            changefreq: 'weekly',
+            priority: '0.7',
+            type: 'product',
+          },
+      );
 
   // Build category routes
-  const categoryRoutes = categories.map((category) => ({
-    url: `/product-category/${category.slug}`,
-    lastmod: new Date().toISOString().split('T')[0],
-    changefreq: 'daily',
-    priority: '0.8',
-    type: 'category',
-  }));
+  const categoryRoutes = categories.length
+    ? categories.map((category) => ({
+        url: `/product-category/${category.slug}`,
+        lastmod: new Date().toISOString().split('T')[0],
+        changefreq: 'daily',
+        priority: '0.8',
+        type: 'category',
+      }))
+    : readJsonFile(resolve(CONFIG.OUTPUT_DIR, 'category-routes.json'), []).map(
+        (url) =>
+          previousRoutesByUrl.get(url) || {
+            url,
+            lastmod: new Date().toISOString().split('T')[0],
+            changefreq: 'daily',
+            priority: '0.8',
+            type: 'category',
+          },
+      );
 
   // Build blog routes
   const blogRoutesData = blogRoutes.map((route) => ({
@@ -490,21 +528,23 @@ async function generateCompleteSitemap() {
   };
 
   // Write sitemap data
-  const sitemapPath = resolve(CONFIG.OUTPUT_DIR, CONFIG.SITEMAP_FILE);
   writeFileSync(sitemapPath, JSON.stringify(sitemapData, null, 2));
   console.log(`\n✅ Sitemap data written to: ${sitemapPath}`);
 
   // Write product SEO metadata
-  const seoPath = resolve(CONFIG.OUTPUT_DIR, CONFIG.PRODUCT_SEO_FILE);
-  writeFileSync(seoPath, JSON.stringify(productSEO, null, 2));
-  console.log(`✅ Product SEO metadata written to: ${seoPath}`);
+  if (products.length || !existsSync(productSEOPath)) {
+    writeFileSync(productSEOPath, JSON.stringify(productSEO, null, 2));
+    console.log(`✅ Product SEO metadata written to: ${productSEOPath}`);
+  } else {
+    console.log(`✅ Existing product SEO metadata preserved at: ${productSEOPath}`);
+  }
 
   // Generate simple route lists for Nuxt prerendering
   const productRoutesList = productRoutes.map((r) => r.url);
   const categoryRoutesList = categoryRoutes.map((r) => r.url);
 
-  writeFileSync(resolve(CONFIG.OUTPUT_DIR, 'product-routes.json'), JSON.stringify(productRoutesList, null, 2));
-  writeFileSync(resolve(CONFIG.OUTPUT_DIR, 'category-routes.json'), JSON.stringify(categoryRoutesList, null, 2));
+  if (products.length) writeFileSync(resolve(CONFIG.OUTPUT_DIR, 'product-routes.json'), JSON.stringify(productRoutesList, null, 2));
+  if (categories.length) writeFileSync(resolve(CONFIG.OUTPUT_DIR, 'category-routes.json'), JSON.stringify(categoryRoutesList, null, 2));
   writeFileSync(resolve(CONFIG.OUTPUT_DIR, 'blog-routes.json'), JSON.stringify(blogRoutes, null, 2));
 
   console.log(`\n📊 Sitemap Summary:

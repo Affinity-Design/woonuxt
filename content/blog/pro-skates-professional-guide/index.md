@@ -5,8 +5,8 @@ category: 'Skating Tips'
 date: 2026-01-22
 author: 'ProSkaters Place'
 authorBio: 'Experts in inline and roller skating gear.'
-image: '/images/blog/posted/pro-skates.png'
-ogImage: '/images/blog/posted/pro-skates.png'
+image: '/images/blog/posted/pro-skates.webp'
+ogImage: '/images/blog/posted/pro-skates.webp'
 tags: ['pro skates', 'professional inline skates', 'canada', 'speed skating']
 ---
 
@@ -43,6 +43,8 @@ Different disciplines require different tools.
 - Large wheels (100mm, 110mm, or 125mm).
 
 Comparing these to recreational models, you'll notice the lack of cuff support, which demands strong ankle muscles.
+
+These features demand technique as well as fitness. Our [inline speed skating guide](/blog/inline-speed-skating-guide) covers the progression from supportive fitness skates to low-cut boots, long frames, and race-oriented wheel setups.
 
 ### Aggressive Skating
 

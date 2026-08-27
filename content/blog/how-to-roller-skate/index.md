@@ -1,8 +1,8 @@
 ---
 title: 'How to Roller Skate: Step-by-Step Guide for Adult Beginners'
 description: 'Learn how to roller skate as an adult — standing up, striding, stopping and falling safely. A practical first-session guide from a Toronto skate shop, with drills you can do in a parking lot.'
-image: '/images/blog/posted/toronto-roller-skating.png'
-ogImage: '/images/blog/posted/toronto-roller-skating.png'
+image: '/images/blog/posted/toronto-roller-skating.webp'
+ogImage: '/images/blog/posted/toronto-roller-skating.webp'
 alt: 'Adult skater on quad roller skates gliding along a smooth waterfront path'
 date: 2026-07-29
 categories: ['Tutorials', 'Skills', 'Roller Skates']

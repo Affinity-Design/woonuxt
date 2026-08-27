@@ -30,22 +30,12 @@ const nuxtApp = useNuxtApp();
 // Initialize SEO composable with enhanced features
 const {applyProductSEO, setProductSEO, loadProductSEOData} = useProductSEO();
 
-// Initialize exchange rate with error handling
-let exchangeRate = ref<number | null>(null);
-let refreshExchangeRate = () => {};
-try {
-  const exchangeRateComposable = useExchangeRate();
-  exchangeRate = exchangeRateComposable.exchangeRate;
-  refreshExchangeRate = exchangeRateComposable.refresh;
-} catch (error) {
-  console.error('[Product Page] Failed to initialize exchange rate:', error);
-  // Use fallback rate from config
-  const config = useRuntimeConfig();
-  const buildTimeRate = config.public.buildTimeExchangeRate;
-  if (buildTimeRate) {
-    exchangeRate.value = parseFloat(String(buildTimeRate));
-  }
-}
+// Product prices must not subscribe to the client-side exchange-rate refresh.
+// Use the same locked rate during SSR and hydration so legacy USD-marked cache
+// entries are normalized without changing the price box after first paint.
+const runtimeConfig = useRuntimeConfig();
+const configuredPriceExchangeRate = Number.parseFloat(String(runtimeConfig.public.buildTimeExchangeRate || ''));
+const lockedPriceExchangeRate = Number.isFinite(configuredPriceExchangeRate) && configuredPriceExchangeRate > 0 ? configuredPriceExchangeRate : null;
 
 const cacheKey = `product-${slug}`;
 const {getProductFromCache} = useCachedProduct();
@@ -92,7 +82,7 @@ const productLoadErrorMessage = computed(() => {
 // as ProductPrice.vue, so the FAQ and SEO price always match the displayed price.
 // Declared before the SEO application below, which uses it during setup.
 const getFormattedPriceDisplay = (priceValue?: string | null, regularPriceValue?: string | null) => {
-  const formatted = formatWooPriceForDisplay(priceValue || regularPriceValue, exchangeRate.value);
+  const formatted = formatWooPriceForDisplay(priceValue || regularPriceValue, lockedPriceExchangeRate);
   return formatted || t('messages.shop.priceUnavailable', 'Price unavailable');
 };
 
@@ -452,10 +442,6 @@ onMounted(async () => {
       // Silently fail - cached stock data is still valid
       console.warn(`[${slug}] Stock status refresh failed:`, e?.message || e);
     }
-  }
-  if (exchangeRate.value === null) {
-    // console.log('[[slug].vue] onMounted: Exchange rate is null, refreshing.');
-    await refreshExchangeRate();
   }
 });
 

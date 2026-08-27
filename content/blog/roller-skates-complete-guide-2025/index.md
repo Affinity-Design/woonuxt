@@ -5,8 +5,8 @@ category: 'Buying Guides'
 date: 2026-02-10
 author: 'ProSkaters Place Team'
 authorBio: 'Canadian skating experts helping skaters find the perfect gear since 2010'
-image: '/images/blog/posted/roller-skates.png'
-ogImage: '/images/blog/posted/roller-skates.png'
+image: '/images/blog/posted/roller-skates.webp'
+ogImage: '/images/blog/posted/roller-skates.webp'
 tags: ['roller skates', 'buying guide', 'canada', 'quad skates', 'beginner skates']
 ---
 

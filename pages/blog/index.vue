@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {getBlogImageSrcset} from '~/utils/blogImage.mjs';
+
 // Canadian SEO setup
 const {setCanadianSEO} = useCanadianSEO();
 
@@ -82,8 +84,12 @@ const formatDate = (date: string) => {
             <NuxtImg
               v-if="post.image"
               :src="post.image"
+              :srcset="getBlogImageSrcset(post.image)"
               :alt="post.title"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              width="640"
+              height="640"
+              sizes="100vw md:50vw lg:33vw"
               loading="lazy" />
             <div v-else class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
               <Icon name="ion:image-outline" class="text-gray-400 text-4xl" />

@@ -64,7 +64,7 @@ const isVariableProduct = computed(() => {
     </NuxtLink>
     <div class="p-2">
       <NuxtLink v-if="node.slug" :to="`/product/${decodeURIComponent(node.slug)}`" :title="node.name">
-        <h2 class="mb-2 font-semibold leading-tight text-gray-900 group-hover:text-primary transition-colors">
+        <h2 class="mb-2 min-h-12 line-clamp-2 font-semibold leading-tight text-gray-900 group-hover:text-primary transition-colors">
           {{ node.name }}
         </h2>
       </NuxtLink>

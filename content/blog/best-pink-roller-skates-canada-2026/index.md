@@ -5,8 +5,8 @@ category: 'Buying Guides'
 date: 2026-07-10
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates since 2011."
-image: '/images/blog/posted/best-pink-roller-skates-canada-2026.png'
-ogImage: '/images/blog/posted/best-pink-roller-skates-canada-2026.png'
+image: '/images/blog/posted/best-pink-roller-skates-canada-2026.webp'
+ogImage: '/images/blog/posted/best-pink-roller-skates-canada-2026.webp'
 alt: 'Pink quad roller skates ready for an outdoor skating session in Canada'
 tags: ['pink roller skates', 'quad roller skates', 'roller skates canada', 'kids roller skates', 'outdoor roller skates', 'buying guide']
 readTime: '10 min read'

@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-08-11
+**Last Updated:** 2026-08-27
 
 > **Current pipeline:** `data/blog-rehydration-2026-07.md` (fresh DataForSEO research, July 2026). The keyword lists below this point are the historical record — pick new topics from the rehydration doc, not from here.
 
@@ -11,6 +11,38 @@
 ## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **inline skating hockey** (480 sv, 0 kd — rehydration doc topic #7)
+
+  - Post: `/blog/roller-hockey-starter-guide`
+  - Drafted: 2026-08-27
+  - Status: Ready on `codex/seo-cwv-p1-content`; production publication pending merge
+  - Secondary: roller hockey, inline hockey, inline hockey skates, roller hockey gear
+  - Angle: first-practice guide covering skate fit, surface-specific wheels, required protection, core skills, maintenance, and league-rule verification
+
+- [x] **inline speed skating** (260 sv, 2 kd — rehydration doc topic #6)
+
+  - Post: `/blog/inline-speed-skating-guide`
+  - Drafted: 2026-08-27
+  - Status: Ready on `codex/seo-cwv-p1-content`; production publication pending merge
+  - Secondary: speed skating inline skates, inline skating speed, skates for speed skating
+  - Angle: controlled progression from fitness skates to low-cut speed equipment, technique, wheel configurations, training, safety, and Canadian clubs
+
+- [x] **aggressive inline skating** (260 sv, 0 kd — rehydration doc topic #5)
+
+  - Post: `/blog/aggressive-inline-skating-guide`
+  - Drafted: 2026-08-27
+  - Status: Ready on `codex/seo-cwv-p1-content`; production publication pending merge
+  - Secondary: aggressive inline skating equipment, aggressive skates, inline skate tricks
+  - Angle: discipline and equipment explainer with a beginner-safe progression, park etiquette, grind fundamentals, and protection
+
+- [x] **inline skating vancouver** (260 sv, 0 kd — rehydration doc topic #4)
+
+  - Post: `/blog/inline-skating-vancouver-guide`
+  - Drafted: 2026-08-27
+  - Status: Ready on `codex/seo-cwv-p1-content`; production publication pending merge
+  - Secondary: vancouver seawall skating, rollerblading vancouver, vancouver greenways
+  - Angle: local route guide grounded in City of Vancouver sources, with surface notes, path etiquette, gear, and beginner suitability
 
 - [x] **skating exercise** (390 sv, 0 kd — rehydration doc topic #3)
 
@@ -100,6 +132,7 @@
   - Performance: Monitoring
 
 - [x] **best inline skates 2025** (High commercial intent)
+
   - Post: `/blog/best-inline-skates-2025`
   - Published: 2025-11-10
   - Status: âœ… Live

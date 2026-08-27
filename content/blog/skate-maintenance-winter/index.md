@@ -5,8 +5,8 @@ category: "Maintenance"
 date: 2025-06-25
 author: "Proskaters Place Team"
 authorBio: "Master skate technician with 20+ years experience servicing equipment"
-image: "/images/Skate-Tools.jpeg"
-ogImage: "/images/Skate-Tools.jpeg"
+image: "/images/Skate-Tools.webp"
+ogImage: "/images/Skate-Tools.webp"
 tags: ["maintenance", "winter storage", "skate care", "bearings", "wheels"]
 ---
 

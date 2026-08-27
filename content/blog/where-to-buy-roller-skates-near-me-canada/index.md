@@ -5,8 +5,8 @@ category: 'Shopping Guides'
 date: 2025-11-13
 author: 'ProSkaters Place Team'
 authorBio: 'Canadian skating experts helping skaters find the perfect gear since 2010'
-image: '/images/blog/posted/roller-skates-near-me.png'
-ogImage: '/images/blog/posted/roller-skates-near-me.png'
+image: '/images/blog/posted/roller-skates-near-me.webp'
+ogImage: '/images/blog/posted/roller-skates-near-me.webp'
 tags: ['roller skates', 'shopping guide', 'canada', 'local stores', 'buying guide']
 ---
 

@@ -5,8 +5,8 @@ category: 'Fitness & Training'
 date: 2026-08-11
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates since 2011."
-image: '/images/blog/posted/roller-skating-exercise-benefits.png'
-ogImage: '/images/blog/posted/roller-skating-exercise-benefits.png'
+image: '/images/blog/posted/roller-skating-exercise-benefits.webp'
+ogImage: '/images/blog/posted/roller-skating-exercise-benefits.webp'
 alt: 'Adult skater doing a fitness workout on a smooth Canadian waterfront trail'
 tags: ['skating exercise', 'is skating good exercise', 'roller skating benefits', 'roller skating calories', 'roller skating workout', 'fitness skating']
 readTime: '10 min read'

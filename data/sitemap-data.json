@@ -1,226 +1,261 @@
 {
-  "lastGenerated": "2026-07-29T23:27:16.110Z",
-  "totalRoutes": 1802,
+  "lastGenerated": "2026-08-27T17:49:35.390Z",
+  "totalRoutes": 1807,
   "breakdown": {
     "static": 9,
-    "blog": 22,
+    "blog": 27,
     "categories": 63,
     "products": 1708
   },
   "routes": [
     {
       "url": "/",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "daily",
       "priority": "1.0",
       "type": "static"
     },
     {
       "url": "/about",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/blog",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/categories",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/products",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/contact",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/terms",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/privacy",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
       "url": "/roller-skates-size-calculator",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "weekly",
       "priority": "0.7",
       "type": "static"
     },
     {
+      "url": "/blog/aggressive-inline-skating-guide",
+      "lastmod": "2026-08-27",
+      "changefreq": "monthly",
+      "priority": "0.8",
+      "type": "blog"
+    },
+    {
       "url": "/blog/best-inline-skates-2025",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-inline-skates-canada-2025",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-kids-roller-skates-2026",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-mens-roller-skates-2026",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/best-pink-roller-skates-canada-2026",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/complete-beginners-guide-inline-quad-skating",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/how-to-roller-skate",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/how-to-skate-backwards-tutorial",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/inline-skates-vs-roller-skates",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/inline-skating-guide",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
+      "changefreq": "monthly",
+      "priority": "0.8",
+      "type": "blog"
+    },
+    {
+      "url": "/blog/inline-skating-vancouver-guide",
+      "lastmod": "2026-08-27",
+      "changefreq": "monthly",
+      "priority": "0.8",
+      "type": "blog"
+    },
+    {
+      "url": "/blog/inline-speed-skating-guide",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/online-skate-shop-canada",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/pro-skates-professional-guide",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
+      "changefreq": "monthly",
+      "priority": "0.8",
+      "type": "blog"
+    },
+    {
+      "url": "/blog/roller-hockey-starter-guide",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-rinks-indoor-skating-canada",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skate-size-chart",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-complete-guide-2025",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-for-women",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skates-toronto",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
+      "changefreq": "monthly",
+      "priority": "0.8",
+      "type": "blog"
+    },
+    {
+      "url": "/blog/roller-skating-exercise-benefits",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/roller-skating-toronto-guide",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/skate-maintenance-winter",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/skate-shop-toronto",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/toronto-roller-skating-spots-2026",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"
     },
     {
       "url": "/blog/where-to-buy-roller-skates-near-me-canada",
-      "lastmod": "2026-07-29",
+      "lastmod": "2026-08-27",
       "changefreq": "monthly",
       "priority": "0.8",
       "type": "blog"

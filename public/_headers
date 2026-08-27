@@ -20,3 +20,8 @@
 /_nuxt/builds/latest.json
   ! Cache-Control
   Cache-Control: no-cache, must-revalidate
+
+# Content images use stable filenames and are replaced by new paths when their
+# creative changes. Cache them at the edge and in browsers for repeat visits.
+/images/*
+  Cache-Control: public, max-age=31536000, immutable

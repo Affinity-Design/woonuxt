@@ -64,6 +64,12 @@ console.log(`[Nuxt Config] Found ${Object.keys(blogRedirects).length} blog redir
 export default defineNuxtConfig({
   extends: ['./woonuxt_base'],
   components: [{path: './components', pathPrefix: false, priority: 1000}],
+  // The base layer's relative alias resolves from the consuming root and points
+  // one directory above this checkout. Keep generated GraphQL imports inside
+  // this app so regular and worktree builds resolve the same module.
+  alias: {
+    '#woo': resolve('./.nuxt/gql/default'),
+  },
 
   // Lowercase-only hashes retire any previously cached mixed-case asset URL
   // while preserving Rollup's full eight-character content-hash entropy.

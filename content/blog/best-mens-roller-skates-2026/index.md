@@ -5,8 +5,8 @@ category: 'Buying Guides'
 date: 2026-04-14
 author: 'ProSkaters Place Team'
 authorBio: "Toronto's trusted skating specialists since day one. We've fitted thousands of skaters at our showroom."
-image: '/images/blog/posted/mens-roller-skates.png'
-ogImage: '/images/blog/posted/mens-roller-skates.png'
+image: '/images/blog/posted/mens-roller-skates.webp'
+ogImage: '/images/blog/posted/mens-roller-skates.webp'
 tags: ['mens roller skates', 'roller skates', 'quad skates', 'inline skates', 'canada', 'toronto']
 ---
 

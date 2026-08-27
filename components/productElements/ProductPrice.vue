@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue';
-import {cleanAndExtractPriceInfo, convertToCAD, formatPriceWithCAD} from '~/utils/priceConverter';
+import {formatWooPriceForDisplay} from '~/utils/priceConverter';
 
 interface ProductPriceProps {
   price?: string | null;
@@ -20,12 +20,12 @@ const props = withDefaults(defineProps<ProductPriceProps>(), {
   showBothPrices: true,
 });
 
-const {exchangeRate} = useExchangeRate();
+const runtimeConfig = useRuntimeConfig();
+const configuredExchangeRate = Number.parseFloat(String(runtimeConfig.public.buildTimeExchangeRate || ''));
+const lockedExchangeRate = Number.isFinite(configuredExchangeRate) && configuredExchangeRate > 0 ? configuredExchangeRate : null;
 
-const normalizeWooPriceText = (rawPrice: string | null | undefined): string => {
-  if (!rawPrice) return '';
-
-  return String(rawPrice)
+const normalizeWooPriceText = (rawPrice: string | null | undefined): string =>
+  String(rawPrice || '')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&#36;/g, '$')
     .replace(/&nbsp;/g, ' ')
@@ -33,40 +33,14 @@ const normalizeWooPriceText = (rawPrice: string | null | undefined): string => {
     .replace(/[\u2013\u2014]/g, ' - ')
     .replace(/\s+/g, ' ')
     .trim();
-};
-
-const removeFromPrefix = (priceText: string): string => priceText.replace(/^from\s+/i, '').trim();
-
-const isUsdMarkedPrice = (rawPrice: string | null | undefined): boolean => {
-  const priceText = normalizeWooPriceText(rawPrice).toUpperCase();
-  return priceText.includes('US$') || priceText.includes('USD');
-};
 
 const hasFromPrefix = (rawPrice: string | null | undefined): boolean => normalizeWooPriceText(rawPrice).toLowerCase().startsWith('from ');
 
-const formatUsdMarkedPriceAsCad = (priceText: string): string => {
-  if (exchangeRate.value !== null) {
-    // roundTo99: match the build-time cache (build-products-cache.js) which rounds
-    // converted prices up to the nearest .99. Without this, live-converted card prices
-    // drift (e.g. $34.46) versus the cached product page price ($34.99).
-    const cadNumericString = convertToCAD(priceText, exchangeRate.value, true);
-    if (cadNumericString) return `$${formatPriceWithCAD(cadNumericString)}`;
-  }
-
-  const {numericString} = cleanAndExtractPriceInfo(priceText);
-  return numericString
-    ? `$${numericString}`
-    : priceText
-        .replace(/US\$/gi, '$')
-        .replace(/\s*USD\b/gi, '')
-        .trim();
-};
-
 const displayPriceText = (rawPrice: string | null | undefined): string => {
-  const priceText = removeFromPrefix(normalizeWooPriceText(rawPrice));
-  if (!priceText) return '';
-  if (isUsdMarkedPrice(rawPrice)) return formatUsdMarkedPriceAsCad(priceText);
-  return priceText;
+  // The rate is intentionally fixed at build time. A client-side refresh used
+  // to change every visible card price after hydration, matching the exact date
+  // and sitewide shape of the field CLS regression.
+  return formatWooPriceForDisplay(rawPrice, lockedExchangeRate);
 };
 
 const splitPriceRange = (rawPrice: string | null | undefined): string[] => {
@@ -151,6 +125,12 @@ const regularPriceValueForTemplate = computed(() => {
 </template>
 
 <style scoped>
+.product-price {
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .product-price span {
   vertical-align: middle;
 }

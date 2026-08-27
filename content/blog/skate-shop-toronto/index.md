@@ -5,8 +5,8 @@ category: 'Shopping Guides'
 date: 2026-06-18
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates from our Toronto showroom since 2010."
-image: '/images/blog/posted/skate-shop-toronto.jpg'
-ogImage: '/images/blog/posted/skate-shop-toronto.jpg'
+image: '/images/blog/posted/skate-shop-toronto.webp'
+ogImage: '/images/blog/posted/skate-shop-toronto.webp'
 alt: 'Inside a specialist skate shop in Toronto with inline and roller skates on display'
 tags: ['skate shop toronto', 'skate store toronto', 'toronto skate shops', 'inline skates', 'roller skates', 'shopping guide']
 readTime: '9 min read'

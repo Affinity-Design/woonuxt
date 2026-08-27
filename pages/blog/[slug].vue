@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {getBlogImageSrcset} from '~/utils/blogImage.mjs';
+
 const route = useRoute();
 const slug = Array.isArray(route.params.slug) ? route.params.slug.join('/') : route.params.slug;
 
@@ -167,7 +169,16 @@ const productCategories = computed(() => {
     <!-- Hero Section -->
     <div class="relative">
       <div v-if="post.image" class="relative h-96 overflow-hidden">
-        <NuxtImg :src="post.image" :alt="post.title" class="w-full h-full object-cover" width="1200" height="600" loading="eager" />
+        <NuxtImg
+          :src="post.image"
+          :srcset="getBlogImageSrcset(post.image)"
+          :alt="post.title"
+          class="w-full h-full object-cover"
+          width="1024"
+          height="512"
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high" />
         <div class="absolute inset-0 bg-black bg-opacity-40"></div>
       </div>
 
@@ -293,7 +304,15 @@ const productCategories = computed(() => {
               :to="relatedPost._path"
               class="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors">
               <div v-if="relatedPost.image" class="h-48 overflow-hidden">
-                <NuxtImg :src="relatedPost.image" :alt="relatedPost.title" class="w-full h-full object-cover" width="400" height="200" />
+                <NuxtImg
+                  :src="relatedPost.image"
+                  :srcset="getBlogImageSrcset(relatedPost.image)"
+                  :alt="relatedPost.title"
+                  class="w-full h-full object-cover"
+                  width="640"
+                  height="320"
+                  sizes="100vw md:50vw lg:33vw"
+                  loading="lazy" />
               </div>
               <div class="p-6">
                 <h4 class="text-white font-semibold mb-2 line-clamp-2">

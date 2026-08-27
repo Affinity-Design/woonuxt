@@ -63,13 +63,19 @@ export const useProductRichSnippets = () => {
     // Get primary category
     const primaryCategory = product.productCategories?.nodes?.[0]?.name || 'Products';
 
-    // Get brand from attributes or use store name
+    // Woo exposes the real brand as the global `pa_manufacturer` attribute.
+    // Older logic only looked for a literal "brand" label, causing most Product
+    // schemas to fall back to the retailer name instead of FR, Powerslide, etc.
     let brand = 'ProSkaters Place';
     if (product.attributes?.nodes) {
-      const brandAttr = product.attributes.nodes.find((attr: any) => attr.name?.toLowerCase().includes('brand') || attr.name?.toLowerCase() === 'pa_brand');
-      if (brandAttr && brandAttr.options?.[0]) {
-        brand = brandAttr.options[0];
-      }
+      const manufacturerAttribute = product.attributes.nodes.find((attribute: any) => {
+        const attributeIdentifiers = [attribute.name, attribute.slug, attribute.taxonomyName].filter(Boolean).map((value) => String(value).toLowerCase());
+
+        return attributeIdentifiers.some(
+          (identifier) => identifier === 'pa_manufacturer' || identifier === 'manufacturer' || identifier === 'pa_brand' || identifier === 'brand',
+        );
+      });
+      brand = manufacturerAttribute?.options?.[0] || manufacturerAttribute?.terms?.nodes?.[0]?.name || brand;
     }
 
     // Build base product schema

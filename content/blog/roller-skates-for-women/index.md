@@ -5,8 +5,8 @@ category: 'Buying Guides'
 date: 2026-03-31
 author: 'ProSkaters Place Team'
 authorBio: "Toronto's trusted skating specialists. We've fitted thousands of women skaters at our Queen West showroom."
-image: '/images/posted/inline-skates-canada.jpg'
-ogImage: '/images/posted/inline-skates-canada.jpg'
+image: '/images/posted/inline-skates-canada.webp'
+ogImage: '/images/posted/inline-skates-canada.webp'
 tags: ['roller skates for women', 'womens roller skates', 'quad skates', 'inline skates', 'canada', 'toronto']
 ---
 

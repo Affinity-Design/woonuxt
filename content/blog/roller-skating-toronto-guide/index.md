@@ -5,8 +5,8 @@ category: 'Beginner Guides'
 date: 2026-02-10
 author: 'ProSkaters Place Team'
 authorBio: "Toronto's #1 Skate Shop & Community Experts"
-image: '/images/posted/girl-rollerskating-in-park.png'
-ogImage: '/images/posted/girl-rollerskating-in-park.png'
+image: '/images/posted/girl-rollerskating-in-park.webp'
+ogImage: '/images/posted/girl-rollerskating-in-park.webp'
 tags: ['roller skating', 'toronto', 'beginners', 'quad skates', 'safety']
 ---
 

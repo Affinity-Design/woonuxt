@@ -5,8 +5,8 @@ category: 'Local Guides'
 date: 2026-07-17
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates since 2011."
-image: '/images/blog/posted/toronto-roller-skating-spots-2026.png'
-ogImage: '/images/blog/posted/toronto-roller-skating-spots-2026.png'
+image: '/images/blog/posted/toronto-roller-skating-spots-2026.webp'
+ogImage: '/images/blog/posted/toronto-roller-skating-spots-2026.webp'
 alt: 'Roller skater cruising a paved waterfront trail in Toronto at golden hour'
 tags: ['toronto roller skating', 'roller skating toronto', 'toronto roller skates', 'waterfront trail', 'skate parks toronto', 'local guide']
 readTime: '9 min read'

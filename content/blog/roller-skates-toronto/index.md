@@ -5,8 +5,8 @@ category: "Product Reviews"
 date: 2025-07-09
 author: "ProSkaters Place Team"
 authorBio: "Toronto's premier skating experts with over 20 years serving the local skating community"
-image: "/images/roller-skates.jpg"
-ogImage: "/images/roller-skates.jpg"
+image: "/images/roller-skates.webp"
+ogImage: "/images/roller-skates.webp"
 tags: ["roller skates", "toronto", "quad skates", "chaya", "shopping guide"]
 ---
 

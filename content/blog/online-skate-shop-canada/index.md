@@ -5,8 +5,8 @@ category: 'Shopping Guides'
 date: 2026-05-20
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists shipping inline, quad, and roller skates across Canada since 2010."
-image: '/images/blog/posted/online-skate-shop-canada.png'
-ogImage: '/images/blog/posted/online-skate-shop-canada.png'
+image: '/images/blog/posted/online-skate-shop-canada.webp'
+ogImage: '/images/blog/posted/online-skate-shop-canada.webp'
 tags: ['online skate shop', 'canada', 'roller skates', 'inline skates', 'shopping guide', 'buying guide']
 ---
 

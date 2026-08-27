@@ -5,8 +5,8 @@ category: 'Local Guides'
 date: 2026-07-23
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates since 2011."
-image: '/images/blog/posted/roller-rinks-indoor-skating-canada.png'
-ogImage: '/images/blog/posted/roller-rinks-indoor-skating-canada.png'
+image: '/images/blog/posted/roller-rinks-indoor-skating-canada.webp'
+ogImage: '/images/blog/posted/roller-rinks-indoor-skating-canada.webp'
 alt: 'Skaters rolling under colourful lights at an indoor roller skating rink'
 tags: ['roller skating near me', 'roller rinks near me', 'indoor roller skating', 'roller skating places', 'roller rinks canada', 'local guide']
 readTime: '10 min read'
@@ -74,7 +74,7 @@ Skate crews across Canada rent school gyms and lacrosse boxes in winter and spli
 | --- | --- | --- |
 | **Toronto / GTA** | Scooter's Roller Palace (Mississauga), community centre roller nights | [9 best outdoor spots](/blog/toronto-roller-skating-spots-2026) — Martin Goodman Trail is the star |
 | **Montreal** | Le TAZ (inline-friendly), pop-up roller discos | Lachine Canal path |
-| **Vancouver** | Community centre sessions, indoor skateparks | The Stanley Park Seawall — arguably Canada's best skate |
+| **Vancouver** | Community centre sessions, indoor skateparks | Plan the Seawall and greenways with our [Vancouver inline skating guide](/blog/inline-skating-vancouver-guide) |
 | **Calgary & Edmonton** | City rec drop-in roller skating, indoor skateparks | River valley pathway systems |
 | **Ottawa** | Community centre sessions | Rideau Canal pathways (pavement, not the ice!) |
 | **Winnipeg** | City-run roller sessions | Assiniboine Park loops |

@@ -5,8 +5,8 @@ category: 'Product Reviews'
 date: 2025-06-30
 author: 'Proskaters Place Team'
 authorBio: 'Professional skating instructor with 15+ years experience'
-image: '/images/posted/inline-skates.jpg'
-ogImage: '/images/posted/inline-skates.jpg'
+image: '/images/posted/inline-skates.webp'
+ogImage: '/images/posted/inline-skates.webp'
 tags: ['inline skates', 'reviews', 'buying guide', '2025']
 ---
 

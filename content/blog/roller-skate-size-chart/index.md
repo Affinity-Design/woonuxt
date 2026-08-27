@@ -5,8 +5,8 @@ category: 'Buying Guides'
 date: 2026-06-26
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates from our Toronto showroom since 2010."
-image: '/images/blog/posted/roller-skate-size-chart.png'
-ogImage: '/images/blog/posted/roller-skate-size-chart.png'
+image: '/images/blog/posted/roller-skate-size-chart.webp'
+ogImage: '/images/blog/posted/roller-skate-size-chart.webp'
 alt: 'Roller skate size chart comparing shoe sizes to inline and quad skate sizes'
 tags: ['roller skate size chart', 'skate sizing', 'inline skate size chart', 'how to measure skate size', 'skate size calculator', 'buying guide']
 readTime: '9 min read'

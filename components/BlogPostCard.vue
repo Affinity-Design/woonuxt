@@ -1,10 +1,14 @@
 <template>
   <NuxtLink :to="postUrl" class="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
     <div class="aspect-video bg-gray-100 overflow-hidden">
-      <img
+      <NuxtImg
         :src="post.image || '/images/inline-skates.jpg'"
+        :srcset="getBlogImageSrcset(post.image)"
         :alt="post.alt || post.title"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        width="640"
+        height="360"
+        sizes="100vw sm:50vw lg:33vw"
         loading="lazy" />
     </div>
     <div class="p-4">
@@ -23,6 +27,7 @@
 
 <script setup lang="ts">
 import {computed} from 'vue';
+import {getBlogImageSrcset} from '~/utils/blogImage.mjs';
 
 interface BlogPost {
   _path?: string;
