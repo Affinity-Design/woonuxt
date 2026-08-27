@@ -57,7 +57,7 @@ const loadCharges = async (): Promise<void> => {
     loadError.value =
       statusCode === 401
         ? 'The server did not recognize your login as an admin, so it refused the list.'
-        : error?.data?.statusMessage || error?.message || 'Failed to load recoverable orders.';
+        : 'We could not load recoverable orders. Please try again.';
   } finally {
     isLoading.value = false;
   }
@@ -66,7 +66,7 @@ const loadCharges = async (): Promise<void> => {
 const describeFailure = (res: any): string => {
   if (res?.needsManualReview) return 'Could not verify against WooCommerce (is WordPress reachable?). Nothing was created.';
   if (res?.reason === 'no_recoverable_charge') return 'No stranded-charge record exists for this transaction.';
-  return res?.error || res?.reason || 'Recovery did not produce an order.';
+  return 'Recovery did not produce an order. Review the server diagnostics using the request reference.';
 };
 
 const recoverOne = async (transactionId: string): Promise<void> => {
@@ -82,7 +82,7 @@ const recoverOne = async (transactionId: string): Promise<void> => {
       notice.value = {type: 'error', text: `Charge ${transactionId}: ${describeFailure(res)}`};
     }
   } catch (error: any) {
-    notice.value = {type: 'error', text: `Charge ${transactionId}: ${error?.data?.statusMessage || error?.message || 'request failed'}`};
+    notice.value = {type: 'error', text: `Charge ${transactionId}: recovery could not be completed. Please try again.`};
   } finally {
     busyTransactions.value = {...busyTransactions.value, [transactionId]: false};
     await loadCharges();
@@ -101,7 +101,7 @@ const recoverAll = async (): Promise<void> => {
       ? {type: 'error', text: `Recovered ${recovered} of ${results.length}; ${failed} still need attention (see rows below).`}
       : {type: 'success', text: recovered ? `Recovered all ${recovered} pending charge${recovered === 1 ? '' : 's'}.` : 'Nothing pending to recover.'};
   } catch (error: any) {
-    notice.value = {type: 'error', text: error?.data?.statusMessage || error?.message || 'Recover-all request failed.'};
+    notice.value = {type: 'error', text: 'The recovery request could not be completed. Please try again.'};
   } finally {
     isRecoveringAll.value = false;
     await loadCharges();

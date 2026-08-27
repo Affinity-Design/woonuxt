@@ -53,27 +53,20 @@ const updateFormView = () => {
 };
 watch(route, updateFormView, {immediate: true});
 
-const login = async (credentials: UserInfo) => {
-  // Wordfence 2FA passthrough: strip the code out of the payload and ship it inside the password.
-  const {twoFactorCode, ...loginCredentials} = credentials as UserInfo & {twoFactorCode?: string};
-  const code = twoFactorCode?.trim();
-  const payload = code ? {...loginCredentials, password: `${loginCredentials.password}${WFLS_MARKER}${code}`} : loginCredentials;
+const login = async (credentials: Pick<UserInfo, 'username' | 'password' | 'turnstileToken' | 'twoFactorCode'>) => {
+  // Construct an exact allowlist so additional form fields can never enter GraphQL variables.
+  const code = credentials.twoFactorCode?.trim();
+  const payload = {
+    username: credentials.username,
+    password: code ? `${credentials.password}${WFLS_MARKER}${code}` : credentials.password,
+    turnstileToken: credentials.turnstileToken,
+  };
 
-  const {success, error} = await loginUser(payload as UserInfo);
-  switch (error) {
-    case 'invalid_username':
-      errorMessage.value = t('messages.error.invalidUsername');
-      break;
-    case 'incorrect_password':
-      errorMessage.value = t('messages.error.incorrectPassword');
-      break;
-    default:
-      errorMessage.value = error;
-      break;
-  }
+  const {success, error: publicErrorMessage} = await loginUser(payload);
+  errorMessage.value = publicErrorMessage || '';
 
   // Wordfence rejections mention the 2FA/authenticator code — surface the field prominently.
-  if (!success && /2fa|two.?factor|authenticat|verification code|wfls/i.test(String(error || ''))) {
+  if (!success && /2fa|two.?factor|authenticat|verification code|wfls/i.test(String(publicErrorMessage || ''))) {
     needsTwoFactor.value = true;
   }
 
@@ -95,17 +88,24 @@ const handleFormSubmit = async () => {
   };
 
   if (formView.value === 'register') {
-    // Create a copy of credentials without rememberMe for registration
-    const {rememberMe, ...registrationCredentials} = credentials;
-    const {success, error} = await registerUser(registrationCredentials);
+    const {success, error: publicErrorMessage} = await registerUser({
+      email: credentials.email,
+      password: credentials.password,
+      turnstileToken: credentials.turnstileToken,
+    });
     if (success) {
       errorMessage.value = '';
       message.value = t('messages.account.accountCreated') + ' ' + t('messages.account.loggingIn');
       setTimeout(() => {
-        login(credentials);
+        login({
+          username: credentials.email,
+          password: credentials.password,
+          turnstileToken: credentials.turnstileToken,
+          twoFactorCode: '',
+        });
       }, 2000);
     } else {
-      errorMessage.value = error;
+      errorMessage.value = publicErrorMessage || '';
     }
   } else if (formView.value === 'forgotPassword') {
     resetPassword(credentials);
@@ -115,14 +115,14 @@ const handleFormSubmit = async () => {
 };
 
 const resetPassword = async (payload: {email: string}) => {
-  const {success, error} = await sendResetPasswordEmail({
+  const {success, error: publicErrorMessage} = await sendResetPasswordEmail({
     username: payload.email,
   });
   if (success) {
     errorMessage.value = '';
     message.value = t('messages.account.ifRegistered');
   } else {
-    errorMessage.value = error;
+    errorMessage.value = publicErrorMessage || '';
   }
 };
 
@@ -188,7 +188,14 @@ const inputPlaceholder = computed(() => {
         {{ $t('messages.account.enterEmailOrUsernameForReset') }}
       </p>
       <div v-if="formView !== 'forgotPassword'">
-        <input class="mt-1" v-model="userInfo.username" :placeholder="inputPlaceholder.username" autocomplete="username" type="text" required />
+        <input
+          v-if="formView === 'login'"
+          class="mt-1"
+          v-model="userInfo.username"
+          :placeholder="inputPlaceholder.username"
+          autocomplete="username"
+          type="text"
+          required />
 
         <PasswordInput
           className="border rounded-lg w-full p-3 px-4 bg-white mt-1"
@@ -215,10 +222,10 @@ const inputPlaceholder = computed(() => {
       </div>
 
       <Transition name="scale-y" mode="out-in">
-        <div v-if="message" class="my-4 text-sm text-green-500" v-html="message"></div>
+        <div v-if="message" class="my-4 text-sm text-green-500">{{ message }}</div>
       </Transition>
       <Transition name="scale-y" mode="out-in">
-        <div v-if="errorMessage" class="my-4 text-sm text-red-500" v-html="errorMessage"></div>
+        <div v-if="errorMessage" class="my-4 text-sm text-red-500">{{ errorMessage }}</div>
       </Transition>
 
       <div class="flex items-center justify-between mt-4">

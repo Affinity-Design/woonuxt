@@ -1,4 +1,8 @@
 export default defineEventHandler(async (event) => {
+  if (process.env.NODE_ENV !== 'development') {
+    throw createError({statusCode: 404, statusMessage: 'Not Found'});
+  }
+
   try {
     const fs = await import('fs');
     const path = await import('path');
@@ -13,7 +17,7 @@ export default defineEventHandler(async (event) => {
         const folders = fs.readdirSync(contentDir, {withFileTypes: true});
         blogPosts = folders.filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name);
       } catch (error) {
-        console.error('Error reading blog directory:', error);
+        console.error('Error reading blog directory. Sensitive details were withheld.');
       }
     }
 
@@ -23,8 +27,8 @@ export default defineEventHandler(async (event) => {
       const {serverQueryContent} = await import('#content/server');
       contentQuery = await serverQueryContent(event).find();
     } catch (error) {
-      console.error('Error querying content:', error);
-      contentQuery = {error: error.message};
+      console.error('Error querying content. Sensitive details were withheld.');
+      contentQuery = {error: 'Content query failed'};
     }
 
     const debugInfo = {
@@ -57,10 +61,9 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'content-type', 'application/json');
     return debugInfo;
   } catch (error) {
-    console.error('Debug API error:', error);
+    console.error('Debug API failed. Sensitive details were withheld.');
     return {
-      error: error.message,
-      stack: error.stack,
+      error: 'Debug request failed',
       timestamp: new Date().toISOString(),
     };
   }

@@ -1,8 +1,21 @@
-import type {RegisterCustomerInput, CreateAccountInput, ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
+import type {ResetPasswordKeyMutationVariables, ResetPasswordEmailMutationVariables, LoginInput} from '#gql';
+import {getSafeAuthenticationErrorMessage} from '~/utils/publicErrorMessages.mjs';
 
-interface AuthCredentials extends LoginCredentials {
-  turnstileToken: string;
-  securityChallenge?: string; // Optional for future extensions
+interface RegistrationCredentials {
+  email: string;
+  password: string;
+  turnstileToken?: string;
+}
+
+interface LoginCredentials {
+  username: string;
+  password: string;
+  turnstileToken?: string;
+}
+
+interface AuthenticationActionResult {
+  success: boolean;
+  error: string | null;
 }
 
 export const useAuth = () => {
@@ -21,20 +34,16 @@ export const useAuth = () => {
   const loginClients = useState<LoginClient[] | null>('loginClients', () => null);
 
   // Log in the user
-  const loginUser = async (credentials: CreateAccountInput): Promise<{success: boolean; error: any}> => {
+  const loginUser = async (credentials: LoginCredentials): Promise<AuthenticationActionResult> => {
     isPending.value = true;
 
     try {
-      // Add Turnstile token to credentials
-      const extendedCredentials = {
-        ...credentials,
-        turnstileToken: credentials.turnstileToken,
-      };
+      const {username, password, turnstileToken} = credentials;
 
-      const {login} = await GqlLogin(extendedCredentials, {
+      const {login} = await GqlLogin({username, password}, {
         headers: {
           'Content-Type': 'application/json',
-          'X-Turnstile-Token': credentials.turnstileToken,
+          'X-Turnstile-Token': turnstileToken || '',
         },
         credentials: 'include', // 👈 Critical for cookies
       });
@@ -55,11 +64,11 @@ export const useAuth = () => {
 
       return {
         success: false,
-        error: error?.gqlErrors?.[0]?.message,
+        error: getSafeAuthenticationErrorMessage(error, 'signIn'),
       };
     }
   };
-  const loginWithProvider = async (state: string, code: string, provider: any): Promise<{success: boolean; error: any}> => {
+  const loginWithProvider = async (state: string, code: string, provider: any): Promise<AuthenticationActionResult> => {
     isPending.value = true;
 
     try {
@@ -71,8 +80,7 @@ export const useAuth = () => {
         if (viewer.value === null) {
           return {
             success: false,
-            error:
-              'Your credentials are correct, but there was an error logging in. This is most likely due to an SSL error. Please try again later. If the problem persists, please contact support.',
+            error: 'We signed you in, but could not finish loading your account. Please refresh the page or contact customer service.',
           };
         }
       }
@@ -86,7 +94,7 @@ export const useAuth = () => {
 
       return {
         success: false,
-        error: error?.gqlErrors?.[0]?.message,
+        error: getSafeAuthenticationErrorMessage(error, 'providerSignIn'),
       };
     } finally {
       isPending.value = false;
@@ -94,7 +102,7 @@ export const useAuth = () => {
   };
 
   // Log out the user
-  const logoutUser = async (): Promise<{success: boolean; error: any}> => {
+  const logoutUser = async (): Promise<AuthenticationActionResult> => {
     isPending.value = true;
     try {
       const {logout} = await GqlLogout();
@@ -106,7 +114,7 @@ export const useAuth = () => {
       return {success: true, error: null};
     } catch (error: any) {
       logGQLError(error);
-      return {success: false, error};
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'signOut')};
     } finally {
       updateViewer(null);
       if (router.currentRoute.value.path === '/my-account' && viewer.value === null) {
@@ -117,12 +125,12 @@ export const useAuth = () => {
     }
   };
 
-  const registerUser = async (userInfo: RegisterCustomerInput & {turnstileToken?: string}): Promise<{success: boolean; error: any}> => {
+  const registerUser = async (registrationCredentials: RegistrationCredentials): Promise<AuthenticationActionResult> => {
     isPending.value = true;
     try {
-      const {turnstileToken, ...input} = userInfo;
+      const {email, password, turnstileToken} = registrationCredentials;
       await GqlRegisterCustomer(
-        {input},
+        {input: {email, password}},
         {
           headers: {
             'X-Turnstile-Token': turnstileToken || '',
@@ -132,9 +140,9 @@ export const useAuth = () => {
       return {success: true, error: null};
     } catch (error: any) {
       logGQLError(error);
-      const gqlError = error?.gqlErrors?.[0];
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'register')};
+    } finally {
       isPending.value = false;
-      return {success: false, error: gqlError?.message};
     }
   };
 
@@ -192,10 +200,7 @@ export const useAuth = () => {
 
   const sendResetPasswordEmail = async ({
     username,
-  }: ResetPasswordEmailMutationVariables): Promise<{
-    success: boolean;
-    error: any;
-  }> => {
+  }: ResetPasswordEmailMutationVariables): Promise<AuthenticationActionResult> => {
     try {
       isPending.value = true;
       const {sendPasswordResetEmail} = await GqlResetPasswordEmail({
@@ -212,8 +217,7 @@ export const useAuth = () => {
     } catch (error: any) {
       logGQLError(error);
       isPending.value = false;
-      const gqlError = error?.gqlErrors?.[0];
-      return {success: false, error: gqlError?.message};
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'requestPasswordReset')};
     }
   };
 
@@ -221,10 +225,7 @@ export const useAuth = () => {
     key,
     login,
     password,
-  }: ResetPasswordKeyMutationVariables): Promise<{
-    success: boolean;
-    error: any;
-  }> => {
+  }: ResetPasswordKeyMutationVariables): Promise<AuthenticationActionResult> => {
     try {
       isPending.value = true;
       const {resetUserPassword} = await GqlResetPasswordKey({
@@ -243,12 +244,11 @@ export const useAuth = () => {
       };
     } catch (error: any) {
       isPending.value = false;
-      const gqlError = error?.gqlErrors?.[0];
-      return {success: false, error: gqlError?.message};
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'resetPassword')};
     }
   };
 
-  const getOrders = async (): Promise<{success: boolean; error: any}> => {
+  const getOrders = async (): Promise<AuthenticationActionResult> => {
     try {
       const {customer} = await GqlGetOrders();
       if (customer) {
@@ -261,12 +261,11 @@ export const useAuth = () => {
       };
     } catch (error: any) {
       logGQLError(error);
-      const gqlError = error?.gqlErrors?.[0];
-      return {success: false, error: gqlError?.message};
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'loadOrders')};
     }
   };
 
-  const getDownloads = async (): Promise<{success: boolean; error: any}> => {
+  const getDownloads = async (): Promise<AuthenticationActionResult> => {
     try {
       const {customer} = await GqlGetDownloads();
       if (customer) {
@@ -279,8 +278,7 @@ export const useAuth = () => {
       };
     } catch (error: any) {
       logGQLError(error);
-      const gqlError = error?.gqlErrors?.[0];
-      return {success: false, error: gqlError?.message};
+      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'loadDownloads')};
     }
   };
 

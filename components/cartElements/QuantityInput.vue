@@ -40,7 +40,7 @@ const fetchStockStatus = async () => {
       stockQuantity.value = null;
     }
   } catch (error) {
-    console.error('[QuantityInput] Failed to fetch stock:', error);
+    console.error('[QuantityInput] Failed to fetch stock. Sensitive details were withheld.');
     // Fall back to product data if available
     stockQuantity.value = productType.value?.stockQuantity ?? null;
   } finally {

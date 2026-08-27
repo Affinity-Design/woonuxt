@@ -3,21 +3,27 @@
 //
 // Why this exists: a "Could not complete CC transaction" rejection is killed by Helcim
 // BEFORE authorization, so it creates no record in Helcim AND no order in WooCommerce.
-// The raw error only exists in the customer's browser. This endpoint pulls it server-side
-// so it shows up in `wrangler ... tail` and is persisted (failures only) for later review.
+// Only a fixed classification and bounded operational metadata are accepted from the
+// browser. Raw errors, payment responses, customer data, and credentials are discarded.
 // See docs/helcim-cc-rejection-critical-patch.md.
 //
 // This endpoint is diagnostic only. It must never throw back to the checkout UI.
 import {defineEventHandler, readBody} from 'h3';
+import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
 
+    const allowedClassifications = new Set(['bank_decline', 'cc_processing_rejection', 'unknown']);
     const record = {
-      ...body,
+      traceId: typeof body?.traceId === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(body.traceId) ? body.traceId : 'no-trace',
+      classification: allowedClassifications.has(body?.classification) ? body.classification : 'unknown',
+      amount: Number.isFinite(Number(body?.amount)) ? Number(body.amount) : null,
+      currency: typeof body?.currency === 'string' && /^[A-Z]{3}$/.test(body.currency) ? body.currency : null,
+      lineItemCount: Number.isInteger(Number(body?.lineItemCount)) ? Number(body.lineItemCount) : 0,
+      hasCoupon: body?.hasCoupon === true,
       at: new Date().toISOString(),
-      ip: event.node?.req?.headers?.['cf-connecting-ip'] || event.node?.req?.headers?.['x-forwarded-for'] || null,
     };
 
     // Always log — visible in real-time Cloudflare Functions logs / wrangler tail.
@@ -31,25 +37,22 @@ export default defineEventHandler(async (event) => {
       const key = `helcim-fail:${record.traceId || 'no-trace'}:${Date.now()}`;
       await paymentSetItem(key, record, {ttl: 30 * 24 * 60 * 60});
     } catch (storageError) {
-      console.warn('[Helcim FAIL] KV persist unavailable:', storageError);
+      console.warn('[Helcim FAIL] KV persistence unavailable. Sensitive details were withheld.');
     }
 
     // Also index it in the queryable checkout-failure ledger (D1 when bound).
     await logCheckoutFailure(event, {
       stage: 'charge_failed_beacon',
-      reason: body?.message || body?.error || body?.errorMessage || 'client-reported Helcim charge failure',
-      detail: body,
-      transactionId: body?.transactionId,
-      checkoutAttemptId: body?.checkoutAttemptId,
-      email: body?.email || body?.customerEmail,
-      cartTotal: body?.amount,
-      requestId: body?.traceId,
+      reason: `Client-reported Helcim charge failure: ${record.classification}`,
+      detail: record,
+      cartTotal: record.amount,
+      requestId: record.traceId,
     });
 
     return {ok: true};
   } catch (error: any) {
     // Swallow everything — diagnostics must not affect the customer's checkout.
-    console.warn('[Helcim FAIL] logging error:', error?.message || error);
+    console.warn('[Helcim FAIL] logging error:', getSafeErrorLogDetails(error));
     return {ok: false};
   }
 });

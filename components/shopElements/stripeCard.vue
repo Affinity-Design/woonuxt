@@ -1,5 +1,6 @@
 <!-- components/StripeCard.vue -->
 <script setup lang="ts">
+import {getSafePaymentErrorMessage} from '~/utils/publicErrorMessages.mjs';
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRuntimeConfig } from "#app";
 
@@ -34,7 +35,7 @@ const stripeKey = config.public?.stripePublishableKey;
 // Load Stripe.js dynamically
 onMounted(async () => {
   if (!stripeKey) {
-    cardError.value = "Stripe publishable key is missing";
+    cardError.value = "The secure payment form is unavailable. Please refresh the page or contact customer service.";
     emit("error", cardError.value);
     return;
   }
@@ -56,7 +57,7 @@ onMounted(async () => {
       document.head.appendChild(script);
     }
   } catch (error) {
-    cardError.value = "Error loading Stripe: " + error.message;
+    cardError.value = getSafePaymentErrorMessage(error, 'We could not load the secure payment form. Please refresh and try again.');
     emit("error", cardError.value);
   }
 });
@@ -101,12 +102,11 @@ function initializeStripe() {
     // Listen for changes
     cardElement.value.on("change", (event) => {
       cardComplete.value = event.complete;
-      cardError.value = event.error ? event.error.message : null;
+      cardError.value = event.error ? getSafePaymentErrorMessage(event.error) : null;
 
       emit("cardChange", {
         complete: event.complete,
-        error: event.error,
-        value: event.value,
+        error: cardError.value,
       });
     });
 
@@ -117,11 +117,11 @@ function initializeStripe() {
       props.onReady({ stripe: stripe.value, elements });
     }
   } catch (error) {
-    cardError.value = "Error initializing Stripe: " + error.message;
+    cardError.value = getSafePaymentErrorMessage(error, 'We could not start the secure payment form. Please refresh and try again.');
     emit("error", cardError.value);
 
     if (props.onError) {
-      props.onError(error);
+      props.onError(cardError.value);
     }
   }
 }

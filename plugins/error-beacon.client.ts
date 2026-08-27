@@ -1,10 +1,9 @@
 /**
  * TEMPORARY diagnostic error beacon (2026-08 product-page interactivity incident).
  *
- * Captures client-side JS errors, unhandled promise rejections, and a
- * "hydration completed" ping, then POSTs them to /api/client-errors where they
- * are KV-stored for remote inspection. Mobile browsers have no devtools, so
- * this is the only way to see what breaks on real customer devices.
+ * Captures allowlisted client-side failure metadata and a "hydration completed"
+ * ping, then POSTs them to /api/client-errors. Error messages, stacks, query
+ * strings, form values, and promise rejection values are never transmitted.
  *
  * Remove this plugin (and server/api/client-errors.*) once the incident is
  * closed — tracked in PR notes.
@@ -23,9 +22,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     sent += batch.length;
     const payload = JSON.stringify({
       sessionId,
-      url: window.location.href,
-      ua: navigator.userAgent,
-      ts: Date.now(),
+      url: `${window.location.origin}${window.location.pathname}`,
+      userAgent: navigator.userAgent,
+      timestamp: Date.now(),
       events: batch,
     });
     try {
@@ -49,36 +48,24 @@ export default defineNuxtPlugin((nuxtApp) => {
   window.addEventListener('error', (e) => {
     queue({
       type: 'error',
-      message: String(e.message || '').slice(0, 500),
-      source: String(e.filename || '').slice(0, 300),
+      source: e.filename,
       line: e.lineno,
-      col: e.colno,
-      stack: String(e.error?.stack || '').slice(0, 1200),
+      column: e.colno,
     });
   });
 
-  window.addEventListener('unhandledrejection', (e) => {
-    const reason: any = e.reason;
-    queue({
-      type: 'unhandledrejection',
-      message: String(reason?.message || reason || '').slice(0, 500),
-      stack: String(reason?.stack || '').slice(0, 1200),
-    });
+  window.addEventListener('unhandledrejection', () => {
+    queue({type: 'unhandledrejection'});
   });
 
   // Vue-level errors that Vue catches itself (these never hit window.onerror)
-  nuxtApp.hook('vue:error', (err: any, _instance, info) => {
-    queue({
-      type: 'vue:error',
-      message: String(err?.message || err || '').slice(0, 500),
-      info: String(info || '').slice(0, 120),
-      stack: String(err?.stack || '').slice(0, 1200),
-    });
+  nuxtApp.hook('vue:error', () => {
+    queue({type: 'vue:error'});
   });
 
   // Positive signal: hydration finished and listeners are attached.
   nuxtApp.hook('app:mounted', () => {
-    queue({type: 'mounted', sinceNavStartMs: Math.round(performance.now())});
+    queue({type: 'mounted', sinceNavigationStartMilliseconds: Math.round(performance.now())});
   });
 
   window.addEventListener('pagehide', send);

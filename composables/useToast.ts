@@ -1,3 +1,5 @@
+import {getSafePublicErrorMessage} from '~/utils/publicErrorMessages.mjs';
+
 /**
  * Toast notification composable
  * Provides a clean, modern toast notification system
@@ -119,7 +121,7 @@ export function useToast() {
    * Show an error toast
    */
   function error(message: string, duration?: number) {
-    return showToast(message, 'error', duration ?? 7000); // Errors show longer
+    return showToast(getSafePublicErrorMessage(message), 'error', duration ?? 7000); // Errors show longer
   }
 
   /**

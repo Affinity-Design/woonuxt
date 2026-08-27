@@ -294,13 +294,13 @@ export async function fetchProductViaGraphQL(slug: string): Promise<{product: an
   // WPGraphQL can return partial data alongside errors — prefer the product when present.
   if (response?.data?.product) {
     if (response?.errors?.length) {
-      console.warn(`[serverGetProduct] Partial GraphQL errors for ${slug} (product still returned):`, response.errors[0]?.message);
+      console.warn(`[serverGetProduct] Partial GraphQL errors for ${slug}; product data was still returned. Sensitive details were withheld.`);
     }
     return {product: response.data.product};
   }
 
   if (response?.errors?.length) {
-    throw new Error(`GraphQL error for ${slug}: ${response.errors[0]?.message || 'unknown'}`);
+    throw new Error(`Product lookup failed for ${slug}`);
   }
 
   return {product: null};

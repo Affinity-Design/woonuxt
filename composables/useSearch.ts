@@ -47,7 +47,7 @@ export function useSearch() {
             throw new Error('Imported JSON data is not an array');
           }
         } catch (localError) {
-          console.warn('[useSearch] Local products list missing/unreadable. Expected /api/local-products-list', localError);
+          console.warn('[useSearch] Local products list is missing or unreadable. Sensitive details were withheld.');
           products = [];
         }
       } else {

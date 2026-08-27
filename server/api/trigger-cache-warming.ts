@@ -45,10 +45,10 @@ export default defineEventHandler(async (event) => {
       processId: process.pid
     };
   } catch (error) {
-    console.error('Error starting cache warming process:', error);
+    console.error('Error starting cache warming process. Sensitive details were withheld.');
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to start cache warming process: ${error.message}`,
+      statusMessage: 'Failed to start cache warming. Review the server logs and try again.',
     });
   }
 });

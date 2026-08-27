@@ -51,10 +51,8 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const query = getQuery(event);
   const refreshRequested = query.refresh === 'true';
-  const refreshSecret = typeof query.secret === 'string' ? query.secret : '';
   const headerSecret = getHeader(event, 'x-revalidation-secret') || '';
-  const refreshAuthorized =
-    import.meta.dev || (!!config.REVALIDATION_SECRET && (refreshSecret === config.REVALIDATION_SECRET || headerSecret === config.REVALIDATION_SECRET));
+  const refreshAuthorized = import.meta.dev || (!!config.REVALIDATION_SECRET && headerSecret === config.REVALIDATION_SECRET);
   const forceRefresh = refreshRequested && refreshAuthorized;
 
   if (refreshRequested && !refreshAuthorized) {
@@ -107,7 +105,7 @@ export default defineEventHandler(async (event) => {
     try {
       storage = useStorage('cache');
     } catch (storageError) {
-      console.warn('[exchange-rate] Shared cache unavailable, falling back to in-request behavior:', storageError);
+      console.warn('[exchange-rate] Shared cache unavailable; falling back to in-request behavior. Sensitive details were withheld.');
     }
 
     if (storage) {
@@ -203,7 +201,7 @@ export default defineEventHandler(async (event) => {
         : 'build-time-fallback',
     );
   } catch (error) {
-    console.error('[exchange-rate] Error fetching or caching rate:', error);
+    console.error('[exchange-rate] Rate fetch or cache update failed. Sensitive details were withheld.');
 
     if (latestCache) {
       return respondWith(latestCache, 'shared-kv-stale-cache', true);
@@ -214,12 +212,12 @@ export default defineEventHandler(async (event) => {
       data: fallbackData,
       source: 'build-time-fallback',
       stale: true,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'The exchange rate is temporarily unavailable.',
     };
   } finally {
     if (storage && lockAcquired) {
       await storage.removeItem(refreshLockKey).catch((lockError) => {
-        console.warn('[exchange-rate] Failed to clear refresh lock:', lockError);
+        console.warn('[exchange-rate] Failed to clear refresh lock. Sensitive details were withheld.');
       });
     }
   }

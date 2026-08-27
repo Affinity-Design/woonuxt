@@ -1,4 +1,5 @@
 import type {CreateAccountInput} from '#gql';
+import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '~/utils/publicErrorMessages.mjs';
 
 // Detect device type from user agent
 function detectDeviceType(): string {
@@ -145,11 +146,11 @@ export function useCheckout() {
 
       await refreshCart();
     } catch (error) {
-      console.error('Error updating shipping location:', error);
+      console.error('Shipping location update failed:', getSafeErrorLogDetails(error));
       try {
         await refreshCart();
       } catch (refreshError) {
-        console.error('Error refreshing cart:', refreshError);
+        console.error('Cart refresh failed:', getSafeErrorLogDetails(refreshError));
       }
     } finally {
       isUpdatingCart.value = false;
@@ -343,7 +344,7 @@ export function useCheckout() {
           });
 
           if (adminOrderResult.success && adminOrderResult.order) {
-            console.log('[processCheckout] Admin order created successfully:', adminOrderResult.order);
+            console.log('[processCheckout] Admin order created successfully.');
 
             // Login user if account was created during checkout
             if (orderInput.value.createAccount) {
@@ -369,7 +370,7 @@ export function useCheckout() {
               await refreshCart();
               console.log('Cart emptied and refreshed successfully after admin order creation');
             } catch (cartError) {
-              console.error('Error emptying cart:', cartError);
+              console.error('Cart cleanup failed:', getSafeErrorLogDetails(cartError));
             }
 
             // Redirect to order received page. SPA navigation can die silently (e.g. a stale
@@ -396,7 +397,7 @@ export function useCheckout() {
               transactionId: orderInput.value.transactionId,
             };
           } else {
-            console.error('[processCheckout] Admin order creation failed:', adminOrderResult.error || 'Unknown error');
+            console.error('[processCheckout] Admin order creation failed. Sensitive details were withheld.');
 
             // The card is ALREADY charged (charge-first/order-second). NEVER fall through to a
             // second checkout attempt — GqlCheckout succeeding here would mint a second order for
@@ -409,12 +410,12 @@ export function useCheckout() {
               paymentCaptured: true,
               recoverable: adminOrderResult?.recoverable !== false,
               transactionId: orderInput.value.transactionId,
-              reason: adminOrderResult?.error || 'admin_order_failed',
+              reason: 'admin_order_failed',
               errorMessage: 'Your payment was received but we could not finish creating your order automatically.',
             };
           }
         } catch (adminError: any) {
-          console.error('[processCheckout] Admin order creation error:', adminError);
+          console.error('[processCheckout] Admin order creation error:', getSafeErrorLogDetails(adminError));
 
           // Same rule as above: payment is captured, so no fallback and no retry prompt.
           return {
@@ -423,7 +424,7 @@ export function useCheckout() {
             paymentCaptured: true,
             recoverable: true,
             transactionId: orderInput.value.transactionId,
-            reason: adminError?.message || 'admin_order_threw',
+              reason: 'admin_order_threw',
             errorMessage: 'Your payment was received but we could not finish creating your order automatically.',
           };
         }
@@ -459,11 +460,7 @@ export function useCheckout() {
         checkoutPayload.account = null;
       }
 
-      console.log('[processCheckout] Finalizing order with payload:', {
-        isPaid,
-        paymentMethod: checkoutPayload.paymentMethod,
-        transactionId: orderInput.value.transactionId,
-      });
+      console.log('[processCheckout] Finalizing order. Sensitive checkout details were withheld.');
 
       // Enhanced session management: Always refresh to get latest session token
       console.log('[processCheckout] Ensuring fresh session before checkout...');
@@ -503,7 +500,7 @@ export function useCheckout() {
           throw new Error('Unable to establish valid session token for checkout');
         }
       } catch (refreshError) {
-        console.error('[processCheckout] Failed to refresh session:', refreshError);
+        console.error('[processCheckout] Failed to refresh session:', getSafeErrorLogDetails(refreshError));
         return {
           success: false,
           error: true,
@@ -514,35 +511,7 @@ export function useCheckout() {
       let checkout: any = null;
 
       try {
-        console.log('[processCheckout] Sending checkout payload:', {
-          paymentMethod: checkoutPayload.paymentMethod,
-          transactionId: checkoutPayload.transactionId,
-          isPaid: checkoutPayload.isPaid,
-          billing: {
-            firstName: checkoutPayload.billing?.firstName,
-            lastName: checkoutPayload.billing?.lastName,
-            email: checkoutPayload.billing?.email,
-            phone: checkoutPayload.billing?.phone,
-            address1: checkoutPayload.billing?.address1,
-            city: checkoutPayload.billing?.city,
-            state: checkoutPayload.billing?.state,
-            postcode: checkoutPayload.billing?.postcode,
-            country: checkoutPayload.billing?.country,
-          },
-          shipping: {
-            firstName: checkoutPayload.shipping?.firstName,
-            lastName: checkoutPayload.shipping?.lastName,
-            address1: checkoutPayload.shipping?.address1,
-            city: checkoutPayload.shipping?.city,
-            state: checkoutPayload.shipping?.state,
-            postcode: checkoutPayload.shipping?.postcode,
-            country: checkoutPayload.shipping?.country,
-          },
-          shippingMethod: checkoutPayload.shippingMethod,
-          customerNote: checkoutPayload.customerNote,
-          metaData: checkoutPayload.metaData,
-          createAccount: !!orderInput.value.createAccount,
-        });
+        console.log('[processCheckout] Sending checkout request. Customer and credential details were withheld.');
 
         const result = await GqlCheckout(checkoutPayload, {
           headers: {
@@ -556,41 +525,25 @@ export function useCheckout() {
 
           try {
             const messages = JSON.parse(checkout?.messages || '{}');
-            if (messages.error) errorMessage = messages.error;
+            if (messages.error) {
+              errorMessage = getSafePublicErrorMessage(messages.error, 'We could not complete your order. Please review your details and try again.');
+            }
           } catch (e) {
-            if (checkout?.messages) errorMessage = checkout.messages;
+            if (checkout?.messages) {
+              errorMessage = getSafePublicErrorMessage(checkout.messages, 'We could not complete your order. Please review your details and try again.');
+            }
           }
 
           console.error('[processCheckout] Checkout failed:', {
             result: checkout?.result,
-            messages: checkout?.messages,
-            errorMessage,
+            hasMessages: !!checkout?.messages,
           });
 
           // No alert() — the checkout page renders errorMessage in its in-page error state.
           return {success: false, error: true, errorMessage};
         }
       } catch (gqlError: any) {
-        console.error('[processCheckout] GraphQL Error Details:', {
-          fullError: gqlError,
-          statusCode: gqlError?.statusCode,
-          gqlErrors: gqlError?.gqlErrors,
-          networkError: gqlError?.networkError,
-          response: gqlError?.response,
-          extensions: gqlError?.extensions,
-        });
-
-        // Log individual GraphQL errors for better debugging
-        if (gqlError?.gqlErrors?.length > 0) {
-          gqlError.gqlErrors.forEach((err: any, index: number) => {
-            console.error(`[processCheckout] GraphQL Error ${index + 1}:`, {
-              message: err.message,
-              locations: err.locations,
-              path: err.path,
-              extensions: err.extensions,
-            });
-          });
-        }
+        console.error('[processCheckout] GraphQL request failed:', getSafeErrorLogDetails(gqlError));
 
         // Check for session-related errors
         const isSessionError = gqlError?.gqlErrors?.some((err: any) => err.message?.includes('no session found') || err.message?.includes('session'));
@@ -631,7 +584,7 @@ export function useCheckout() {
             }
             console.log('[processCheckout] Retry successful!');
           } catch (retryError) {
-            console.error('[processCheckout] Retry failed:', retryError);
+            console.error('[processCheckout] Retry failed:', getSafeErrorLogDetails(retryError));
             return {
               success: false,
               error: true,
@@ -641,8 +594,7 @@ export function useCheckout() {
         } else {
           // Other GraphQL errors. Raw GraphQL/transport messages are technical noise (or worse,
           // alarming) to a shopper — log them, but show a customer-safe message in the page.
-          const rawMessage = gqlError?.gqlErrors?.[0]?.message || gqlError.message || 'Checkout failed';
-          console.error('[processCheckout] Non-session GraphQL error:', rawMessage);
+          console.error('[processCheckout] Non-session GraphQL failure. Sensitive details were withheld.');
           return {
             success: false,
             error: true,
@@ -671,7 +623,7 @@ export function useCheckout() {
         await refreshCart();
         console.log('Cart emptied and refreshed successfully after order completion');
       } catch (cartError) {
-        console.error('Error emptying cart:', cartError);
+        console.error('Cart cleanup failed:', getSafeErrorLogDetails(cartError));
       }
 
       // Simple redirect - no PayPal/Stripe complexity needed for Helcim
@@ -679,17 +631,11 @@ export function useCheckout() {
 
       return {success: true, orderId, orderKey};
     } catch (error: any) {
-      const errorMessage = error?.gqlErrors?.[0]?.message;
+      const untrustedErrorMessage = error?.gqlErrors?.[0]?.message;
 
-      console.error('[processCheckout] Error:', {
-        gqlErrors: error?.gqlErrors,
-        networkError: error?.networkError,
-        paymentMethod: orderInput.value.paymentMethod,
-        transactionId: orderInput.value.transactionId,
-        isPaidFlag: isPaid,
-      });
+      console.error('[processCheckout] Checkout failed:', getSafeErrorLogDetails(error));
 
-      if (errorMessage?.includes('An account is already registered with')) {
+      if (untrustedErrorMessage?.includes('An account is already registered with')) {
         const accountErrorMsg = 'An account is already registered with your email address. Please log in to continue.';
         return {
           success: false,
@@ -699,11 +645,10 @@ export function useCheckout() {
         };
       }
 
-      const finalErrorMessage = errorMessage || 'An unexpected error occurred during checkout.';
       return {
         success: false,
         error: true,
-        errorMessage: finalErrorMessage,
+        errorMessage: getSafePublicErrorMessage(error, 'We could not complete your order. Please review your details and try again, or contact customer service.'),
       };
     } finally {
       isProcessingOrder.value = false;

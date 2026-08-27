@@ -27,9 +27,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!providedSecret || providedSecret !== expectedSecret) {
-    console.warn(
-      `Unauthorized attempt to access /api/internal/script-storage/:key. Provided secret: ${providedSecret ? providedSecret.substring(0, 5) + "..." : "none"}`
-    );
+    console.warn('Unauthorized attempt to access /api/internal/script-storage/:key. The supplied credential was withheld.');
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
   // --- END: Security Check ---
@@ -54,14 +52,11 @@ export default defineEventHandler(async (event) => {
     // Nitro automatically handles JSON stringification for objects/arrays.
     // If data is already a string (like raw JSON from KV), it's returned as is.
     return data;
-  } catch (error: any) {
-    console.error(
-      `Error reading from script_data storage for key "${key}":`,
-      error
-    );
+  } catch {
+    console.error('Error reading from script_data storage. The key and error details were withheld.');
     throw createError({
       statusCode: 500,
-      statusMessage: `Internal Server Error: Could not retrieve data for key ${key}`,
+      statusMessage: 'Internal Server Error: Could not retrieve data.',
     });
   }
 });

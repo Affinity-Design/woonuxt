@@ -2,6 +2,7 @@
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect, nextTick} from 'vue';
 import VueTurnstile from 'vue-turnstile';
 import {convertToCAD} from '~/utils/priceConverter';
+import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '~/utils/publicErrorMessages.mjs';
 
 const {t} = useI18n();
 const {query} = useRoute();
@@ -287,7 +288,7 @@ const payNow = async () => {
       }
 
       if (stockValidation.warning) {
-        console.warn('[payNow] Stock validation warning:', stockValidation.warning);
+        console.warn('[payNow] Stock validation warning received. Details were withheld.');
       }
 
       console.log('[payNow] ✅ Stock validation passed');
@@ -297,7 +298,7 @@ const payNow = async () => {
         throw stockError;
       }
       // Otherwise log the API error but allow checkout to proceed (fail open)
-      console.warn('[payNow] Stock validation API error, proceeding with checkout:', stockError);
+      console.warn('[payNow] Stock validation API error; proceeding with checkout:', getSafeErrorLogDetails(stockError));
     }
 
     console.log('[payNow] Starting checkout process. Cart items:', cart.value.contents?.nodes?.length);
@@ -332,7 +333,7 @@ const payNow = async () => {
             throw new Error('Your cart is empty. Items may have been removed due to stock changes.');
           }
         } catch (refreshError) {
-          console.warn('[payNow] Cart refresh failed, proceeding with cached cart:', refreshError);
+          console.warn('[payNow] Cart refresh failed; proceeding with cached cart:', getSafeErrorLogDetails(refreshError));
         }
         // FULLY restore the pre-refresh billing/shipping values (mitigation plan P2-1). At
         // pay-time the just-typed form is the source of truth — refreshCart()'s updateCustomer
@@ -420,7 +421,7 @@ const payNow = async () => {
     }
 
     if (!success) {
-      console.log('[payNow] Payment failed:', paymentError.value);
+      console.log('[payNow] Payment failed. Sensitive details were withheld.');
       throw new Error(paymentError.value || 'Payment failed');
     }
 
@@ -437,15 +438,15 @@ const payNow = async () => {
     }
 
     if (!checkoutResult?.success) {
-      console.log('[payNow] Order completion failed:', checkoutResult?.errorMessage);
+      console.log('[payNow] Order completion failed. Sensitive details were withheld.');
       paymentError.value = checkoutResult?.errorMessage || 'Order completion failed after payment';
       throw new Error(paymentError.value || 'Order completion failed after payment');
     }
 
     console.log('[payNow] Checkout completed successfully');
   } catch (error: any) {
-    console.error('Checkout error:', error);
-    paymentError.value = error.message || t('messages.shop.genericError', 'An error occurred');
+    console.error('Checkout failed:', getSafeErrorLogDetails(error));
+    if (!paymentError.value) paymentError.value = getSafePaymentErrorMessage(error);
     isPaid.value = false;
     buttonText.value = t('messages.shop.placeOrder');
 
@@ -473,16 +474,16 @@ const checkEmailOnInput = (email?: string | null): void => {
 
 // Helcim payment event handlers
 const handleHelcimReady = (tokens?: any) => {
-  console.log('[Checkout] Helcim payment ready', tokens);
+  console.log('[Checkout] Helcim payment form is ready. Tokens were withheld.');
 };
 
 const handleHelcimError = (error: any) => {
-  console.error('[Checkout] Helcim payment error:', error);
-  paymentError.value = error;
+  console.error('[Checkout] Helcim payment error:', getSafeErrorLogDetails(error));
+  paymentError.value = getSafePaymentErrorMessage(error);
 };
 
 const handleHelcimSuccess = async (transactionData: any) => {
-  console.log('[Checkout] Helcim payment successful:', transactionData);
+  console.log('[Checkout] Helcim payment success received. Sensitive payment details were withheld.');
 
   // Prevent double processing
   if (helcimPaymentComplete.value) {
@@ -501,7 +502,7 @@ const handleHelcimSuccess = async (transactionData: any) => {
       value: actualTransactionId,
     });
     orderInput.value.transactionId = actualTransactionId;
-    console.log('[Checkout] Set transaction ID:', actualTransactionId);
+  console.log('[Checkout] Transaction reference was received and withheld from logs.');
   }
 
   // Check if this is a digital wallet payment (Google Pay, Apple Pay)
@@ -522,8 +523,6 @@ const handleHelcimSuccess = async (transactionData: any) => {
   // Extract and store cardToken for refund support
   // The Helcim WooCommerce plugin requires 'helcim-card-token' meta for native refunds
   // NOTE: Digital wallet payments (Google Pay, Apple Pay) do NOT return cardToken
-  console.log('[Checkout] Full transactionData for cardToken search:', JSON.stringify(transactionData, null, 2));
-
   const cardToken =
     transactionData?.cardToken ||
     transactionData?.data?.cardToken ||
@@ -532,7 +531,7 @@ const handleHelcimSuccess = async (transactionData: any) => {
     transactionData?.data?.card?.cardToken ||
     transactionData?.transaction?.cardToken;
 
-  console.log('[Checkout] CardToken extraction result:', cardToken ? `Found: ${cardToken.substring(0, 10)}...` : 'NOT FOUND');
+  console.log('[Checkout] Refund token extraction result:', cardToken ? 'present' : 'missing');
 
   if (cardToken) {
     helcimCardToken.value = cardToken;
@@ -572,18 +571,18 @@ const handleHelcimSuccess = async (transactionData: any) => {
     await payNow();
     // Loading state will be cleared on redirect to success page
   } catch (error: any) {
-    console.error('[Checkout] Error during order creation after Helcim payment:', error);
-    paymentError.value = error.message || 'Order creation failed after successful payment';
+    console.error('[Checkout] Order creation after payment failed:', getSafeErrorLogDetails(error));
+    paymentError.value = 'Your payment was received, but we could not finish the order automatically. Do not pay again; contact customer service for help.';
     isCreatingOrder.value = false;
     orderCreationMessage.value = '';
   }
 };
 
 const handleHelcimFailed = (error: any) => {
-  console.error('[Checkout] Helcim payment failed:', error);
+  console.error('[Checkout] Helcim payment failed:', getSafeErrorLogDetails(error));
   helcimPaymentComplete.value = false;
   isPaid.value = false;
-  paymentError.value = typeof error === 'string' ? error : 'Payment failed';
+  paymentError.value = getSafePaymentErrorMessage(error);
 };
 
 // The charge succeeded but the order could not be finished. Show the hard do-not-reorder notice
@@ -591,10 +590,7 @@ const handleHelcimFailed = (error: any) => {
 // de-duplicated — never charges again). This is the Demetrius-incident path: had the first
 // attempt's lost success been auto-recovered, there would have been no retry and no second charge.
 const handlePaymentCapturedFailure = async (result: any) => {
-  console.warn('[Checkout] Payment captured but order unfinished — entering recovery flow', {
-    transactionId: result?.transactionId,
-    reason: result?.reason,
-  });
+  console.warn('[Checkout] Payment captured but order unfinished — entering recovery flow. Identifiers were withheld.');
 
   isCreatingOrder.value = false;
   orderCreationMessage.value = '';
@@ -626,7 +622,7 @@ const attemptStrandedRecovery = async () => {
     });
 
     if (res?.recovered && res.order) {
-      console.log('[Checkout] Stranded charge auto-recovered into order:', res.order);
+      console.log('[Checkout] Stranded charge auto-recovered into an order.');
       await handleHelcimRecovered({
         orderId: res.order.databaseId ?? res.order.id,
         orderKey: res.order.orderKey || '',
@@ -635,10 +631,10 @@ const attemptStrandedRecovery = async () => {
       return;
     }
 
-    console.warn('[Checkout] Auto-recovery did not produce an order:', res);
+    console.warn('[Checkout] Auto-recovery did not produce an order. Response details were withheld.');
     autoRecoveryFailed.value = true;
   } catch (error: any) {
-    console.error('[Checkout] Auto-recovery failed:', error);
+    console.error('[Checkout] Auto-recovery failed:', getSafeErrorLogDetails(error));
     autoRecoveryFailed.value = true;
   } finally {
     isAutoRecovering.value = false;
@@ -649,7 +645,7 @@ const attemptStrandedRecovery = async () => {
 // their already-successful payment should have created. The server reconciled it (find-or-create,
 // de-duplicated), so finish exactly like a normal success: clear the cart and go to the receipt.
 const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; orderNumber?: any}) => {
-  console.log('[Checkout] Helcim order recovered:', order);
+  console.log('[Checkout] Helcim order recovered. Identifiers were withheld.');
   helcimPaymentComplete.value = true;
   isPaid.value = true;
   paymentError.value = null;
@@ -661,7 +657,7 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
     await emptyCart();
     await refreshCart();
   } catch (cartError) {
-    console.error('[Checkout] Error emptying cart after recovery:', cartError);
+    console.error('[Checkout] Cart cleanup after recovery failed:', getSafeErrorLogDetails(cartError));
   }
 
   const {orderId, orderKey, orderNumber} = order;
@@ -669,7 +665,7 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
   try {
     await navigateTo(receiptUrl);
   } catch (navError) {
-    console.warn('[Checkout] SPA navigation to receipt failed — hard-navigating:', navError);
+    console.warn('[Checkout] SPA navigation to receipt failed; hard-navigating:', getSafeErrorLogDetails(navError));
     window.location.assign(receiptUrl);
     return;
   }
@@ -684,7 +680,7 @@ const handleHelcimRecovered = async (order: {orderId: any; orderKey?: string; or
 };
 
 const handleHelcimComplete = (result: any) => {
-  console.log('[Checkout] Helcim payment completed:', result);
+  console.log('[Checkout] Helcim payment completion received. Payment details were withheld.');
 
   if (result.success) {
     // Include cardToken in the transactionData if present in result

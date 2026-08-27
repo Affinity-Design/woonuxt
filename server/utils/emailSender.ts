@@ -73,9 +73,9 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
         console.log('[emailSender] Sent via email-sender Worker:', {messageId: data?.messageId});
         return {sent: true, provider: 'cloudflare-worker', errors};
       }
-      errors.push(`email-sender Worker responded ${response.status}: ${data?.code || ''} ${data?.error || 'unknown error'}`.trim());
+      errors.push(`email-sender Worker responded with HTTP ${response.status}`);
     } catch (error: any) {
-      errors.push(`email-sender Worker call failed: ${error?.message || 'unknown error'}`);
+      errors.push('email-sender Worker call failed');
     }
   } else {
     errors.push('EMAIL_SENDER service binding not present');
@@ -112,10 +112,9 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
         console.log('[emailSender] Sent via WordPress relay (wp_mail)');
         return {sent: true, provider: 'wordpress', errors};
       }
-      errors.push(`WordPress relay responded without success: ${response?.error || 'unknown error'}`);
+      errors.push('WordPress relay responded without success');
     } catch (error: any) {
-      const detail = error?.data?.error || error?.data?.message || error?.message || 'unknown error';
-      errors.push(`WordPress relay call failed: ${detail}`);
+      errors.push('WordPress relay call failed');
     }
   } else {
     errors.push('WordPress relay not configured (needs BASE_URL + WP admin app password)');
@@ -153,10 +152,9 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
         return {sent: true, provider: 'cloudflare-rest', errors};
       }
 
-      errors.push(`Cloudflare Email API returned success=false: ${JSON.stringify(response?.errors || [])}`);
+      errors.push('Cloudflare Email API returned success=false');
     } catch (error: any) {
-      const apiErrors = error?.data?.errors ? JSON.stringify(error.data.errors) : error?.message || 'unknown error';
-      errors.push(`Cloudflare Email API request failed: ${apiErrors}`);
+      errors.push('Cloudflare Email API request failed');
     }
   } else {
     errors.push('Cloudflare email not configured (needs CF_ACCOUNT_ID, CF_EMAIL_API_TOKEN, CF_EMAIL_FROM)');
@@ -180,13 +178,12 @@ export async function sendStoreEmail(event: H3Event, input: StoreEmailInput): Pr
       console.log('[emailSender] Sent via SendGrid fallback');
       return {sent: true, provider: 'sendgrid', errors};
     } catch (error: any) {
-      const detail = error?.response?.body ? JSON.stringify(error.response.body) : error?.message || 'unknown error';
-      errors.push(`SendGrid request failed: ${detail}`);
+      errors.push('SendGrid request failed');
     }
   } else {
     errors.push('SendGrid not configured (needs SENDGRID_API_KEY, SENDING_EMAIL)');
   }
 
-  console.error('[emailSender] All providers failed:', errors);
+  console.error('[emailSender] All providers failed. Sensitive details were withheld.');
   return {sent: false, errors};
 }

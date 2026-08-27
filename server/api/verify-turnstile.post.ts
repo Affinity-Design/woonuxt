@@ -1,3 +1,5 @@
+import {getSafeErrorLogDetails} from '../../utils/publicErrorMessages.mjs';
+
 // Turnstile Server-Side Verification Endpoint
 // Validates tokens with Cloudflare's Siteverify API
 
@@ -73,11 +75,11 @@ export default defineEventHandler(async (event) => {
       },
     };
   } catch (error: any) {
-    console.error('❌ Turnstile verification error:', error);
+    console.error('Turnstile verification error:', getSafeErrorLogDetails(error));
 
     throw createError({
       statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Security verification failed',
+      statusMessage: 'Security verification failed. Please refresh the page and try again.',
     });
   }
 });

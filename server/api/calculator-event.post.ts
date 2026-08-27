@@ -156,7 +156,7 @@ export default defineEventHandler(async (event) => {
     await statsSetItem(rateLimitKey, usedToday + 1, {ttl: STATS_RATELIMIT_TTL_SECONDS});
   } catch (error: any) {
     // No store available (binding missing in dev, KV outage) — telemetry is never load-bearing.
-    console.warn('[Calc Stats] ingest write failed:', error?.message || error);
+    console.warn('[Calc Stats] ingest write failed. Sensitive details were withheld.');
     return {ok: false};
   }
 

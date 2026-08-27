@@ -116,7 +116,7 @@ export async function verifyAdminSession(event: H3Event): Promise<AdminVerificat
       roles,
     };
   } catch (error: any) {
-    console.warn('[Admin Verify] Verification failed (treating as not admin):', error?.message || error);
+    console.warn('[Admin Verify] Verification failed; treating as not admin. Sensitive details were withheld.');
     return notAdmin();
   }
 }

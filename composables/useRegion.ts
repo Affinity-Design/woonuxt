@@ -34,9 +34,9 @@ export const useRegion = () => {
       const response = await $fetch<RegionApiResponse>('/api/region.json');
       state.value.countryCode = (response.countryCode || 'CA').toUpperCase();
       state.value.loaded = true;
-    } catch (error) {
+    } catch {
       state.value.countryCode = 'CA';
-      state.value.error = error instanceof Error ? error.message : 'Could not detect region.';
+      state.value.error = 'We could not detect your region, so Canadian settings were applied.';
       state.value.loaded = true;
     } finally {
       state.value.loading = false;

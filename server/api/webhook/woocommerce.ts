@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
     
     for (const path of pathsToRevalidate) {
       try {
-        const response = await $fetch("/api/revalidate", {
+        await $fetch("/api/revalidate", {
           method: "POST",
           body: {
             secret: process.env.REVALIDATION_SECRET,
@@ -78,11 +78,11 @@ export default defineEventHandler(async (event) => {
           },
         });
         
-        revalidationResults[path] = response;
-        console.log(`Revalidated ${path}:`, response);
+        revalidationResults[path] = {success: true};
+        console.log(`Revalidated ${path}.`);
       } catch (error) {
-        console.error(`Error revalidating ${path}:`, error);
-        revalidationResults[path] = { error: true, message: error.message };
+        console.error(`Error revalidating ${path}. Sensitive details were withheld.`);
+        revalidationResults[path] = {error: true, message: 'Revalidation failed'};
       }
     }
 
@@ -93,11 +93,11 @@ export default defineEventHandler(async (event) => {
       results: revalidationResults
     };
   } catch (error) {
-    console.error("Webhook handler error:", error);
+    console.error('Webhook handler failed. Sensitive details were withheld.');
     return createError({
       statusCode: 500,
       statusMessage: "Error processing webhook",
-      data: { error: error.message }
+      data: {error: 'Webhook processing failed'}
     });
   }
 });

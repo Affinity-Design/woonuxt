@@ -1,3 +1,5 @@
+import {getSafeErrorLogDetails, removeSensitiveFields} from '../../utils/publicErrorMessages.mjs';
+
 // server/utils/helcimOrderRecovery.ts
 //
 // Stranded-charge recovery store for Helcim payments.
@@ -14,9 +16,9 @@
 // WHAT THIS DOES
 // --------------
 // On every `create-admin-order` failure that has a known-good Helcim transactionId, we persist the
-// FULL order-creation payload here, keyed by transactionId. A recovery flow (customer self-service
-// from the block, or admin/support via /api/recover-helcim-order) can then reconcile the charge into
-// a real Woo order out-of-band — WITHOUT asking the customer to pay again.
+// sanitized order-creation payload here, keyed by transactionId. Account credentials are removed
+// before storage. A recovery flow can then reconcile the charge into a real Woo order out-of-band
+// without asking the customer to pay again.
 //
 // All operations are best-effort: if KV is unavailable we fail safe (never throw into the order
 // flow). The happy path never touches this module.
@@ -39,7 +41,7 @@ export interface RecoveredOrderRef {
 export interface StrandedCharge {
   transactionId: string;
   status: StrandedChargeStatus;
-  // The exact body that was POSTed to /api/create-admin-order, so recovery can replay it verbatim.
+  // Replayable order data with account credentials removed before storage.
   payload: any;
   // Light-weight, human-readable context for support tooling (avoids digging through `payload`).
   customerEmail?: string;
@@ -62,6 +64,16 @@ function keyFor(transactionId: string): string {
   return `${KEY_PREFIX}${transactionId}`;
 }
 
+function sanitizeStrandedCharge(record: StrandedCharge | null): StrandedCharge | null {
+  if (!record) return null;
+  return {
+    ...record,
+    payload: removeSensitiveFields(record.payload),
+    failureReason: record.failureReason ? 'Order creation failed. Sensitive details were withheld.' : undefined,
+    lastError: record.lastError ? 'The latest recovery attempt failed. Sensitive details were withheld.' : undefined,
+  };
+}
+
 /**
  * Persist a stranded charge (successful Helcim charge whose Woo order failed to create).
  * Best-effort. Never overwrites an already-`recovered` record.
@@ -78,10 +90,11 @@ export async function recordStrandedCharge(transactionId: string | undefined | n
     }
 
     const now = new Date().toISOString();
+    const recoveryPayload = removeSensitiveFields(payload);
     const record: StrandedCharge = {
       transactionId: String(transactionId),
       status: 'pending',
-      payload,
+      payload: recoveryPayload,
       customerEmail: payload?.billing?.email,
       customerName: `${payload?.billing?.firstName || ''} ${payload?.billing?.lastName || ''}`.trim() || undefined,
       cartTotal: cleanPriceText(payload?.cartTotals?.total) || undefined,
@@ -92,18 +105,18 @@ export async function recordStrandedCharge(transactionId: string | undefined | n
     };
 
     await paymentSetItem(key, record, {ttl: KV_TTL_SECONDS});
-    console.log('[Helcim Recovery] Recorded stranded charge for later reconciliation', {transactionId, failureReason});
+    console.log('[Helcim Recovery] Recorded stranded charge for later reconciliation. Identifiers and failure details were withheld.');
   } catch (error: any) {
-    console.warn('[Helcim Recovery] recordStrandedCharge failed (continuing):', error?.message || error);
+    console.warn('[Helcim Recovery] recordStrandedCharge failed (continuing):', getSafeErrorLogDetails(error));
   }
 }
 
 /** Fetch a single stranded-charge record. Returns null if missing or storage is unavailable. */
 export async function getStrandedCharge(transactionId: string): Promise<StrandedCharge | null> {
   try {
-    return (await paymentGetItem<StrandedCharge>(keyFor(transactionId))) || null;
+    return sanitizeStrandedCharge((await paymentGetItem<StrandedCharge>(keyFor(transactionId))) || null);
   } catch (error: any) {
-    console.warn('[Helcim Recovery] getStrandedCharge failed:', error?.message || error);
+    console.warn('[Helcim Recovery] stranded-charge lookup failed. Sensitive details were withheld.');
     return null;
   }
 }
@@ -114,12 +127,13 @@ export async function updateStrandedCharge(transactionId: string, extra: Partial
     const key = keyFor(transactionId);
     const existing = await paymentGetItem<StrandedCharge>(key);
     if (!existing) return;
-    const updated: StrandedCharge = {...existing, ...extra, updatedAt: new Date().toISOString()};
+    const updated = sanitizeStrandedCharge({...existing, ...extra, updatedAt: new Date().toISOString()});
+    if (!updated) return;
     // Written to the payment store even when the original was read from the legacy cache —
     // updates migrate legacy records forward.
     await paymentSetItem(key, updated, {ttl: KV_TTL_SECONDS});
   } catch (error: any) {
-    console.warn('[Helcim Recovery] updateStrandedCharge failed:', error?.message || error);
+    console.warn('[Helcim Recovery] stranded-charge update failed. Sensitive details were withheld.');
   }
 }
 
@@ -131,10 +145,11 @@ export async function listStrandedCharges(status?: StrandedChargeStatus): Promis
 
     const records = await Promise.all(keys.map((k) => paymentGetItem<StrandedCharge>(k).catch(() => null)));
     const list = records.filter((r): r is StrandedCharge => !!r);
-    const filtered = status ? list.filter((r) => r.status === status) : list;
+    const sanitizedList = list.map((record) => sanitizeStrandedCharge(record)).filter((record): record is StrandedCharge => !!record);
+    const filtered = status ? sanitizedList.filter((r) => r.status === status) : sanitizedList;
     return filtered.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   } catch (error: any) {
-    console.warn('[Helcim Recovery] listStrandedCharges failed:', error?.message || error);
+    console.warn('[Helcim Recovery] stranded-charge list failed. Sensitive details were withheld.');
     return [];
   }
 }

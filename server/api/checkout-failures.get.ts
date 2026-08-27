@@ -3,18 +3,20 @@
 // Support-triage view of the checkout failure ledger (mitigation plan §6 Tier 1).
 // Merges D1 rows (NUXT_CHECKOUT_LOGS) with KV fallback records, newest first.
 //
-// Usage (secret-gated, same pattern as recover-helcim-order admin actions):
-//   GET /api/checkout-failures?secret=...                     → latest 100
-//   GET /api/checkout-failures?secret=...&email=demetrius     → filter by email substring
-//   GET /api/checkout-failures?secret=...&stage=order_create_failed
-//   GET /api/checkout-failures?secret=...&since=2026-07-15T00:00:00Z&limit=500
-import {defineEventHandler, getQuery, createError} from 'h3';
+// Usage: authenticate with a WordPress admin session or send REVALIDATION_SECRET in the
+// x-internal-secret header. Credentials are never accepted in query strings.
+import {defineEventHandler, getHeader, getQuery, createError} from 'h3';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
 
-  if (!process.env.REVALIDATION_SECRET || query?.secret !== process.env.REVALIDATION_SECRET) {
-    throw createError({statusCode: 401, statusMessage: 'Invalid token'});
+  const headerSecret = getHeader(event, 'x-internal-secret');
+  const secretAuthorized = !!process.env.REVALIDATION_SECRET && headerSecret === process.env.REVALIDATION_SECRET;
+  if (!secretAuthorized) {
+    const adminUser = await verifyAdminSession(event);
+    if (!adminUser.isAdmin) {
+      throw createError({statusCode: 404, statusMessage: 'Not Found'});
+    }
   }
 
   const failures = await queryCheckoutFailures(event, {

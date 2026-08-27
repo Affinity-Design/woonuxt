@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
         console.log('[sitemap.xml] Using sitemap data from Cloudflare KV');
       }
     } catch (kvError) {
-      console.warn('[sitemap.xml] Failed to read from KV, trying local file:', kvError);
+      console.warn('[sitemap.xml] Failed to read from KV; trying local file. Sensitive details were withheld.');
     }
 
     // FALLBACK: Read from local file (development or if KV fails)
@@ -87,7 +87,7 @@ ${sitemapData.routes
 
     return sitemap;
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    console.error('Error generating sitemap. Sensitive details were withheld.');
     throw createError({
       statusCode: 500,
       statusMessage: 'Error generating sitemap',

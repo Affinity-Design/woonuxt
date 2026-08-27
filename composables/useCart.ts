@@ -1,5 +1,6 @@
 import type {AddToCartInput} from '#gql';
 import {createCartRefreshCoordinator, finalizeSuccessfulCartMutation, prepareCartSessionForMutation} from '~/utils/cartRefreshCoordinator.mjs';
+import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
 
 const CART_REFRESH_TIMEOUT_MILLISECONDS = 15_000;
 const cartRefreshCoordinators = new WeakMap<object, ReturnType<typeof createCartRefreshCoordinator>>();
@@ -141,27 +142,7 @@ export function useCart() {
     } catch (error: any) {
       logGQLError(error);
 
-      // Extract user-friendly error message from the API error
-      let errorMessage = 'Unable to add item to cart. Please try again.';
-
-      // Check for error message in response data
-      const apiMessage = error?.data?.message || error?.message || '';
-
-      if (apiMessage) {
-        // WooCommerce stock error patterns - use the message directly as it's usually descriptive
-        // Common patterns: "You cannot add that amount", "not enough stock", "only X left in stock"
-        if (
-          apiMessage.toLowerCase().includes('stock') ||
-          apiMessage.toLowerCase().includes('quantity') ||
-          apiMessage.toLowerCase().includes('cannot') ||
-          apiMessage.toLowerCase().includes('not enough') ||
-          apiMessage.toLowerCase().includes('only') ||
-          apiMessage.toLowerCase().includes('available') ||
-          apiMessage.toLowerCase().includes('add that amount')
-        ) {
-          errorMessage = apiMessage;
-        }
-      }
+      const errorMessage = getSafeCartErrorMessage(error, 'Unable to add this item to your cart. Please try again.');
 
       // Show toast notification with error message (HTML entities decoded automatically)
       toast.error(errorMessage);
@@ -192,9 +173,9 @@ export function useCart() {
         updateCart(response.cart);
       }
     } catch (error: any) {
-      console.error('[removeItem] Error:', error);
+      console.error('[removeItem] Cart update failed:', getSafeErrorLogDetails(error));
       const toast = useToast();
-      toast.error(error.data?.message || error.message || 'Failed to remove item');
+      toast.error(getSafeCartErrorMessage(error, 'We could not remove that item. Please try again.'));
     } finally {
       isUpdatingCart.value = false;
     }
@@ -220,9 +201,9 @@ export function useCart() {
         updateCart(response.cart);
       }
     } catch (error: any) {
-      console.error('[updateItemQuantity] Error:', error);
+      console.error('[updateItemQuantity] Cart update failed:', getSafeErrorLogDetails(error));
       const toast = useToast();
-      toast.error(error.data?.message || error.message || 'Failed to update quantity');
+      toast.error(getSafeCartErrorMessage(error, 'We could not update that quantity. Please try again.'));
     } finally {
       isUpdatingCart.value = false;
     }

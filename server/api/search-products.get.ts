@@ -31,11 +31,7 @@ export default defineEventHandler(async (event) => {
     return productsList;
   } catch (error: any) {
     // Log the error for server-side debugging
-    console.error(
-      "API Error: Failed to retrieve 'products-list' for search from KV:",
-      error.message
-    );
-    console.error("Error details:", error); // Log full error object for more context
+    console.error("API Error: Failed to retrieve 'products-list' for search from KV. Sensitive details were withheld.");
 
     // Return a structured error response to the client
     throw createError({

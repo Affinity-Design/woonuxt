@@ -81,25 +81,19 @@ export function useTurnstile() {
             isLoading.value = false;
             resolve(token);
           },
-          'error-callback': (errorCode: string) => {
-            console.error('❌ Turnstile error:', errorCode);
-
-            if (errorCode === '110200') {
-              console.error('🚨 Error 110200: Domain not authorized for this site key');
-              error.value = 'Domain not authorized for security verification';
-            } else {
-              error.value = 'Security verification failed';
-            }
+          'error-callback': (_errorCode: string) => {
+            console.error('Security verification widget reported an error. Sensitive details were withheld.');
+            error.value = 'Security verification failed. Please refresh the page and try again.';
 
             isLoading.value = false;
-            reject(new Error(`Turnstile error: ${errorCode}`));
+            reject(new Error('Security verification failed'));
           },
           // Auto-render without manual execution
         });
 
         console.log('🚀 Turnstile widget rendered with ID:', widgetId);
       } catch (renderError: any) {
-        console.error('❌ Failed to render Turnstile widget:', renderError);
+        console.error('Failed to render the security widget. Sensitive details were withheld.');
         isLoading.value = false;
         reject(new Error('Failed to initialize Turnstile widget'));
       }
@@ -123,7 +117,7 @@ export function useTurnstile() {
       console.log('✅ Turnstile server verification result:', {success: response.success});
       return response.success === true;
     } catch (err: any) {
-      console.error('❌ Turnstile server verification failed:', err);
+      console.error('Security verification request failed. Sensitive details were withheld.');
       return false;
     }
   };

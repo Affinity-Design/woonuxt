@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import VueTurnstile from 'vue-turnstile';
+import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
 
 const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
 const businessStartYear = 2011;
@@ -257,13 +258,12 @@ async function submitForm() {
       }),
     });
 
-    const result = await response.json();
-    console.log('Form submission response:', result);
+    await response.json();
+    console.log('Contact form response received.', {success: response.ok});
 
     if (!response.ok) {
-      const errorMsg = result.error || 'Failed to send message';
-      console.error('Form submission error:', errorMsg, result);
-      throw new Error(errorMsg);
+      console.error('Contact form submission was rejected. Sensitive details were withheld.');
+      throw new Error('Contact form submission failed');
     }
 
     // Success state
@@ -279,8 +279,8 @@ async function submitForm() {
       window.turnstile.reset();
     }
   } catch (error) {
-    console.error('Error submitting form:', error);
-    status.value.error = error.message || 'An error occurred while sending your message';
+    console.error('Contact form submission failed:', getSafeErrorLogDetails(error));
+    status.value.error = 'We could not send your message. Please try again or email customer service directly.';
     turnstileToken.value = '';
 
     // Reset Turnstile

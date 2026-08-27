@@ -141,7 +141,7 @@ function psp_attach_pos_order_to_customer_profile($order, $source_data = null) {
     $order->update_meta_data('_psp_pos_customer_profile_email', $billing_email);
 
     psp_fill_customer_profile_from_pos_order($target_customer_id, $order);
-    psp_log_pos_customer_profile_message(sprintf('Assigned POS order to customer #%d for %s.', $target_customer_id, $billing_email));
+    psp_log_pos_customer_profile_message(sprintf('Assigned POS order to customer #%d.', $target_customer_id));
 
     return true;
 }
@@ -293,7 +293,7 @@ function psp_get_or_create_pos_customer_id($order, $billing_email) {
 
     $new_customer_id = wc_create_new_customer($billing_email, '', '', $customer_data);
     if (is_wp_error($new_customer_id)) {
-        psp_log_pos_customer_profile_message(sprintf('Could not create POS customer for %s: %s', $billing_email, $new_customer_id->get_error_message()));
+        psp_log_pos_customer_profile_message('Could not create the POS customer. Personal and error details were withheld.');
         return 0;
     }
 

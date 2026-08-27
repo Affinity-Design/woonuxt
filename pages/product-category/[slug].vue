@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {defineAsyncComponent, ref, computed, watch, onMounted, onUnmounted} from 'vue';
+import {getSafeErrorLogDetails} from '~/utils/publicErrorMessages.mjs';
 const PulseLoader = defineAsyncComponent(() => import('vue-spinner/src/PulseLoader.vue'));
 
 // Core composables
@@ -224,13 +225,13 @@ try {
   });
 
   if (countResponse?.errors) {
-    console.error(`⚠️ Count query errors:`, countResponse.errors);
+    console.error('⚠️ Category count query failed. Sensitive details were withheld.');
   }
 
   productCountValue = countResponse?.data?.products?.found || 150;
   console.log(`📊 Category "${slug}" - Total count from GraphQL: ${productCountValue}`);
 } catch (err) {
-  console.error(`❌ Error fetching product count for ${slug}:`, err);
+  console.error(`Error fetching product count for ${slug}:`, getSafeErrorLogDetails(err));
 }
 
 const productCount = ref(productCountValue);
@@ -239,7 +240,7 @@ const productCount = ref(productCountValue);
 const allLoadedProducts = ref<any[]>([]);
 const isLoadingProducts = ref(true);
 const loadingProgress = ref(0);
-const loadError = ref<Error | null>(null);
+const loadError = ref(false);
 
 // Function to fetch all products in batches using direct $fetch (avoids composable context issues)
 async function fetchAllProductsInBatches() {
@@ -285,7 +286,7 @@ async function fetchAllProductsInBatches() {
 
       // Check for GraphQL errors
       if (response?.errors) {
-        console.error(`⚠️ GraphQL errors:`, response.errors);
+        console.error('Product-category GraphQL request failed. Sensitive details were withheld.');
       }
 
       const result = response?.data;
@@ -313,8 +314,8 @@ async function fetchAllProductsInBatches() {
 
       console.log(`✅ Batch complete: fetched ${nodes.length}, total now ${totalFetched}, hasNextPage: ${hasNextPage}`);
     } catch (err) {
-      console.error(`❌ Error fetching batch for ${slug}:`, err);
-      loadError.value = err as Error;
+      console.error(`Error fetching a product batch for ${slug}:`, getSafeErrorLogDetails(err));
+      loadError.value = true;
       break; // Stop on error, return what we have
     }
   }
@@ -519,7 +520,7 @@ onUnmounted(() => {
     <!-- Error State: Only show if error AND no products AND not pending -->
     <div v-else-if="(error || loadError) && productsInCategory.length === 0 && !pending" class="container my-12 text-center">
       <div class="text-red-500 mb-4">
-        {{ error?.message || loadError?.message || 'Failed to load products' }}
+        We could not load these products. Please try again.
       </div>
       <button @click="refresh" class="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark">Try Again</button>
     </div>

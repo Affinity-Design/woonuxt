@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   try {
     cachedProductRecord = await storage.getItem<CachedProductRecord>(productCacheKey);
   } catch (storageError: any) {
-    console.warn(`[cached-product] cache read failed for ${slug} (continuing to GraphQL):`, storageError?.message || storageError);
+    console.warn(`[cached-product] cache read failed for ${slug}; continuing to GraphQL. Sensitive details were withheld.`);
   }
   const isCachedProductFresh =
     cachedProductRecord?.product &&
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
     try {
       await storage.setItem(productCacheKey, {product, cachedAt});
     } catch (storageError: any) {
-      console.warn(`[cached-product] cache write failed for ${slug} (serving product anyway):`, storageError?.message || storageError);
+      console.warn(`[cached-product] cache write failed for ${slug}; serving product anyway. Sensitive details were withheld.`);
     }
 
     return {
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    console.error(`[cached-product] Failed to load ${slug}:`, error);
+    console.error(`[cached-product] Failed to load ${slug}. Sensitive details were withheld.`);
     throw createError({statusCode: 502, statusMessage: 'Product data is temporarily unavailable'});
   }
 });

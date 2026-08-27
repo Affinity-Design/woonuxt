@@ -54,7 +54,7 @@ export async function statsGetItem<T>(key: string): Promise<T | null> {
     const hit = await statsStore().getItem<T>(key);
     if (hit !== null && hit !== undefined) return hit;
   } catch (error: any) {
-    console.warn('[Calc Stats] stats store read failed, trying fallback:', error?.message || error);
+    console.warn('[Calc Stats] stats store read failed; trying fallback. Sensitive details were withheld.');
   }
 
   try {
@@ -70,7 +70,7 @@ export async function statsSetItem(key: string, value: any, opts?: any): Promise
     await statsStore().setItem(key, value, opts);
     return;
   } catch (error: any) {
-    console.warn('[Calc Stats] stats store write failed, falling back to script_data:', error?.message || error);
+    console.warn('[Calc Stats] stats store write failed; falling back to script_data. Sensitive details were withheld.');
   }
 
   await fallbackStore().setItem(key, value, opts);
@@ -83,7 +83,7 @@ export async function statsGetKeys(prefix: string): Promise<string[]> {
   try {
     for (const key of (await statsStore().getKeys(prefix)) || []) keys.add(key);
   } catch (error: any) {
-    console.warn('[Calc Stats] stats store getKeys failed:', error?.message || error);
+    console.warn('[Calc Stats] stats store key lookup failed. Sensitive details were withheld.');
   }
 
   try {

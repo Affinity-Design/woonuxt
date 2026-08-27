@@ -34,9 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!providedSecret || providedSecret !== expectedSecret) {
-    console.warn(
-      `Unauthorized attempt to access /api/internal/script-storage/state. Provided secret: ${providedSecret ? providedSecret.substring(0, 5) + "..." : "none"}`
-    );
+    console.warn('Unauthorized attempt to access /api/internal/script-storage/state. The supplied credential was withheld.');
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
   // --- END: Security Check ---
@@ -61,10 +59,9 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, message: "State saved successfully." };
   } catch (error: any) {
-    console.error("Error saving cache warmer state:", error);
-    if (error.statusCode) {
-      // If it's an H3 error (like 400 from readBody)
-      throw error;
+    console.error('Error saving cache warmer state. Sensitive details were withheld.');
+    if (error.statusCode === 400) {
+      throw createError({statusCode: 400, statusMessage: 'Invalid request body: expected a JSON object.'});
     }
     throw createError({
       statusCode: 500,

@@ -97,7 +97,7 @@ export async function recordSuccessfulCharge(input: ChargeFingerprintInput, char
     await paymentSetItem(keyFor(fingerprint), record, {ttl: KV_TTL_SECONDS});
     console.log('[Helcim Guard] Recorded successful charge', {fingerprint, transactionId: charge.transactionId});
   } catch (error: any) {
-    console.warn('[Helcim Guard] recordSuccessfulCharge failed (continuing):', error?.message || error);
+    console.warn('[Helcim Guard] successful-charge record failed; continuing. Sensitive details were withheld.');
   }
 }
 
@@ -113,7 +113,7 @@ export async function recordAttemptCharge(attemptId: string | undefined | null, 
     await paymentSetItem(attemptKeyFor(String(attemptId)), record, {ttl: KV_TTL_SECONDS});
     console.log('[Helcim Guard] Recorded successful charge for attempt', {attemptId, transactionId: charge.transactionId});
   } catch (error: any) {
-    console.warn('[Helcim Guard] recordAttemptCharge failed (continuing):', error?.message || error);
+    console.warn('[Helcim Guard] attempt-charge record failed; continuing. Sensitive details were withheld.');
   }
 }
 
@@ -142,7 +142,7 @@ export async function recordAttemptChargeStrong(event: any, attemptId: string | 
         .bind(String(attemptId), charge.transactionId || null, charge.email || null, charge.amount != null ? String(charge.amount) : null, new Date().toISOString())
         .run();
     } catch (error: any) {
-      console.warn('[Helcim Guard] D1 attempt-charge write failed (KV still records):', error?.message || error);
+      console.warn('[Helcim Guard] D1 attempt-charge write failed; KV still records. Sensitive details were withheld.');
     }
   }
 
@@ -175,7 +175,7 @@ export async function findRecentAttemptChargeStrong(
         return null; // authoritative answer: known attempt, outside the window
       }
     } catch (error: any) {
-      console.warn('[Helcim Guard] D1 attempt-charge lookup failed, falling back to KV:', error?.message || error);
+      console.warn('[Helcim Guard] D1 attempt-charge lookup failed; falling back to KV. Sensitive details were withheld.');
     }
   }
 
@@ -197,7 +197,7 @@ export async function findRecentAttemptCharge(attemptId: string | undefined | nu
 
     return {...record, minutesAgo: Math.max(0, Math.round(ageMs / 60000))};
   } catch (error: any) {
-    console.warn('[Helcim Guard] findRecentAttemptCharge failed (failing open):', error?.message || error);
+    console.warn('[Helcim Guard] recent attempt-charge lookup failed open. Sensitive details were withheld.');
     return null;
   }
 }
@@ -217,7 +217,7 @@ export async function findRecentCharge(input: ChargeFingerprintInput): Promise<(
 
     return {...record, minutesAgo: Math.max(0, Math.round(ageMs / 60000))};
   } catch (error: any) {
-    console.warn('[Helcim Guard] findRecentCharge failed (failing open):', error?.message || error);
+    console.warn('[Helcim Guard] recent-charge lookup failed open. Sensitive details were withheld.');
     return null;
   }
 }
