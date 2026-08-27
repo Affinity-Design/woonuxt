@@ -7,9 +7,9 @@ import type {CalculatorReferenceBrandsData, CalculatorCarriedBrandsData} from '~
 const {setCanadianSEO} = useCanadianSEO();
 
 setCanadianSEO({
-  title: 'Roller & Inline Skate Size Calculator | ProSkaters Place',
+  title: 'Skate Size Calculator for Rollerblades & Roller Skates',
   description:
-    'Free roller skate size calculator. Convert your shoe size to inline skates, rollerblades, or quad skates — all major brands, Canadian sizing. Find your perfect fit in under 2 minutes.',
+    'Find your rollerblade, inline, or roller skate size from your shoe size. Compare major brands and shop the right fit from ProSkaters Place Canada.',
   image: '/images/roller-skates-size-calculator.jpg',
   type: 'website',
 });
@@ -99,7 +99,7 @@ useHead({
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
-        name: 'Roller Skate & Inline Skate Size Calculator',
+        name: 'Skate Size Calculator for Rollerblades & Roller Skates',
         url: 'https://proskatersplace.ca/roller-skates-size-calculator',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Any',
@@ -237,7 +237,7 @@ useHead({
         <section class="mb-14">
           <h2 class="mb-4 text-2xl font-black text-zinc-900">How the Skate Size Calculator Works</h2>
           <p class="mb-6 text-zinc-600 leading-relaxed">
-            Getting the right skate size is the single most important factor in skating comfort and performance. Unlike shoes, skates from different brands can vary by 1–2 full sizes even for the same foot measurement. Our free roller skate and inline skate size calculator uses a millimetre-based conversion system to match your foot length to the exact size available in the brand you want — whether that's <NuxtLink to="/search?q=Rollerblade" class="text-emerald-700 font-semibold hover:underline">Rollerblade</NuxtLink>, <NuxtLink to="/search?q=K2%20Skates" class="text-emerald-700 font-semibold hover:underline">K2</NuxtLink>, <NuxtLink to="/search?q=Powerslide" class="text-emerald-700 font-semibold hover:underline">Powerslide</NuxtLink>, <NuxtLink to="/search?q=Moxi" class="text-emerald-700 font-semibold hover:underline">Moxi</NuxtLink>, or <NuxtLink to="/search?q=Riedell" class="text-emerald-700 font-semibold hover:underline">Riedell</NuxtLink>.
+            Getting the right skate size is the single most important factor in skating comfort and performance. Unlike shoes, skates from different brands can vary by 1–2 full sizes even for the same foot measurement. This skate size calculator uses your shoe or current-skate size to match your foot length to the exact size available in the brand you want — whether that's <NuxtLink to="/search?q=Rollerblade" class="text-emerald-700 font-semibold hover:underline">Rollerblade</NuxtLink>, <NuxtLink to="/search?q=K2%20Skates" class="text-emerald-700 font-semibold hover:underline">K2</NuxtLink>, <NuxtLink to="/search?q=Powerslide" class="text-emerald-700 font-semibold hover:underline">Powerslide</NuxtLink>, <NuxtLink to="/search?q=Moxi" class="text-emerald-700 font-semibold hover:underline">Moxi</NuxtLink>, or <NuxtLink to="/search?q=Riedell" class="text-emerald-700 font-semibold hover:underline">Riedell</NuxtLink>.
           </p>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-xl border border-zinc-100 bg-stone-50 p-5">

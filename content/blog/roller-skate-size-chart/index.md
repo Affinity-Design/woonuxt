@@ -1,8 +1,9 @@
 ---
-title: 'Roller Skate Size Chart: Find Your Perfect Fit (2026)'
-description: 'Roller skate size chart for inline, quad & hockey skates. Convert your shoe size by brand — Rollerblade, Moxi, Powerslide — or use our calculator.'
+title: 'Roller Skate Size Chart: Shoe, Inline & Hockey Skate Fit'
+description: 'Roller skate size chart for inline, quad, and hockey skates. Compare shoe-size conversions, measure your foot, and check brand-specific fit notes.'
 category: 'Buying Guides'
 date: 2026-06-26
+modified: 2026-08-27
 author: 'ProSkaters Place Team'
 authorBio: "Toronto-based skating specialists who've fitted and serviced inline, roller, and quad skates from our Toronto showroom since 2010."
 image: '/images/blog/posted/roller-skate-size-chart.webp'
@@ -12,11 +13,11 @@ tags: ['roller skate size chart', 'skate sizing', 'inline skate size chart', 'ho
 readTime: '9 min read'
 ---
 
-# Roller Skate Size Chart: Find Your Perfect Fit (2026)
+# Roller Skate Size Chart: Shoe, Inline & Hockey Skate Fit
 
 The single most common skating mistake isn't a bad fall — it's buying the wrong size. Skates that are too big cause blisters, heel lift, and wobble; skates that are too small ruin your toes after ten minutes. And because **skate sizing rarely matches your shoe size**, even experienced skaters get it wrong when they switch brands.
 
-This guide gives you a clear **roller skate size chart**, explains how inline, quad, and hockey skate sizing actually works, and walks you through measuring your foot properly. If you'd rather skip the math entirely, our free tool does the conversion for you.
+This chart-first guide explains how inline, quad, and hockey skate sizing works, then walks you through measuring your foot properly. Use it to understand the differences between skate types and brands before you choose a model.
 
 > **Skip the chart math.** Our [Roller Skate Size Calculator](/roller-skates-size-calculator) converts your shoe size to the exact size in any brand — Rollerblade, K2, Powerslide, Moxi, Riedell, and more — in under two minutes.
 
@@ -68,6 +69,14 @@ A few notes before you trust any single row:
 - When you land between two sizes, **size up** half a size and snug it with thicker socks rather than cramming into the smaller one.
 
 If two minutes with a precise tool beats a generic table, [run your numbers through the calculator](/roller-skates-size-calculator) instead — it applies each brand's real offset automatically.
+
+---
+
+## When to Use a Size Chart vs. the Calculator
+
+Use this chart when you are comparing skate types, learning how a brand tends to fit, or measuring your foot for the first time. It gives you a dependable starting range, not a final product-size recommendation.
+
+Use the [Skate Size Calculator](/roller-skates-size-calculator) when you know the brand or model you want. It converts your shoe or current-skate size using the specific brand data, then helps you find the right available size. Before ordering, still check the product page for model-specific fit notes and contact our fitting team if you have wide feet, different-sized feet, or are between sizes.
 
 ---
 

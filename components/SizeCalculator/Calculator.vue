@@ -77,7 +77,7 @@ const activeStorefront = computed(
       <div class="mb-8 flex items-start justify-between gap-4">
         <div>
           <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">ProSkaters Place</p>
-          <h1 class="mt-1 text-3xl font-black leading-tight sm:text-4xl">Roller Skate &amp; Inline Skate Size Calculator</h1>
+          <h1 class="mt-1 text-3xl font-black leading-tight sm:text-4xl">Skate Size Calculator for Rollerblades &amp; Roller Skates</h1>
           <p class="mt-2 text-sm leading-6 text-zinc-500">Find your perfect fit — works for rollerblades, quad skates, hockey skates &amp; more.</p>
         </div>
 
