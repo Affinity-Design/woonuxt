@@ -55,11 +55,13 @@ sudo wp --path=/opt/bitnami/wordpress core is-installed
 sudo wp --path=/opt/bitnami/wordpress plugin get wp-graphql --field=status
 ```
 
-Verify the GraphQL error sanitizer after deployment:
+Verify the production must-use plugins after deployment:
 
 ```bash
 php -l /opt/bitnami/wordpress/wp-content/mu-plugins/psp-graphql-error-sanitizer.php
 sha256sum /opt/bitnami/wordpress/wp-content/mu-plugins/psp-graphql-error-sanitizer.php
+php -l /opt/bitnami/wordpress/wp-content/mu-plugins/psp-woocommerce-email-safety.php
+sha256sum /opt/bitnami/wordpress/wp-content/mu-plugins/psp-woocommerce-email-safety.php
 sudo wp --path=/opt/bitnami/wordpress plugin list --status=must-use
 ```
 
