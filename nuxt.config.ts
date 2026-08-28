@@ -360,7 +360,26 @@ export default defineNuxtConfig({
   },
 
   hooks: {
-    /* ... */
+    'pages:extend'(pages) {
+      // The base layer manually registers `order-received` against its own
+      // `app/pages/order-summary.vue`, which bypasses Nuxt's normal root-layer
+      // page override rules. Point that named route at the production receipt
+      // component explicitly so checkout can never fall back to the stale base
+      // implementation.
+      const receiptPageFile = resolve('./pages/checkout/order-received/[...orderId].vue');
+      const receiptRoute = pages.find((page) => page.name === 'order-received');
+
+      if (receiptRoute) {
+        receiptRoute.path = '/checkout/order-received/:orderId';
+        receiptRoute.file = receiptPageFile;
+      } else {
+        pages.push({
+          name: 'order-received',
+          path: '/checkout/order-received/:orderId',
+          file: receiptPageFile,
+        });
+      }
+    },
   },
 
   // ... (rest of your config) ...

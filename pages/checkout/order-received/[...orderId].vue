@@ -20,16 +20,20 @@ const initialOrderFetchSucceeded = ref(false);
 const usedSoftFallback = ref(false);
 let softRetryTimer: ReturnType<typeof setTimeout> | null = null;
 
+function getFirstRouteValue(value: unknown): string {
+  if (Array.isArray(value)) return typeof value[0] === 'string' ? value[0] : '';
+  return typeof value === 'string' ? value : '';
+}
+
 const isGuest = computed(() => !customer.value?.email);
 const isSummaryPage = computed<boolean>(() => route.path.includes('/order-summary'));
 const isCheckoutPage = computed<boolean>(() => route.path.includes('/order-received'));
 const orderIsNotCompleted = computed<boolean>(() => order.value?.status !== OrderStatusEnum.COMPLETED);
 const hasDiscount = computed<boolean>(() => !!parseFloat(order.value?.rawDiscountTotal || '0'));
 const downloadableItems = computed(() => order.value?.downloadableItems?.nodes || []);
-const orderNumberFromQuery = computed(() => {
-  if (Array.isArray(query.number)) return query.number[0] || '';
-  return typeof query.number === 'string' ? query.number : '';
-});
+const orderIdFromRoute = computed(() => getFirstRouteValue(params.orderId));
+const orderKeyFromQuery = computed(() => getFirstRouteValue(query.key));
+const orderNumberFromQuery = computed(() => getFirstRouteValue(query.number));
 const displayOrderNumber = computed(() => order.value?.orderNumber || orderNumberFromQuery.value || order.value?.databaseId || '');
 
 // Helper to determine payment method display
@@ -60,8 +64,13 @@ onMounted(async () => {
   // Clearing anywhere earlier (e.g. right before the redirect) disarms the duplicate-charge
   // guard for exactly the failure it exists for: a redirect that never lands. Reaching a
   // rendered receipt is the one proof the purchase is finished.
-  if (isCheckoutPage.value && query.key) {
-    clearAttemptId();
+  if (isCheckoutPage.value && orderKeyFromQuery.value) {
+    try {
+      clearAttemptId();
+    } catch (error) {
+      // Local checkout cleanup must never block the paid customer's receipt.
+      console.warn('[OrderReceived] Checkout-attempt cleanup failed:', getSafeErrorLogDetails(error));
+    }
   }
 
   await getOrder();
@@ -78,19 +87,15 @@ onUnmounted(() => {
 });
 
 async function fetchOrderFromApi(): Promise<Order> {
-  const orderIdFromParams = params.orderId as string;
-  if (!orderIdFromParams) {
+  if (!orderIdFromRoute.value) {
     throw new Error('Order ID is missing from route parameters.');
   }
 
-  const queryVariables: {id: string; orderKey?: string} = {
-    id: orderIdFromParams,
-  };
-  if (isGuest.value && query.key) {
-    queryVariables.orderKey = query.key as string;
-  }
-
-  const data = await GqlGetOrder(queryVariables);
+  // The generated GetOrder operation currently accepts only an ID. Guest
+  // authorization can therefore fail even when the receipt URL has a valid
+  // Woo order key; the checkout-arrival fallback below is intentionally based
+  // on trusted redirect state rather than any upstream error wording.
+  const data = await GqlGetOrder({id: orderIdFromRoute.value});
 
   if (data?.order) return data.order as Order;
 
@@ -136,11 +141,10 @@ async function getOrder() {
     // transient fetch failure is what sent a paid customer back to re-purchase on 2026-08-03
     // (orders 500048481/84/87). For ANY fetch failure on a checkout arrival, show the soft
     // confirmation (order number from the redirect) and hydrate the details in the background.
-    if (isCheckoutPage.value && params.orderId && query.key) {
+    if (isCheckoutPage.value && orderIdFromRoute.value && orderKeyFromQuery.value) {
       order.value = {
-        databaseId: params.orderId as string,
+        databaseId: orderIdFromRoute.value,
         orderNumber: orderNumberFromQuery.value,
-        orderKey: query.key as string,
         status: null,
         lineItems: {nodes: []},
         paymentMethodTitle: 'N/A',
@@ -195,11 +199,13 @@ useSeoMeta({
             <Icon name="ion:happy-outline" size="64" class="mx-auto mb-4 text-primary-600" />
             <h2 class="text-2xl font-semibold text-green-600 mb-4 text-center">Thank You. Order Received!</h2>
             <p class="text-gray-700">Order #{{ displayOrderNumber }}</p>
-            <p v-if="query.key" class="font-bold text-gray-800">Reference: {{ query.key }}</p>
             <div class="mt-2 text-sm text-gray-600">
-              <p>We sent you an email confirmation.</p>
+              <p>A confirmation email should arrive shortly.</p>
               <p>We will email you again when your order is shipped or the status has changed.</p>
-              <p v-if="usedSoftFallback" class="mt-2">Your payment was received — the full receipt details are in your confirmation email.</p>
+              <p v-if="usedSoftFallback" class="mt-2">
+                Your payment was received and your order was created. We could not load the full receipt details right now, so please save the order number
+                above. If the email does not arrive, contact customer service and include that order number.
+              </p>
               <p v-if="customer?.email">
                 If you have any questions please
                 <NuxtLink to="/contact" class="text-primary underline">Contact Us</NuxtLink>.
@@ -370,7 +376,7 @@ useSeoMeta({
       <!-- Error message -->
       <div v-if="errorMessage && !order" class="flex flex-col items-center justify-center flex-1">
         <Icon name="ion:alert-circle-outline" size="64" class="mx-auto mb-4 text-red-500" />
-        <h2 class="text-xl font-semibold text-red-600 mb-2">Order Not Found</h2>
+        <h2 class="text-xl font-semibold text-red-600 mb-2">Order details unavailable</h2>
         <p class="text-gray-600 text-center mb-4">{{ errorMessage }}</p>
         <button @click="refreshOrder" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg">Try Again</button>
       </div>
