@@ -156,15 +156,12 @@ jobs:
         if: steps.decide.outputs.warm == 'true'
         run: npm install --no-save --ignore-scripts node-fetch@2.7.0 dotenv
 
-      # The warmer exits 0 even when it has nothing to warm — a missing/empty
-      # products-list, or an auth failure, "completes" in ~2s having warmed
-      # only the homepage. That must FAIL the job: a no-op that succeeds would
-      # save the dedupe marker and permanently skip warming a build that never
-      # got warmed (observed 2026-08-04, run 30950060998). The list is missing
-      # by design while a deploy is mid-build — prebuild-cache-purge.js wipes
-      # the SCRIPT_DATA namespace at build start and setup-script.js
-      # repopulates products-list/categories-list only at build end — so a
-      # failed warm here just means "retry on the next trigger".
+      # cache-warmer-state is stored in SCRIPT_DATA and survives deployments.
+      # Force-reset that state for this new build; the build-id cache gate above
+      # still guarantees at-most-once warming per successful production build.
+      # The warmer exits 0 even when a list is missing, so also require proof
+      # that it fetched a non-empty product list before recording the build as
+      # warmed (observed silent no-op: 2026-08-04, run 30950060998).
       - name: Warm caches slowly
         if: steps.decide.outputs.warm == 'true'
         env:
@@ -173,9 +170,9 @@ jobs:
           REQUEST_DELAY: ${{ github.event.inputs.request_delay_ms || '1000' }}
           REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
         run: |
-          node scripts/cache-warmer.js all 2>&1 | tee warm.log
+          node scripts/cache-warmer.js all --force 2>&1 | tee warm.log
           if ! grep -Eq "Successfully fetched [1-9][0-9]* products" warm.log; then
-            echo "::error::The warmer got no product list from /api/internal/script-storage/products-list, so nothing was warmed. If a Pages build is running right now this is expected — setup-script.js restores the list when the build finishes — and this run fails on purpose so the next trigger retries instead of marking the build warmed."
+            echo "::error::The warmer got no product list from /api/internal/script-storage/products-list, so nothing was warmed. The run fails on purpose so a later trigger can retry instead of marking this build warmed."
             exit 1
           fi
 
