@@ -55,10 +55,14 @@ const getLocalImagePath = (categoryName: string) => {
 
 // Get the image path for this category
 const imageSrc = computed(() => {
-  // If we've already tried the local image and it errored,
-  // use the fallback or the original image from WordPress
+  // Use the live WordPress image if the validated frontend image is unavailable.
   if (hasErrored.value) {
     return props.node.image?.sourceUrl || FALLBACK_IMG;
+  }
+
+  // The validated category-image import is keyed by the live WordPress slug.
+  if (props.node.slug) {
+    return `/images/psp.com/${props.node.slug}.jpg`;
   }
 
   // If we have an explicit imageFilename, use it directly

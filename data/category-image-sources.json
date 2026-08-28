@@ -1,0 +1,441 @@
+{
+  "sourceSpreadsheetId": "19bU4KovywHFjqYNolbp14bI_4B8x38AkoKHXl0SzTM8",
+  "sourceSheet": "SEO_LIST",
+  "generator": "openai/gpt-image-2 via Make",
+  "categories": [
+    {
+      "databaseId": 2529,
+      "name": "Accessories",
+      "slug": "accessories",
+      "sourceUrl": "https://replicate.delivery/xezq/Tqray0ZuSSpPGRD3IfeWCH3JPwQ7lfc7mQaOiFkZWA6ETLPuA/tmprs89ysbs.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1iRqjlKMHWdPuWlgcucdiyYFJV-qrRxAT&export=download"
+    },
+    {
+      "databaseId": 3019,
+      "name": "Alpine Accessories",
+      "slug": "alpine-accessories",
+      "sourceUrl": "https://replicate.delivery/xezq/ZUOuZlfZZo2JXCSqDpoIHcAYJ6teKjwUn8GNnv1jQXjA9lHXA/tmpyg6bwyi9.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1or1mGvvCFPyLmlelhpBGfBW5P5_iNT9P&export=download"
+    },
+    {
+      "databaseId": 3288,
+      "name": "Alpine Clothing",
+      "slug": "alpine-clothing",
+      "sourceUrl": "https://replicate.delivery/xezq/JmSqOwMVL5ZhHxRtMXkpt6wlaEj9YisgbqAZe9OMfY88jmHXA/tmpovdi5c9e.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1762K05rPBtekYpXDX9PuPvRRLKVv3lOh&export=download"
+    },
+    {
+      "databaseId": 2856,
+      "name": "Alpine Poles",
+      "slug": "alpine-poles",
+      "sourceUrl": "https://replicate.delivery/xezq/shww4b2gdtoJAtJXF80Li1AJ37Qx6PGvMbTbIDuvwmGHo5xF/tmpph5ki5xh.webp",
+      "driveUrl": "https://drive.google.com/uc?id=17my_MEtssZbmyYr0i3Ed4_WHrFtL-eeu&export=download"
+    },
+    {
+      "databaseId": 3320,
+      "name": "Alpine Protection",
+      "slug": "alpine-protection",
+      "sourceUrl": "https://replicate.delivery/xezq/wKHSGDdkp4IRHRqHlBJIS64xVJfrbHsWmjCXKi5SjaWDCzjLA/tmpbkrrd4zd.webp",
+      "driveUrl": "https://drive.google.com/uc?id=18w4t5tTh_Y_vcmDNQwjq655jLTNfhuQY&export=download"
+    },
+    {
+      "databaseId": 2855,
+      "name": "Alpine Ski Boots",
+      "slug": "alpine-ski-boots",
+      "sourceUrl": "https://replicate.delivery/xezq/mMGBFqesjbzIYitVl16ZCPfs0ExbqOKjJGxwJBr09WfSfXe4C/tmpbfymtqqb.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1PB6_sbsKgjl4AT3p3v3hdTihFDx2IgGl&export=download"
+    },
+    {
+      "databaseId": 2857,
+      "name": "Alpine Skis",
+      "slug": "alpine-skis",
+      "sourceUrl": "https://replicate.delivery/xezq/uTfkpE6weYqnuEiaSw1sdOXHt3BiPyVP7x7EY3H7AiBK0lHXA/tmp90edbz3l.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1dWW_B7dVLnNt8e4VHteymB_rFjxbOavA&export=download"
+    },
+    {
+      "databaseId": 2735,
+      "name": "Backpacks, Bags & Carriers",
+      "slug": "backpacks-bags-carriers",
+      "sourceUrl": "https://replicate.delivery/xezq/lcPztapUTFaoPh6wWu72j3gHDxifuwfQCetcXKQqk8p1ULPuA/tmpg8lwq3fu.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1xmNSOBoo6fOv8p6ZICNY_2QPCcxaw-R-&export=download"
+    },
+    {
+      "databaseId": 2644,
+      "name": "Bindings and Ski Parts",
+      "slug": "bindings-and-parts",
+      "sourceUrl": "https://replicate.delivery/xezq/PMXyhGBPYBZ2KJ2H1DeH2yEuZy7kh1vu1ViexrEv4e4QsLPuA/tmp16j2y8zf.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1GJ7cwiaSoNSU9ZFYwqhP0BILnqDMKWhk&export=download"
+    },
+    {
+      "databaseId": 2569,
+      "name": "Board Components",
+      "slug": "board-components-parts",
+      "sourceUrl": "https://replicate.delivery/xezq/uxQjqWfl0fsr2EX4xiYWaJJHZieKUF3HIaSxOQAmJ6x5dLPuA/tmp5tfotcwd.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1fB7CUiQ14VsTKlYjydUMxP8AZ0_pKTBd&export=download"
+    },
+    {
+      "databaseId": 2574,
+      "name": "Skateboard Tools",
+      "slug": "board-tools",
+      "sourceUrl": "https://replicate.delivery/xezq/AqlbgxlxcAbJDheHvdyymw4pIMjhjrfCGggnwWbe6ACoCNPuA/tmpnzt5nfgd.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1fx06Ql-6jNCgE30JBpwq03nzETXdSm17&export=download"
+    },
+    {
+      "databaseId": 3230,
+      "name": "Board Wheels",
+      "slug": "board-wheels",
+      "sourceUrl": "https://replicate.delivery/xezq/RnOkI7Wr5E7JD9UaWfUDeReYFHSBVezmkJQM3RqlDfGyZu84C/tmpyi9ve08g.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1DXedlH2fEvU8DJhreJ-FRAQmV2i0GgDo&export=download"
+    },
+    {
+      "databaseId": 2807,
+      "name": "Products for Kids",
+      "slug": "children-products",
+      "sourceUrl": "https://replicate.delivery/xezq/88hWYBIRbH4hOVmqfvfyeMPuOqmYabQWNtjdfQ2Up5ZhNWe4C/tmpql_pz644.webp",
+      "driveUrl": "https://drive.google.com/uc?id=11v2rf0IO45qzD9qHfksOnGV0Xs5_omTp&export=download"
+    },
+    {
+      "databaseId": 2531,
+      "name": "Clearance!",
+      "slug": "clearance-items",
+      "sourceUrl": "https://replicate.delivery/xezq/Rl8AR4psDUbVCF82u5X8efa83HMxPhtDwC3sadI4j54sfKPuA/tmpfeza0fe7.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1aAvVRXlGIqTjsORCy5VgGF_2Y88_Cdu4&export=download"
+    },
+    {
+      "databaseId": 2567,
+      "name": "Color Kits & Laces",
+      "slug": "color-kits-laces",
+      "sourceUrl": "https://replicate.delivery/xezq/n2zF8xjw3eTtYyNIxGOv5kfOnXkxKxAcGlWVOqFpwQ80dmHXA/tmpynv97thi.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1EeGHtQkRUQmE1z__zzymqHjmtllaPF5G&export=download"
+    },
+    {
+      "databaseId": 2557,
+      "name": "Frame Sets",
+      "slug": "complete-frame-sets",
+      "sourceUrl": "https://replicate.delivery/xezq/MzNJPkAUIcpNENL6denUdrW0PXnBUYpAVShIMqeOpxgWYoHXA/tmpq5vo1pkp.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1HaHeIrmsGatKlpUHR4TrdAzNDB4ij7dg&export=download"
+    },
+    {
+      "databaseId": 2643,
+      "name": "Nordic Walking Poles",
+      "slug": "cross-country-poles",
+      "sourceUrl": "https://replicate.delivery/xezq/RLWn90bfdc1MCK2eikKSH6KZqQ0fpAfZEcwMe2MN7STopu84C/tmpjgvan2cv.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1lKXtQ74EaZzWpMDK5ZSwDXiYnBHTDmYP&export=download"
+    },
+    {
+      "databaseId": 2538,
+      "name": "Cross Country Skis",
+      "slug": "cross-country-skis",
+      "sourceUrl": "https://replicate.delivery/xezq/n5JiReEoSBQiKKalzevHIat2P5HtBSS0SI3mdIlMyVbs4lHXA/tmpb21w7g5p.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1i2QIFbH9GDROvmPWeAuA6deSY5SmsqQt&export=download"
+    },
+    {
+      "databaseId": 2533,
+      "name": "Discount Products",
+      "slug": "discount-products",
+      "sourceUrl": "https://replicate.delivery/xezq/S2P1jDxFbG6UOdsUx4xb0v19mUWh5mEnGErf5aLYzvOavyjLA/tmp5t65yscz.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1ZiTPLFfLP3TUFVKepYlkmOzg9B314TZH&export=download"
+    },
+    {
+      "databaseId": 2546,
+      "name": "Hand and Wrist Braces",
+      "slug": "gloves-wrist-protection",
+      "sourceUrl": "https://replicate.delivery/xezq/g2S0S8WffgiWTkBJemVeepJ6neXRS8xJHeUOpSpfsnwQEGmHXA/tmpgfvi8q6o.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1uxgSh4SWIHpITPLrP9wMUxy1BnoHTbrY&export=download"
+    },
+    {
+      "databaseId": 2544,
+      "name": "Ice Skates",
+      "slug": "ice-skates",
+      "sourceUrl": "https://replicate.delivery/xezq/5IIfEMIIMjWrKCz6X9BqtySm04LtsjKnJ5UUedf7CcfBfw84C/tmpib4y42i1.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1MlyaNd7_FpZwDrV6X4gcbmCORe3LYdu7&export=download"
+    },
+    {
+      "databaseId": 2803,
+      "name": "Rollerblade Boots",
+      "slug": "inline-boots",
+      "sourceUrl": "https://replicate.delivery/xezq/WLF9KVBYj57EFpi1OEaCYAuLVycs7bSt2HjaUIQzDlFIg5xF/tmpsr123a_0.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1Ruq87TfXp8MpDvYNEVrG9rsjeDhbyJxE&export=download"
+    },
+    {
+      "databaseId": 2551,
+      "name": "Inline Frames",
+      "slug": "inline-frames",
+      "sourceUrl": "https://replicate.delivery/xezq/F8CL2kUYOnqLEBH6CKsapiCCzdA16koPKkfiRwsol3HkyyjLA/tmpftofxk8w.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1qWRkF56Ssd5eRJiTARCEyGvYUOys4iuU&export=download"
+    },
+    {
+      "databaseId": 2536,
+      "name": "Inline Skate Bearings",
+      "slug": "inline-skate-bearings",
+      "sourceUrl": "https://replicate.delivery/xezq/0fZkjqnXHDySFKtb9TRiSrxjNuoIK2w2JHLf21KhTrKeiLPuA/tmpkdaic34h.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1RALKC-G-e0BrrWFbUYPQJuUFn4aAqjuQ&export=download"
+    },
+    {
+      "databaseId": 3436,
+      "name": "Inline Skate Liners",
+      "slug": "inline-skate-liners",
+      "sourceUrl": "https://replicate.delivery/xezq/BU0sx08UsfSTOyF0S7wSyfygxvp7seebLHxCsuTeSrPcY084C/tmpbnfci43j.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1Cv1-J_JSsgKcWxYlw3c8H_A1WqAG0A54&export=download"
+    },
+    {
+      "databaseId": 2575,
+      "name": "Inline Skate Wheels | Wheels For Rollerblades",
+      "slug": "inline-skate-wheels",
+      "sourceUrl": "https://replicate.delivery/xezq/eBbTnMOfN7kOZEj7tfGCfWTfBNUE6nUYYPHgUbdpddSoEs84C/tmp4afq79lp.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1Jc16obRJ2hTNaZ6UNjQ2q6eOjpyJHf_Z&export=download"
+    },
+    {
+      "databaseId": 3366,
+      "name": "Inline Skates",
+      "slug": "inline-skates",
+      "sourceUrl": "https://replicate.delivery/xezq/gSieDMUgRfp6wkYGfTLf0Nt8dvhkyXJf9GFAVjyvkpXPis84C/tmp88x9bnpg.webp",
+      "driveUrl": "https://drive.google.com/uc?id=13__s7XTd36x_Mw_Ou8aLy1gJ-P7253WB&export=download"
+    },
+    {
+      "databaseId": 2523,
+      "name": "Inline Skating",
+      "slug": "inline-skating",
+      "sourceUrl": "https://replicate.delivery/xezq/ONVzeGieifYDdIQnWIcPUhmSyybnk3RLQsRQmPfunWhHKWe4C/tmp1lxhw2o4.webp",
+      "driveUrl": "https://drive.google.com/uc?id=18_Y8--5NZtsnQEVFHuWbuuq0K2RSuxnN&export=download"
+    },
+    {
+      "databaseId": 2776,
+      "name": "Knee and Elbow Pads",
+      "slug": "knee-and-elbow-pads",
+      "sourceUrl": "https://replicate.delivery/xezq/zqUgDphWCGLZLdOrpv92se6vcCyl5TCYlVOE0oIWOygsAzjLA/tmpunyow0qj.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1DncijQhiBE9BNUKvYoLlWggtD2jzde2P&export=download"
+    },
+    {
+      "databaseId": 3475,
+      "name": "LED Wheels",
+      "slug": "led-wheels",
+      "sourceUrl": "https://replicate.delivery/xezq/hb6CbKptGC6EGdRWmTrceOmPFNGaHOOK7uXTBn0IXpmsTzjLA/tmpfrmqec3m.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1ebaaAmhNzS83pk7nNP6AOXjiRR5ZUCrs&export=download"
+    },
+    {
+      "databaseId": 2532,
+      "name": "New Arrivals",
+      "slug": "new-arrivals",
+      "sourceUrl": "https://replicate.delivery/xezq/fqrcleqCOeLN3I4IUBKFmBnbtpiNNiSzibnXJMhcO1QfXWe4C/tmp7ml_yair.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1QkRya_b2TM2x8XJEzM5SNBfpfTFi9qJk&export=download"
+    },
+    {
+      "databaseId": 2579,
+      "name": "Nordic Accessories",
+      "slug": "nordic-accessories",
+      "sourceUrl": "https://replicate.delivery/xezq/0ORKyPyK3XqzBpKccUoOkuIYUU68zWyp2ZHS9ReH3hZm2yjLA/tmpjsnrina3.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1fD9lOXkC8HCGzx-2vNGPNYowc2vp--su&export=download"
+    },
+    {
+      "databaseId": 2689,
+      "name": "Scandinavian Clothing",
+      "slug": "nordic-clothing",
+      "sourceUrl": "https://replicate.delivery/xezq/SIJKKi25fA2DVC1iTiV3Ii4KZ3hBs3e2w9fqJL1lTVaYRLPuA/tmppfg3mvvt.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1rHtQ18ytFoygPExsugRTqFKVtyxy6FGr&export=download"
+    },
+    {
+      "databaseId": 2564,
+      "name": "Nordic Ski Boots",
+      "slug": "nordic-ski-boots",
+      "sourceUrl": "https://replicate.delivery/xezq/fpRe9c2dlVsOV0h98c3fBSEtEMYHCoaBfjW4fhb9l7DsSu84C/tmpd1nb4vrp.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1ggBN_gaGIVtr4rZiVOCzBZNELJC7Kj2R&export=download"
+    },
+    {
+      "databaseId": 2652,
+      "name": "Off Road Skates",
+      "slug": "off-road-skates",
+      "sourceUrl": "https://replicate.delivery/xezq/YLFc51XBInYLJZrczy4gBh0102ex6XHsTnTtMMgTRTBLNzjLA/tmpcc73k37u.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1Vbzajg6VOk_RyvEfDEIIY6J2nDowfQhm&export=download"
+    },
+    {
+      "databaseId": 2640,
+      "name": "Penny Boards",
+      "slug": "penny-boards",
+      "sourceUrl": "https://replicate.delivery/xezq/HxzJbsQTh2IMNJlBt2ybkE5VyVisaHsgHYiidmi98semNzjLA/tmpivwpxz2k.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1v68lWnfOmAUS6aC1KwAizo4xWMqhLLzA&export=download"
+    },
+    {
+      "databaseId": 2528,
+      "name": "Protection & Apparel",
+      "slug": "protection-gear-and-apparel",
+      "sourceUrl": "https://replicate.delivery/xezq/hMGLE5ze0VThKa35Tai3dGohCCmFeDfRmLFdYAk4L1x1NLPuA/tmp13y84lsz.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1GfyXu1dhyyxJZaxnKLgbHBa5p5MpJnH7&export=download"
+    },
+    {
+      "databaseId": 2537,
+      "name": "Protection Packs",
+      "slug": "protection-packs",
+      "sourceUrl": "https://replicate.delivery/xezq/koa1R5WgRpYyARkILTtaClyEORxPyLqNkA6swa5wUg3On5xF/tmp318kx7jd.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1gsNkeYqB3fWRZnsScjw88tPC8IAMzr-z&export=download"
+    },
+    {
+      "databaseId": 2552,
+      "name": "Helmets",
+      "slug": "protective-helmets",
+      "sourceUrl": "https://replicate.delivery/xezq/eDIdyt1uEWweZEOgYQD8FqjvDuutjyvfaRnsGMbepiltbXe4C/tmpucx7xd4d.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1EjM3Do80U1vYi_65xt5el5TAIqeE_tAp&export=download"
+    },
+    {
+      "databaseId": 2555,
+      "name": "Skating Protective Shorts",
+      "slug": "protective-shorts",
+      "sourceUrl": "https://replicate.delivery/xezq/o1ADuyg2jdYRGlhY7ldhfdSMPjf0lDsKyt0ZEyAElvNwkmHXA/tmponmf8erq.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1huQz-LZDLkreEGi6IPc6_KZNsJe0WbSV&export=download"
+    },
+    {
+      "databaseId": 2571,
+      "name": "Skate Parts",
+      "slug": "replacement-parts",
+      "sourceUrl": "https://replicate.delivery/xezq/xLgzeW6nfguFg0L2Kgslo1QprHksozuonJ2fpEfFgOrXfs84C/tmp1aje20s7.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1iJwY82dSXwk0jgPuVz8oW5cBPsw4v7y7&export=download"
+    },
+    {
+      "databaseId": 2647,
+      "name": "Roller Derby Skates",
+      "slug": "roller-derby",
+      "sourceUrl": "https://replicate.delivery/xezq/CZuAMHoidTJUBtsGIUmHbHBoYW9959s01nLAM4HkH8o8b5xF/tmp8jdp8dvr.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1Ph19JFQoQgmJzLV-4Wt66w77hxUXORdt&export=download"
+    },
+    {
+      "databaseId": 2535,
+      "name": "Roller Skate Bearings",
+      "slug": "roller-skate-bearings",
+      "sourceUrl": "https://replicate.delivery/xezq/gnUr370WJe2mXifE2ef9eY4OEKuZiEp8XOHXnCm4F3DezeyjLA/tmppplo2lzr.webp",
+      "driveUrl": "https://drive.google.com/uc?id=18PCi4tqPDg4s0BUI0Quek0_4ZHBMTdDc&export=download"
+    },
+    {
+      "databaseId": 2542,
+      "name": "Roller Skate Plates & Parts",
+      "slug": "roller-skate-parts",
+      "sourceUrl": "https://replicate.delivery/xezq/3N4OF9kSO26CDxj7eFaGevP2QHFCtp8kb9i0EHOKfKzh9LPuA/tmpe1530rvq.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1qr_hwmvxL9sLqTy2YyLrUqcFRYkMOxga&export=download"
+    },
+    {
+      "databaseId": 2550,
+      "name": "Roller Skate Tools",
+      "slug": "roller-skate-tool",
+      "sourceUrl": "https://replicate.delivery/xezq/oPTOFBJ1OFbtABEsErdFXGgglVpkp0rAXPO0Ejm0Y8Oap5xF/tmpkum0kc2u.webp",
+      "driveUrl": "https://drive.google.com/uc?id=11krhRnmTEEEoiCN1xcY9ZA8snwewxn62&export=download"
+    },
+    {
+      "databaseId": 2558,
+      "name": "Roller Skate Wheels",
+      "slug": "roller-skate-wheels",
+      "sourceUrl": "https://replicate.delivery/xezq/R3iIVeNXTNw4EanNBccUJQQfMYIYoGDwUI6kRO5u130j5lHXA/tmp33p2yaev.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1egQwdxFQQDBgEM4E1IRGoV-EKLeQ3ai4&export=download"
+    },
+    {
+      "databaseId": 3367,
+      "name": "Roller Skates | Quad Skates",
+      "slug": "roller-skates",
+      "sourceUrl": "https://replicate.delivery/xezq/6EpDn40gzFqHDRNPC8Kh55E2uXT47KG4OnEzbpeB4rUB3yjLA/tmpzhjmpq8i.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1SMDjsUu47ancqpD-ajaxF6w-I-j1QA0H&export=download"
+    },
+    {
+      "databaseId": 2524,
+      "name": "Roller Skating",
+      "slug": "roller-skating",
+      "sourceUrl": "https://replicate.delivery/xezq/RWwvd71zpFI2GdVaz1Ev5F2q9VAcfj0iG2cC0aSPyXSI2yjLA/tmpocwqu_jp.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1s6Nggis_24sMRwvX9jiFnIrqnLEm2ZZZ&export=download"
+    },
+    {
+      "databaseId": 2556,
+      "name": "Roller Skis",
+      "slug": "roller-skis",
+      "sourceUrl": "https://replicate.delivery/xezq/efeJuRcZknFFeRcuNwIfkEkdBgNvHuqcCyMCrKzG8Jaejg5xF/tmpop1qbqpi.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1jCt85DynzwQX_dpuF0w0P3IGb2DRdDad&export=download"
+    },
+    {
+      "databaseId": 3095,
+      "name": "Rollerski Parts & Accessoires",
+      "slug": "rollerski-parts-accessoires",
+      "sourceUrl": "https://replicate.delivery/xezq/If6rzIniG0zYMi3sBf6IsVQWeE4uIe9g748ugm3eBBNl0084C/tmpz_9krzya.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1pGXyJfvF-OtiTasxH2pbm0WiGFdQakE1&export=download"
+    },
+    {
+      "databaseId": 2568,
+      "name": "Scooter Parts",
+      "slug": "scooter-parts",
+      "sourceUrl": "https://replicate.delivery/xezq/Qu50ZZCs7hpbA1Pk8T1nNxc5wbXMOwkR1D3Wmsfupe859lHXA/tmpvy26dfv4.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1nR-zA2yDIIAWfdCEIISur_-pde5uFXNl&export=download"
+    },
+    {
+      "databaseId": 2525,
+      "name": "Scooters",
+      "slug": "scooters",
+      "sourceUrl": "https://replicate.delivery/xezq/fkQEk5ega3qWlULsvMK9qt4eANh5a81fRLlBZqruZn3lMYe4C/tmp5s29chln.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1rDK3IOSxFsY7DcBqiRafJgzy5Um3hWRa&export=download"
+    },
+    {
+      "databaseId": 2554,
+      "name": "Mini Cruiser Skateboards",
+      "slug": "shortboard-skateboards",
+      "sourceUrl": "https://replicate.delivery/xezq/ASN6fArfz8j5qUEu0f5Pm0Yr7ZgmoCRDoA6yXtrWuPkF4LPuA/tmpu9on21w2.webp",
+      "driveUrl": "https://drive.google.com/uc?id=17tTAAKgISnmH5k5UTxNCN6IzTTmCkN4m&export=download"
+    },
+    {
+      "databaseId": 2559,
+      "name": "Inline Skate Brakes",
+      "slug": "skate-heel-brakes",
+      "sourceUrl": "https://replicate.delivery/xezq/2qW8eE2ew1kkiE3pyftyx5qaoz26ZJq1Q7IEDIwNb7fQfu84C/tmpt4b_eatb.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1NXgNLiUQv2Gp540n9fe39Kbj5I7z1KFo&export=download"
+    },
+    {
+      "databaseId": 2572,
+      "name": "Skate Tools",
+      "slug": "skate-tools",
+      "sourceUrl": "https://replicate.delivery/xezq/iQe1exKeOkCnxojC1sGo6Gu5B6QXBTEeZeZcgVsypHUT3w84C/tmprs8x64n7.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1s1d8QxI3Vs4zcojpMDvhQRrMWiUO_v-j&export=download"
+    },
+    {
+      "databaseId": 2526,
+      "name": "Skateboards",
+      "slug": "skateboards-and-longboards",
+      "sourceUrl": "https://replicate.delivery/xezq/DzdTDsUkagqrFFR7Ol2TLeBiOdHHOEANbGz3e7KFohZowlHXA/tmpswazl315.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1MU9frZq4mAE0Vq_lB8mKqOS-jsMwLDWG&export=download"
+    },
+    {
+      "databaseId": 2570,
+      "name": "Ski Wax and Care Supplies",
+      "slug": "ski-wax",
+      "sourceUrl": "https://replicate.delivery/xezq/FDhdF75GaAaBG58Aj2h5OJdGIGfDN6bB5RfUSdfuyw5vWLPuA/tmpstr72z7s.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1g570fBsLsurOxhnRFOVYjc4lwAMWuhbz&export=download"
+    },
+    {
+      "databaseId": 3439,
+      "name": "Skiboards",
+      "slug": "skiboards",
+      "sourceUrl": "https://replicate.delivery/xezq/NrdqVd7F0cbMARH9AS5fa46PuG0fNPrfXe92khtfmVx7JD94C/tmp9dxwsdfo.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1eXW-yGDpV_K0D-8BHtut1111ZMBLUqaI&export=download"
+    },
+    {
+      "databaseId": 2565,
+      "name": "Socks & Foot Care",
+      "slug": "socks-foot-care",
+      "sourceUrl": "https://replicate.delivery/xezq/M7AxjsvJ1PqAJpaf5GcIGfF5aixHe5Te0EvUJIY38colpXe4C/tmpsg33x_9y.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1LyoeozlYU3X7Xch2-I09Wy6Zu0f-cuVC&export=download"
+    },
+    {
+      "databaseId": 2553,
+      "name": "Trick Scooters | Stunt Scooters | Pro Scooters",
+      "slug": "trick-scooters",
+      "sourceUrl": "https://replicate.delivery/xezq/osSqfDIHAjR6SaYri35lxFYha3wUDeQUHGeQ5l32ECfUwZe4C/tmpvbizbdg4.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1rTGtUzMby_OvFqOIQevHPu8zxAAv-1I9&export=download"
+    },
+    {
+      "databaseId": 2566,
+      "name": "Vinylboards",
+      "slug": "vinylboards",
+      "sourceUrl": "https://replicate.delivery/xezq/Mqx54L09zcqrO5doUWl9ikf3NXDVdK7OM8012K6xK1JtL0jLA/tmp8wl0iups.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1RzpTg6GIDGzFEl_goxMHV6Elq57O21bi&export=download"
+    },
+    {
+      "databaseId": 2527,
+      "name": "Winter Sports",
+      "slug": "winter-sports",
+      "sourceUrl": "https://replicate.delivery/xezq/hOSo0FZcrXqfLqmYKqxYFjJUNMArOxASLMLEcDOcUDemhlHXA/tmpbomhddu1.webp",
+      "driveUrl": "https://drive.google.com/uc?id=1zLmx_iZULZe8abc8P3joAtG7G0ogaY0N&export=download"
+    }
+  ]
+}
