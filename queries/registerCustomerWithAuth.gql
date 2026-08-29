@@ -1,0 +1,15 @@
+# Root-layer mutation. Mirrors woonuxt_base registerCustomer.gql but also selects
+# the tokens WooGraphQL returns on RegisterCustomerPayload, so registration can
+# establish the session itself instead of firing a second login request.
+# Kept as a separate operation (not an edit of the base file) per the
+# "never modify woonuxt_base/" rule — two documents sharing the operation name
+# "registerCustomer" across documentPaths would break codegen.
+mutation registerCustomerWithAuth($input: RegisterCustomerInput!) {
+  registerCustomer(input: $input) {
+    authToken
+    refreshToken
+    customer {
+      ...Customer
+    }
+  }
+}

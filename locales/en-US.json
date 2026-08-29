@@ -63,6 +63,7 @@
       "noAccount": "Don't have an account?",
       "hasAccount": "Already have an account?",
       "accountCreated": "Your account has been created.",
+      "accountCreatedSignIn": "Your account has been created. Please sign in to continue.",
       "myAccount": "My Account",
       "loginToAccount": "Log in to your account",
       "loggingIn": "Logging you in...",

@@ -88,24 +88,50 @@ const handleFormSubmit = async () => {
   };
 
   if (formView.value === 'register') {
-    const {success, error: publicErrorMessage} = await registerUser({
+    const {
+      success,
+      signedIn,
+      error: publicErrorMessage,
+    } = await registerUser({
       email: credentials.email,
       password: credentials.password,
       turnstileToken: credentials.turnstileToken,
     });
-    if (success) {
-      errorMessage.value = '';
-      message.value = t('messages.account.accountCreated') + ' ' + t('messages.account.loggingIn');
-      setTimeout(() => {
-        login({
-          username: credentials.email,
-          password: credentials.password,
-          turnstileToken: credentials.turnstileToken,
-          twoFactorCode: '',
-        });
-      }, 2000);
-    } else {
+
+    if (!success) {
+      // Nothing was created — never claim otherwise.
+      message.value = '';
       errorMessage.value = publicErrorMessage || '';
+      return;
+    }
+
+    errorMessage.value = '';
+
+    // registerCustomer already returned a session; the account view takes over
+    // as soon as `viewer` is set, so there is nothing left to announce.
+    if (signedIn) {
+      message.value = t('messages.account.accountCreated');
+      return;
+    }
+
+    // No token came back with the payload — sign in explicitly. Read the token
+    // ref again rather than reusing the captured one: Turnstile tokens are
+    // single-use, and the widget may have refreshed since the form was posted.
+    message.value = t('messages.account.accountCreated') + ' ' + t('messages.account.loggingIn');
+    await login({
+      username: credentials.email,
+      password: credentials.password,
+      turnstileToken: turnstileToken.value,
+      twoFactorCode: '',
+    });
+
+    // The account exists either way, so send the customer to the login form
+    // instead of leaving a success and a failure on screen at the same time.
+    if (errorMessage.value) {
+      message.value = '';
+      errorMessage.value = t('messages.account.accountCreatedSignIn');
+      userInfo.value.username = credentials.email;
+      navigate('login');
     }
   } else if (formView.value === 'forgotPassword') {
     resetPassword(credentials);
@@ -215,8 +241,7 @@ const inputPlaceholder = computed(() => {
             type="text"
             maxlength="32" />
           <p v-if="needsTwoFactor" class="-mt-2 mb-4 text-sm text-yellow-600">
-            This account requires two-factor authentication — enter the 6-digit code from your authenticator app (or a recovery code) and sign in
-            again.
+            This account requires two-factor authentication — enter the 6-digit code from your authenticator app (or a recovery code) and sign in again.
           </p>
         </div>
       </div>

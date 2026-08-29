@@ -98,11 +98,36 @@ function readUntrustedErrorText(error) {
 }
 
 /**
+ * True when the error says the operation is absent from the GraphQL schema
+ * rather than that the request data was wrong.
+ *
+ * Deliberately narrow: `Variable "$input" got invalid value {...}` also contains
+ * "is not defined by type", and that message embeds the submitted values, so it
+ * must keep falling through to the action fallback.
+ *
+ * @param {string} lowercasedMessage Already-lowercased untrusted error text.
+ */
+export function isSchemaMismatchMessage(lowercasedMessage) {
+  if (/got invalid value/.test(lowercasedMessage)) return false;
+
+  return /cannot query field .* on type|unknown type|cannot represent|is not defined on type/.test(lowercasedMessage);
+}
+
+/**
  * Converts an untrusted authentication error into fixed customer-safe copy.
  * The original text is used only for classification and is never returned.
  */
 export function getSafeAuthenticationErrorMessage(error, action = 'signIn') {
   const untrustedMessage = readUntrustedErrorText(error).toLowerCase();
+
+  // A mutation the frontend depends on is missing from the WordPress schema
+  // (e.g. deregistered by a security plugin). Retrying can never help, so say so
+  // instead of inviting the customer to try again. The pattern matches only
+  // graphql-php's schema-validation wording, which names types and fields —
+  // never submitted values.
+  if (isSchemaMismatchMessage(untrustedMessage)) {
+    return 'This feature is temporarily unavailable. Please contact customer service.';
+  }
 
   if (/2fa|two.?factor|authenticat|verification code|wfls/.test(untrustedMessage)) {
     return 'Enter a valid two-factor authentication code and try again.';

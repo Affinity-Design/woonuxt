@@ -64,6 +64,38 @@ test('known authentication and payment failures use fixed human-readable copy', 
   );
 });
 
+test('a mutation missing from the schema is reported as unavailable, not as bad input', () => {
+  // What the storefront actually received while Affinity Connect Abilities had
+  // deregistered RootMutation.registerCustomer: retrying could never help.
+  const schemaError = {
+    gqlErrors: [{message: 'Cannot query field "registerCustomer" on type "RootMutation".'}],
+  };
+
+  assert.equal(getSafeAuthenticationErrorMessage(schemaError, 'register'), 'This feature is temporarily unavailable. Please contact customer service.');
+  assert.equal(
+    getSafeAuthenticationErrorMessage({message: 'Cannot query field "login" on type "RootMutation".'}, 'signIn'),
+    'This feature is temporarily unavailable. Please contact customer service.',
+  );
+});
+
+test('variable coercion errors stay on the action fallback so submitted values are never classified as schema faults', () => {
+  // This message embeds the submitted input, so it must not reach the schema
+  // branch (which logs the original text on the WordPress side).
+  const coercionError = {
+    gqlErrors: [
+      {
+        message:
+          'Variable "$input" got invalid value {"email":"customer@example.com","password":"Correct-Horse-Battery-Staple!"}; Field "username" is not defined by type "RegisterCustomerInput".',
+      },
+    ],
+  };
+
+  const publicMessage = getSafeAuthenticationErrorMessage(coercionError, 'register');
+
+  assert.equal(publicMessage, 'We could not create your account. Please review your details and try again.');
+  assert.doesNotMatch(publicMessage, /Correct-Horse-Battery-Staple|customer@example\.com/);
+});
+
 test('generic public errors ignore untrusted text and diagnostics omit messages and stacks', () => {
   const privateError = Object.assign(new Error('password=do-not-print'), {
     code: 'NETWORK_ERROR',
@@ -162,8 +194,10 @@ test('registration and diagnostics use strict allowlists', async () => {
 
   assert.match(useAuthSource, /GqlLogin\(\{username, password\}/);
   assert.doesNotMatch(useAuthSource, /GqlLogin\(\s*(?:credentials|extendedCredentials)/);
-  assert.match(useAuthSource, /GqlRegisterCustomer\(\s*\{input: \{email, password\}\}/);
-  assert.doesNotMatch(useAuthSource, /GqlRegisterCustomer\(\s*\{input\}/);
+  // registerCustomerWithAuth is the root-layer operation that also returns the
+  // session tokens; the allowlist requirement is the same for either name.
+  assert.match(useAuthSource, /GqlRegisterCustomer(?:WithAuth)?\(\s*\{input: \{email, password\}\}/);
+  assert.doesNotMatch(useAuthSource, /GqlRegisterCustomer(?:WithAuth)?\(\s*\{input\}/);
   assert.doesNotMatch(beaconSource, /\bmessage\s*:/);
   assert.doesNotMatch(beaconSource, /\bstack\s*:/);
   assert.doesNotMatch(diagnosticReaderSource, /READ_TOKEN|query\.key/);

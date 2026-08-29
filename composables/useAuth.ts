@@ -18,6 +18,33 @@ interface AuthenticationActionResult {
   error: string | null;
 }
 
+interface RegistrationActionResult extends AuthenticationActionResult {
+  /** True when registration also established a signed-in session. */
+  signedIn: boolean;
+}
+
+/**
+ * Send the Turnstile token to WordPress for a single GraphQL call.
+ *
+ * nuxt-graphql-client discards anything passed after the variables argument
+ * (`useGql()` invokes the generated SDK as `sdk[operation](variables)`), so the
+ * per-call `{ headers }` object these mutations used to pass never left the
+ * browser. Headers have to go through the shared client state instead, which is
+ * what plugins/graphql-headers.ts already uses. WordPress allows
+ * X-Turnstile-Token in its GraphQL CORS policy, so no preflight is broken.
+ *
+ * The header is cleared afterwards so a single-use token is never replayed on
+ * an unrelated request.
+ */
+const withTurnstileHeader = async <T>(turnstileToken: string | undefined, request: () => Promise<T>): Promise<T> => {
+  useGqlHeaders({'X-Turnstile-Token': turnstileToken || ''});
+  try {
+    return await request();
+  } finally {
+    useGqlHeaders({'X-Turnstile-Token': ''});
+  }
+};
+
 export const useAuth = () => {
   const {refreshCart} = useCart();
   const {logGQLError, clearAllCookies} = useHelpers();
@@ -40,13 +67,7 @@ export const useAuth = () => {
     try {
       const {username, password, turnstileToken} = credentials;
 
-      const {login} = await GqlLogin({username, password}, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Turnstile-Token': turnstileToken || '',
-        },
-        credentials: 'include', // 👈 Critical for cookies
-      });
+      const {login} = await withTurnstileHeader(turnstileToken, () => GqlLogin({username, password}));
 
       if (login?.user && login?.authToken) {
         useGqlToken(login.authToken);
@@ -125,22 +146,27 @@ export const useAuth = () => {
     }
   };
 
-  const registerUser = async (registrationCredentials: RegistrationCredentials): Promise<AuthenticationActionResult> => {
+  // Register a new customer.
+  // registerCustomer returns a session for the account it just created, so the
+  // token is applied here rather than firing a second login round-trip. Callers
+  // get `signedIn` and only need to fall back to loginUser() when it is false
+  // (e.g. a backend without an auth-token provider wired into the payload).
+  const registerUser = async (registrationCredentials: RegistrationCredentials): Promise<RegistrationActionResult> => {
     isPending.value = true;
     try {
       const {email, password, turnstileToken} = registrationCredentials;
-      await GqlRegisterCustomer(
-        {input: {email, password}},
-        {
-          headers: {
-            'X-Turnstile-Token': turnstileToken || '',
-          },
-        },
-      );
-      return {success: true, error: null};
+      const {registerCustomer} = await withTurnstileHeader(turnstileToken, () => GqlRegisterCustomerWithAuth({input: {email, password}}));
+
+      const authToken = registerCustomer?.authToken;
+      if (authToken) {
+        useGqlToken(authToken);
+        await refreshCart();
+      }
+
+      return {success: true, signedIn: Boolean(authToken) && viewer.value !== null, error: null};
     } catch (error: any) {
       logGQLError(error);
-      return {success: false, error: getSafeAuthenticationErrorMessage(error, 'register')};
+      return {success: false, signedIn: false, error: getSafeAuthenticationErrorMessage(error, 'register')};
     } finally {
       isPending.value = false;
     }
@@ -198,9 +224,7 @@ export const useAuth = () => {
     isPending.value = false;
   };
 
-  const sendResetPasswordEmail = async ({
-    username,
-  }: ResetPasswordEmailMutationVariables): Promise<AuthenticationActionResult> => {
+  const sendResetPasswordEmail = async ({username}: ResetPasswordEmailMutationVariables): Promise<AuthenticationActionResult> => {
     try {
       isPending.value = true;
       const {sendPasswordResetEmail} = await GqlResetPasswordEmail({
@@ -221,11 +245,7 @@ export const useAuth = () => {
     }
   };
 
-  const resetPasswordWithKey = async ({
-    key,
-    login,
-    password,
-  }: ResetPasswordKeyMutationVariables): Promise<AuthenticationActionResult> => {
+  const resetPasswordWithKey = async ({key, login, password}: ResetPasswordKeyMutationVariables): Promise<AuthenticationActionResult> => {
     try {
       isPending.value = true;
       const {resetUserPassword} = await GqlResetPasswordKey({

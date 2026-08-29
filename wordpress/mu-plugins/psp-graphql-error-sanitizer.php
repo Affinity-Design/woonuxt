@@ -2,11 +2,27 @@
 /**
  * Plugin Name: PSP GraphQL Public Error Sanitizer
  * Description: Prevents WPGraphQL error responses from reflecting request variables, credentials, personal data, or debug traces.
- * Version: 1.0.0
+ * Version: 1.1.0
  */
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+/**
+ * True when the error says the operation is missing from the schema rather than
+ * that the request data was wrong.
+ *
+ * Deliberately narrow: `Variable "$input" got invalid value {...}` also contains
+ * "is not defined by type" and embeds submitted values (including passwords), so
+ * it must never reach this branch or the log below.
+ */
+function psp_is_graphql_schema_mismatch($lowercased_message) {
+    if (strpos($lowercased_message, 'got invalid value') !== false) {
+        return false;
+    }
+
+    return (bool) preg_match('/cannot query field .* on type|unknown type|cannot represent|is not defined on type/', $lowercased_message);
 }
 
 /**
@@ -15,6 +31,15 @@ if (!defined('ABSPATH')) {
  */
 function psp_get_safe_graphql_error_message($untrusted_message) {
     $message = strtolower((string) $untrusted_message);
+
+    // A field the frontend depends on is absent from the schema — usually a
+    // plugin deregistering it. Retrying never helps, and without this the real
+    // cause is invisible to everyone. Safe to log: graphql-php's schema-
+    // validation wording names types and fields, never submitted values.
+    if (psp_is_graphql_schema_mismatch($message)) {
+        error_log('[psp-graphql] schema mismatch: ' . substr((string) $untrusted_message, 0, 300));
+        return 'This feature is temporarily unavailable. Please contact customer service.';
+    }
 
     if (preg_match('/2fa|two.?factor|authenticat|verification code|wfls/', $message)) {
         return 'A valid two-factor authentication code is required. Please try again.';

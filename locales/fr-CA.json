@@ -62,6 +62,7 @@
       "noAccount": "Pas encore de compte ?",
       "hasAccount": "Vous avez déjà un compte ?",
       "accountCreated": "Votre compte a bien été créé.",
+      "accountCreatedSignIn": "Votre compte a bien été créé. Veuillez vous connecter pour continuer.",
       "myAccount": "Mon compte",
       "loginToAccount": "Se connecter à votre compte",
       "loggingIn": "Connexion...",
