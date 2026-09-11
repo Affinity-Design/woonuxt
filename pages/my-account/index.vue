@@ -119,6 +119,14 @@ useSeoMeta({
                 <Icon name="ion:bar-chart-outline" size="22" />
                 Calculator Stats
               </NuxtLink>
+              <NuxtLink
+                to="/my-account?tab=upsell-rules"
+                class="flex items-center gap-4 p-2 px-4"
+                :class="{ active: activeTab == 'upsell-rules' }"
+              >
+                <Icon name="ion:pricetags-outline" size="22" />
+                Upsell Rules
+              </NuxtLink>
             </template>
           </nav>
           <template class="hidden lg:block">
@@ -147,6 +155,7 @@ useSeoMeta({
           <CalculatorStats
             v-else-if="activeTab === 'calculator-stats' && isAdmin"
           />
+          <UpsellRules v-else-if="activeTab === 'upsell-rules' && isAdmin" />
         </main>
       </div>
     </template>

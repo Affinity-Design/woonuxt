@@ -583,6 +583,15 @@ export default defineEventHandler(async (event) => {
           {key: '_cart_total_tax', value: cleanPriceText(cartTotals?.totalTax) || '0'},
           {key: '_cart_shipping_total', value: cleanPriceText(cartTotals?.shippingTotal) || '0'},
           {key: '_cart_shipping_tax', value: cleanPriceText(cartTotals?.shippingTax) || '0'},
+          // Auto-generated upsell coupons are never re-applied to the order (Step 1 below keeps the
+          // pre-discounted line totals); the backend plugin consumes these codes instead so they
+          // are marked used and the order gets its rule note.
+          ...(() => {
+            const codes = (coupons || [])
+              .map((c: any) => String(c?.code ?? c ?? '').toUpperCase())
+              .filter((code: string) => code.startsWith('UPSELL-'));
+            return codes.length ? [{key: '_psp_upsell_coupons', value: JSON.stringify(codes)}] : [];
+          })(),
           ...metaData,
         ],
       },

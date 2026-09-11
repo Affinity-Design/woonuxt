@@ -183,6 +183,12 @@
       "clearanceBanner": "Your order contains clearance items that are not refundable.",
       "onBackorder": "On Backorder",
       "nonRefundable": "Non-refundable"
+    },
+    "upsell": {
+      "shopNow": "Shop now",
+      "shopLabel": "Shop {label}",
+      "bundleSavings": "Bundle savings",
+      "bundleBadge": "{discount} bundle"
     }
   }
 }

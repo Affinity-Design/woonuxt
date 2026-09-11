@@ -91,11 +91,13 @@ const totalWithoutShipping = computed(() => {
       </div>
       <!-- Discount -->
       <Transition name="scale-y" mode="out-in">
-        <div v-if="cart && cart.appliedCoupons" class="flex justify-between">
+        <div v-if="cart && cart.appliedCoupons?.length" class="flex justify-between">
           <span>{{ $t('messages.shop.discount') }}</span>
           <span class="text-primary tabular-nums">- {{ formatPrice(cart.discountTotal) }}</span>
         </div>
       </Transition>
+      <!-- Upsell (bundle) savings: per-line confirmation of which items were discounted -->
+      <UpsellCheckoutBreakdown :format-price="formatPrice" />
       <!-- Total: exclude shipping when no address provided -->
       <div class="flex justify-between mt-4">
         <span>{{ $t('messages.shop.total') }}</span>

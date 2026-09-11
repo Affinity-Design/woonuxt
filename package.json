@@ -43,6 +43,7 @@
     "test:error-messages": "node --test tests/publicErrorMessages.test.mjs",
     "test:checkout-receipt": "node --test tests/orderReceivedRouteOverride.test.mjs",
     "test:wordpress-email-safety": "node --test tests/wordpressTransactionalEmailSafety.test.mjs",
+    "test:upsell-matcher": "node --test tests/upsellMatcher.test.mjs",
     "debug:cache": "node scripts/debug-cache.js",
     "optimize-images": "node scripts/optimize-images.js",
     "import-category-images": "node scripts/import-category-images.js",

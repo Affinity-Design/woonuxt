@@ -19,6 +19,7 @@ const confirmShippingAddress = (): void => {
 };
 const {exchangeRate} = useExchangeRate();
 const {hasBackorderItems, hasClearanceItems, hasAnyNotices} = useCartNotices();
+const {hasUpsellNotices} = useUpsellOffers();
 const {getOrCreateAttemptId} = useCheckoutAttempt();
 const config = useRuntimeConfig();
 
@@ -929,10 +930,11 @@ useSeoMeta({
       </div>
 
       <form v-else class="container flex flex-wrap items-start gap-8 my-16 justify-evenly lg:gap-20" @submit.prevent="payNow">
-        <!-- Backorder / Clearance Notice Banners -->
-        <div v-if="hasAnyNotices" class="w-full flex flex-col gap-2">
+        <!-- Backorder / Clearance / Upsell Notice Banners -->
+        <div v-if="hasAnyNotices || hasUpsellNotices" class="w-full flex flex-col gap-2">
           <CartNotice v-if="hasBackorderItems" type="warning" dismissible :message="$t('messages.notices.backorderBanner')" />
           <CartNotice v-if="hasClearanceItems" type="warning" icon="ion:pricetag" dismissible :message="$t('messages.notices.clearanceBanner')" />
+          <UpsellCartNotice compact />
         </div>
 
         <div class="grid w-full max-w-2xl gap-8 checkout-form md:flex-1">

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "name": "Endless frames → 20% off Endless wheels",
+  "status": "paused",
+  "channels": ["ca", "com"],
+  "priority": 10,
+  "trigger": {
+    "selectors": [
+      { "taxonomy": "product_cat", "term_ids": [0], "include_children": true }
+    ],
+    "trigger_label": "Endless Frames",
+    "min_qty": 1
+  },
+  "target": {
+    "selectors": [
+      { "taxonomy": "pa_manufacturer", "term_ids": [0], "include_children": false },
+      { "taxonomy": "product_cat", "term_ids": [0], "include_children": true }
+    ],
+    "match": "all",
+    "target_label": "Endless wheels",
+    "exclude_trigger_items": true,
+    "exclude_sale_items": false,
+    "max_qty_per_order": null
+  },
+  "discount": { "type": "percent", "amount": 20 },
+  "schedule": { "starts_at": null, "ends_at": null, "timezone": "America/Toronto" },
+  "notices": {
+    "en": {
+      "product_trigger": "Pair this with any {target} and get {discount} off",
+      "product_target": "Add any {trigger} to get {discount} off these",
+      "cart_pending": "You added {trigger}! Add {target} to your cart to save {discount}.",
+      "cart_applied": "{discount} off {target} applied.",
+      "checkout": "Bundle savings: {discount} off {target}",
+      "coupon_label": "Bundle savings: {discount} off {target}"
+    },
+    "fr": {
+      "product_trigger": "Ajoutez des {target} et obtenez {discount} de rabais",
+      "product_target": "Ajoutez un {trigger} pour obtenir {discount} de rabais sur ces roues",
+      "cart_pending": "Vous avez ajouté {trigger}! Ajoutez des {target} pour économiser {discount}.",
+      "cart_applied": "{discount} de rabais sur {target} appliqué.",
+      "checkout": "Économies groupées : {discount} sur {target}",
+      "coupon_label": "Économies groupées : {discount} sur {target}"
+    }
+  },
+  "cta": { "ca_path": null, "com_path": null },
+  "coupon": { "ttl_hours": 48, "code_prefix": "UPSELL" }
+}
