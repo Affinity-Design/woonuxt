@@ -41,7 +41,10 @@ const rows = computed(() =>
 
 <template>
   <Transition name="scale-y" mode="out-in">
-    <div v-if="rows.length" class="flex flex-col gap-0.5 text-xs font-normal" data-testid="upsell-checkout-breakdown">
+    <div
+      v-if="rows.length"
+      class="my-1 flex flex-col gap-1 rounded-md border border-green-100 bg-green-50 px-2 py-1.5 text-xs font-normal"
+      data-testid="upsell-checkout-breakdown">
       <div class="text-[11px] font-semibold uppercase tracking-wide text-green-700">{{ t('messages.upsell.bundleSavings') }}</div>
       <div v-for="row in rows" :key="row.key" class="flex items-baseline justify-between gap-3 text-green-800">
         <span class="min-w-0 truncate" :title="`${row.label} — ${row.name}`">{{ row.label }} — {{ row.name }}</span>
