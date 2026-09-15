@@ -75,6 +75,12 @@ export async function wpUpsellRequest<T = unknown>(event: H3Event, path: string,
     const upstreamCode = typeof error?.data?.code === 'string' ? error.data.code : '';
     const code = upstreamCode && /^[a-z0-9_]+$/i.test(upstreamCode) ? upstreamCode : 'upsell_wp_error';
     console.warn('[upsell] WordPress request failed:', statusCode, code, '— sensitive details were withheld.');
+    // A 401/403 on an authenticated call means WordPress rejected THIS SERVER's admin app password
+    // (e.g. incorrect_password), not the shopper's login — requireUpsellAdmin already verified them.
+    // Report it as a 502 config failure so the UI does not tell a real admin they are not an admin.
+    if (useAuth && (statusCode === 401 || statusCode === 403)) {
+      throw new WpUpsellError('upsell_wp_auth_failed', 502);
+    }
     throw new WpUpsellError(code, statusCode >= 400 && statusCode < 600 ? statusCode : 502);
   }
 }

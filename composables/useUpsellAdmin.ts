@@ -40,6 +40,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   upsell_cta_invalid: 'Link overrides must be site-relative paths starting with "/".',
   upsell_rule_not_found: 'That rule no longer exists. Reload the list.',
   upsell_wp_unconfigured: 'The WordPress connection is not configured on this server.',
+  upsell_wp_auth_failed:
+    "WordPress rejected this site's admin connection (WP_ADMIN_USERNAME / WP_ADMIN_APP_PASSWORD). Your own login is fine — the app password in this deployment's environment needs updating.",
   upsell_wp_error: 'WordPress rejected the request.',
 };
 
@@ -66,8 +68,8 @@ function unwrap<T>(result: any): T {
 export function describeUpsellError(error: any): string {
   const status = Number(error?.status || error?.statusCode || error?.response?.status || 0);
   const code = String(error?.code || error?.data?.data?.code || error?.data?.code || '');
-  if (status === 401 || code === 'unauthorized') return ERROR_MESSAGES.unauthorized;
-  if (ERROR_MESSAGES[code]) return ERROR_MESSAGES[code];
+  if (code && ERROR_MESSAGES[code]) return ERROR_MESSAGES[code];
+  if (status === 401) return ERROR_MESSAGES.unauthorized;
   if (status === 404) return 'The upsell plugin does not seem to be installed on the WordPress backend yet.';
   return 'The request failed. Please try again.';
 }
