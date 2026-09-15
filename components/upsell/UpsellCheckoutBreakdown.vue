@@ -1,7 +1,12 @@
 <script setup lang="ts">
 // Checkout order-summary breakdown: which lines got the upsell discount and how much.
-// Amounts are derived from the cart lines we already display (subtotal − total, then the
-// same formatPrice pipeline as the summary) so they always match the totals on screen.
+// Each line's subtotal and total are run through the summary's own formatPrice first and only
+// then subtracted (the same "sum the displayed values" approach as totalWithoutShipping in
+// OrderSummary.vue), so the row matches the Discount total whether WooCommerce returned USD or
+// already-converted CAD. Subtracting raw values and converting the difference double-converted
+// CAD input ($9.99 shown against a $7.00 discount).
+import {formatPriceWithCAD} from '~/utils/priceConverter';
+
 const props = defineProps<{formatPrice: (value: string | null | undefined) => string}>();
 
 const {cart} = useCart();
@@ -21,12 +26,14 @@ const parseWooPrice = (priceStr: string | null | undefined): number => {
 const rows = computed(() =>
   lineItemDiscounts.value.map((discount) => {
     const node: any = (cart.value?.contents?.nodes || []).find((item: any) => item.key === discount.cartItemKey);
-    const diff = node ? Math.max(0, parseWooPrice(node.subtotal) - parseWooPrice(node.total)) : 0;
+    const shownSubtotal = node ? parseWooPrice(props.formatPrice(node.subtotal)) : 0;
+    const shownTotal = node ? parseWooPrice(props.formatPrice(node.total)) : 0;
+    const diff = Math.max(0, shownSubtotal - shownTotal);
     return {
       key: `${discount.cartItemKey}-${discount.couponCode}`,
       name: node?.variation?.node?.name || node?.product?.node?.name || '',
       label: ruleById(discount.ruleId)?.discount.display || discount.label,
-      amount: diff > 0 ? props.formatPrice(`$${diff.toFixed(2)}`) : null,
+      amount: diff > 0 ? '$' + formatPriceWithCAD(diff.toFixed(2)) : null,
     };
   }),
 );
