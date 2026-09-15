@@ -15,7 +15,9 @@ class PSP_Upsell_Frontend {
             return;
         }
         add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue'));
-        add_action('woocommerce_after_add_to_cart_button', array(__CLASS__, 'product_banner'), 20);
+        // After the form, not inside it: themes such as Shoptimizer lay form.cart out as a flex row, so a
+        // block hooked after the button becomes a squeezed flex item beside it.
+        add_action('woocommerce_after_add_to_cart_form', array(__CLASS__, 'product_banner'), 5);
         add_action('woocommerce_before_cart', array(__CLASS__, 'cart_notices'), 5);
         add_action('woocommerce_review_order_before_cart_contents', array(__CLASS__, 'checkout_breakdown'));
     }

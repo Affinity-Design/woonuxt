@@ -3,6 +3,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* Take the full row even when a theme drops us inside a flex/float container. */
+  flex: 0 0 100%;
+  width: 100%;
+  clear: both;
 }
 
 .psp-upsell-banner {
