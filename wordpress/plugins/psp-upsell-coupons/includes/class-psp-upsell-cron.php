@@ -67,7 +67,10 @@ class PSP_Upsell_Cron {
                 ? ($now - $expires_at > $retention)
                 : ($now - $expires_at > $grace);
 
-            if ($should_delete && wp_delete_post((int) $id, true)) {
+            // Delete through the data store rather than wp_delete_post() so WooCommerce also drops the
+            // code-to-id lookup from the persistent object cache; otherwise new WC_Coupon($code) keeps
+            // throwing "Invalid coupon" for the deleted code until that cache entry expires.
+            if ($should_delete && $coupon->delete(true)) {
                 $deleted++;
             }
         }

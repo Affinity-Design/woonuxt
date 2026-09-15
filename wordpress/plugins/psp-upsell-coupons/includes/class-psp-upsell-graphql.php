@@ -24,8 +24,14 @@ class PSP_Upsell_GraphQL {
         try {
             self::register_types();
 
-            $has_cart = self::type_exists($type_registry, 'Cart');
-            $has_product = self::type_exists($type_registry, 'Product');
+            // WooGraphQL registers Cart and Product from its own graphql_register_types callback, and the
+            // registry only knows a type once its loader is added, so checking for them here races that
+            // callback (Cart is not there yet at priority 20). register_graphql_field() just attaches a
+            // fields filter that runs when the type is eventually built, so registering unconditionally
+            // is safe: without WooGraphQL the filter never fires. Existence is recorded afterwards in
+            // record_registration().
+            $has_cart = true;
+            $has_product = true;
 
             if ($has_cart) {
                 register_graphql_field('Cart', 'upsell', array(
@@ -75,19 +81,31 @@ class PSP_Upsell_GraphQL {
                 },
             ));
 
-            update_option(PSP_UPSELL_OPTION_GRAPHQL, array('at' => gmdate('c'), 'cart' => $has_cart, 'product' => $has_product), false);
+            add_action('graphql_register_types_late', array(__CLASS__, 'record_registration'), 99, 1);
         } catch (\Throwable $e) {
             error_log('[psp-upsell] GraphQL registration skipped: ' . $e->getMessage());
             update_option(PSP_UPSELL_OPTION_GRAPHQL, false, false);
         }
     }
 
+    /** Runs once every plugin has registered its types, so has_type() also answers for WooGraphQL's Cart/Product. */
+    public static function record_registration($type_registry = null) {
+        update_option(PSP_UPSELL_OPTION_GRAPHQL, array(
+            'at'      => gmdate('c'),
+            'cart'    => self::type_exists($type_registry, 'Cart'),
+            'product' => self::type_exists($type_registry, 'Product'),
+        ), false);
+    }
+
     private static function type_exists($type_registry, $name) {
-        if (!$type_registry || !method_exists($type_registry, 'get_type')) {
+        if (!$type_registry || !method_exists($type_registry, 'has_type')) {
             return true; // older signature — let WPGraphQL decide
         }
+        // has_type() only consults the lazy type-loader map. get_type() would build the type right here,
+        // before register_graphql_field() attaches its fields filter, so the field would silently be
+        // dropped from Product (and building Cart this early yields nothing at all).
         try {
-            return (bool) $type_registry->get_type($name);
+            return (bool) $type_registry->has_type($name);
         } catch (\Throwable $e) {
             return false;
         }

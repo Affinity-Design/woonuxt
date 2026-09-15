@@ -45,6 +45,13 @@ class PSP_Upsell_Engine {
 
     public static function product_term_ids($product_id, $taxonomy) {
         $product_id = (int) $product_id;
+        // Variations carry no terms of their own: match on the parent product's terms.
+        if ($product_id && get_post_type($product_id) === 'product_variation') {
+            $parent = (int) wp_get_post_parent_id($product_id);
+            if ($parent) {
+                $product_id = $parent;
+            }
+        }
         $key = $product_id . '|' . $taxonomy;
         if (!isset(self::$term_cache[$key])) {
             $ids = wp_get_object_terms($product_id, $taxonomy, array('fields' => 'ids'));

@@ -32,6 +32,8 @@ wp plugin activate psp-upsell-coupons
 wp cron event list --fields=hook,next_run_relative | grep psp_upsell
 ```
 
+**Page cache:** the .com serves product and category pages from the FlyingPress page cache (`wp-content/advanced-cache.php`); cart and checkout are dynamic. Purge it after activating the plugin and after activating/editing a rule, or the product-page banners stay hidden until the cache expires: FlyingPress → Purge, or `wp eval 'FlyingPress\Purge::purge_everything();'`.
+
 ### Verify
 
 ```bash
@@ -87,4 +89,4 @@ Additive only: new CPT/option, new REST routes under the existing `psp/v1` names
 
 ## Changelog
 
-- 1.0.0 (2026-09-11) — initial release.
+- 1.0.0 (2026-09-11) — initial release. Test-site verification on 2026-09-15 fixed: WPGraphQL field registration raced WooGraphQL (Cart/Product `upsell` fields missing), variation ids not matching rule terms, and cleanup leaving a stale coupon-code entry in the object cache.
