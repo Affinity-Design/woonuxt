@@ -3,7 +3,7 @@ title: 'Inline Skating Guide: How to Start in Canada (2026)'
 description: 'Learn inline skating basics, safety gear, stopping, skate types, fit, maintenance, and where beginners can practise across Canada.'
 category: 'Guides'
 date: 2026-06-04
-modified: 2026-08-27
+modified: 2026-09-16
 author: 'ProSkaters Place Team'
 authorBio: 'Toronto skating specialists fitting and servicing skates for Canadian customers since 2011.'
 image: '/images/blog/posted/inline-skating-guide.webp'
@@ -130,7 +130,7 @@ Stopping is the skill beginners skip and regret. Start with the **heel brake**: 
 
 If you feel yourself going down, crouch low and fall _forward_ onto your pads — knees first, then wrist guards — never backward onto your tailbone or wrists alone. This is exactly why the protective gear above matters.
 
-Once you're comfortable rolling and stopping, our [complete beginner's guide to skating](/blog/complete-beginners-guide-inline-quad-skating) and our [how to skate backwards tutorial](/blog/how-to-skate-backwards-tutorial) are great next steps.
+For a full first-session plan with drills, three stopping methods and safe-fall practice, follow our step-by-step [how to rollerblade guide](/blog/how-to-rollerblade). Once you're comfortable rolling and stopping, our [complete beginner's guide to skating](/blog/complete-beginners-guide-inline-quad-skating) and our [how to skate backwards tutorial](/blog/how-to-skate-backwards-tutorial) are great next steps.
 
 ---
 

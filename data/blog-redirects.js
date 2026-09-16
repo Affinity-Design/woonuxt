@@ -3,6 +3,7 @@
 // Do not edit manually - it will be overwritten on build
 
 module.exports = {
+    "/aggressive-inline-skating-guide": { redirect: { to: "/blog/aggressive-inline-skating-guide", statusCode: 301 } },
     "/best-inline-skates-2025": { redirect: { to: "/blog/best-inline-skates-2025", statusCode: 301 } },
     "/best-inline-skates-canada-2025": { redirect: { to: "/blog/best-inline-skates-canada-2025", statusCode: 301 } },
     "/best-kids-roller-skates-2026": { redirect: { to: "/blog/best-kids-roller-skates-2026", statusCode: 301 } },
@@ -10,11 +11,15 @@ module.exports = {
     "/best-pink-roller-skates-canada-2026": { redirect: { to: "/blog/best-pink-roller-skates-canada-2026", statusCode: 301 } },
     "/complete-beginners-guide-inline-quad-skating": { redirect: { to: "/blog/complete-beginners-guide-inline-quad-skating", statusCode: 301 } },
     "/how-to-roller-skate": { redirect: { to: "/blog/how-to-roller-skate", statusCode: 301 } },
+    "/how-to-rollerblade": { redirect: { to: "/blog/how-to-rollerblade", statusCode: 301 } },
     "/how-to-skate-backwards-tutorial": { redirect: { to: "/blog/how-to-skate-backwards-tutorial", statusCode: 301 } },
     "/inline-skates-vs-roller-skates": { redirect: { to: "/blog/inline-skates-vs-roller-skates", statusCode: 301 } },
     "/inline-skating-guide": { redirect: { to: "/blog/inline-skating-guide", statusCode: 301 } },
+    "/inline-skating-vancouver-guide": { redirect: { to: "/blog/inline-skating-vancouver-guide", statusCode: 301 } },
+    "/inline-speed-skating-guide": { redirect: { to: "/blog/inline-speed-skating-guide", statusCode: 301 } },
     "/online-skate-shop-canada": { redirect: { to: "/blog/online-skate-shop-canada", statusCode: 301 } },
     "/pro-skates-professional-guide": { redirect: { to: "/blog/pro-skates-professional-guide", statusCode: 301 } },
+    "/roller-hockey-starter-guide": { redirect: { to: "/blog/roller-hockey-starter-guide", statusCode: 301 } },
     "/roller-rinks-indoor-skating-canada": { redirect: { to: "/blog/roller-rinks-indoor-skating-canada", statusCode: 301 } },
     "/roller-skate-size-chart": { redirect: { to: "/blog/roller-skate-size-chart", statusCode: 301 } },
     "/roller-skates-complete-guide-2025": { redirect: { to: "/blog/roller-skates-complete-guide-2025", statusCode: 301 } },

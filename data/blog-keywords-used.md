@@ -2,7 +2,7 @@
 
 **Purpose:** Track which keywords from `seo_Keywordlist.csv` have been used in blog posts to prevent keyword cannibalization.
 
-**Last Updated:** 2026-08-27
+**Last Updated:** 2026-09-16
 
 > **Current pipeline:** `data/blog-rehydration-2026-07.md` (fresh DataForSEO research, July 2026). The keyword lists below this point are the historical record — pick new topics from the rehydration doc, not from here.
 
@@ -11,6 +11,15 @@
 ## âœ… Used Keywords
 
 ### High Priority Keywords (Already Published)
+
+- [x] **how to rollerblade** (14,800 sv, 34 kd — `data/brand-keywords-full.json` cannibalization pull; rehydration queue was exhausted)
+
+  - Post: `/blog/how-to-rollerblade`
+  - Published: 2026-09-16
+  - Status: ✅ Live (merged to master 2026-09-16)
+  - Secondary: rollerblades how to (2,400), rollerblading for beginners, how to stop on rollerblades
+  - Angle: first-session inline technique for ADULT beginners (setup check, ready position, scissor stance, V-push, glides/turns, heel brake → plow → T-stop, safe falls, four-session drill plan). Gear/buying stays with `/blog/inline-skating-guide`; quads stay with `/blog/how-to-roller-skate`. Pillar links to it from its "How to Get Started" section.
+  - Note: hero derived from the site's `public/images/Inline-Skating.jpeg` (16:9 crop) because the Gemini image key is not configured on the publishing machine — swap for a bespoke hero when available
 
 - [x] **inline skating hockey** (480 sv, 0 kd — rehydration doc topic #7)
 

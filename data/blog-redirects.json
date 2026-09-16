@@ -1,4 +1,10 @@
 {
+  "/aggressive-inline-skating-guide": {
+    "redirect": {
+      "to": "/blog/aggressive-inline-skating-guide",
+      "statusCode": 301
+    }
+  },
   "/best-inline-skates-2025": {
     "redirect": {
       "to": "/blog/best-inline-skates-2025",
@@ -41,6 +47,12 @@
       "statusCode": 301
     }
   },
+  "/how-to-rollerblade": {
+    "redirect": {
+      "to": "/blog/how-to-rollerblade",
+      "statusCode": 301
+    }
+  },
   "/how-to-skate-backwards-tutorial": {
     "redirect": {
       "to": "/blog/how-to-skate-backwards-tutorial",
@@ -59,6 +71,18 @@
       "statusCode": 301
     }
   },
+  "/inline-skating-vancouver-guide": {
+    "redirect": {
+      "to": "/blog/inline-skating-vancouver-guide",
+      "statusCode": 301
+    }
+  },
+  "/inline-speed-skating-guide": {
+    "redirect": {
+      "to": "/blog/inline-speed-skating-guide",
+      "statusCode": 301
+    }
+  },
   "/online-skate-shop-canada": {
     "redirect": {
       "to": "/blog/online-skate-shop-canada",
@@ -68,6 +92,12 @@
   "/pro-skates-professional-guide": {
     "redirect": {
       "to": "/blog/pro-skates-professional-guide",
+      "statusCode": 301
+    }
+  },
+  "/roller-hockey-starter-guide": {
+    "redirect": {
+      "to": "/blog/roller-hockey-starter-guide",
       "statusCode": 301
     }
   },
