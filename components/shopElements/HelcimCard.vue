@@ -317,6 +317,12 @@ const initializePayment = async () => {
       throw new Error(getSafePaymentErrorMessage(response.error, 'We could not open the secure payment form. Please try again.'));
     }
   } catch (error: any) {
+    // Fail closed: drop any token from an earlier initialize. processPayment() re-initializes on
+    // every pay click precisely because the amount may have changed; opening the modal with the
+    // previous token would present (and charge) the previous amount. Seen on test: a $0 cart after
+    // a 100% coupon failed to initialize and the modal opened for the earlier $47.98.
+    checkoutToken.value = '';
+    secretToken.value = '';
     console.error('[HelcimCard] Initialization error:', getSafeErrorLogDetails(error));
     captureLog('ERROR', 'Initialization failed. Sensitive details were withheld.');
     paymentError.value = getSafePaymentErrorMessage(error, 'We could not open the secure payment form. Please try again.');
