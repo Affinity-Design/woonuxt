@@ -173,6 +173,12 @@
       "clearanceBanner": "Votre commande contient des articles en liquidation qui ne sont pas remboursables.",
       "onBackorder": "En rupture de stock",
       "nonRefundable": "Non remboursable"
+    },
+    "upsell": {
+      "shopNow": "Magasiner",
+      "shopLabel": "Magasiner {label}",
+      "bundleSavings": "Économies groupées",
+      "bundleBadge": "{discount} en lot"
     }
   }
 }

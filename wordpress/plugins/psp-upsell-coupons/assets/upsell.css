@@ -1,0 +1,84 @@
+.psp-upsell-banners {
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Take the full row even when a theme drops us inside a flex/float container. */
+  flex: 0 0 100%;
+  width: 100%;
+  clear: both;
+}
+
+.psp-upsell-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 0.5rem;
+  background: #eef2ff;
+  color: #1e1b4b;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.psp-upsell-banner--target {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #14532d;
+}
+
+.psp-upsell-banner__badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.psp-upsell-banner--target .psp-upsell-banner__badge {
+  background: #16a34a;
+}
+
+.psp-upsell-banner__text {
+  flex: 1 1 12rem;
+}
+
+.psp-upsell-banner__cta {
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.psp-upsell-notice {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  width: 100%;
+}
+
+.psp-upsell-notice__cta.button {
+  margin: 0;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.875rem;
+}
+
+.psp-upsell-breakdown td {
+  font-size: 0.875rem;
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.psp-upsell-breakdown__item {
+  color: #4b5563;
+  font-style: italic;
+}
+
+.psp-upsell-breakdown--total td {
+  font-weight: 700;
+}

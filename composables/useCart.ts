@@ -227,29 +227,35 @@ export function useCart() {
     updateCart(updateShippingMethod?.cart);
   }
 
-  // Apply coupon
-  async function applyCoupon(code: string): Promise<{message: string | null}> {
+  // Apply coupon. A rejected code (invalid, expired, another session's auto coupon…) must reach
+  // the shopper as a safe message instead of silently reporting success.
+  async function applyCoupon(code: string): Promise<{success: boolean; message: string | null}> {
     try {
       isUpdatingCoupon.value = true;
       const {applyCoupon} = await GqlApplyCoupon({code});
       updateCart(applyCoupon?.cart);
       isUpdatingCoupon.value = false;
+      return {success: true, message: null};
     } catch (error: any) {
       isUpdatingCoupon.value = false;
       logGQLError(error);
+      return {success: false, message: getSafeCartErrorMessage(error, 'That coupon could not be applied. Check the code and try again.')};
     }
-    return {message: null};
   }
 
   // Remove coupon
-  async function removeCoupon(code: string): Promise<void> {
+  async function removeCoupon(code: string): Promise<{success: boolean; message: string | null}> {
     try {
       isUpdatingCart.value = true;
       const {removeCoupons} = await GqlRemoveCoupons({codes: [code]});
       updateCart(removeCoupons?.cart);
+      return {success: true, message: null};
     } catch (error) {
       logGQLError(error);
       isUpdatingCart.value = false;
+      const message = getSafeCartErrorMessage(error, 'We could not remove that coupon. Please try again.');
+      useToast().error(message);
+      return {success: false, message};
     }
   }
 

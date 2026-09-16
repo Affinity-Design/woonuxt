@@ -83,6 +83,14 @@
 
 ---
 
+### 9. How to Rollerblade: Step-by-Step for Adult Beginners — ✅ PUBLISHED 2026-09-16
+
+- **Primary:** how to rollerblade (14,800 sv, kd 34 — from `data/brand-keywords-full.json`; queue above was exhausted)
+- **Cluster:** rollerblades how to (2,400, kd 27) · rollerblading for beginners · how to stop on rollerblades
+- **Slug:** `/blog/how-to-rollerblade` — technique only, mirrors the quad post #2; pillar `/blog/inline-skating-guide` keeps gear/buying and links to it
+
+---
+
 ## Refresh queue (do alongside new posts — these are leaks, not gaps)
 
 | Post                                   | Problem (fresh data)                                                                                                                                                         | Fix                                                                                                                                                                                         |

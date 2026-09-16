@@ -558,6 +558,9 @@ watch(
               </a>
             </form>
 
+            <!-- Conditional upsell banner (trigger/target side, client-side matched) -->
+            <UpsellProductBanner :product="product" />
+
             <!-- Wishlist and Share -->
             <div class="flex flex-wrap gap-4 mb-8">
               <WishlistButton :product="product" />

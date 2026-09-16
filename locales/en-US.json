@@ -176,6 +176,12 @@
       "invalidPasswordResetLink": "Password reset link is invalid.",
       "general": "Something went wrong",
       "noOrder": "We could not find your order. Please try again later."
+    },
+    "upsell": {
+      "shopNow": "Shop now",
+      "shopLabel": "Shop {label}",
+      "bundleSavings": "Bundle savings",
+      "bundleBadge": "{discount} bundle"
     }
   }
 }
