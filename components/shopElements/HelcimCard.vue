@@ -499,7 +499,10 @@ const handlePaymentSuccess = async (eventMessage: any) => {
 
 const handlePaymentFailed = (eventMessage: any) => {
   const untrustedPaymentError = typeof eventMessage === 'string' ? eventMessage : 'Payment failed';
-  const safePaymentMessage = getSafePaymentErrorMessage(untrustedPaymentError, 'We could not process this payment and your card was not charged. Please try again or contact customer service.');
+  const safePaymentMessage = getSafePaymentErrorMessage(
+    untrustedPaymentError,
+    'We could not process this payment and your card was not charged. Please try again or contact customer service.',
+  );
   safeDebugErrorMessage.value = safePaymentMessage;
   debugLogsCopied.value = false;
 
