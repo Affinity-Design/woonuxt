@@ -78,6 +78,8 @@ add_action('plugins_loaded', function () {
     PSP_Upsell_Frontend::init();
     PSP_Upsell_Orders::init();
     PSP_Upsell_Cron::init();
+    PSP_Upsell_Cache::init();
+    PSP_Upsell_Admin::init();
 }, 20);
 
 register_activation_hook(__FILE__, function () {

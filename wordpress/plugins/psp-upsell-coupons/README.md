@@ -14,6 +14,8 @@ Spec, decisions and test matrix: `specs/002-conditional-upsell-coupons/` in the 
 3. When a rule's trigger is in the cart and target lines exist, a native coupon `UPSELL-XXXXXX` is generated for **this session × this rule** (percent, single use, 48 h expiry) and applied. `woocommerce_coupon_is_valid_for_product` restricts it to the rule's target lines (never trigger lines); `woocommerce_coupon_is_valid` binds it to the session/rule hash/channel/schedule.
 4. When the trigger leaves the cart (or the rule is paused/edited/expired) the coupon is removed. A shopper who removes the coupon manually is not nagged again until the cart's trigger/target line set changes.
 5. Orders: native checkout records the coupon itself; headless orders pass `_psp_upsell_coupons` meta and the plugin consumes it on `woocommerce_new_order`/status hooks (usage count, order note, `_psp_upsell_applied`). A daily cron deletes expired unused coupons (7-day grace) and retired ones (30 days).
+6. wp-admin → Marketing → Coupons hides the generated codes by default and adds an **Upsell auto-coupons** view for them, so the everyday coupon list stays clean.
+7. Whenever the rule set is recompiled (rule saved/paused/deleted, activation) the FlyingPress page cache is purged so .com product banners update immediately.
 
 With zero rules the plugin is inert on both stores.
 
@@ -32,7 +34,7 @@ wp plugin activate psp-upsell-coupons
 wp cron event list --fields=hook,next_run_relative | grep psp_upsell
 ```
 
-**Page cache:** the .com serves product and category pages from the FlyingPress page cache (`wp-content/advanced-cache.php`); cart and checkout are dynamic. Purge it after activating the plugin and after activating/editing a rule, or the product-page banners stay hidden until the cache expires: FlyingPress → Purge, or `wp eval 'FlyingPress\Purge::purge_everything();'`.
+**Page cache:** the .com serves product and category pages from the FlyingPress page cache (`wp-content/advanced-cache.php`); cart and checkout are dynamic. The plugin purges that cache itself whenever the rule set is recompiled (`psp_upsell_rules_compiled`), so banners update as soon as a rule is saved. Purge manually only after editing the banner templates/CSS: FlyingPress → Purge, or `wp eval 'FlyingPress\Purge::purge_everything();'`.
 
 ### Verify
 
@@ -70,7 +72,7 @@ Rule JSON schema: `specs/002-conditional-upsell-coupons/data-model.md`; example:
 | `PSP_UPSELL_RETIRED_RETENTION_DAYS` | 30 | Delete consumed coupons after this |
 | `PSP_UPSELL_CODE_PREFIX` | `UPSELL` | Coupon code prefix |
 
-Filters: `psp_upsell_channel`, `psp_upsell_taxonomies`, `psp_upsell_locale`, `psp_upsell_ca_base_url`, `psp_upsell_max_product_banners`, `psp_upsell_code_prefixes`. Actions: `psp_upsell_rules_compiled`, `psp_upsell_coupon_generated`, `psp_upsell_order_consumed`.
+Filters: `psp_upsell_channel`, `psp_upsell_taxonomies`, `psp_upsell_locale`, `psp_upsell_ca_base_url`, `psp_upsell_max_product_banners`, `psp_upsell_code_prefixes`, `psp_upsell_purge_page_cache`. Actions: `psp_upsell_rules_compiled`, `psp_upsell_coupon_generated`, `psp_upsell_order_consumed`, `psp_upsell_page_cache_purged`.
 
 Theme overrides: copy `templates/*.php` to `<theme>/psp-upsell/`.
 
