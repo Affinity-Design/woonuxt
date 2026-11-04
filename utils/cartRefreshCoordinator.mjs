@@ -30,6 +30,21 @@ export function createCartRefreshCoordinator() {
   };
 }
 
+/**
+ * Fetches the cart; when WooGraphQL rejected the stored session token, forgets it and fetches ONCE more on the new
+ * session WooGraphQL issues. A second rejection is thrown like any other failure, so a backend that rejects every
+ * token can never cause a loop.
+ */
+export async function fetchCartWithSessionRecovery({fetchCart, isStaleSessionError, dropSession}) {
+  try {
+    return await fetchCart();
+  } catch (error) {
+    if (!isStaleSessionError(error)) throw error;
+    dropSession();
+    return fetchCart();
+  }
+}
+
 export async function prepareCartSessionForMutation({refreshCoordinator, refreshCart}) {
   if (refreshCoordinator.hasCompletedRefresh()) {
     await refreshCoordinator.waitForActiveRefresh();

@@ -1,6 +1,20 @@
 <script setup>
+import { formatWooPriceForDisplay, normalizeWooPriceText } from "~/utils/priceConverter";
+
 const { updateShippingMethod } = useCart();
-const currencySymbol = "$";
+const { formatPrice } = useHelpers();
+const { exchangeRate } = useExchangeRate();
+
+// WPGraphQL for eCommerce 1.0+ returns ShippingRate.cost already formatted ("$12.00&nbsp;CAD"), which a
+// hard-coded "$" prefix turned into "$$12.00". 0.21.1 sent the bare number ("12.00", null when free), so
+// a bare number still gets the store's CAD formatting and only formatted text goes through the canonical
+// formatter (shown verbatim; only US$-marked text is converted). No second currency layer either way.
+const formatShippingCost = (cost) => {
+  const costText = normalizeWooPriceText(cost);
+  if (!costText || /^[\d.,\s-]+$/.test(costText)) return formatPrice(costText || 0);
+  return formatWooPriceForDisplay(costText, exchangeRate.value ?? null);
+};
+
 const props = defineProps({
   options: { type: Array, required: true },
   activeOption: { type: String, required: true },
@@ -26,7 +40,7 @@ const setActiveOption = async (id) => {
           v-html="option.label"
         ></div>
         <div class="font-semibold text-gray-600">
-          {{ currencySymbol }}{{ option.cost }}
+          {{ formatShippingCost(option.cost) }}
         </div>
       </div>
 

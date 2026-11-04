@@ -129,6 +129,12 @@ export function getSafeAuthenticationErrorMessage(error, action = 'signIn') {
     return 'This feature is temporarily unavailable. Please contact customer service.';
   }
 
+  // Variable coercion names input fields (e.g. "authenticate" on a backend without it) and echoes submitted values:
+  // never let the 2FA rule below read it as a two-factor prompt.
+  if (/got invalid value/.test(untrustedMessage)) {
+    return AUTHENTICATION_FALLBACK_MESSAGES[action] || AUTHENTICATION_FALLBACK_MESSAGES.signIn;
+  }
+
   if (/2fa|two.?factor|authenticat|verification code|wfls/.test(untrustedMessage)) {
     return 'Enter a valid two-factor authentication code and try again.';
   }
@@ -175,6 +181,37 @@ export function getSafeCartErrorMessage(error, fallbackMessage = 'We could not u
   }
 
   return fallbackMessage;
+}
+
+/**
+ * Classifies a checkout failure. WPGraphQL for eCommerce 1.0+ throws WooCommerce's own error notices
+ * (space-joined, may contain HTML) as the checkout error, and wordpress/mu-plugins/psp-graphql-error-
+ * sanitizer.php rewrites every GraphQL error to fixed copy before it leaves WordPress. Patterns cover
+ * both forms. The text is only classified, never returned.
+ */
+export function classifyCheckoutError(error) {
+  const untrustedMessage = readUntrustedErrorText(error).toLowerCase();
+  if (/no session found|session (?:has )?expired|session token|invalid_token/.test(untrustedMessage)) return 'session';
+  if (/already (?:registered|exists)|existing_user/.test(untrustedMessage)) return 'account_exists';
+  if (/\bp\.?\s?o\.?\s?box(?:es)?\b|post office box/.test(untrustedMessage)) return 'po_box';
+  if (/out of stock|not in stock|not enough|do not have enough|only .* available|quantity/.test(untrustedMessage)) return 'stock';
+  if (/coupon/.test(untrustedMessage)) return 'coupon';
+  if (/no shipping method|do not ship|enter an address|shipping address/.test(untrustedMessage)) return 'shipping';
+  return 'other';
+}
+
+const CHECKOUT_ERROR_MESSAGES = {
+  session: 'Your session expired. Please refresh the page and try again.',
+  account_exists: 'An account is already registered with your email address. Please log in to continue.',
+  po_box: 'We do not ship to PO boxes. Please enter a physical street address.',
+  stock: 'Some items are no longer available in the quantity you selected. Please update your cart and try again.',
+  coupon: 'A coupon in your cart could not be applied. Please remove it and try again.',
+  shipping: 'Please check your shipping address and shipping method, then try again.',
+  other: 'We could not complete your order. Please review your details and try again, or contact customerservice@proskatersplace.com for help.',
+};
+
+export function getSafeCheckoutErrorMessage(error) {
+  return CHECKOUT_ERROR_MESSAGES[classifyCheckoutError(error)];
 }
 
 export function getSafePaymentErrorMessage(error, fallbackMessage = 'We could not complete the payment. Please try again or contact customer service.') {

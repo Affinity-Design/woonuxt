@@ -1,0 +1,11 @@
+# Base-layer GraphQL documents that are invalid on WPGraphQL for eCommerce 1.0.x. nuxt-graphql-client
+# validates every document it finds against the live schema, so an invalid base file breaks
+# `nuxt prepare` and the build even when nothing uses it, and woonuxt_base/ is read-only.
+# @nuxt/kit's resolveFiles() drops ignored paths, matching each pattern against the path relative to
+# the OWNING layer (woonuxt_base/), so keep the patterns anchored ("app/...") so they can never
+# match the root replacements under queries/.
+#
+# ProductPricing selects onSale directly on ProductWithPricing, which 1.0.x no longer has (#934).
+# No replacement needed: no document spreads ...ProductPricing or ...ProductStock. If one ever does, add
+# upstream WooNuxt 45f45341's per-type onSale version under queries/ with a different file name.
+app/queries/fragments/ProductPricingFragment.gql

@@ -1,8 +1,16 @@
 import type {AddToCartInput} from '#gql';
-import {createCartRefreshCoordinator, finalizeSuccessfulCartMutation, prepareCartSessionForMutation} from '~/utils/cartRefreshCoordinator.mjs';
+import {
+  createCartRefreshCoordinator,
+  fetchCartWithSessionRecovery,
+  finalizeSuccessfulCartMutation,
+  prepareCartSessionForMutation,
+} from '~/utils/cartRefreshCoordinator.mjs';
 import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
+import {isWooSessionTokenError} from '#shared/utils/wooSession.mjs';
 
 const CART_REFRESH_TIMEOUT_MILLISECONDS = 15_000;
+const EXPIRED_CART_SESSION_MESSAGE = 'Your cart session expired. Please add your items again.';
+const REFRESHED_CART_SESSION_MESSAGE = 'Your cart was refreshed. Please check your cart and try that again.';
 const cartRefreshCoordinators = new WeakMap<object, ReturnType<typeof createCartRefreshCoordinator>>();
 
 interface RefreshCartOptions {
@@ -32,6 +40,7 @@ export function useCart() {
   const cartLoadError = useState<string | null>('cartLoadError', () => null);
   const paymentGateways = useState<PaymentGateways | null>('paymentGateways', () => null);
   const {logGQLError, clearAllCookies} = useHelpers();
+  const {installWooSession, dropWooSession} = useWooSession();
 
   /** Refesh the cart from the server
    * @returns {Promise<boolean>} - A promise that resolves
@@ -45,14 +54,31 @@ export function useCart() {
 
       try {
         cartLoadError.value = null;
-        const refreshTimeoutPromise = new Promise<never>((_, reject) => {
-          refreshTimeout = setTimeout(() => reject(new Error('Cart refresh timed out')), CART_REFRESH_TIMEOUT_MILLISECONDS);
+        const fetchCart = () => {
+          if (refreshTimeout) clearTimeout(refreshTimeout);
+          const refreshTimeoutPromise = new Promise<never>((_, reject) => {
+            refreshTimeout = setTimeout(() => reject(new Error('Cart refresh timed out')), CART_REFRESH_TIMEOUT_MILLISECONDS);
+          });
+          return Promise.race([GqlGetCart(), refreshTimeoutPromise]);
+        };
+        // A token WooGraphQL no longer accepts (every 0.21.1 token after the 1.0.3 upgrade, or an expired one) is
+        // dropped and the fetch repeated once on the new session; updateCustomer() below installs its token. The
+        // Bearer token stays: a signed-in shopper's new session is keyed to their user ID, so only guest carts are lost.
+        const {cart, customer, viewer, paymentGateways, loginClients} = await fetchCartWithSessionRecovery({
+          fetchCart,
+          isStaleSessionError: isWooSessionTokenError,
+          dropSession: () => {
+            console.warn('[refreshCart] WooCommerce rejected the stored session; starting a new one.');
+            dropWooSession();
+          },
         });
-        const {cart, customer, viewer, paymentGateways, loginClients} = await Promise.race([GqlGetCart(), refreshTimeoutPromise]);
         const {updateCustomer, updateViewer, updateLoginClients} = useAuth();
 
         if (cart) updateCart(cart);
         if (customer) updateCustomer(customer);
+        // WooGraphQL can leave customer.sessionToken null for a signed-in shopper; the viewer carries the same
+        // session (upstream WooNuxt 01e1a38e).
+        if (!customer?.sessionToken && viewer?.wooSessionToken) installWooSession(viewer.wooSessionToken);
         if (viewer) updateViewer(viewer);
         if (paymentGateways) updatePaymentGateways(paymentGateways);
         if (loginClients) updateLoginClients(loginClients.filter((client) => client !== null));
@@ -81,6 +107,18 @@ export function useCart() {
     paymentGateways.value = null;
   }
 
+  /**
+   * The session holding this cart no longer exists (WooGraphQL rejected its token): start a clean one and
+   * return copy for the shopper. Never use it for a paid checkout: the shopper would re-add and pay again.
+   */
+  async function restartExpiredCartSession(): Promise<string> {
+    dropWooSession();
+    await refreshCart();
+    // A signed-in shopper's saved cart comes back with the new user-keyed session: don't invite them to re-add it
+    // (doubled quantities). The action they clicked was not applied either way.
+    return cart.value && !cart.value.isEmpty ? REFRESHED_CART_SESSION_MESSAGE : EXPIRED_CART_SESSION_MESSAGE;
+  }
+
   function updateCart(payload?: Cart | null): void {
     cart.value = payload || null;
   }
@@ -106,28 +144,42 @@ export function useCart() {
       isUpdatingCart.value = true;
 
       // Use server-side API to bypass CORS/security blocks on client-side GraphQL
-      const response = await $fetch<{success: boolean; cart?: Cart; sessionToken?: string | null; message?: string}>('/api/add-to-cart', {
-        method: 'POST',
-        body: {
-          productId: input.productId,
-          quantity: input.quantity || 1,
-          variationId: input.variationId,
-          extraData: input.extraData,
-        },
-      });
+      const requestAddToCart = () =>
+        $fetch<{success: boolean; cart?: Cart; sessionToken?: string | null; code?: string; sessionReset?: boolean}>('/api/add-to-cart', {
+          method: 'POST',
+          body: {
+            productId: input.productId,
+            quantity: input.quantity || 1,
+            variationId: input.variationId,
+            extraData: input.extraData,
+          },
+        });
+      let response = await requestAddToCart();
+
+      // Signed in, and WooGraphQL rejected the stored session. The route won't open a guest session (it would replace
+      // the account's saved cart), so rebuild the user-keyed session with the Bearer token here, then add once more.
+      if (response?.code === 'session_expired') {
+        dropWooSession();
+        // Retry only on a rebuilt session: after a failed refresh there is no stored token, so the route would add to
+        // a fresh guest session that the next Bearer refresh lets overwrite the account's saved cart.
+        const sessionRebuilt = await refreshCart();
+        isUpdatingCart.value = true;
+        response = sessionRebuilt ? await requestAddToCart() : response;
+        if (response?.code === 'session_expired') {
+          toast.error(EXPIRED_CART_SESSION_MESSAGE);
+          isUpdatingCart.value = false;
+          return {success: false, message: EXPIRED_CART_SESSION_MESSAGE};
+        }
+      }
+
+      // A guest whose session WooGraphQL rejected: the item went into a new cart and the earlier items didn't follow.
+      if (response?.sessionReset) toast.info('Your previous cart session expired, so this item was added to a new cart.');
 
       await finalizeSuccessfulCartMutation({
         refreshCoordinator: cartRefreshCoordinator,
         successfulCart: response?.cart || null,
         sessionToken: response?.sessionToken,
-        installSessionToken: (sessionToken: string) => {
-          useGqlHeaders({'woocommerce-session': `Session ${sessionToken}`});
-          useCookie('woocommerce-session', {
-            path: '/',
-            sameSite: 'lax',
-            secure: import.meta.env.PROD,
-          }).value = sessionToken;
-        },
+        installSessionToken: installWooSession,
         updateCart,
         markMutationFinalizationPending: () => {
           isUpdatingCart.value = true;
@@ -160,7 +212,7 @@ export function useCart() {
       // Get session token from cookie
       const sessionToken = useCookie('woocommerce-session').value;
 
-      const response = await $fetch('/api/update-cart-quantity', {
+      const response = await $fetch<{success: boolean; cart?: Cart; code?: string}>('/api/update-cart-quantity', {
         method: 'POST',
         body: {
           key,
@@ -168,6 +220,12 @@ export function useCart() {
           sessionToken,
         },
       });
+
+      // The cart this key belongs to lives in a session WooGraphQL no longer accepts (the route already dropped it).
+      if (response.code === 'session_expired') {
+        useToast().error(await restartExpiredCartSession());
+        return;
+      }
 
       if (response.success && response.cart) {
         updateCart(response.cart);
@@ -188,7 +246,7 @@ export function useCart() {
       // Get session token from cookie
       const sessionToken = useCookie('woocommerce-session').value;
 
-      const response = await $fetch('/api/update-cart-quantity', {
+      const response = await $fetch<{success: boolean; cart?: Cart; code?: string}>('/api/update-cart-quantity', {
         method: 'POST',
         body: {
           key,
@@ -196,6 +254,12 @@ export function useCart() {
           sessionToken,
         },
       });
+
+      // The cart this key belongs to lives in a session WooGraphQL no longer accepts (the route already dropped it).
+      if (response.code === 'session_expired') {
+        useToast().error(await restartExpiredCartSession());
+        return;
+      }
 
       if (response.success && response.cart) {
         updateCart(response.cart);
@@ -217,14 +281,21 @@ export function useCart() {
       updateCart(emptyCart?.cart);
     } catch (error: any) {
       logGQLError(error);
+      // The session is gone, so its cart already is too: just start a clean one.
+      if (isWooSessionTokenError(error)) await restartExpiredCartSession();
     }
   }
 
   // Update shipping method
   async function updateShippingMethod(shippingMethods: string) {
     isUpdatingCart.value = true;
-    const {updateShippingMethod} = await GqlChangeShippingMethod({shippingMethods});
-    updateCart(updateShippingMethod?.cart);
+    try {
+      const {updateShippingMethod} = await GqlChangeShippingMethod({shippingMethods});
+      updateCart(updateShippingMethod?.cart);
+    } catch (error) {
+      if (!isWooSessionTokenError(error)) throw error;
+      useToast().error(await restartExpiredCartSession());
+    }
   }
 
   // Apply coupon. A rejected code (invalid, expired, another session's auto coupon…) must reach
@@ -239,6 +310,7 @@ export function useCart() {
     } catch (error: any) {
       isUpdatingCoupon.value = false;
       logGQLError(error);
+      if (isWooSessionTokenError(error)) return {success: false, message: await restartExpiredCartSession()};
       return {success: false, message: getSafeCartErrorMessage(error, 'That coupon could not be applied. Check the code and try again.')};
     }
   }
@@ -253,7 +325,9 @@ export function useCart() {
     } catch (error) {
       logGQLError(error);
       isUpdatingCart.value = false;
-      const message = getSafeCartErrorMessage(error, 'We could not remove that coupon. Please try again.');
+      const message = isWooSessionTokenError(error)
+        ? await restartExpiredCartSession()
+        : getSafeCartErrorMessage(error, 'We could not remove that coupon. Please try again.');
       useToast().error(message);
       return {success: false, message};
     }
@@ -295,5 +369,6 @@ export function useCart() {
     updateShippingMethod,
     applyCoupon,
     removeCoupon,
+    restartExpiredCartSession,
   };
 }

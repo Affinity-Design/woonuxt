@@ -4,7 +4,9 @@ import {readFile, readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
+  classifyCheckoutError,
   getSafeAuthenticationErrorMessage,
+  getSafeCheckoutErrorMessage,
   getSafeErrorLogDetails,
   getSafePaymentErrorMessage,
   getSafePublicErrorMessage,
@@ -57,6 +59,17 @@ test('known authentication and payment failures use fixed human-readable copy', 
   assert.equal(
     getSafeAuthenticationErrorMessage({message: 'Wordfence 2FA rejected code 123456'}, 'signIn'),
     'Enter a valid two-factor authentication code and try again.',
+  );
+  // `authenticate` sent to a backend without it (WooGraphQL 0.21.1) is a coercion error, not a 2FA prompt.
+  assert.equal(
+    getSafeAuthenticationErrorMessage(
+      {
+        message:
+          'Variable "$input" got invalid value {"email":"shopper@example.com","password":"hunter2","authenticate":true}; Field "authenticate" is not defined by type "RegisterCustomerInput".',
+      },
+      'register',
+    ),
+    'We could not create your account. Please review your details and try again.',
   );
   assert.equal(
     getSafePaymentErrorMessage({message: 'issuer declined card ending 4242'}),
@@ -196,7 +209,12 @@ test('registration and diagnostics use strict allowlists', async () => {
   assert.doesNotMatch(useAuthSource, /GqlLogin\(\s*(?:credentials|extendedCredentials)/);
   // registerCustomerWithAuth is the root-layer operation that also returns the
   // session tokens; the allowlist requirement is the same for either name.
-  assert.match(useAuthSource, /GqlRegisterCustomer(?:WithAuth)?\(\s*\{input: \{email, password\}\}/);
+  // `authenticate: true` is a fixed flag, not shopper input (WPGraphQL for eCommerce 1.0+, #973), sent only when
+  // the live schema has it (useWooSchemaCapabilities).
+  assert.match(
+    useAuthSource,
+    /GqlRegisterCustomer(?:WithAuth)?\(\s*\{input: \{email, password(?:, authenticate: true|, \.\.\.\(sendAuthenticate \? \{authenticate: true\} : \{\}\))?\}\}/,
+  );
   assert.doesNotMatch(useAuthSource, /GqlRegisterCustomer(?:WithAuth)?\(\s*\{input\}/);
   assert.doesNotMatch(beaconSource, /\bmessage\s*:/);
   assert.doesNotMatch(beaconSource, /\bstack\s*:/);
@@ -245,6 +263,23 @@ test('WordPress payment diagnostics never persist or return raw provider errors'
   assert.match(legacyRefundHandlerSource, /current_user_can\('manage_woocommerce'\)/);
   assert.doesNotMatch(orderNumberBridgeSource, /->getMessage\(/);
   assert.doesNotMatch(paymentShippingSource, /psp_log_pos_customer_profile_message\([^\n]*\$(?:billing_email|new_customer_id)/);
+});
+
+test('checkout failures classify raw WooGraphQL 1.0 notices and sanitized copy without echoing them', () => {
+  const gql = (message) => ({gqlErrors: [{message}]});
+  assert.equal(classifyCheckoutError(gql('Sorry, no session found.')), 'session');
+  assert.equal(classifyCheckoutError(gql('Your session expired. Refresh the page and try again.')), 'session');
+  assert.equal(classifyCheckoutError(gql('invalid_token: Signature verification failed')), 'session');
+  assert.equal(classifyCheckoutError(gql('Sorry, we do not ship to PO BOX addresses. Please provide a physical street address.')), 'po_box');
+  assert.equal(classifyCheckoutError(gql('We do not ship to PO boxes. Please enter a physical street address.')), 'po_box');
+  assert.equal(classifyCheckoutError(gql('An account already exists for those details. Please sign in or reset your password.')), 'account_exists');
+  assert.equal(classifyCheckoutError(gql('Please check your shipping address and shipping method, then try again.')), 'shipping');
+  assert.equal(
+    classifyCheckoutError(gql('The request could not be completed. Please try again. If the problem continues, contact customer service.')),
+    'other',
+  );
+  assert.equal(classifyCheckoutError(null), 'other');
+  assert.doesNotMatch(getSafeCheckoutErrorMessage(gql('Sorry, we do not ship to PO BOX 77 Secret Rd')), /Secret|77/);
 });
 
 test('WPGraphQL sanitizes every error before it leaves WordPress', async () => {

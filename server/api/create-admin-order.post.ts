@@ -39,6 +39,42 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
   throw lastError || new Error('All retry attempts failed');
 }
 
+// CreateOrderInput.createdVia exists on WPGraphQL for eCommerce 1.0+ only. WooGraphQL 0.21.1 rejects the whole
+// mutation when it is sent (variable coercion fails before anything runs), which after a Helcim charge means a
+// paid order that never gets created. Ask the live schema instead of assuming a plugin version, so one build
+// works before and after the PROD-03 cutover and after a backend rollback. Cached per isolate for 5 minutes.
+// Fails closed: if the probe fails the field is left out and the order is still created; only its admin Origin
+// then reads "GraphQL" instead of "Source: proskatersplace.ca".
+const SCHEMA_PROBE_TTL_MS = 5 * 60 * 1000;
+let createdViaProbe: {supported: boolean; checkedAt: number} | null = null;
+
+async function orderInputSupportsCreatedVia(graphqlUrl: string, headers: Record<string, string>): Promise<boolean> {
+  if (createdViaProbe && Date.now() - createdViaProbe.checkedAt < SCHEMA_PROBE_TTL_MS) return createdViaProbe.supported;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(graphqlUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({query: '{ __type(name: "CreateOrderInput") { inputFields { name } } }'}),
+      signal: controller.signal,
+    });
+    const result: any = await response.json();
+    const fields = result?.data?.__type?.inputFields;
+    if (!Array.isArray(fields)) return false;
+
+    const supported = fields.some((field: any) => field?.name === 'createdVia');
+    createdViaProbe = {supported, checkedAt: Date.now()};
+    return supported;
+  } catch (error) {
+    console.warn('CreateOrderInput schema probe failed; sending the order without createdVia:', getSafeErrorLogDetails(error));
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const config = useRuntimeConfig();
@@ -350,6 +386,17 @@ export default defineEventHandler(async (event) => {
     // Create WordPress Application Password authentication
     const appPassword = `${config.wpAdminUsername}:${config.wpAdminAppPassword}`;
     const auth = Buffer.from(appPassword).toString('base64');
+    const graphqlUrl = `${config.public.wpBaseUrl}/graphql`;
+    const graphqlHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${auth}`,
+      'User-Agent': 'WooNuxt-Admin-Order-Creator/1.0',
+      Origin: config.public.wpBaseUrl, // Match the WordPress origin
+      Referer: config.public.wpBaseUrl, // Set referrer to WordPress site
+      'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request
+      'X-Request-ID': requestId, // Include request ID for tracing
+    };
+    const sendCreatedVia = await orderInputSupportsCreatedVia(graphqlUrl, graphqlHeaders);
 
     // Build GraphQL createOrder mutation
     const mutation = `
@@ -443,6 +490,14 @@ export default defineEventHandler(async (event) => {
         isPaid: false, // Do not mark as paid yet, wait for final update
         currency: currency, // Use provided currency or default to CAD
         customerId: customerId ? parseInt(customerId) : undefined,
+        // WPGraphQL for eCommerce 1.0+: sets created_via AND overwrites `_wc_order_attribution_source_type`
+        // with this value AFTER metaData is applied (default "graphql-api" -> admin Origin column "GraphQL").
+        // "utm" keeps WooCommerce's Origin at "Source: proskatersplace.ca" (paired with
+        // _wc_order_attribution_utm_source from the client metaData, which the "Origin List & Analytics
+        // Filters" plugin reads). NEVER use a value containing "pos", "point-of-sale", "in-store" or
+        // "instore": snippet #45 (psp_order_is_instore_pos_sale) would auto-complete it as an in-store sale.
+        // Sent only when the schema has the field (orderInputSupportsCreatedVia): 0.21.1 rejects it.
+        ...(sendCreatedVia ? {createdVia: 'utm'} : {}),
 
         billing: {
           firstName: billing?.firstName || '',
@@ -606,27 +661,47 @@ export default defineEventHandler(async (event) => {
 
     // Make GraphQL request with Application Password authentication
     // Uses retry logic for better reliability
-    const graphqlUrl = `${config.public.wpBaseUrl}/graphql`;
     console.log('🌐 Making authenticated GraphQL order request. Backend URL was withheld.');
 
-    const response = await fetchWithRetry(graphqlUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${auth}`,
-        'User-Agent': 'WooNuxt-Admin-Order-Creator/1.0',
-        Origin: config.public.wpBaseUrl, // Match the WordPress origin
-        Referer: config.public.wpBaseUrl, // Set referrer to WordPress site
-        'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request
-        'X-Request-ID': requestId, // Include request ID for tracing
-      },
-      body: JSON.stringify({
-        query: mutation,
-        variables: variables,
-      }),
-    });
+    const sendOrderMutation = () =>
+      fetchWithRetry(graphqlUrl, {
+        method: 'POST',
+        headers: graphqlHeaders,
+        body: JSON.stringify({
+          query: mutation,
+          variables: variables,
+        }),
+      });
+    // No clone() here: the body is already consumed by json(), and cloning a used body throws, which would skip the
+    // _parseError branch (and its failure-ledger entry) below.
+    const readOrderResult = (orderResponse: Response): Promise<any> =>
+      orderResponse.json().catch(() => {
+        console.error(`GraphQL response is not JSON [${requestId}]. Response body was withheld.`);
+        return {_parseError: true};
+      });
+
+    let response = await sendOrderMutation();
+    let result: any = response.ok ? await readOrderResult(response) : null;
+
+    // The createdVia probe answer is cached, so a backend rolled back to 0.21.1 inside that window rejects the field.
+    // That rejection is variable coercion, before execution (HTTP 200, errors, no data): nothing was created, so one
+    // re-send without the field cannot duplicate the order. Gate on the missing data, never on the (sanitized) message.
+    if (sendCreatedVia && Array.isArray(result?.errors) && result.data == null) {
+      console.warn(`Order input rejected before execution [${requestId}]; re-sending once without createdVia.`);
+      createdViaProbe = null;
+      delete variables.input.createdVia;
+      response = await sendOrderMutation();
+      result = response.ok ? await readOrderResult(response) : null;
+    }
+
+    // Any failure re-probes the schema on the next attempt (including the stranded-charge recovery replay, which runs
+    // in this same isolate).
+    const forgetCreatedViaProbe = () => {
+      if (sendCreatedVia) createdViaProbe = null;
+    };
 
     if (!response.ok) {
+      forgetCreatedViaProbe();
       await response.text().catch(() => '');
       console.error(`❌ GraphQL HTTP Error [${requestId}]:`, {
         status: response.status,
@@ -642,13 +717,8 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    const result = await response.json().catch(async () => {
-      await response.clone().text().catch(() => '');
-      console.error(`GraphQL response is not JSON [${requestId}]. Response body was withheld.`);
-      return {_parseError: true};
-    });
-
     if (result._parseError) {
+      forgetCreatedViaProbe();
       await persistFailureForRecovery('GraphQL returned non-JSON response');
       return {
         success: false,
@@ -660,6 +730,7 @@ export default defineEventHandler(async (event) => {
 
     // Check for GraphQL errors
     if (result.errors) {
+      forgetCreatedViaProbe();
       console.error(`GraphQL order mutation failed [${requestId}]. Sensitive details were withheld.`);
       await persistFailureForRecovery('GraphQL mutation failed');
       return {
@@ -672,6 +743,7 @@ export default defineEventHandler(async (event) => {
 
     const orderData = result.data?.createOrder?.order;
     if (!orderData) {
+      forgetCreatedViaProbe();
       console.error('❌ No order data returned from GraphQL mutation');
       await persistFailureForRecovery('No order data returned from GraphQL');
       return {

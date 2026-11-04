@@ -2,7 +2,7 @@
 /**
  * Plugin Name: PSP GraphQL Public Error Sanitizer
  * Description: Prevents WPGraphQL error responses from reflecting request variables, credentials, personal data, or debug traces.
- * Version: 1.1.0
+ * Version: 1.2.1
  */
 
 if (!defined('ABSPATH')) {
@@ -41,6 +41,22 @@ function psp_get_safe_graphql_error_message($untrusted_message) {
         return 'This feature is temporarily unavailable. Please contact customer service.';
     }
 
+    // WPGraphQL for eCommerce 1.0+ rejects a bad, expired or foreign woocommerce-session JWT as
+    // "invalid_token: <reason>" (every 0.21.1 token fails once: 1.0.3 signs with a new key); 0.21.x
+    // sent the bare reason. The storefront matches this exact copy to drop the dead session and
+    // start a new one (shared/utils/wooSession.mjs SANITIZED_SESSION_TOKEN_REJECTION): keep them in
+    // sync. Must precede the "session" and "not found" rules ("Customer ID not found in the token").
+    if (preg_match('/^invalid_token:|^(?:failed to decode session token|customer id not found in the token|the iss do not match with this server|signature verification failed|expired token|wrong number of segments|invalid session token)$/', trim($message))) {
+        return 'Your cart session expired. Refresh the page to start a new one.';
+    }
+
+    // Variable coercion (`Variable "$input" got invalid value {...}; Field "authenticate" is not defined by type ...`)
+    // echoes the submitted values and can name fields like "authenticate" or "quantity", so it must be classified
+    // here, before the 2FA and stock rules would match those words. Nothing ran when this error occurs.
+    if (strpos($message, 'got invalid value') !== false) {
+        return 'Some submitted information was invalid. Review the form and try again.';
+    }
+
     if (preg_match('/2fa|two.?factor|authenticat|verification code|wfls/', $message)) {
         return 'A valid two-factor authentication code is required. Please try again.';
     }
@@ -57,7 +73,17 @@ function psp_get_safe_graphql_error_message($untrusted_message) {
         return 'The email, username, or password is incorrect. Please try again.';
     }
 
-    if (preg_match('/out of stock|not enough|only .* available|add that amount|quantity/', $message)) {
+    // WPGraphQL for eCommerce 1.0+ throws WooCommerce's own checkout notices as the error message.
+    // Keep the actionable ones actionable without echoing the submitted address.
+    if (preg_match('/\bp\.?\s?o\.?\s?box(?:es)?\b|post office box/', $message)) {
+        return 'We do not ship to PO boxes. Please enter a physical street address.';
+    }
+
+    if (preg_match('/no shipping method has been selected|we do not ship|enter an address to continue/', $message)) {
+        return 'Please check your shipping address and shipping method, then try again.';
+    }
+
+    if (preg_match('/out of stock|not in stock|not enough|do not have enough|only .* available|add that amount|quantity/', $message)) {
         return 'The requested quantity is not available. Update the quantity and try again.';
     }
 

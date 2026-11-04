@@ -48,6 +48,7 @@ const withTurnstileHeader = async <T>(turnstileToken: string | undefined, reques
 export const useAuth = () => {
   const {refreshCart} = useCart();
   const {logGQLError, clearAllCookies} = useHelpers();
+  const {installWooSession, dropWooSession} = useWooSession();
   const router = useRouter();
 
   const customer = useState<Customer>('customer', () => ({
@@ -70,6 +71,9 @@ export const useAuth = () => {
       const {login} = await withTurnstileHeader(turnstileToken, () => GqlLogin({username, password}));
 
       if (login?.user && login?.authToken) {
+        // WooGraphQL re-issues the session on login (guest cart merged into the account, or a new session if the
+        // stored token was rejected). Install it before refreshing so the refresh can't fail on the old token.
+        installWooSession(login.sessionToken);
         useGqlToken(login.authToken);
         await refreshCart();
       }
@@ -128,8 +132,13 @@ export const useAuth = () => {
     try {
       const {logout} = await GqlLogout();
       if (logout) {
-        await refreshCart();
+        // Leave as a guest on a NEW session: the old Woo session is keyed to the account (customer_id = user ID),
+        // and the Bearer token would otherwise keep authenticating the refresh below until it expires.
+        // Cookies are cleared first so the guest session the refresh installs survives.
+        useGqlToken(null);
+        dropWooSession();
         clearAllCookies();
+        await refreshCart();
         customer.value = {billing: {}, shipping: {}};
       }
       return {success: true, error: null};
@@ -155,7 +164,14 @@ export const useAuth = () => {
     isPending.value = true;
     try {
       const {email, password, turnstileToken} = registrationCredentials;
-      const {registerCustomer} = await withTurnstileHeader(turnstileToken, () => GqlRegisterCustomerWithAuth({input: {email, password}}));
+      // WPGraphQL for eCommerce 1.0+ only logs the new customer in with authenticate: true (#973). The
+      // authToken/refreshToken fields come from Headless Login's TokenManager, which refuses tokens for anyone
+      // but the current user (HTTP 400), so without the flag the call rejects even though the account was
+      // created. 0.21.1 rejects the field, so it is sent only when the live schema has it.
+      const sendAuthenticate = await useWooSchemaCapabilities().supportsAuthenticateInput();
+      const {registerCustomer} = await withTurnstileHeader(turnstileToken, () =>
+        GqlRegisterCustomerWithAuth({input: {email, password, ...(sendAuthenticate ? {authenticate: true} : {})}}),
+      );
 
       const authToken = registerCustomer?.authToken;
       if (authToken) {
@@ -165,6 +181,7 @@ export const useAuth = () => {
 
       return {success: true, signedIn: Boolean(authToken) && viewer.value !== null, error: null};
     } catch (error: any) {
+      useWooSchemaCapabilities().forgetAuthenticateInputProbe();
       logGQLError(error);
       return {success: false, signedIn: false, error: getSafeAuthenticationErrorMessage(error, 'register')};
     } finally {
@@ -178,16 +195,7 @@ export const useAuth = () => {
   // refreshCart() calls GqlGetCart() which returns WP-stored customer data,
   // and WP may return null for fields the user typed but didn't persist.
   const updateCustomer = (payload: Customer): void => {
-    const sessionToken = payload?.sessionToken;
-    if (sessionToken) {
-      useGqlHeaders({'woocommerce-session': `Session ${sessionToken}`});
-      const newToken = useCookie('woocommerce-session', {
-        path: '/',
-        sameSite: 'lax',
-        secure: import.meta.env.PROD,
-      });
-      newToken.value = sessionToken;
-    }
+    installWooSession(payload?.sessionToken);
 
     // Preserve locally-entered billing/shipping fields that WP returns as null
     const currentBilling = customer.value?.billing || {};

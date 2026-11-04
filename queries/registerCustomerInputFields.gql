@@ -1,0 +1,11 @@
+# Asks the live schema which input fields RegisterCustomerInput accepts. WPGraphQL for eCommerce 1.0+ added
+# `authenticate` (also on CreateAccountInput); WooGraphQL 0.21.1 rejects the whole mutation when it is sent.
+# Used by composables/useWooSchemaCapabilities.ts so one build works on either plugin version.
+# Keep "schema" out of this file's name: nuxt-graphql-client skips such paths and generates no Gql* function.
+query RegisterCustomerInputFields {
+  __type(name: "RegisterCustomerInput") {
+    inputFields {
+      name
+    }
+  }
+}

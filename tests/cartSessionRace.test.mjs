@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {createCartRefreshCoordinator, finalizeSuccessfulCartMutation, prepareCartSessionForMutation} from '../utils/cartRefreshCoordinator.mjs';
-import {normalizeWooCommerceSessionToken} from '../server/utils/woocommerceSession.mjs';
+import {
+  createCartRefreshCoordinator,
+  fetchCartWithSessionRecovery,
+  finalizeSuccessfulCartMutation,
+  prepareCartSessionForMutation,
+} from '../utils/cartRefreshCoordinator.mjs';
+import {normalizeWooCommerceSessionToken, sendWithWooSessionRecovery} from '../server/utils/woocommerceSession.mjs';
+import {isWooSessionTokenError} from '../shared/utils/wooSession.mjs';
+
+const rejectedSession = (reason = 'Signature verification failed') => ({gqlErrors: [{message: `invalid_token: ${reason}`}]});
 
 test('normalizes the WooCommerce session response header', () => {
   assert.equal(normalizeWooCommerceSessionToken('Session customer-session-token'), 'customer-session-token');
@@ -144,4 +152,97 @@ test('waits for a stale refresh started during the add request before installing
   await mutationFinalization;
 
   assert.deepEqual(events, [['loading'], ['session', 'new-session-token'], ['cart', successfulCart], ['refresh']]);
+});
+
+test('a cart refresh rejected for a stale session drops it and fetches once more on the new session', async () => {
+  let fetchCalls = 0;
+  let dropCalls = 0;
+  const payload = {cart: {isEmpty: true}, customer: {sessionToken: 'fresh-session-token'}};
+
+  const result = await fetchCartWithSessionRecovery({
+    fetchCart: async () => {
+      fetchCalls += 1;
+      if (fetchCalls === 1) throw rejectedSession();
+      return payload;
+    },
+    isStaleSessionError: isWooSessionTokenError,
+    dropSession: () => {
+      dropCalls += 1;
+    },
+  });
+
+  assert.equal(result, payload);
+  assert.equal(fetchCalls, 2);
+  assert.equal(dropCalls, 1);
+});
+
+test('a backend that rejects every session token cannot loop the cart refresh', async () => {
+  let fetchCalls = 0;
+
+  await assert.rejects(
+    fetchCartWithSessionRecovery({
+      fetchCart: async () => {
+        fetchCalls += 1;
+        throw rejectedSession('Provided key is too short');
+      },
+      isStaleSessionError: isWooSessionTokenError,
+      dropSession: () => {},
+    }),
+  );
+  assert.equal(fetchCalls, 2);
+});
+
+test('other cart refresh failures are rethrown without touching the session', async () => {
+  let fetchCalls = 0;
+  const timeout = new Error('Cart refresh timed out');
+
+  await assert.rejects(
+    fetchCartWithSessionRecovery({
+      fetchCart: async () => {
+        fetchCalls += 1;
+        throw timeout;
+      },
+      isStaleSessionError: isWooSessionTokenError,
+      dropSession: () => assert.fail('A non-session failure must not drop the session'),
+    }),
+    timeout,
+  );
+  assert.equal(fetchCalls, 1);
+});
+
+test('add-to-cart repeats once on the session WooGraphQL issued when the stored token was rejected', async () => {
+  const sent = [];
+  const result = await sendWithWooSessionRecovery({
+    sessionToken: 'stale',
+    send: async (token) => {
+      sent.push(token);
+      return token === 'stale'
+        ? {body: {errors: [{message: 'invalid_token: Signature verification failed'}]}, issuedToken: 'fresh'}
+        : {body: {data: {addToCart: {cart: {isEmpty: false}}}}, issuedToken: 'fresh'};
+    },
+    isStaleSessionError: isWooSessionTokenError,
+  });
+
+  assert.deepEqual(sent, ['stale', 'fresh']);
+  assert.equal(result.sessionWasReset, true);
+  assert.equal(result.sessionToken, 'fresh');
+  assert.deepEqual(result.body, {data: {addToCart: {cart: {isEmpty: false}}}});
+});
+
+test('add-to-cart sends once without a stored token or for an unrelated error', async () => {
+  for (const sessionToken of [null, 'current']) {
+    const sent = [];
+    const result = await sendWithWooSessionRecovery({
+      sessionToken,
+      send: async (token) => {
+        sent.push(token);
+        return {body: {errors: [{message: 'Sorry, this product cannot be purchased.'}]}, issuedToken: 'issued'};
+      },
+      isStaleSessionError: isWooSessionTokenError,
+    });
+
+    assert.deepEqual(sent, [sessionToken]);
+    assert.equal(result.sessionWasReset, false);
+    assert.equal(result.sessionToken, 'issued');
+  }
 });

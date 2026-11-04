@@ -2,6 +2,8 @@
 // Server-side proxy for cart quantity updates to avoid 403 errors from WordPress/Cloudflare
 import {defineEventHandler, createError, readBody} from 'h3';
 import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
+import {isWooSessionTokenError} from '#shared/utils/wooSession.mjs';
+import {forgetWooSessionCookies} from '../utils/wooSessionCookies';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -172,6 +174,15 @@ export default defineEventHandler(async (event) => {
         variables: {key, quantity},
       },
     });
+
+    if (sessionToken && isWooSessionTokenError(response.errors)) {
+      // The cart this key belongs to lives in a session WooGraphQL no longer accepts (e.g. issued before the 1.0
+      // upgrade). Don't retry against the new, empty session: drop the cookie and let the client start over.
+      // A 200 envelope, because thrown errors are rewritten to generic copy by server/plugins/sanitize-public-errors.ts.
+      console.warn('[update-cart-quantity] WooCommerce rejected the stored session.');
+      forgetWooSessionCookies(event);
+      return {success: false, code: 'session_expired'};
+    }
 
     if (response.errors && response.errors.length > 0) {
       console.error('[update-cart-quantity] Upstream GraphQL request failed. Sensitive details were withheld.');

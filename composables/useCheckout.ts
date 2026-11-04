@@ -1,5 +1,6 @@
 import type {CreateAccountInput} from '#gql';
-import {getSafeErrorLogDetails, getSafePublicErrorMessage} from '#shared/utils/publicErrorMessages.mjs';
+import {classifyCheckoutError, getSafeCheckoutErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
+import {isWooSessionTokenError} from '#shared/utils/wooSession.mjs';
 
 // Detect device type from user agent
 function detectDeviceType(): string {
@@ -160,7 +161,8 @@ export function useCheckout() {
   const processCheckout = async (isPaid = false, turnstileToken = ''): Promise<any> => {
     const {customer, viewer, loginUser} = useAuth();
     const router = useRouter();
-    const {cart, emptyCart, refreshCart, allProductsAreVirtual} = useCart();
+    const {cart, emptyCart, refreshCart, restartExpiredCartSession, allProductsAreVirtual} = useCart();
+    const {installWooSession} = useWooSession();
     const {getOrCreateAttemptId} = useCheckoutAttempt();
 
     isProcessingOrder.value = true;
@@ -448,13 +450,13 @@ export function useCheckout() {
         isPaid,
       };
 
-      // Create account
+      // Create account. CreateAccountInput is username/password (+ authenticate on WooGraphQL 1.0+); `turnstileToken`
+      // is not a field, so sending it made variable coercion reject the whole mutation. 1.0+ only logs the new
+      // customer in, and so only attaches the order to the account, with authenticate: true (#1003).
+      // 0.21.1 rejects the field, so it is sent only when the live schema has it; latent while the checkbox stays disabled.
       if (orderInput.value.createAccount) {
-        checkoutPayload.account = {
-          username,
-          password,
-          turnstileToken: turnstileToken || '', // Required field
-        } as CreateAccountInput;
+        const sendAuthenticate = await useWooSchemaCapabilities().supportsAuthenticateInput();
+        checkoutPayload.account = {username, password, ...(sendAuthenticate ? {authenticate: true} : {})} as CreateAccountInput;
       } else {
         // Remove account from checkoutPayload if not creating account
         checkoutPayload.account = null;
@@ -462,51 +464,54 @@ export function useCheckout() {
 
       console.log('[processCheckout] Finalizing order. Sensitive checkout details were withheld.');
 
+      // Charge-first rule (same as the admin path above): when isHelcimPayment is true the card is ALREADY
+      // charged. WPGraphQL for eCommerce 1.0+ runs woocommerce_after_checkout_validation with the real WP_Error,
+      // so store rules (e.g. snippet #23's PO-box block) can now reject this fallback AFTER payment. Never answer
+      // that with a retry prompt or a fresh cart: hand off to the paid-recovery flow.
+      const paidCheckoutFailure = (reason: string) => ({
+        success: false,
+        error: true,
+        paymentCaptured: true,
+        recoverable: Boolean(orderInput.value.transactionId),
+        transactionId: orderInput.value.transactionId,
+        reason,
+        errorMessage: 'Your payment was received but we could not finish creating your order automatically.',
+      });
+
       // Enhanced session management: Always refresh to get latest session token
       console.log('[processCheckout] Ensuring fresh session before checkout...');
 
-      try {
-        // Always refresh cart to ensure we have the latest session token
-        await refreshCart();
-
-        // Get the session token from cookie after refresh
-        const {getDomain} = useHelpers();
-        const sessionToken = useCookie('woocommerce-session', {
-          domain: getDomain(window?.location?.href || ''),
-        });
-
-        console.log('[processCheckout] Session validation:', {
-          hasToken: !!sessionToken.value,
-          tokenLength: sessionToken.value?.length,
-          customerHasSession: !!customer.value?.sessionToken,
-        });
-
-        // Prefer the customer.sessionToken from the refresh if available
-        const activeSessionToken = customer.value?.sessionToken || sessionToken.value;
-
-        if (activeSessionToken) {
-          useGqlHeaders({
-            'woocommerce-session': `Session ${activeSessionToken}`,
-          });
-
-          // Update cookie to match customer session token
-          if (customer.value?.sessionToken && customer.value.sessionToken !== sessionToken.value) {
-            sessionToken.value = customer.value.sessionToken;
-            console.log('[processCheckout] Updated session cookie to match customer token');
-          }
-
-          console.log('[processCheckout] Session header set for checkout');
-        } else {
-          throw new Error('Unable to establish valid session token for checkout');
-        }
-      } catch (refreshError) {
-        console.error('[processCheckout] Failed to refresh session:', getSafeErrorLogDetails(refreshError));
+      // Recovers a session WooGraphQL rejected (drops it, fetches once more) and installs customer.sessionToken.
+      // A paid order still goes ahead on the current session if this refresh fails: GqlCheckout may succeed, and
+      // any failure below hands off to paid recovery.
+      const refreshed = await refreshCart({preserveStateOnError: true}).catch(() => false);
+      if (!refreshed && !isHelcimPayment) {
+        console.error('[processCheckout] Failed to refresh the cart session before checkout.');
         return {
           success: false,
           error: true,
           errorMessage: 'Unable to establish a checkout session. Please refresh the page and try again.',
         };
       }
+
+      if (refreshed && (!cart.value || cart.value.isEmpty)) {
+        if (isHelcimPayment) return paidCheckoutFailure('gql_checkout_cart_empty_after_payment');
+        return {success: false, error: true, errorMessage: 'Your cart is empty. If you had items, your cart session expired - please add them again.'};
+      }
+
+      // Prefer the customer.sessionToken from the refresh if available. Installed host-only (no more Domain= copies).
+      const activeSessionToken = customer.value?.sessionToken || useCookie<string | null>('woocommerce-session').value;
+      if (!activeSessionToken) {
+        console.error('[processCheckout] Unable to establish valid session token for checkout');
+        if (isHelcimPayment) return paidCheckoutFailure('gql_checkout_no_session_after_payment');
+        return {
+          success: false,
+          error: true,
+          errorMessage: 'Unable to establish a checkout session. Please refresh the page and try again.',
+        };
+      }
+      installWooSession(activeSessionToken);
+      console.log('[processCheckout] Session header set for checkout');
 
       let checkout: any = null;
 
@@ -521,58 +526,35 @@ export function useCheckout() {
         checkout = result.checkout;
 
         if (checkout?.result !== 'success') {
-          let errorMessage = 'There was an error processing your order. Please try again.';
-
-          try {
-            const messages = JSON.parse(checkout?.messages || '{}');
-            if (messages.error) {
-              errorMessage = getSafePublicErrorMessage(messages.error, 'We could not complete your order. Please review your details and try again.');
-            }
-          } catch (e) {
-            if (checkout?.messages) {
-              errorMessage = getSafePublicErrorMessage(checkout.messages, 'We could not complete your order. Please review your details and try again.');
-            }
-          }
-
-          console.error('[processCheckout] Checkout failed:', {
-            result: checkout?.result,
-            hasMessages: !!checkout?.messages,
-          });
+          // CheckoutPayload has no `messages` field (the old JSON.parse branch never ran). On 1.0+ a non-success
+          // result without an exception comes from the prepaid-order validation filter or the gateway; error
+          // notices are never included in the new `notices` field.
+          console.error('[processCheckout] Checkout failed:', {result: checkout?.result});
+          if (isHelcimPayment) return paidCheckoutFailure('gql_checkout_not_successful_after_payment');
 
           // No alert() — the checkout page renders errorMessage in its in-page error state.
-          return {success: false, error: true, errorMessage};
+          return {success: false, error: true, errorMessage: getSafeCheckoutErrorMessage(null)};
         }
       } catch (gqlError: any) {
         console.error('[processCheckout] GraphQL request failed:', getSafeErrorLogDetails(gqlError));
 
-        // Check for session-related errors
-        const isSessionError = gqlError?.gqlErrors?.some((err: any) => err.message?.includes('no session found') || err.message?.includes('session'));
+        // The cart being checked out lives in a session WooGraphQL no longer accepts (e.g. issued before the 1.0
+        // upgrade); retrying would check out the new, empty session.
+        if (isWooSessionTokenError(gqlError)) {
+          if (isHelcimPayment) return paidCheckoutFailure('gql_checkout_session_rejected_after_payment');
+          return {success: false, error: true, errorMessage: await restartExpiredCartSession()};
+        }
 
-        if (isSessionError) {
+        const failureKind = classifyCheckoutError(gqlError);
+
+        if (failureKind === 'session') {
           console.log('[processCheckout] Session error detected, attempting recovery...');
 
           // Try to refresh cart and get new session token
           await refreshCart();
 
-          // Get fresh session token after refresh
-          const {getDomain} = useHelpers();
-          const freshSessionToken = useCookie('woocommerce-session', {
-            domain: getDomain(window?.location?.href || ''),
-          });
-
           // Use customer.sessionToken if available, otherwise use cookie
-          const recoveredSessionToken = customer.value?.sessionToken || freshSessionToken.value;
-
-          if (recoveredSessionToken) {
-            useGqlHeaders({
-              'woocommerce-session': `Session ${recoveredSessionToken}`,
-            });
-
-            // Update cookie if needed
-            if (customer.value?.sessionToken) {
-              freshSessionToken.value = customer.value.sessionToken;
-            }
-          }
+          installWooSession(customer.value?.sessionToken || useCookie<string | null>('woocommerce-session').value);
 
           try {
             console.log('[processCheckout] Retrying checkout after session refresh...');
@@ -585,21 +567,15 @@ export function useCheckout() {
             console.log('[processCheckout] Retry successful!');
           } catch (retryError) {
             console.error('[processCheckout] Retry failed:', getSafeErrorLogDetails(retryError));
-            return {
-              success: false,
-              error: true,
-              errorMessage: 'Your session expired. Please refresh the page and try again.',
-            };
+            if (isHelcimPayment) return paidCheckoutFailure('gql_checkout_session_retry_failed');
+            return {success: false, error: true, errorMessage: getSafeCheckoutErrorMessage(retryError)};
           }
         } else {
           // Other GraphQL errors. Raw GraphQL/transport messages are technical noise (or worse,
           // alarming) to a shopper — log them, but show a customer-safe message in the page.
-          console.error('[processCheckout] Non-session GraphQL failure. Sensitive details were withheld.');
-          return {
-            success: false,
-            error: true,
-            errorMessage: 'We could not complete your order. Please review your details and try again, or contact customerservice@proskatersplace.com for help.',
-          };
+          console.error('[processCheckout] Non-session GraphQL failure. Sensitive details were withheld.', {failureKind});
+          if (isHelcimPayment) return paidCheckoutFailure(`gql_checkout_failed_after_payment:${failureKind}`);
+          return {success: false, error: true, errorMessage: getSafeCheckoutErrorMessage(gqlError), needsLogin: failureKind === 'account_exists'};
         }
       }
 
@@ -631,24 +607,16 @@ export function useCheckout() {
 
       return {success: true, orderId, orderKey};
     } catch (error: any) {
-      const untrustedErrorMessage = error?.gqlErrors?.[0]?.message;
-
       console.error('[processCheckout] Checkout failed:', getSafeErrorLogDetails(error));
 
-      if (untrustedErrorMessage?.includes('An account is already registered with')) {
-        const accountErrorMsg = 'An account is already registered with your email address. Please log in to continue.';
-        return {
-          success: false,
-          error: true,
-          errorMessage: accountErrorMsg,
-          needsLogin: true,
-        };
+      if (classifyCheckoutError(error) === 'account_exists') {
+        return {success: false, error: true, errorMessage: getSafeCheckoutErrorMessage(error), needsLogin: true};
       }
 
       return {
         success: false,
         error: true,
-        errorMessage: getSafePublicErrorMessage(error, 'We could not complete your order. Please review your details and try again, or contact customer service.'),
+        errorMessage: 'We could not complete your order. Please review your details and try again, or contact customer service.',
       };
     } finally {
       isProcessingOrder.value = false;
