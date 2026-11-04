@@ -55,10 +55,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * The explicit orderby is REQUIRED: without a stable sort WPGraphQL's cursor
  * pagination terminates early and silently (an early feed run collected 351 of
  * 1,707 products because of exactly that).
+ *
+ * The explicit status: "publish" is REQUIRED too. Without it WPGraphQL selects
+ * drafts and then hides them, so `found` counts drafts (1,724 vs 1,111 after the
+ * Oct 2026 draft restore, which failed the truncation guard below every night) and
+ * a page made only of drafts comes back with no endCursor.
  */
 const PRODUCTS_QUERY = `
   query HarvestProducts($first: Int!, $after: String) {
-    products(first: $first, after: $after, where: {orderby: {field: DATE, order: DESC}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
+    products(first: $first, after: $after, where: {status: "publish", orderby: {field: DATE, order: DESC}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
       found
       pageInfo { hasNextPage endCursor }
       nodes {

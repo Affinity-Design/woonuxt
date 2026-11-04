@@ -31,7 +31,11 @@ if (isNaN(BUILD_TIME_EXCHANGE_RATE_USD_TO_CAD) || BUILD_TIME_EXCHANGE_RATE_USD_T
 // Configuration
 const CONFIG = {
   WP_GRAPHQL_URL: process.env.GQL_HOST,
-  BATCH_SIZE: 10,
+  // The query asks for status "publish": without it WPGraphQL selects drafts and hides them afterwards, so a page of
+  // only drafts came back with no endCursor and the old loop restarted from the top forever (36-minute build timeout
+  // after the Oct 2026 draft restore). 100 per page (WPGraphQL's maximum) also cuts ~112 requests to 12.
+  BATCH_SIZE: 100,
+  MAX_BATCHES: 200,
   BATCH_DELAY: 500,
   IS_BUILD_MODE: isBuildMode,
   MAX_PRODUCTS: maxProducts,
@@ -46,7 +50,7 @@ const CONFIG = {
 // GraphQL query (ensure it's correct and matches your backend schema)
 const PRODUCTS_QUERY = `
 query GetProductsForSearch($first: Int!, $after: String, $orderby: ProductsOrderByEnum = DATE, $order: OrderEnum = DESC) {
-  products(first: $first, after: $after, where: {orderby: {field: $orderby, order: $order}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
+  products(first: $first, after: $after, where: {status: "publish", orderby: {field: $orderby, order: $order}, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL]}) {
     pageInfo {
       hasNextPage
       endCursor
@@ -181,6 +185,8 @@ async function fetchAndProcessProducts() {
   let hasNextPage = true;
   let endCursor = null;
   let batchCount = 0;
+  const seenProductIds = new Set();
+  const seenCursors = new Set();
 
   if (!CONFIG.WP_GRAPHQL_URL) {
     throw new Error('GQL_HOST is not defined in environment variables. Cannot populate product KV.');
@@ -188,6 +194,10 @@ async function fetchAndProcessProducts() {
 
   while (hasNextPage) {
     batchCount++;
+    if (batchCount > CONFIG.MAX_BATCHES) {
+      console.warn(`⚠️  Stopped after ${CONFIG.MAX_BATCHES} batches (${allProducts.length} products): pagination did not end.`);
+      break;
+    }
     console.log(`Fetching product batch ${batchCount}, cursor: ${endCursor || 'Start'}`);
     if (CONFIG.IS_BUILD_MODE && CONFIG.MAX_PRODUCTS !== null && allProducts.length >= CONFIG.MAX_PRODUCTS) {
       console.log(`Reached build mode limit of ${CONFIG.MAX_PRODUCTS}. Stopping fetch.`);
@@ -225,7 +235,13 @@ async function fetchAndProcessProducts() {
         // It's possible there are no products, which is valid. Check pageInfo.
         if (result.data.products && result.data.products.pageInfo) {
           hasNextPage = result.data.products.pageInfo.hasNextPage;
-          endCursor = result.data.products.pageInfo.endCursor;
+          const nextCursor = result.data.products.pageInfo.endCursor;
+          if (hasNextPage && (!nextCursor || seenCursors.has(nextCursor))) {
+            console.warn(`⚠️  Pagination stopped at batch ${batchCount} with ${allProducts.length} products: no usable cursor.`);
+            hasNextPage = false;
+          }
+          if (nextCursor) seenCursors.add(nextCursor);
+          endCursor = nextCursor;
           if (!hasNextPage) console.log('No more products to fetch according to pageInfo.');
           // Continue to next iteration or break if desired
           if (hasNextPage && CONFIG.BATCH_DELAY > 0) await delay(CONFIG.BATCH_DELAY);
@@ -236,7 +252,15 @@ async function fetchAndProcessProducts() {
       }
       // --- END: Robust Error Handling ---
 
-      const fetchedNodes = (result.data.products.nodes || []).filter((p) => p && p.slug); // Filter out null nodes from unsupported product types
+      // Filter out null nodes from unsupported product types, and anything already collected (a cursor that
+      // jumps back must never duplicate products).
+      const fetchedNodes = (result.data.products.nodes || []).filter((p) => {
+        if (!p || !p.slug) return false;
+        const productKey = p.databaseId ?? p.slug;
+        if (seenProductIds.has(productKey)) return false;
+        seenProductIds.add(productKey);
+        return true;
+      });
 
       const productsWithCadPrices = fetchedNodes.map((product) => {
         const convertedProduct = {...product};
@@ -298,9 +322,17 @@ async function fetchAndProcessProducts() {
       }
 
       if (hasNextPage) {
-        // Check if we should continue based on previous logic
         hasNextPage = result.data.products.pageInfo.hasNextPage;
-        endCursor = result.data.products.pageInfo.endCursor;
+        const nextCursor = result.data.products.pageInfo.endCursor;
+        // Never fall back to the start: a missing or repeated cursor can only restart or repeat the list.
+        if (hasNextPage && (!nextCursor || seenCursors.has(nextCursor))) {
+          console.warn(
+            `⚠️  Pagination stopped at batch ${batchCount} with ${allProducts.length} products: WPGraphQL reported more pages but ${nextCursor ? 'repeated a cursor' : 'returned no cursor'}.`,
+          );
+          hasNextPage = false;
+        }
+        if (nextCursor) seenCursors.add(nextCursor);
+        endCursor = nextCursor;
       }
       if (hasNextPage && CONFIG.BATCH_DELAY > 0) await delay(CONFIG.BATCH_DELAY);
     } catch (error) {

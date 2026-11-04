@@ -43,7 +43,7 @@ const CONFIG = {
 // GraphQL Queries
 const PRODUCTS_QUERY = `
   query GetAllProductsForSitemap($first: Int!, $after: String) {
-    products(first: $first, after: $after, where: { orderby: { field: DATE, order: DESC }, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL] }) {
+    products(first: $first, after: $after, where: { status: "publish", orderby: { field: DATE, order: DESC }, typeIn: [SIMPLE, VARIABLE, GROUPED, EXTERNAL] }) {
       pageInfo {
         hasNextPage
         endCursor
