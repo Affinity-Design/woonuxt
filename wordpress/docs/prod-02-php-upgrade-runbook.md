@@ -22,7 +22,7 @@ Scope: the shared WordPress/WooCommerce backend `ProSkatersPlace-PROD-02`. It se
 
 - PROD-02 (from the Lightsail console):
   - Bitnami WordPress, "no longer maintained"; bundle 32 GB RAM / 8 vCPU / 640 GB SSD; zone us-east-1a; dual-stack networking.
-  - Static IP `ProSkatersPlace-IP-02` = `54.205.226.65`; private IPv4 `172.26.9.66`; IPv6 `2600:1f18:1d9:8700:561e:5335:6a48:e28d`. IPv6 changes only if IPv6 is disabled and re-enabled.
+  - Static IP `ProSkatersPlace-IP-02` = `54.205.226.65`; private IPv4 `172.26.9.66`; IPv6 (see the Lightsail console; not published here). IPv6 changes only if IPv6 is disabled and re-enabled.
   - Current PHP version unknown, but the console's CVE banner means it's below the fixed release.
 - PROD-02 IPv4 firewall:
   - HTTPS 443 from 22 source CIDRs (presumably Cloudflare's ranges; copy them exactly).
@@ -388,13 +388,20 @@ Schedule the window clear of 07:15 UTC, when the nightly feed job runs. Have the
 - [ ] **Freeze check on PROD-02** (still running; set `W` as in Phase 1):
   - `$W db query < ~/fp.sql | diff ~/freeze-fingerprint.txt -`
   - `sudo find "$(readlink -f /opt/bitnami/wordpress/wp-content)/uploads" -newer ~/freeze-dump-time -type f | head`
-  - Any difference means a final re-sync: a fresh dump; on PROD-03 `wp db reset --yes`, the import and its gate, `wp core update-db && wp wc update`; rsync the `wp-content` delta and re-apply ownership; re-run the Phase 3 search-replace and FlyingPress steps and Wordfence's Optimize; then home, a product and `/graphql` via `--resolve`.
+  - Any difference means a final re-sync: a fresh dump; on PROD-03 `wp db reset --yes`, the import and its gate, `wp core update-db && wp wc update`; rsync the `wp-content` delta and re-apply ownership; run `~/prod03-post-import.sh` (`wordpress/scripts/`: search-replace, snippet clean-up, MyISAM → InnoDB), the FlyingPress steps and Wordfence's Optimize; then home, a product and `/graphql` via `--resolve`.
 - [ ] Remove `~/.ssh/xfer*` on PROD-03 and its line in PROD-02's `authorized_keys`.
 - [ ] **Past-due review on PROD-03**, before its scheduler starts. PROD-02 ran nothing after the dump, so these jobs run once, on PROD-03. Cancel only stale one-off customer-facing sends, by hook. Never bulk-cancel: that also cancels the DB-update callbacks.
   - `wp db query "SELECT hook,COUNT(*) FROM $(wp db prefix)actionscheduler_actions WHERE status='pending' AND scheduled_date_gmt < UTC_TIMESTAMP() GROUP BY hook"`; cancel in Tools → Scheduled Actions.
   - `wp cron event list --fields=hook,next_run_gmt,next_run_relative`; `wp cron event delete <hook>` for stale one-offs.
   - If FunnelKit Automations is active, its own queue: `wp db query "SHOW TABLES LIKE '%bwf%'"`, then the same check.
 - [ ] **PROD-03 firewall, before the IP move.** IPv4: 443 from the 22 Cloudflare CIDRs recorded in Phase 1, keeping your `/32` for now. PROD-02 has no port 80 rule; don't add one. IPv6: no 80/443 rules, since there's no proxied AAAA for the origin (Phase 1). SSH: browser SSH.
+- [ ] **Error sanitizer 1.2.1 on PROD-02 too**, while it still serves, so a rollback keeps the stale-cart recovery and the plain "invalid information" copy. It only changes GraphQL error wording (the .com theme doesn't use GraphQL). In PROD-02's browser terminal:
+  ```
+  F=$(readlink -f /opt/bitnami/wordpress/wp-content)/mu-plugins/psp-graphql-error-sanitizer.php
+  curl -fsSL https://raw.githubusercontent.com/Affinity-Design/woonuxt/master/wordpress/mu-plugins/psp-graphql-error-sanitizer.php -o /tmp/s.php && php -l /tmp/s.php && grep -q 'Version: 1.2.1' /tmp/s.php && sudo cp "$F" ~/psp-graphql-error-sanitizer.php.bak && sudo install -o "$(stat -c %U "$F")" -g "$(stat -c %G "$F")" -m "$(stat -c %a "$F")" /tmp/s.php "$F" && grep -m1 Version "$F"
+  ```
+  Then a bad token, `curl -s https://proskatersplace.com/graphql -H 'Content-Type: application/json' -H 'woocommerce-session: Session not.a.token' -d '{"query":"{ cart { total } }"}'`, should return "Your cart session expired…". If 0.21.1 still yields the generic copy, it hides the reason and rollback recovery stays as described under Rollback.
+- [ ] **.ca frontend is already on the dual-version build** (it went to `master` before the window; see the execution log). Confirm the production Pages deployment is that commit, not `40e5ae0b`. No .ca deploy happens in the window.
 - [ ] **Stop PROD-02.** Don't delete it.
 - [ ] Lightsail → Networking → static IP: **detach from PROD-02, attach to PROD-03.**
 - [ ] Straight away, from a machine with no hosts override: `curl -sS -o /dev/null -w '%{http_code}\n' https://proskatersplace.com/`, and the same for `/graphql`. 200 means carry on; 522 points to the firewall, 526 to the certificate. Then remove your `/32` from 80 and 443 and confirm with `aws lightsail get-instance-port-states --instance-name ProSkatersPlace-PROD-03`, checking both `cidrs` and `ipv6Cidrs`. SSH stays browser SSH only.
@@ -455,6 +462,7 @@ The go/no-go owner (D5) decides each step. Orders stay closed until every gate p
   5. On PROD-02, cancel the pending actions PROD-03 already ran (and the same in FunnelKit's queue if it's active). Only then uncomment its wp-cron lines and restore `DISABLE_WP_CRON` to its Phase 1 value. It was stopped with its scheduler off, so nothing fires before this. Re-enter any exported orders and customers.
   6. Purge the .com zone (the *Cache Purge* holder) and .ca `NUXT_CACHE` with the Phase 5 command, then `gh workflow run warm-cache-on-deploy.yml`.
   7. If an AAAA record was repointed instead of deleted, the DNS owner points it back at PROD-02's IPv6 (recorded in Phase 1; it survives stop/start).
+- **.ca frontend:** the current build works on both plugin stacks (it asks the schema before sending the three 1.0-only input fields), so a backend rollback needs no frontend change. Shoppers who browsed during the PROD-03 window hold session tokens PROD-02 rejects; they only get the clean "cart expired" recovery if PROD-02 runs error sanitizer ≥ 1.2.0 (Phase 5 installs 1.2.1). Without it their first cart request fails, cookies are cleared, and signed-in shoppers are signed out once. Cloudflare's rollback target from before this change is deployment `40e5ae0b` (commit `6145604f`). Don't roll back to it while PROD-03 serves: on 1.0.3 it prints `$$12.00&nbsp;CAD` shipping costs, can't sign up customers, and has no stale-session recovery.
 - **A Code Snippet fatals:** add `define('CODE_SNIPPETS_SAFE_MODE', true);` to `/var/www/wp-config.php`, deactivate the snippet, then remove the constant.
 - Keep PROD-02 (stopped) and its snapshots for at least 14 days. Lightsail still bills stopped instances. Deleting an instance also deletes its automatic snapshots, so before deleting PROD-02, run *Keep snapshot* on its newest automatic snapshot and confirm it now shows under manual snapshots.
 
@@ -465,7 +473,7 @@ The go/no-go owner (D5) decides each step. Orders stay closed until every gate p
   - Recovered products are drafts: no public URL, no sitemap entry and no feed entry until published.
   - Published products that were deleted have been 404ing. Republishing them with their original IDs and slugs restores the old URLs, unless a stored redirect intercepts them (Phase 2 lists those).
 - **CA (.ca):**
-  - Relies on WPGraphQL data and schema, the application password (Helcim admin orders), the contact relay route, and KV caches. Phase 5 purges `NUXT_CACHE` only and re-warms it. No .ca rebuild is needed, because PROD-03 carries PROD-02's data.
+  - Relies on WPGraphQL data and schema, the application password (Helcim admin orders), the contact relay route, and KV caches. Phase 5 purges `NUXT_CACHE` only and re-warms it. No .ca rebuild is needed, because PROD-03 carries PROD-02's data and the .ca build already supports both plugin versions.
   - Don't create, rotate or revoke application passwords, and change no Pages env vars (`GQL_HOST`, `BASE_URL`, `WP_ADMIN_*`) for this migration. The migrated DB keeps the current app password valid on both PROD-02 and PROD-03, so rollback keeps working.
   - Drafts aren't exposed to unauthenticated GraphQL.
   - With test's origin down, `.ca` builds introspect whichever backend `GQL_HOST` names. Avoid production .ca builds during the Phase 5 outage window; builds before or after it are safe. The nightly "Refresh merchant feed" job pushes to master and so starts a build, which is why Phase 5 disables it and freezes pushes for the window.
@@ -481,3 +489,77 @@ The go/no-go owner (D5) decides each step. Orders stay closed until every gate p
 6. Are the premium plugin licences active, and is there a Slider Revolution purchase code? **Answered: licences are active.**
 7. Who owns PHP security updates and the monthly snapshot on PROD-03 after cutover? **Answered: the owner's team ("should be fine").** Phase 3 should still enable `unattended-upgrades` for the Sury PHP packages, so CVE fixes land without anyone remembering.
 8. Should the optional Cloudflare WAF rule enforce the content freeze (Phase 3)? **Open.** Recommended: yes, for the length of the window. It's one rule, removed after cutover.
+
+## Execution log
+
+**2026-11-04**
+- **Change of plan (owner-approved):** PROD-02 runs **PHP 8.0.17**, so WPGraphQL for eCommerce 1.0.3 (needs PHP 8.1) can't be activated there. The GraphQL plugin swap and the removal of the patch snippets (#87, #38, and the stub in #40) move to PROD-03, after it's verified on the current plugins and before the static IP moves. **Hold before the IP move:** the owner signs in to PROD-03 and checks everything is there first.
+- Baseline snapshot `PROD-02-pre-php84-20261104` started. The interim `PROD-02-after-trash-restore-20261030` is Available.
+- GraphQL-related snippets #38, #40, #47, #87 and #88 exported to `wordpress/snippets/live-2026-11-04/`. #47 ("Allow PSP.ca headers") is dead code: it POSTs every completed order to a `.ca` `/api/sync-order` route that returns 404.
+- PROD-02 facts from Site Health:
+  - WordPress 7.1.4, PHP **8.0.17** (FPM), MariaDB 10.6.7
+  - memory_limit 1024M, upload_max_filesize 80M, time limit 300
+  - WooCommerce 11.2.1, WPGraphQL 2.9.1, WooGraphQL 0.21.1, Headless Login 0.4.1, Smart Cache 2.0.1 (inactive)
+- **PROD-03 created**:
+  - `ProSkatersPlace-PROD-03`, blueprint `wordpress_ls_1_0` (WordPress 7.1.4), 32 GB, us-east-1a, automatic snapshots on
+  - temporary IPv4 `184.198.166.240`, private `172.26.4.6`, IPv6 (see the Lightsail console; not published here)
+  - Firewall: HTTP, HTTPS and SSH only from the operator's office IP (`/32`), plus Lightsail browser SSH; IPv6 rules removed.
+  - Migration SSH key `psp-migrate-20261104` installed for `admin` by the launch script. **Remove it after cutover.**
+- PROD-03 Debian 12, OS updates applied (covers the console's CVE-2026-98432 notice). **PHP 8.4.27** installed from packages.sury.org.
+  - Apache switched to mpm_event + php8.4-fpm.
+  - `/etc/php/psp-overrides.ini` (1024M, 80M, 300s, max_input_vars 10000, `session.upload_progress.enabled = 0`, `expose_php = Off`) linked into fpm and cli.
+  - Pool: dynamic, max_children 120.
+  - **CVE gate passed:** the web probe shows `8.4.27 fpm-fcgi`, upload_progress off.
+- phpMyAdmin symlink removed from the docroot (it answered 200); modules rewrite, headers and expires enabled.
+- Debian's `AllowOverride None` on `/var/www/` is still to be handled with the permalink rules after the import.
+- Blueprint boot script `/opt/lightsail/scripts/configure_apache_php.sh` only writes the apache2-SAPI ini and the prefork config, so it doesn't touch FPM.
+- Transfer key `prod03-xfer-20261104` generated on PROD-03 (`~/.ssh/xfer`).
+- Claude's auto-mode safety check blocked Claude from opening SSH on PROD-02 (firewall change and browser terminal), so the PROD-02 step is pasted by the owner.
+- **PROD-02 prep** was pasted by the owner, then the data came across over the private network as a tar stream, since PROD-02 has no rsync.
+  - Bitnami's `sudo wp` runs as `daemon` and couldn't write the dump into `~bitnami/migrate`, so the dump was streamed straight to PROD-03 (`db export -`, 1.05 GB, "Dump completed 2026-11-04 19:03:54").
+  - Row counts and the freeze fingerprint are in PROD-03 `~/import/`.
+- **PROD-02 inventory highlights:**
+  - DB 2.8 GB; uploads 5.5 GB. `wp-content/updraft` holds 24 GB of old UpdraftPlus backups (not copied to the web root).
+  - Cloudflare Origin CA cert valid to 2037, copied to `/etc/ssl/psp/`.
+  - Redis 5.0 object cache (`psp_prod:` prefix).
+  - HPOS on.
+  - Crons: root hourly `wp-cron.php`, bitnami `*/5` curl `wp-cron.php` through Cloudflare, monthly php-fpm restart.
+  - Wordfence `.user.ini`/`wordfence-waf.php` present (not copied).
+  - Orders are halted by **WooCommerce Maintenance Mode** (`woo_maint_disable_addcart` makes products non-purchasable). All payment gateways stay enabled.
+  - Home and siteurl in the DB are `http://127.0.0.1` (hidden by Bitnami constants).
+- **PROD-03 install:**
+  - wp-config built from the blueprint's DB credentials (the password resolved once into a literal, replacing the blueprint's per-request `shell_exec`) plus PROD-02's salts and settings; `WP_HOME`/`WP_SITEURL` fixed to `https://proskatersplace.com`; Redis constants; `DISABLE_WP_CRON`.
+  - wp-content in place without `updraft`/`cache`/`wflogs`. Hold mu-plugin `000-psp-migration-hold.php` stops Action Scheduler, all mail and marketing syncs (Klaviyo and others); the header-gated `X-PSP-Migration-Test` switch only exists for testing.
+  - Import: 14/14 table counts match; HPOS yes.
+  - Apache vhost `proskatersplace.conf` (origin cert, `AllowOverride All`, xmlrpc and akismet rules ported); search-replace of `/opt/bitnami/wordpress` made 99,213 changes (Wordfence file index, Yoast OG meta, 18 options).
+  - PHP extensions added: gmp, ldap, memcached, tidy, sqlite3, imap; `redis-server` installed.
+- **Phase 4 on the old plugins: pass.** Pages match PROD-02 (status, title, canonical); robots.txt identical; GraphQL product and prices identical; schema 20/20; no fatals. About 1,000 PHP 8.4 deprecation notices from plugins, non-blocking.
+- **GraphQL swap on PROD-03:**
+  - WPGraphQL 2.9.1 → **2.26.1**, Headless Login 0.4.1 → **0.4.4** (JWT security fix), WooGraphQL 0.21.1 → **WPGraphQL for eCommerce 1.0.3** (GitHub zips have no top-level folder, so they were renamed into the canonical folders).
+  - Snippets **#87 and #38 off**, **#88 deleted**, the dead `codecept_debug` stub removed from **#40** (only 0.21.1 called it).
+  - `~/post-import.sh` re-applies all DB-level changes after any re-sync.
+  - Old plugin folders are in `~/plugin-backup/`; `~/plugin-stack.sh old|new` switches stacks.
+- **1.0.3 regression found and fixed: Canadian carts priced in USD.** 1.0.3 flags GraphQL requests as REST and builds the customer only on `init_graphql_request`, after Price Based on Country's `woocommerce_init` check, so frontend pricing is skipped.
+  - The same Toronto cart was $76.99 CAD (total $87.00 with HST) on 0.21.1 and US$54.97 on 1.0.3.
+  - Fix: new mu-plugin `wordpress/mu-plugins/psp-graphql-pricing-zone.php` runs `wcpbc()->frontend_pricing_init()` on `init_graphql_request` priority 20. Retested: CAD $76.99 / $87.00 restored; US visitors stay in USD.
+  - **Deploy it to production together with 1.0.3.**
+- 1.0.3 checks passing:
+  - schema stable 20/20
+  - all queries and mutations .ca uses present (incl. `validateCheckoutData`)
+  - Helcim Payment + Credit/Debit Card listed for CA
+  - `format: RAW` works on `ShippingRate.cost`
+  - an invalid or stale session token now returns an error (frontend recovery needed)
+- **Open:** Toronto `availableShippingMethods.rates` is `null` over HTTP on both stacks (old and new), so it isn't caused by the swap. Under investigation.
+- **Toronto `rates: null` explained: test artifact, not the migration.**
+  - The test postcode M9W 4Y6 is the store's own postcode and the only location in zone 3 "POS" (zone_order 0). Its only method, `local_pickup:8`, is removed for non-staff by snippet #45 (`psp_filter_shipping_methods_by_role`), leaving no rates.
+  - Same on 0.21.1 and on live. **Pre-existing:** a real customer at M9W 4Y6 sees no shipping options, and M9W (Etobicoke) isn't in the "GTA 50km" zone, so it gets Rest-of-Ontario rates.
+  - With M5V 2T6 the .ca request sequence returns zone 8 rates in CAD (Store Pickup $0, Courier Ground $12, Next Day $14), and `ChangeShippingMethod` → `table_rate:17:2` gives a total of $99.00 CAD on 1.0.3.
+  - **1.0.3 display change to fix in the frontend:** `ShippingRate.cost` is now formatted (`"$12.00&nbsp;CAD"`, was `"12"`), and `components/shopElements/ShippingOptions.vue` prints `$` in front, so it would read `$$12.00&nbsp;CAD`. Use `cost(format: RAW)`.
+  - Once a table rate is chosen, `cod` (labelled "Helcim Payment") drops out of `paymentGateways` because COD allows only `local_pickup`; the frontend falls back to its built-in Helcim entry (pre-existing).
+- **Owner sign-in check on PROD-03 passed** (separate Chrome profile mapping the domain to PROD-03). WooCommerce → Status: PHP 8.4.27, MariaDB 10.11, WP 7.1.4, WC 11.2.1 (DB current), GraphQL for eCommerce 1.0.3, WPGraphQL 2.26.1, Headless Login 0.4.4, HPOS, Redis; 1,729 products, 2,624 variations. WP Debug on, WP-Cron off and no `HTTP_CF_IPCOUNTRY` are expected until cutover.
+- **MyISAM → InnoDB on PROD-03.** 43 tables (107 MB, including `wp_posts`, `wp_users`, `wp_usermeta`, the term tables, `wp_woocommerce_order_items` and `wp_woocommerce_sessions`) converted in 10 s by section 4 of `wordpress/scripts/prod03-post-import.php`. Row counts identical before and after; 0 MyISAM left. Backup of the 43 tables: `~/backup-myisam-20261104-1950.sql.gz`. Any re-sync from PROD-02 brings MyISAM back, and `prod03-post-import.sh` converts it again. PROD-02 is untouched.
+  - Pre-existing, not fixed: mixed table collations (`wp_postmeta` utf8mb4_unicode_ci, `wp_wc_orders_meta` utf8mb4_unicode_520_ci) make the Orders screen's UTM-source filter log "Illegal mix of collations". Same on PROD-02.
+- **Error sanitizer v1.2.0** installed on PROD-03 (v1.1.0 kept as `~/psp-graphql-error-sanitizer.php.v110.bak`). A stale `woocommerce-session` token now returns "Your cart session expired. Refresh the page to start a new one." plus a new session header, which the .ca frontend uses to start a fresh cart.
+- `GRAPHQL_WOOCOMMERCE_SECRET_KEY` is not defined, so 1.0.3 signs sessions with `wp_salt()` (64 characters). If it's ever defined, it must be at least 32 bytes.
+- **.ca frontend for 1.0.3 made dual-version and shipped before cutover.** Codegen passes against live PROD-02 (0.21.1) and PROD-03 (1.0.3). `authenticate` (registration, checkout account) and `createdVia` (Helcim admin order) are sent only when the live schema has them. Cloudflare Pages project `prod` builds `master` against `GQL_HOST=https://proskatersplace.com/graphql`, so it follows the static IP; preview builds are off.
+
