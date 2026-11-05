@@ -1,0 +1,5 @@
+[mysqld]
+# PSP PROD-03 (2026-11-05): identical Rank Math/Woo lookups are served from cache between writes.
+query_cache_type = 1
+query_cache_size = 256M
+query_cache_limit = 4M
