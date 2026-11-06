@@ -435,7 +435,7 @@ export default defineNuxtConfig({
         // WebSite node in pages/index.vue still resolves its publisher.
         //
         // @type SportingGoodsStore is a subtype of both Organization and
-        // LocalBusiness, so the real Etobicoke retail location earns local
+        // LocalBusiness, so the real Mississauga retail location earns local
         // signals — and currenciesAccepted/paymentAccepted become valid
         // properties (they are not defined on bare Organization).
         {
@@ -454,10 +454,10 @@ export default defineNuxtConfig({
             telephone: '+1-416-739-2929',
             address: {
               '@type': 'PostalAddress',
-              streetAddress: '110 Galaxy Blvd',
-              addressLocality: 'Etobicoke',
+              streetAddress: '7045 Tranmere Dr, Unit 4',
+              addressLocality: 'Mississauga',
               addressRegion: 'ON',
-              postalCode: 'M9W 4Y6',
+              postalCode: 'L5S 1M2',
               addressCountry: 'CA',
             },
             contactPoint: {

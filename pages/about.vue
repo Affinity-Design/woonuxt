@@ -47,10 +47,10 @@ useHead({
           foundingDate: String(businessStartYear),
           address: {
             '@type': 'PostalAddress',
-            streetAddress: '110 Galaxy Blvd',
-            addressLocality: 'Etobicoke',
+            streetAddress: '7045 Tranmere Dr, Unit 4',
+            addressLocality: 'Mississauga',
             addressRegion: 'ON',
-            postalCode: 'M9W 4Y6',
+            postalCode: 'L5S 1M2',
             addressCountry: 'CA',
           },
         },
@@ -86,8 +86,8 @@ useHead({
         <div class="space-y-6 text-lg leading-relaxed text-gray-700">
           <h2 class="text-3xl font-bold text-primary">Built Around Better Skate Advice</h2>
           <p>
-            We are based in Etobicoke and work with skaters across Toronto, the GTA, Ontario, and the rest of Canada. Our team focuses on fit, intended use, and
-            long-term comfort so beginners, fitness skaters, urban skaters, derby skaters, and returning skaters can choose equipment with more confidence.
+            We are based in Mississauga and work with skaters across Toronto, the GTA, Ontario, and the rest of Canada. Our team focuses on fit, intended use,
+            and long-term comfort so beginners, fitness skaters, urban skaters, derby skaters, and returning skaters can choose equipment with more confidence.
           </p>
           <p>
             Our lineup includes
@@ -97,7 +97,10 @@ useHead({
             </template>
             We keep the brand list focused on what we actually carry, then pair that selection with sizing help, parts guidance, and support after the order.
           </p>
-          <p>Visit us at 110 Galaxy Blvd for in-store shopping during posted shopping hours, use order pickup for online orders, or shop online any time.</p>
+          <p>
+            Visit us at 7045 Tranmere Dr, Unit 4 in Mississauga for in-store shopping during posted shopping hours, use order pickup for online orders, or shop
+            online any time.
+          </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <NuxtLink
               to="/categories"

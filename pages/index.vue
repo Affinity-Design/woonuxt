@@ -149,7 +149,7 @@ const homepageFAQs = [
   {
     question: 'Do you have a physical store in Toronto?',
     answer:
-      'Yes! Our Toronto showroom is located at 110 Galaxy Blvd in Etobicoke. In-store shopping hours are Wednesday 2-7pm and Saturday 12-7pm. Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm, plus Wednesday and Saturday 12-7pm. We also serve customers online across Canada 24/7.',
+      'Yes! Our Greater Toronto Area showroom is located at 7045 Tranmere Dr, Unit 4 in Mississauga. In-store shopping hours are Wednesday 2-7pm and Saturday 12-7pm. Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm, plus Wednesday and Saturday 12-7pm. We also serve customers online across Canada 24/7.',
   },
   {
     question: 'What brands of roller skates and inline skates do you carry?',
@@ -398,7 +398,7 @@ const homepageFAQs = [
               </li>
               <li class="flex items-start">
                 <Icon name="mdi:check-circle" class="w-7 h-7 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                <div><strong>Toronto Showroom:</strong> Visit our Etobicoke location for in-person fitting and product demos</div>
+                <div><strong>Toronto Showroom:</strong> Visit our Mississauga location for in-person fitting and product demos</div>
               </li>
             </ul>
             <div class="pt-4">

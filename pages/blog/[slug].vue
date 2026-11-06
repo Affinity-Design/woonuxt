@@ -64,7 +64,7 @@ useHead({
           },
           address: {
             '@type': 'PostalAddress',
-            addressLocality: 'Toronto',
+            addressLocality: 'Mississauga',
             addressRegion: 'ON',
             addressCountry: 'CA',
           },

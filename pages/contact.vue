@@ -101,7 +101,7 @@ const {setCanadianSEO} = useCanadianSEO();
 setCanadianSEO({
   title: 'Contact ProSkaters Place | Toronto Skate Shop | Expert Help',
   description:
-    'Contact ProSkaters Place Toronto for expert advice on inline skates, roller skates & protective gear. Visit our Etobicoke shop, call, or message us. Free shipping across Canada!',
+    'Contact ProSkaters Place Toronto for expert advice on inline skates, roller skates & protective gear. Visit our Mississauga shop, call, or message us. Free shipping across Canada!',
   image: '/images/blog/posted/canadas-premier-roller-skates-store.jpg',
   type: 'website',
 });
@@ -124,16 +124,16 @@ useHead({
         priceRange: '$$',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: '110 Galaxy Blvd',
-          addressLocality: 'Etobicoke',
+          streetAddress: '7045 Tranmere Dr, Unit 4',
+          addressLocality: 'Mississauga',
           addressRegion: 'ON',
-          postalCode: 'M9W 4Y6',
+          postalCode: 'L5S 1M2',
           addressCountry: 'CA',
         },
         geo: {
           '@type': 'GeoCoordinates',
-          latitude: 43.6799552,
-          longitude: -79.5868812,
+          latitude: 43.68339,
+          longitude: -79.66696,
         },
         openingHoursSpecification: inStoreOpeningHoursSpecification,
         department: [
@@ -163,7 +163,7 @@ useHead({
         sameAs: [
           'https://www.facebook.com/proskatersplace',
           'https://www.instagram.com/proskatersplace',
-          'https://www.google.com/maps/place/ProSkaters+Place+Skate+and+Ski+Shop/@43.679955,-79.589456,15z',
+          'https://www.google.com/maps/search/?api=1&query=ProSkaters+Place,+7045+Tranmere+Dr,+Unit+4,+Mississauga,+ON+L5S+1M2',
         ],
         aggregateRating: {
           '@type': 'AggregateRating',
@@ -327,7 +327,7 @@ async function submitForm() {
     <!-- SEO-optimized H1 -->
     <h1 class="mb-4 text-3xl md:text-4xl font-bold text-primary">Contact ProSkaters Place Toronto</h1>
     <p class="mb-8 text-lg text-gray-700">
-      Visit our Etobicoke skate shop, call us, or send a message. We're here to help you find the perfect inline skates or roller skates!
+      Visit our Mississauga skate shop, call us, or send a message. We're here to help you find the perfect inline skates or roller skates!
     </p>
 
     <!-- Contact Info Cards - 4 across -->
@@ -340,8 +340,8 @@ async function submitForm() {
         </div>
         <p class="text-gray-700 mb-2">
           <strong>ProSkaters Place</strong><br />
-          110 Galaxy Blvd<br />
-          Etobicoke, ON M9W 4Y6<br />
+          7045 Tranmere Dr, Unit 4<br />
+          Mississauga, ON L5S 1M2<br />
           Canada
         </p>
       </div>
@@ -410,7 +410,7 @@ async function submitForm() {
         <h2 class="text-2xl font-semibold mb-4 text-primary">Find Us on the Map</h2>
         <div class="relative w-full overflow-hidden rounded-lg shadow-lg" style="height: 550px">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2885.4717423046313!2d-79.58945612382175!3d43.679955171100765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b2e0b65e674a9%3A0x63b7bfa03a4fbaa9!2sProSkaters%20Place%20Skate%20and%20Ski%20Shop!5e0!3m2!1sen!2sca!4v1763088514757!5m2!1sen!2sca"
+            src="https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1s7045+Tranmere+Dr,+Unit+4,+Mississauga,+ON+L5S+1M2!6i15"
             width="100%"
             height="100%"
             style="border: 0"
@@ -422,7 +422,7 @@ async function submitForm() {
         </div>
         <p class="text-sm text-gray-600 mt-3">
           <Icon name="mdi:car" class="w-4 h-4 inline mr-1" />
-          <strong>Parking:</strong> Free parking available on-site. Easy access from Highway 427 and Langstaff Road.
+          <strong>Parking:</strong> Free parking available on-site. Easy access from Highway 407 and Highway 410, near Derry Road East and Bramalea Road.
         </p>
       </div>
 
@@ -548,7 +548,7 @@ async function submitForm() {
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-              <span><strong>Local Toronto Shop:</strong> Visit our Etobicoke store for personalized service</span>
+              <span><strong>Local Toronto Shop:</strong> Visit our Mississauga store for personalized service</span>
             </li>
             <li class="flex items-start">
               <Icon name="mdi:check-circle" class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
@@ -569,7 +569,7 @@ async function submitForm() {
       <div class="prose prose-lg max-w-none text-gray-700">
         <p>
           ProSkaters Place has been Toronto's trusted skate shop since {{ businessStartYear }}, serving customers from across the GTA, Ontario, and all of
-          Canada. Located in Etobicoke near Highway 427 and Galaxy Boulevard, our store specializes in inline skates, roller skates, protective gear, wheels,
+          Canada. Located in Mississauga near Derry Road East and Bramalea Road, our store specializes in inline skates, roller skates, protective gear, wheels,
           bearings, and skating accessories.
         </p>
         <p class="mt-4">
@@ -582,8 +582,9 @@ async function submitForm() {
           From recreational fitness skating to aggressive inline skating and artistic roller skating, we have the equipment and expertise to help you succeed.
         </p>
         <p class="mt-4">
-          <strong>Contact us today</strong> by phone at <a href="tel:+14167392929" class="text-primary hover:underline">(416) 739-2929</a>, visit our Etobicoke
-          store at 110 Galaxy Blvd, Etobicoke, ON M9W 4Y6, or send us a message using the form above. We're here to help you enjoy the thrill of skating!
+          <strong>Contact us today</strong> by phone at <a href="tel:+14167392929" class="text-primary hover:underline">(416) 739-2929</a>, visit our
+          Mississauga store at 7045 Tranmere Dr, Unit 4, Mississauga, ON L5S 1M2, or send us a message using the form above. We're here to help you enjoy the
+          thrill of skating!
         </p>
       </div>
     </div>
