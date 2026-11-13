@@ -149,6 +149,12 @@ const props = defineProps({
     required: true,
     // Amount should be in dollars (e.g., 2.24), not cents
   },
+  // The page is still settling the cart (e.g. switching the shipping default); keep "Complete Purchase" disabled,
+  // including for keyboard submits.
+  checkoutDisabled: {
+    type: Boolean,
+    default: false,
+  },
   currency: {
     type: String,
     default: 'CAD',
@@ -211,7 +217,27 @@ const apiAmount = computed(() => {
 });
 
 // Initialize Helcim payment
-const initializePayment = async () => {
+// Several initializes can overlap (the amount watcher and processPayment both start one). Only the newest may write
+// the tokens: a slower, older response would otherwise pair a checkoutToken with the wrong secretToken or amount.
+let initializeSequence = 0;
+let latestInitialization: Promise<void> = Promise.resolve();
+
+const initializePayment = (): Promise<void> => {
+  const run = runInitializePayment(++initializeSequence);
+  latestInitialization = run;
+  return run;
+};
+
+// Resolves once the newest initialize has finished, even if a newer one started while waiting.
+const waitForLatestInitialization = async (): Promise<void> => {
+  let settled: Promise<void>;
+  do {
+    settled = latestInitialization;
+    await settled;
+  } while (settled !== latestInitialization);
+};
+
+const runInitializePayment = async (sequence: number) => {
   try {
     isInitializing.value = true;
     paymentError.value = null;
@@ -287,6 +313,8 @@ const initializePayment = async () => {
       error?: {message: string; code?: string};
     };
 
+    if (sequence !== initializeSequence) return;
+
     if (response.duplicateChargeBlocked || response.error?.code === 'recent_charge_detected') {
       checkoutToken.value = '';
       secretToken.value = '';
@@ -317,6 +345,7 @@ const initializePayment = async () => {
       throw new Error(getSafePaymentErrorMessage(response.error, 'We could not open the secure payment form. Please try again.'));
     }
   } catch (error: any) {
+    if (sequence !== initializeSequence) return;
     // Fail closed: drop any token from an earlier initialize. processPayment() re-initializes on
     // every pay click precisely because the amount may have changed; opening the modal with the
     // previous token would present (and charge) the previous amount. Seen on test: a $0 cart after
@@ -329,7 +358,7 @@ const initializePayment = async () => {
     isTechnicalError.value = true;
     emit('error', paymentError.value);
   } finally {
-    isInitializing.value = false;
+    if (sequence === initializeSequence) isInitializing.value = false;
   }
 };
 
@@ -638,6 +667,8 @@ const processPayment = async () => {
   // re-charging a paid attempt.
   console.log('[HelcimCard] Refreshing Helcim session before opening modal (fresh duplicate check)');
   await initializePayment();
+  // The amount watcher may have started a newer initialize meanwhile; open the modal with the newest token only.
+  await waitForLatestInitialization();
 
   if (recentChargeWarning.value) {
     emit('error', duplicateChargeBlockedMessage.value);
@@ -882,7 +913,11 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <button @click="handleCompleteCheckout" class="helcim-pay-button w-full" :disabled="isInitializing || !checkoutToken">
+      <button
+        type="submit"
+        @click="handleCompleteCheckout"
+        class="helcim-pay-button w-full"
+        :disabled="checkoutDisabled || isInitializing || !checkoutToken">
         <Icon name="ion:card" size="20" class="mr-2" />
         Complete Purchase
       </button>

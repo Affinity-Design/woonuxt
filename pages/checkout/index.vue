@@ -6,7 +6,7 @@ import {getSafeErrorLogDetails, getSafePaymentErrorMessage} from '#shared/utils/
 
 const {t} = useI18n();
 const {query} = useRoute();
-const {cart, isUpdatingCart, paymentGateways, refreshCart, emptyCart, allProductsAreVirtual} = useCart();
+const {cart, isUpdatingCart, isApplyingDeliveryDefault, applyDeliveryDefault, paymentGateways, refreshCart, emptyCart, allProductsAreVirtual} = useCart();
 const {customer, viewer} = useAuth();
 const {orderInput, isProcessingOrder, processCheckout, updateShippingLocation, isShippingAddressComplete, showShippingRates, shippingAddressConfirmed, markShippingAddressConfirmed} =
   useCheckout();
@@ -25,7 +25,7 @@ const config = useRuntimeConfig();
 
 // Refs for managing checkout state
 const buttonText = ref<string>(isProcessingOrder.value ? t('messages.general.processing') : t('messages.shop.checkoutButton'));
-const isCheckoutDisabled = computed<boolean>(() => isProcessingOrder.value || isUpdatingCart.value);
+const isCheckoutDisabled = computed<boolean>(() => isProcessingOrder.value || isUpdatingCart.value || isApplyingDeliveryDefault.value);
 
 const isInvalidEmail = ref<boolean>(false);
 const isPaid = ref<boolean>(false);
@@ -251,6 +251,15 @@ const payNow = async () => {
       throw new Error(paymentError.value);
     }
 
+    // A prefilled address (returning customer) that was never confirmed means the shipping options never showed,
+    // so WooCommerce's preselected Store Pickup would be charged and ordered. Show the options first.
+    if (!helcimPaymentComplete.value && !allProductsAreVirtual.value && !showShippingRates.value) {
+      markShippingAddressConfirmed();
+      await updateShippingLocation();
+      paymentError.value = 'Please review your shipping option before paying.';
+      throw new Error(paymentError.value);
+    }
+
     // Validate email format
     if (!emailRegex.test(customer.value.billing.email.trim())) {
       paymentError.value = 'Please enter a valid email address.';
@@ -353,6 +362,19 @@ const payNow = async () => {
             if (value) {
               (customer.value.shipping as any)[key] = value;
             }
+          }
+        }
+
+        // The refresh can bring back WooCommerce's preselected Store Pickup. Finish the delivery default before
+        // Helcim reads the amount, so the card is charged the same shipping the order records.
+        if (!allProductsAreVirtual.value) {
+          try {
+            await applyDeliveryDefault();
+            await nextTick();
+          } catch (shippingError) {
+            console.warn('[payNow] Delivery default failed before payment:', getSafeErrorLogDetails(shippingError));
+            paymentError.value = "We couldn't confirm your shipping option. Please choose a shipping option and try again.";
+            throw new Error(paymentError.value);
           }
         }
 
@@ -1131,6 +1153,7 @@ useSeoMeta({
             <HelcimCard
               ref="helcimCardRef"
               :amount="helcimAmount"
+              :checkout-disabled="isCheckoutDisabled"
               currency="CAD"
               :line-items="helcimLineItems"
               :shipping-amount="helcimShippingAmount"

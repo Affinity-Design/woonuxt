@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {convertToCAD, formatPriceWithCAD, cleanAndExtractPriceInfo} from '~/utils/priceConverter';
 
-const {cart, isUpdatingCart} = useCart();
+const {cart, isUpdatingCart, isApplyingDeliveryDefault} = useCart();
 const {exchangeRate} = useExchangeRate();
 // showShippingRates = address complete AND confirmed this session. Until then the shipping
 // line and total exclude shipping (prevents a stale/unverified rate from showing).
@@ -109,7 +109,7 @@ const totalWithoutShipping = computed(() => {
 
     <slot></slot>
 
-    <div v-if="isUpdatingCart" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
+    <div v-if="isUpdatingCart || isApplyingDeliveryDefault" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
       <LoadingIcon />
     </div>
   </aside>

@@ -7,11 +7,13 @@ import {
 } from '~/utils/cartRefreshCoordinator.mjs';
 import {getSafeCartErrorMessage, getSafeErrorLogDetails} from '#shared/utils/publicErrorMessages.mjs';
 import {isWooSessionTokenError} from '#shared/utils/wooSession.mjs';
+import {chooseDefaultShippingRate, isPickupRate} from '#shared/utils/shippingRateDefaults.mjs';
 
 const CART_REFRESH_TIMEOUT_MILLISECONDS = 15_000;
 const EXPIRED_CART_SESSION_MESSAGE = 'Your cart session expired. Please add your items again.';
 const REFRESHED_CART_SESSION_MESSAGE = 'Your cart was refreshed. Please check your cart and try that again.';
 const cartRefreshCoordinators = new WeakMap<object, ReturnType<typeof createCartRefreshCoordinator>>();
+const pendingDeliveryDefaults = new WeakMap<object, Promise<void>>();
 
 interface RefreshCartOptions {
   preserveStateOnError?: boolean;
@@ -39,6 +41,8 @@ export function useCart() {
   const isRefreshPending = useState<boolean>('isRefreshPending', () => false);
   const cartLoadError = useState<string | null>('cartLoadError', () => null);
   const paymentGateways = useState<PaymentGateways | null>('paymentGateways', () => null);
+  const shopperChosePickup = useState<boolean>('shopperChosePickup', () => false);
+  const isApplyingDeliveryDefault = useState<boolean>('isApplyingDeliveryDefault', () => false);
   const {logGQLError, clearAllCookies} = useHelpers();
   const {installWooSession, dropWooSession} = useWooSession();
 
@@ -275,6 +279,8 @@ export function useCart() {
 
   // empty the cart
   async function emptyCart(): Promise<void> {
+    // A pickup choice belongs to the order just placed (or the cart just cleared), not to the next one.
+    shopperChosePickup.value = false;
     try {
       isUpdatingCart.value = true;
       const {emptyCart} = await GqlEmptyCart();
@@ -287,15 +293,85 @@ export function useCart() {
   }
 
   // Update shipping method
-  async function updateShippingMethod(shippingMethods: string) {
+  async function updateShippingMethod(shippingMethods: string, isAbandoned: () => boolean = () => false) {
     isUpdatingCart.value = true;
     try {
       const {updateShippingMethod} = await GqlChangeShippingMethod({shippingMethods});
+      // A switch that already timed out must not overwrite a choice the shopper has made since.
+      if (isAbandoned()) return;
       updateCart(updateShippingMethod?.cart);
     } catch (error) {
+      if (isAbandoned()) return;
+      // No cart update follows a failure, so nothing else clears the flag (it would lock the Pay button).
+      isUpdatingCart.value = false;
       if (!isWooSessionTokenError(error)) throw error;
       useToast().error(await restartExpiredCartSession());
     }
+  }
+
+  // The shopper picked a rate. A pickup pick is remembered so the delivery default never overrides it; any
+  // automatic switch still in flight finishes first so it cannot land after (and undo) the shopper's choice.
+  async function chooseShippingMethod(rateId: string): Promise<void> {
+    const rates = cart.value?.availableShippingMethods?.[0]?.rates || [];
+    shopperChosePickup.value = isPickupRate(rates.find((rate) => rate?.id === rateId));
+    await waitForDeliveryDefault();
+    await updateShippingMethod(rateId);
+  }
+
+  // WooCommerce preselects "Store Pickup" (first rate in every Canadian zone), so a shopper who never touches the
+  // shipping options would get no delivery. Switch to the cheapest delivery rate unless the shopper chose pickup.
+  // Awaitable, so payment can wait for it; concurrent callers share one switch; it re-checks once in case the cart
+  // changed (e.g. a zone change) while the switch was in flight. Rejects if the switch fails.
+  function applyDeliveryDefault(): Promise<void> {
+    if (import.meta.server) return Promise.resolve();
+    const pending = pendingDeliveryDefaults.get(nuxtApp);
+    if (pending) return pending;
+
+    const nextDeliveryRateId = () =>
+      chooseDefaultShippingRate(cart.value?.availableShippingMethods?.[0]?.rates || [], cart.value?.chosenShippingMethods?.[0] || '', shopperChosePickup.value);
+    // Only register a run that will actually wait on a request: a run that returned straight away would settle
+    // before it was stored, leave a finished promise behind and silently disable the default for the whole visit.
+    if (!nextDeliveryRateId()) return Promise.resolve();
+
+    isApplyingDeliveryDefault.value = true;
+    const run: Promise<void> = (async () => {
+      for (let check = 0; check < 2; check++) {
+        const deliveryRateId = nextDeliveryRateId();
+        if (!deliveryRateId) return;
+        let timedOut = false;
+        await withShippingSwitchTimeout(
+          updateShippingMethod(deliveryRateId, () => timedOut),
+          () => {
+            timedOut = true;
+          },
+        );
+      }
+      // Still on an automatically chosen pickup after two switches: fail, so payment never charges the pickup total.
+      if (nextDeliveryRateId()) throw new Error('The delivery default did not apply');
+    })().finally(() => {
+      isApplyingDeliveryDefault.value = false;
+      if (pendingDeliveryDefaults.get(nuxtApp) === run) pendingDeliveryDefaults.delete(nuxtApp);
+    });
+    pendingDeliveryDefaults.set(nuxtApp, run);
+    return run;
+  }
+
+  // Lets other cart writes (address updates) wait for an automatic switch, so two writes never race on one session.
+  function waitForDeliveryDefault(): Promise<void> {
+    return pendingDeliveryDefaults.get(nuxtApp)?.catch(() => {}) ?? Promise.resolve();
+  }
+
+  // A hung shipping change would otherwise hold the overlay and the Pay button until Cloudflare gives up (~100 s).
+  function withShippingSwitchTimeout(request: Promise<void>, onTimeout: () => void): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        onTimeout();
+        isUpdatingCart.value = false;
+        reject(new Error('The shipping option change timed out'));
+      }, CART_REFRESH_TIMEOUT_MILLISECONDS);
+    });
+    return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
   }
 
   // Apply coupon. A rejected code (invalid, expired, another session's auto coupon…) must reach
@@ -355,6 +431,7 @@ export function useCart() {
     isShowingCart,
     isUpdatingCart,
     isUpdatingCoupon,
+    isApplyingDeliveryDefault,
     cartLoadError,
     paymentGateways,
     isBillingAddressEnabled,
@@ -367,6 +444,10 @@ export function useCart() {
     updateItemQuantity,
     emptyCart,
     updateShippingMethod,
+    chooseShippingMethod,
+    applyDeliveryDefault,
+    waitForDeliveryDefault,
+    shopperChosePickup,
     applyCoupon,
     removeCoupon,
     restartExpiredCartSession,

@@ -1,7 +1,8 @@
 <script setup>
 import { formatWooPriceForDisplay, normalizeWooPriceText } from "~/utils/priceConverter";
+import { isPickupRate, sortRatesPickupLast } from "#shared/utils/shippingRateDefaults.mjs";
 
-const { updateShippingMethod } = useCart();
+const { chooseShippingMethod, applyDeliveryDefault, isUpdatingCart, isApplyingDeliveryDefault, shopperChosePickup } = useCart();
 const { formatPrice } = useHelpers();
 const { exchangeRate } = useExchangeRate();
 
@@ -20,18 +21,39 @@ const props = defineProps({
   activeOption: { type: String, required: true },
 });
 
+// Woo preselects "Store Pickup" (first in every Canadian zone), so a shopper who skips this step would get no
+// delivery. useCart's applyDeliveryDefault switches to the cheapest delivery rate (pickup is listed last); a shopper
+// who clicks pickup keeps it. payNow also awaits applyDeliveryDefault, so payment never runs on the pickup total.
+const displayedOptions = computed(() => sortRatesPickupLast(props.options));
+
 const setActiveOption = async (id) => {
-  await updateShippingMethod(id);
+  await chooseShippingMethod(id);
 };
+
+// A pickup that the system (not the shopper) chose stays clickable, so a shopper who wants pickup can claim it.
+const isUnclaimedPickup = (option) => option.id === props.activeOption && isPickupRate(option) && !shopperChosePickup.value;
+
+watch(
+  () => [props.options.map((option) => option.id).join("|"), props.activeOption, isUpdatingCart.value],
+  () => {
+    // Wait out address updates (the watcher re-runs when they finish) and let a running switch report its own result.
+    if (isUpdatingCart.value || isApplyingDeliveryDefault.value) return;
+    applyDeliveryDefault().catch((error) => {
+      console.warn("[ShippingOptions] Could not switch the default from pickup to delivery", error);
+      useToast().error("We couldn't select a delivery option. Please choose a shipping option.");
+    });
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
   <div class="grid gap-4 shipping-options">
     <div
-      v-for="option in options"
+      v-for="option in displayedOptions"
       :key="option.id"
       class="flex items-center justify-between option"
-      :class="{ 'active-option': option.id === activeOption }"
+      :class="{ 'active-option': option.id === activeOption, 'unclaimed-pickup': isUnclaimedPickup(option) }"
       @click="setActiveOption(option.id)"
     >
       <div>
@@ -65,6 +87,10 @@ const setActiveOption = async (id) => {
 
       & .checkmark {
         @apply opacity-100;
+      }
+
+      &.unclaimed-pickup {
+        @apply cursor-pointer pointer-events-auto;
       }
     }
   }

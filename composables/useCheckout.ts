@@ -114,10 +114,15 @@ export function useCheckout() {
   // if Country or State are changed, calculate the shipping rates again
   async function updateShippingLocation(): Promise<void> {
     const {customer, viewer} = useAuth();
-    const {isUpdatingCart, refreshCart} = useCart();
+    const {isUpdatingCart, refreshCart, waitForDeliveryDefault} = useCart();
 
     // Skip API call when address is incomplete
     if (!isShippingAddressComplete.value) return;
+
+    // An automatic pickup-to-delivery switch in flight writes the same Woo session; let it land first. Raising the
+    // flag first also stops a ShippingOptions that mounts right now from starting a switch alongside this update.
+    isUpdatingCart.value = true;
+    await waitForDeliveryDefault();
 
     isUpdatingCart.value = true;
 

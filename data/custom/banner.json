@@ -1,8 +1,8 @@
 {
   "_instructions": "bannerType: 'green' | 'red' | 'orange'. Set enabled to false to hide manually. The banner ALSO auto-hides after endDate (YYYY-MM-DD, America/Toronto, inclusive — shows through the end of that day, gone the next).",
   "enabled": true,
-  "endDate": "2026-10-31",
-  "message": "Temporary notice: We are not accepting online orders right now due to a fire at our office overnight. We appreciate your patience and will update this page as soon as we can resume orders.",
+  "endDate": "2026-12-31",
+  "message": "Orders have resumed. Please note that you may experience delayed shipping on select items as we replenish our warehouse inventory. Thank you for your patience!",
   "link": "",
   "linkText": "",
   "bannerType": "orange"
