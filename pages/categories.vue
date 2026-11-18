@@ -53,32 +53,6 @@ const categoryMapping = [
     slug: 'backpacks-bags-carriers',
     imageFilename: 'Backpacks-Bags-and-Carriers.jpeg', // Fixed to match actual file
   },
-  {display: 'Scooters', slug: 'scooters', imageFilename: 'Scooters.jpeg'},
-  {
-    display: 'Skateboards and Longboards',
-    slug: 'skateboards-and-longboards',
-    imageFilename: 'Skateboards-and-longboards.jpeg', // Fixed case to match actual file
-  },
-  {
-    display: 'Alpine Skis',
-    slug: 'alpine-skis',
-    imageFilename: 'Alpine-Skis.jpeg',
-  },
-  {
-    display: 'Alpine Poles',
-    slug: 'alpine-poles',
-    imageFilename: 'Alpine-Poles.jpeg',
-  },
-  {
-    display: 'Cross-Country Skis',
-    slug: 'cross-country-skis',
-    imageFilename: 'Cross-Country-Skis.jpeg',
-  },
-  {
-    display: 'Nordic Poles',
-    slug: 'cross-country-poles',
-    imageFilename: 'Nordic-Poles.jpeg',
-  },
 ];
 
 // Computed property to process and prepare categories for the template
@@ -124,8 +98,8 @@ const {setCanadianSEO} = useCanadianSEO();
 const freeShipThreshold = useRuntimeConfig().public.freeShippingThreshold;
 
 setCanadianSEO({
-  title: 'Shop All Categories | Skates, Scooters & Gear | ProSkaters Place Canada',
-  description: `Browse all skating product categories at ProSkaters Place. ⭐ Inline skates, roller skates, protective gear, scooters & more. ⭐ Free shipping $${freeShipThreshold}+ ⭐ Toronto-based. Shop Canada's #1 skate shop.`,
+  title: 'Shop All Categories | Skates & Gear | ProSkaters Place Canada',
+  description: `Browse all skating product categories at ProSkaters Place. ⭐ Inline skates, roller skates, protective gear & more. ⭐ Free shipping $${freeShipThreshold}+ ⭐ Toronto-based. Shop Canada's #1 skate shop.`,
   image: '/images/Inline-Skates-Toronto.jpg',
   type: 'website',
 });
@@ -139,7 +113,7 @@ useHead({
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: 'Product Categories',
-        description: 'Browse all skating product categories including inline skates, roller skates, protective gear, scooters, and skating accessories',
+        description: 'Browse all skating product categories including inline skates, roller skates, protective gear and skating accessories',
         url: 'https://proskatersplace.ca/categories',
         inLanguage: 'en-CA',
         isPartOf: {

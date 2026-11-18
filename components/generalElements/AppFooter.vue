@@ -8,7 +8,7 @@ const {wishlistLink} = useAuth();
       <div class="mr-auto">
         <Logo />
         <p class="mt-4 text-sm text-gray-700 xl:max-w-md">
-          Glide with confidence at ProSkaters Place Canada - Your ultimate canadian destination for premium inline skates, rollerblades, roller skates, and ski
+          Glide with confidence at ProSkaters Place Canada - Your ultimate canadian destination for premium inline skates, rollerblades, roller skates, and skating
           gear. Top brands, expert advice, and unbeatable selection await you!
         </p>
         <!-- <LangSwitcher class="mt-8" /> -->
@@ -45,16 +45,6 @@ const {wishlistLink} = useAuth();
           >
         </div>
       </div> -->
-      <!-- quick links -->
-      <div class="w-3/7 lg:w-auto">
-        <div class="mb-1 font-semibold">Winter Sports</div>
-        <div class="text-sm">
-          <NuxtLink to="/product-category/alpine-skis" class="py-1.5 block">Alpine Skis</NuxtLink>
-          <NuxtLink to="/product-category/alpine-poles" class="py-1.5 block">Alpine Poles</NuxtLink>
-          <NuxtLink to="/product-category/cross-country-skis" class="py-1.5 block">Cross Country Skis</NuxtLink>
-          <NuxtLink to="/product-category/cross-country-poles" class="py-1.5 block">Cross Country Poles</NuxtLink>
-        </div>
-      </div>
       <!-- contact -->
       <div class="w-3/7 lg:w-auto">
         <div class="mb-1 font-semibold">

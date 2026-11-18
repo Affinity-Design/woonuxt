@@ -30,32 +30,6 @@ const categoryMapping = [
     slug: 'backpacks-bags-carriers',
     imageFilename: 'Backpacks-Bags-and-Carriers.jpeg',
   },
-  {name: 'Scooters', slug: 'scooters', imageFilename: 'Scooters.jpeg'},
-  {
-    name: 'Skateboards and Longboards',
-    slug: 'skateboards-and-longboards',
-    imageFilename: 'Skateboards-and-longboards.jpeg',
-  },
-  {
-    name: 'Alpine Skis',
-    slug: 'alpine-skis',
-    imageFilename: 'Alpine-Skis.jpeg',
-  },
-  {
-    name: 'Alpine Poles',
-    slug: 'alpine-poles',
-    imageFilename: 'Alpine-Poles.jpeg',
-  },
-  {
-    name: 'Cross-Country Skis',
-    slug: 'cross-country-skis',
-    imageFilename: 'Cross-Country-Skis.jpeg',
-  },
-  {
-    name: 'Nordic Poles',
-    slug: 'cross-country-poles',
-    imageFilename: 'Nordic-Poles.jpeg',
-  },
 ];
 </script>
 
