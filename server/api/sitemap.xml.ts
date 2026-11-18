@@ -46,12 +46,6 @@ export default defineEventHandler(async (event) => {
         '/product-category/skate-tools',
         '/product-category/protection-gear-and-apparel',
         '/product-category/backpacks-bags-carriers',
-        '/product-category/scooters',
-        '/product-category/skateboards-and-longboards',
-        '/product-category/alpine-skis',
-        '/product-category/alpine-poles',
-        '/product-category/cross-country-skis',
-        '/product-category/cross-country-poles',
       ];
 
       const allRoutes = [...staticRoutes, ...fallbackBlogRoutes, ...fallbackCategoryRoutes];

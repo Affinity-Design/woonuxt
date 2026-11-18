@@ -6,6 +6,7 @@
  * This ensures filters show only values that exist in the current product set.
  */
 import {TaxonomyEnum} from '#woo';
+import {isRetiredStorefrontCategory} from '~/utils/storefrontCategories.mjs';
 
 const {isFiltersActive} = useFiltering();
 const {removeBodyClass} = useHelpers();
@@ -126,7 +127,9 @@ const {data: categoryData} = await useAsyncGql('getAllTerms', {
   hideEmpty: true,
   first: 200,
 });
-const productCategoryTerms = categoryData.value?.terms?.nodes || [];
+const productCategoryTerms = computed(() =>
+  (categoryData.value?.terms?.nodes || []).filter((category) => !isRetiredStorefrontCategory(category.slug)),
+);
 
 // Debug logging
 if (import.meta.dev) {

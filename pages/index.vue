@@ -77,7 +77,6 @@ const categoryMapping = [
   {display: 'Skate Parts', slug: 'replacement-parts'},
   {display: 'Skate Tools', slug: 'skate-tools'},
   {display: 'Protection Gear', slug: 'protection-gear-and-apparel'},
-  {display: 'Scooters', slug: 'scooters'},
 ];
 const productCategories = computed(() => {
   const categoryNodes = data.value?.productCategories?.nodes || [];

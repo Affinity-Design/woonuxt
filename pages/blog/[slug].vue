@@ -142,7 +142,6 @@ const categoryMapping = [
   {display: 'Skate Parts', slug: 'replacement-parts'},
   {display: 'Protection Gear', slug: 'protection-gear-and-apparel'},
   {display: 'Skate Tools', slug: 'skate-tools'},
-  {display: 'Scooters', slug: 'scooters'},
 ];
 
 const productCategories = computed(() => {

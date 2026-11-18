@@ -16,6 +16,7 @@
  * conventions rather than reusing that light-themed component directly.
  */
 import { navigation, saleNavItem, type NavTopLevel, type NavGroup } from '~/data/navigation';
+import { isRetiredStorefrontCategory } from '~/utils/storefrontCategories.mjs';
 
 interface CategoryNode {
   slug: string;
@@ -56,7 +57,7 @@ const coveredSlugs = computed(() => {
 
 const otherCategories = computed(() =>
   (props.categoryNodes ?? [])
-    .filter((n) => n && n.slug && !coveredSlugs.value.has(n.slug) && (n.count ?? 0) > 0)
+    .filter((n) => n && n.slug && !coveredSlugs.value.has(n.slug) && !isRetiredStorefrontCategory(n.slug) && (n.count ?? 0) > 0)
     .sort((a, b) => a.name.localeCompare(b.name)),
 );
 
@@ -161,7 +162,7 @@ const badgeClass: Record<string, string> = {
         enterkeyhint="search"
         autocomplete="off"
         aria-label="Search categories"
-        placeholder="Search categories — wheels, helmets, longboards…"
+        placeholder="Search categories — wheels, helmets, bearings…"
         class="w-full rounded-full bg-gray-800 border border-gray-700 py-3 pl-11 pr-11 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
       <button
         v-if="isSearching"

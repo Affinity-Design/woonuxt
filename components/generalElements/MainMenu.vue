@@ -5,15 +5,7 @@ const { wishlistLink } = useAuth();
 const route = useRoute();
 const { activeIndex, scheduleOpen, openImmediate, scheduleClose, closeNow } = useMegaMenu();
 
-// Slugs we hide from the desktop top nav (still reachable via /categories,
-// the mobile drawer, and direct URLs).
-const DESKTOP_HIDDEN_SLUGS = new Set<string>(['scooters', 'skateboards-and-longboards']);
-
-const desktopNavigation = computed(() =>
-  navigation
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !DESKTOP_HIDDEN_SLUGS.has(item.slug)),
-);
+const desktopNavigation = navigation.map((item, index) => ({ item, index }));
 
 // Highlight a top-level item when the current route belongs to its category tree
 function isTopLevelActive(slug: string): boolean {

@@ -166,98 +166,6 @@ export const navigation: NavTopLevel[] = [
     ],
   },
   {
-    label: 'Alpine | Nordic',
-    slug: 'winter-sports',
-    image: '/images/Winter-Sports.jpeg',
-    imageAlt: 'Alpine and Nordic ski gear for Canadian winters',
-    headline: 'Built for\nCanadian winters.',
-    editorial: {
-      label: 'Pre-season tune-up?',
-      description: 'Stock up on ski wax, bindings and boot care now.',
-      linkLabel: 'Shop Ski Wax & Care',
-      href: '/product-category/ski-wax',
-    },
-    groups: [
-      {
-        groupTitle: 'Alpine',
-        items: [
-          { label: 'Alpine Skis', slug: 'alpine-skis', icon: 'mdi:ski' },
-          { label: 'Alpine Poles', slug: 'alpine-poles', icon: 'mdi:lightning-bolt-outline' },
-          { label: 'Alpine Boots', slug: 'alpine-ski-boots', icon: 'mdi:shoe-formal' },
-          { label: 'Alpine Clothing', slug: 'alpine-clothing', icon: 'mdi:tshirt-crew-outline' },
-          { label: 'Alpine Protection', slug: 'alpine-protection', icon: 'ion:shield-outline' },
-          { label: 'Alpine Accessories', slug: 'alpine-accessories', icon: 'mdi:cube-outline' },
-        ],
-      },
-      {
-        groupTitle: 'Nordic / Cross-Country',
-        items: [
-          { label: 'Cross-Country Skis', slug: 'cross-country-skis', icon: 'mdi:ski-cross-country' },
-          { label: 'Nordic Walking Poles', slug: 'cross-country-poles', icon: 'mdi:lightning-bolt-outline' },
-          { label: 'Nordic Ski Boots', slug: 'nordic-ski-boots', icon: 'mdi:shoe-formal' },
-          { label: 'Nordic Clothing', slug: 'nordic-clothing', icon: 'mdi:tshirt-crew-outline' },
-          { label: 'Nordic Accessories', slug: 'nordic-accessories', icon: 'mdi:cube-outline' },
-          { label: 'Ski Wax & Care', slug: 'ski-wax', icon: 'mdi:snowflake' },
-        ],
-      },
-      {
-        groupTitle: 'Specialty',
-        items: [
-          { label: 'Ice Skates', slug: 'ice-skates', icon: 'mdi:skate' },
-          { label: 'Roller Skis', slug: 'roller-skis', icon: 'mdi:ski-water' },
-          { label: 'Skiboards', slug: 'skiboards', icon: 'mdi:snowboard' },
-          { label: 'Bindings & Parts', slug: 'bindings-and-parts', icon: 'mdi:link-variant' },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Scooters',
-    slug: 'scooters',
-    image: '/images/Scooters.jpeg',
-    imageAlt: 'Push and stunt scooters',
-    headline: 'Push, stunt\n& trick-ready.',
-    groups: [
-      {
-        groupTitle: 'Complete Scooters',
-        items: [
-          { label: 'All Scooters', slug: 'scooters', icon: 'mdi:scooter' },
-          { label: 'Stunt / Trick Scooters', slug: 'trick-scooters', icon: 'mdi:scooter' },
-        ],
-      },
-      {
-        groupTitle: 'Parts',
-        items: [{ label: 'Scooter Parts', slug: 'scooter-parts', icon: 'ion:cog-outline' }],
-      },
-    ],
-  },
-  {
-    label: 'Skateboards',
-    slug: 'skateboards-and-longboards',
-    image: '/images/skateboards-and-longboards.jpeg',
-    imageAlt: 'Skateboards, longboards and cruiser decks',
-    headline: 'Decks for streets,\ncruise & carve.',
-    groups: [
-      {
-        groupTitle: 'Complete Boards',
-        items: [
-          { label: 'Longboards', slug: 'longboards', icon: 'mdi:skateboard' },
-          { label: 'Mini Cruisers', slug: 'shortboard-skateboards', icon: 'mdi:skateboard' },
-          { label: 'Penny Boards', slug: 'penny-boards', icon: 'mdi:skateboard' },
-          { label: 'Vinyl Boards', slug: 'vinylboards', icon: 'mdi:skateboard' },
-        ],
-      },
-      {
-        groupTitle: 'Parts & Tools',
-        items: [
-          { label: 'Board Components', slug: 'board-components-parts', icon: 'mdi:cube-outline' },
-          { label: 'Board Wheels', slug: 'board-wheels', icon: 'mdi:circle-double' },
-          { label: 'Skateboard Tools', slug: 'board-tools', icon: 'mdi:tools' },
-        ],
-      },
-    ],
-  },
-  {
     label: 'Protection & Apparel',
     slug: 'protection-gear-and-apparel',
     image: '/images/Protection-Gear.jpeg',
@@ -283,7 +191,6 @@ export const navigation: NavTopLevel[] = [
       {
         groupTitle: 'Apparel & Bags',
         items: [
-          { label: 'Race Clothing', slug: 'race-clothing', icon: 'mdi:tshirt-crew' },
           { label: 'Socks & Foot Care', slug: 'socks-foot-care', icon: 'mdi:foot-print' },
           { label: 'Backpacks & Bags', slug: 'backpacks-bags-carriers', icon: 'mdi:bag-personal-outline' },
           { label: 'Accessories', slug: 'accessories', icon: 'mdi:cube-outline' },
