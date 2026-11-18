@@ -446,6 +446,14 @@ async function generateCompleteSitemap() {
   // Fetch all data
   const [products, categories, blogRoutes] = await Promise.all([fetchAllProducts(), fetchAllCategories(), getBlogRoutes()]);
 
+  // Retired departments stay in the shared WooCommerce catalog, so the live list still returns them.
+  // Keep them out of every list this build publishes (sitemap, prerender routes, KV sitemap-data).
+  const {withoutRetiredCategories, withoutRetiredCategoryPaths} = await import('../utils/storefrontCategories.mjs');
+  const activeCategories = withoutRetiredCategories(categories);
+  if (activeCategories.length !== categories.length) {
+    console.log(`🚫 Excluded ${categories.length - activeCategories.length} retired categories from the sitemap and prerender lists`);
+  }
+
   const productSEOPath = resolve(CONFIG.OUTPUT_DIR, CONFIG.PRODUCT_SEO_FILE);
   const productSEO = products.length ? generateProductSEOMetadata(products) : readJsonFile(productSEOPath, []);
   if (!products.length) console.warn(`⚠️  Preserving ${productSEO.length} committed product SEO records because GraphQL returned no products.`);
@@ -475,14 +483,14 @@ async function generateCompleteSitemap() {
 
   // Build category routes
   const categoryRoutes = categories.length
-    ? categories.map((category) => ({
+    ? activeCategories.map((category) => ({
         url: `/product-category/${category.slug}`,
         lastmod: new Date().toISOString().split('T')[0],
         changefreq: 'daily',
         priority: '0.8',
         type: 'category',
       }))
-    : readJsonFile(resolve(CONFIG.OUTPUT_DIR, 'category-routes.json'), []).map(
+    : withoutRetiredCategoryPaths(readJsonFile(resolve(CONFIG.OUTPUT_DIR, 'category-routes.json'), [])).map(
         (url) =>
           previousRoutesByUrl.get(url) || {
             url,

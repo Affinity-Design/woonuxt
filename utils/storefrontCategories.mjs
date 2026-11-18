@@ -33,3 +33,26 @@ const retiredCategorySlugs = new Set([
 export function isRetiredStorefrontCategory(slug) {
   return retiredCategorySlugs.has(slug);
 }
+
+const categoryPathPattern = /^\/product-category\/([^/?#]+)\/?(?:[?#].*)?$/;
+
+/** Slug from a `/product-category/<slug>` path, or null when the path is not a category archive. */
+export function categorySlugFromPath(path) {
+  const match = categoryPathPattern.exec(String(path ?? ''));
+  return match ? match[1] : null;
+}
+
+export function isRetiredStorefrontCategoryPath(path) {
+  const slug = categorySlugFromPath(path);
+  return slug !== null && isRetiredStorefrontCategory(slug);
+}
+
+/** Drops retired departments from category nodes (anything with a `slug`). */
+export function withoutRetiredCategories(categories) {
+  return categories.filter((category) => !isRetiredStorefrontCategory(category?.slug));
+}
+
+/** Drops retired departments from a list of `/product-category/<slug>` paths. */
+export function withoutRetiredCategoryPaths(paths) {
+  return paths.filter((path) => !isRetiredStorefrontCategoryPath(path));
+}

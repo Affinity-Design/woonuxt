@@ -93,8 +93,15 @@ async function fetchCategories() {
       throw new Error('GraphQL returned 0 categories. Refusing to overwrite category KV with an empty list.');
     }
 
-    console.log(`Fetched ${categories.length} categories.`);
-    return categories;
+    // Retired departments stay in the shared WooCommerce catalog; the cache warmer must not warm their pages.
+    const {withoutRetiredCategories} = await import('../utils/storefrontCategories.mjs');
+    const activeCategories = withoutRetiredCategories(categories);
+    if (activeCategories.length === 0) {
+      throw new Error('Every fetched category is retired. Refusing to overwrite category KV with an empty list.');
+    }
+
+    console.log(`Fetched ${categories.length} categories (${categories.length - activeCategories.length} retired excluded).`);
+    return activeCategories;
   }
 
   throw new Error('Category fetch failed after all retry attempts.');

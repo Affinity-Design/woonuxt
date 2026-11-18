@@ -1,3 +1,5 @@
+import {isRetiredStorefrontCategoryPath} from '../../utils/storefrontCategories.mjs';
+
 export default defineEventHandler(async (event) => {
   try {
     // Try to read the sitemap data from Cloudflare KV first (production)
@@ -61,9 +63,12 @@ export default defineEventHandler(async (event) => {
       };
     }
 
+    // KV/file data can predate a retirement, so never publish retired category URLs from it.
+    const publishedRoutes = sitemapData.routes.filter((route: any) => !isRetiredStorefrontCategoryPath(route.url));
+
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapData.routes
+${publishedRoutes
   .map(
     (route: any) => `  <url>
     <loc>https://proskatersplace.ca${route.url}</loc>
