@@ -1,10 +1,10 @@
 {
   "lastGenerated": "2026-09-16T19:03:18.489Z",
-  "totalRoutes": 1808,
+  "totalRoutes": 1781,
   "breakdown": {
     "static": 9,
     "blog": 27,
-    "categories": 63,
+    "categories": 36,
     "products": 1708
   },
   "routes": [
@@ -274,70 +274,7 @@
       "type": "category"
     },
     {
-      "url": "/product-category/alpine-accessories",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/alpine-clothing",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/alpine-poles",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/alpine-protection",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/alpine-ski-boots",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/alpine-skis",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/backpacks-bags-carriers",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/bindings-and-parts",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/board-components-parts",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/board-wheels",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
@@ -352,13 +289,6 @@
     },
     {
       "url": "/product-category/color-kits-laces",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/cross-country-skis",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
@@ -456,13 +386,6 @@
       "type": "category"
     },
     {
-      "url": "/product-category/shortboard-skateboards",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/new-arrivals",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
@@ -470,35 +393,7 @@
       "type": "category"
     },
     {
-      "url": "/product-category/nordic-accessories",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/nordic-ski-boots",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/cross-country-poles",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/off-road-skates",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/penny-boards",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
@@ -575,42 +470,7 @@
       "type": "category"
     },
     {
-      "url": "/product-category/roller-skis",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/inline-boots",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/rollerski-parts-accessoires",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/nordic-clothing",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/scooter-parts",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/scooters",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
@@ -631,35 +491,7 @@
       "type": "category"
     },
     {
-      "url": "/product-category/board-tools",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/skateboards-and-longboards",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/protective-shorts",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/ski-wax",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/skiboards",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
@@ -680,28 +512,7 @@
       "type": "category"
     },
     {
-      "url": "/product-category/trick-scooters",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
       "url": "/product-category/uncategorized",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/vinylboards",
-      "lastmod": "2026-07-29",
-      "changefreq": "daily",
-      "priority": "0.8",
-      "type": "category"
-    },
-    {
-      "url": "/product-category/winter-sports",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
       "priority": "0.8",
