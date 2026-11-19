@@ -34,6 +34,10 @@ export function isRetiredStorefrontCategory(slug) {
   return retiredCategorySlugs.has(slug);
 }
 
+export function listRetiredStorefrontCategorySlugs() {
+  return [...retiredCategorySlugs];
+}
+
 const categoryPathPattern = /^\/product-category\/([^/?#]+)\/?(?:[?#].*)?$/;
 
 /** Slug from a `/product-category/<slug>` path, or null when the path is not a category archive. */

@@ -125,9 +125,17 @@ query getProductsPaged($after: String, $slug: [String], $first: Int, $includeVar
 
 // Category content data
 import {getCategoryContent} from '../../data/category-content';
+import {isRetiredStorefrontCategory} from '~/utils/storefrontCategories.mjs';
 
 // Ensure slug is a string
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : (route.params.slug as string);
+
+// Retired departments stay reachable (the shared catalog keeps their products), so tell search
+// engines to drop them. setCategorySEO is skipped for them below because it emits `index, follow`.
+const isRetiredCategory = isRetiredStorefrontCategory(slug);
+if (isRetiredCategory) {
+  useHead({meta: [{name: 'robots', content: 'noindex, follow'}]});
+}
 
 // Create a consistent cache key for this request
 const cacheKey = `category-${slug}`;
@@ -393,6 +401,8 @@ function scheduleCompleteCatalogueLoad() {
 watch(
   () => [productsInCategory.value, productCount.value, seoCurrentPage.value],
   async ([products, count]) => {
+    if (isRetiredCategory) return;
+
     if (products && products.length > 0 && count > 0) {
       await setCategorySEO({
         slug,
