@@ -3,7 +3,9 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {
   categorySlugFromPath,
+  isRetiredStorefrontCategory,
   isRetiredStorefrontCategoryPath,
+  listRetiredStorefrontCategorySlugs,
   withoutRetiredCategories,
   withoutRetiredCategoryPaths,
 } from '../utils/storefrontCategories.mjs';
@@ -40,6 +42,17 @@ test('drops retired departments from category route lists', () => {
     '/product-category/roller-skates',
     '/product-category/skate-tools',
   ]);
+});
+
+test('lists every retired slug so each one can get a noindex rule', () => {
+  const slugs = listRetiredStorefrontCategorySlugs();
+  assert.ok(slugs.length > 0);
+  assert.equal(new Set(slugs).size, slugs.length);
+  assert.deepEqual(slugs.filter((slug) => !isRetiredStorefrontCategory(slug)), []);
+  for (const slug of ['scooters', 'skateboards-and-longboards', 'alpine-skis', 'winter-sports']) {
+    assert.ok(slugs.includes(slug), slug);
+  }
+  assert.equal(slugs.includes('ice-skates'), false);
 });
 
 test('committed category routes list no retired department', () => {
