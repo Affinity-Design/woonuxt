@@ -87,3 +87,15 @@ test('size calculator no longer offers ski boots as a target category', () => {
   assert.ok(optionsBlock.includes("value: 'inline_skates'"));
   assert.equal(optionsBlock.includes('ski_boots'), false);
 });
+
+test('homepage hero slides and the merchant feed description do not advertise retired product lines', () => {
+  const retiredLines = /scooter|skateboard|longboard|alpine|cross-country|\bskis?\b|skiing/i;
+  const slides = readJson('data/custom/hero-banner.json');
+  const slideCopy = slides.flatMap((slide) => [slide.title, slide.subtitle, slide.text]).filter(Boolean);
+  assert.deepEqual(slideCopy.filter((copy) => retiredLines.test(copy)), []);
+
+  const feedSource = readFileSync(new URL('../server/routes/merchant-feed.xml.ts', import.meta.url), 'utf8');
+  const description = /<description>([^<]*)<\/description>/.exec(feedSource)?.[1] ?? '';
+  assert.ok(description.length > 0);
+  assert.equal(retiredLines.test(description), false);
+});
