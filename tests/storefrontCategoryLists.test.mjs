@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import test from 'node:test';
 import {
   categorySlugFromPath,
@@ -66,4 +66,24 @@ test('committed sitemap data lists no retired category and its counts still add 
   assert.deepEqual(categoryUrls.filter(isRetiredStorefrontCategoryPath), []);
   assert.equal(sitemap.breakdown.categories, categoryUrls.length);
   assert.equal(sitemap.totalRoutes, sitemap.routes.length);
+});
+
+test('blog posts do not link to retired category pages', () => {
+  const blogDir = new URL('../content/blog/', import.meta.url);
+  const offenders = [];
+  for (const entry of readdirSync(blogDir, {withFileTypes: true})) {
+    if (!entry.isDirectory() || !existsSync(new URL(`${entry.name}/index.md`, blogDir))) continue;
+    const text = readFileSync(new URL(`${entry.name}/index.md`, blogDir), 'utf8');
+    for (const [, linkPath] of text.matchAll(/\]\((\/product-category\/[^)\s]+)\)/g)) {
+      if (isRetiredStorefrontCategoryPath(linkPath)) offenders.push(`${entry.name}: ${linkPath}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+});
+
+test('size calculator no longer offers ski boots as a target category', () => {
+  const source = readFileSync(new URL('../composables/useCalculator.ts', import.meta.url), 'utf8');
+  const optionsBlock = source.slice(source.indexOf('const targetCategoryOptions'), source.indexOf('const sizeFieldLabels'));
+  assert.ok(optionsBlock.includes("value: 'inline_skates'"));
+  assert.equal(optionsBlock.includes('ski_boots'), false);
 });

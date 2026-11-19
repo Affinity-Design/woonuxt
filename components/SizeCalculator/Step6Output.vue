@@ -50,13 +50,11 @@ const secondarySizes = computed(() => {
 const CA_CATEGORY_URLS: Record<string, string> = {
   'inline-skates': 'https://proskatersplace.ca/product-category/inline-skates/',
   'roller-skates': 'https://proskatersplace.ca/product-category/roller-skates/',
-  'alpine-ski-boots': 'https://proskatersplace.ca/product-category/alpine-ski-boots/',
 };
 
 const COM_CATEGORY_URLS: Record<string, string> = {
   'inline-skates': 'https://proskatersplace.com/shop/inline-skating/inline-skates/',
   'roller-skates': 'https://proskatersplace.com/shop/roller-skating/roller-skates/',
-  'alpine-ski-boots': 'https://proskatersplace.com/shop/winter-sports/alpine-ski-boots/',
 };
 
 const browseUrl = computed(() => {

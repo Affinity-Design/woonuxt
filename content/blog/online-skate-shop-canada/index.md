@@ -50,7 +50,7 @@ Skates wear out — bearings, wheels, brake pads, laces, liners. A shop that sel
 
 ### 1. ProSkaters Place — Best Overall for Canadian Skaters
 
-Yes, we're going to put ourselves at the top, but here's why we think it's earned: we've been shipping skates from our Toronto showroom across all ten provinces and three territories since 2010. Our catalogue covers [inline skates](/product-category/inline-skates), [roller skates](/product-category/roller-skates), [skateboards and longboards](/product-category/skateboards-and-longboards), and full [protection gear](/product-category/protection-gear-and-apparel) — all stocked in Canada with no surprise duties at the door.
+Yes, we're going to put ourselves at the top, but here's why we think it's earned: we've been shipping skates from our Toronto showroom across all ten provinces and three territories since 2010. Our catalogue covers [inline skates](/product-category/inline-skates), [roller skates](/product-category/roller-skates), and full [protection gear](/product-category/protection-gear-and-apparel) — all stocked in Canada with no surprise duties at the door.
 
 **Best for:** Skaters who want inline, quad, or aggressive skates with deep brand support — Rollerblade, K2, Powerslide, Chaya, Moxi, USD, Bauer, and more.
 
@@ -92,7 +92,7 @@ Worth mentioning because it's where many Canadians start looking, but worth appr
 
 ### 5. Skateshop Specialty Retailers (Board-Focused)
 
-Shops like Boarder Labs (Vancouver), Adrenalin Source for Sports (varied locations), and regional skate shops cover [skateboards and longboards](/product-category/skateboards-and-longboards) and accessories well — but most have limited inline or quad inventory.
+Shops like Boarder Labs (Vancouver), Adrenalin Source for Sports (varied locations), and regional skate shops cover skateboards, longboards and accessories well — but most have limited inline or quad inventory.
 
 **Best for:** Skateboarders, longboarders, and trick scooter riders.
 
