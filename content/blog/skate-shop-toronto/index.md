@@ -74,8 +74,6 @@ A true skate shop covers far more than one discipline. Here's what a well-stocke
 | **Inline skates**            | Fitness, commuting, long trail rides | [Inline skates](/product-category/inline-skates)                         |
 | **Roller (quad) skates**     | Rink sessions, dance, retro cruising | [Roller skates](/product-category/roller-skates)                         |
 | **Aggressive / park skates** | Skateparks, grinds, ramps            | [Inline skates](/product-category/inline-skates)                         |
-| **Skateboards & longboards** | Cruising, commuting, tricks          | [Skateboards & longboards](/product-category/skateboards-and-longboards) |
-| **Scooters**                 | Park riding, kids, commuting         | [Scooters](/product-category/scooters)                                   |
 | **Ice skates**               | Winter rinks and outdoor ice         | [Ice skates](/product-category/ice-skates)                               |
 
 Not sure whether inline or quad is right for you? Our [inline skates vs roller skates](/blog/inline-skates-vs-roller-skates) comparison lays out the differences in stability, speed, and learning curve.
@@ -86,7 +84,7 @@ And don't forget protection — every reputable Toronto skate shop should stock 
 
 ## ProSkaters Place: Toronto's Specialist Skate Shop
 
-We're biased, but here's the case. ProSkaters Place has fitted and serviced skaters from our Toronto showroom since 2010, and our catalogue covers every discipline above — inline, quad, aggressive, board, scooter, and ice — with the brand depth a specialist shop is supposed to have.
+We're biased, but here's the case. ProSkaters Place has fitted and serviced skaters from our Toronto showroom since 2010, and our catalogue covers every discipline above — inline, quad, aggressive, and ice — with the brand depth a specialist shop is supposed to have.
 
 - **Showroom fitting in Toronto** — try multiple brands and boot widths before you commit.
 - **Local pickup** — order online and grab it in person, or walk in and walk out wearing your new skates.
@@ -148,7 +146,7 @@ The best ones do. ProSkaters Place ships inline, roller, and quad skates domesti
 
 ### What's the difference between a skate shop and a skateboard shop?
 
-A skateboard shop focuses on decks, trucks, and street/park skateboarding gear. A full skate shop covers inline skates, roller (quad) skates, aggressive skates, scooters, and often ice skates too — a much broader range for anyone who rides on wheels or blades.
+A skateboard shop focuses on decks, trucks, and street/park skateboarding gear. A full skate shop covers inline skates, roller (quad) skates, aggressive skates, and often ice skates too — a much broader range for anyone who rides on wheels or blades.
 
 ---
 

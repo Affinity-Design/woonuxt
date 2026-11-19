@@ -82,7 +82,6 @@ const targetCategoryOptions: Array<{value: ProductCategory; label: string; descr
     description: 'Quad skates for indoor, outdoor, park, derby, and rhythm.',
     icon: 'ion:radio-button-on-outline',
   },
-  {value: 'ski_boots', label: 'Ski Boots', description: 'Nordic and alpine boot recommendations from the same baseline.', icon: 'ion:snow-outline'},
 ];
 
 const sizeFieldLabels: Record<SizeInputField, string> = {

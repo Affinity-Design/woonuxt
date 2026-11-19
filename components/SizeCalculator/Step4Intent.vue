@@ -16,7 +16,7 @@ const calculator = useCalculator();
       </div>
     </div>
 
-    <div class="grid gap-3 md:grid-cols-3">
+    <div class="grid gap-3 md:grid-cols-2">
       <button
         v-for="option in calculator.targetCategoryOptions"
         :key="option.value"
