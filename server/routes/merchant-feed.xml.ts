@@ -126,7 +126,7 @@ export default defineEventHandler(async (event) => {
     '<channel>',
     '<title>ProSkaters Place Canada</title>',
     `<link>https://proskatersplace.ca</link>`,
-    '<description>Inline skates, roller skates, scooters and ski gear shipped across Canada.</description>',
+    '<description>Inline skates, roller skates and protective gear shipped across Canada.</description>',
     `<lastBuildDate>${esc(feed.generatedAt)}</lastBuildDate>`,
     ...feed.items.map(renderItem),
     '</channel>',
