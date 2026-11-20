@@ -1,10 +1,10 @@
 {
   "lastGenerated": "2026-09-16T19:03:18.489Z",
-  "totalRoutes": 1781,
+  "totalRoutes": 1787,
   "breakdown": {
     "static": 9,
     "blog": 27,
-    "categories": 36,
+    "categories": 42,
     "products": 1708
   },
   "routes": [
@@ -274,8 +274,22 @@
       "type": "category"
     },
     {
+      "url": "/product-category/alpine-ski-boots",
+      "lastmod": "2026-07-23",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
       "url": "/product-category/backpacks-bags-carriers",
       "lastmod": "2026-07-29",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
+      "url": "/product-category/bindings-and-parts",
+      "lastmod": "2026-07-23",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
@@ -393,6 +407,13 @@
       "type": "category"
     },
     {
+      "url": "/product-category/nordic-ski-boots",
+      "lastmod": "2026-07-23",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
       "url": "/product-category/off-road-skates",
       "lastmod": "2026-07-29",
       "changefreq": "daily",
@@ -470,8 +491,22 @@
       "type": "category"
     },
     {
+      "url": "/product-category/roller-skis",
+      "lastmod": "2026-07-23",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
       "url": "/product-category/inline-boots",
       "lastmod": "2026-07-29",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
+      "url": "/product-category/rollerski-parts-accessoires",
+      "lastmod": "2026-07-23",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"
@@ -514,6 +549,13 @@
     {
       "url": "/product-category/uncategorized",
       "lastmod": "2026-07-29",
+      "changefreq": "daily",
+      "priority": "0.8",
+      "type": "category"
+    },
+    {
+      "url": "/product-category/winter-sports",
+      "lastmod": "2026-07-23",
       "changefreq": "daily",
       "priority": "0.8",
       "type": "category"

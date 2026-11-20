@@ -13,17 +13,28 @@ test('category discovery excludes retired departments and their deeper categorie
     'skateboards-and-longboards',
     'board-wheels',
     'penny-boards',
-    'winter-sports',
-    'alpine-ski-boots',
-    'nordic-ski-boots',
-    'roller-skis',
-    'rollerski-parts-accessoires',
+    'alpine-skis',
+    'cross-country-skis',
     'ski-wax',
   ];
   assert.deepEqual(
     slugs.filter((slug) => !isRetiredStorefrontCategory(slug)),
     [],
   );
+});
+
+test('keeps the Winter Sports tree available because the shop still carries it', () => {
+  for (const slug of [
+    'winter-sports',
+    'alpine-ski-boots',
+    'nordic-ski-boots',
+    'roller-skis',
+    'rollerski-parts-accessoires',
+    'bindings-and-parts',
+    'skiboards',
+  ]) {
+    assert.equal(isRetiredStorefrontCategory(slug), false, slug);
+  }
 });
 
 test('keeps skating, ice skating and shared product categories available', () => {
@@ -49,7 +60,12 @@ test('desktop, mobile and directory navigation share only active departments', (
   const {navigation} = context.exports;
   assert.deepEqual(
     Array.from(navigation, (item) => item.slug),
-    ['inline-skating', 'roller-skating', 'protection-gear-and-apparel'],
+    ['inline-skating', 'roller-skating', 'winter-sports', 'protection-gear-and-apparel'],
+  );
+  const winter = navigation.find((item) => item.slug === 'winter-sports');
+  assert.deepEqual(
+    Array.from(winter.groups, (group) => Array.from(group.items, (item) => item.slug)).flat(),
+    ['alpine-ski-boots', 'nordic-ski-boots', 'ice-skates', 'roller-skis', 'rollerski-parts-accessoires', 'bindings-and-parts'],
   );
   for (const department of navigation) {
     for (const group of department.groups) {

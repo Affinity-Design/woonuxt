@@ -166,6 +166,34 @@ export const navigation: NavTopLevel[] = [
     ],
   },
   {
+    label: 'Winter',
+    slug: 'winter-sports',
+    image: '/images/Winter-Sports.jpeg',
+    imageAlt: 'Ski boots, roller skis and ice skates for Canadian winters',
+    headline: 'Built for\nCanadian winters.',
+    groups: [
+      {
+        groupTitle: 'Ski Boots',
+        items: [
+          { label: 'Alpine Ski Boots', slug: 'alpine-ski-boots', icon: 'mdi:shoe-formal' },
+          { label: 'Nordic Ski Boots', slug: 'nordic-ski-boots', icon: 'mdi:shoe-formal' },
+        ],
+      },
+      {
+        groupTitle: 'Ice & Roller Ski',
+        items: [
+          { label: 'Ice Skates', slug: 'ice-skates', icon: 'mdi:skate' },
+          { label: 'Roller Skis', slug: 'roller-skis', icon: 'mdi:ski-water' },
+          { label: 'Rollerski Parts & Accessories', slug: 'rollerski-parts-accessoires', icon: 'ion:cog-outline' },
+        ],
+      },
+      {
+        groupTitle: 'Parts',
+        items: [{ label: 'Bindings & Ski Parts', slug: 'bindings-and-parts', icon: 'mdi:link-variant' }],
+      },
+    ],
+  },
+  {
     label: 'Protection & Apparel',
     slug: 'protection-gear-and-apparel',
     image: '/images/Protection-Gear.jpeg',

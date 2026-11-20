@@ -1,12 +1,14 @@
 // Hide retired departments in the Canadian storefront without deleting shared catalog terms or products.
+//
+// The Winter Sports tree (winter-sports and its children alpine-ski-boots, nordic-ski-boots, roller-skis,
+// rollerski-parts-accessoires, bindings-and-parts, plus skiboards) is deliberately NOT listed: ProSkaters Place
+// confirmed on 2026-11-20 that these categories still carry stock and belong in the Winter menu.
 const retiredCategorySlugs = new Set([
   'alpine-accessories',
   'alpine-clothing',
   'alpine-poles',
   'alpine-protection',
-  'alpine-ski-boots',
   'alpine-skis',
-  'bindings-and-parts',
   'board-components-parts',
   'board-tools',
   'board-wheels',
@@ -15,19 +17,14 @@ const retiredCategorySlugs = new Set([
   'longboards',
   'nordic-accessories',
   'nordic-clothing',
-  'nordic-ski-boots',
   'penny-boards',
-  'roller-skis',
-  'rollerski-parts-accessoires',
   'scooter-parts',
   'scooters',
   'shortboard-skateboards',
   'skateboards-and-longboards',
   'ski-wax',
-  'skiboards',
   'trick-scooters',
   'vinylboards',
-  'winter-sports',
 ]);
 
 export function isRetiredStorefrontCategory(slug) {
