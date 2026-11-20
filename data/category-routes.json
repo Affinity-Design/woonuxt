@@ -1,6 +1,8 @@
 [
   "/product-category/accessories",
+  "/product-category/alpine-ski-boots",
   "/product-category/backpacks-bags-carriers",
+  "/product-category/bindings-and-parts",
   "/product-category/clearance-items",
   "/product-category/color-kits-laces",
   "/product-category/discount-products",
@@ -17,6 +19,7 @@
   "/product-category/inline-skating",
   "/product-category/knee-and-elbow-pads",
   "/product-category/new-arrivals",
+  "/product-category/nordic-ski-boots",
   "/product-category/off-road-skates",
   "/product-category/children-products",
   "/product-category/protection-gear-and-apparel",
@@ -28,11 +31,14 @@
   "/product-category/roller-skate-wheels",
   "/product-category/roller-skates",
   "/product-category/roller-skating",
+  "/product-category/roller-skis",
   "/product-category/inline-boots",
+  "/product-category/rollerski-parts-accessoires",
   "/product-category/replacement-parts",
   "/product-category/skate-tools",
   "/product-category/protective-shorts",
   "/product-category/socks-foot-care",
   "/product-category/race-clothing",
-  "/product-category/uncategorized"
+  "/product-category/uncategorized",
+  "/product-category/winter-sports"
 ]

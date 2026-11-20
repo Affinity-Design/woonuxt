@@ -23,7 +23,8 @@ test('reads the slug from category archive paths only', () => {
 
 test('flags retired category paths and leaves every other URL alone', () => {
   assert.equal(isRetiredStorefrontCategoryPath('/product-category/alpine-skis'), true);
-  assert.equal(isRetiredStorefrontCategoryPath('/product-category/winter-sports/'), true);
+  assert.equal(isRetiredStorefrontCategoryPath('/product-category/scooters/'), true);
+  assert.equal(isRetiredStorefrontCategoryPath('/product-category/winter-sports/'), false);
   assert.equal(isRetiredStorefrontCategoryPath('/product-category/ice-skates'), false);
   assert.equal(isRetiredStorefrontCategoryPath('/blog/scooters'), false);
   assert.equal(isRetiredStorefrontCategoryPath('/'), false);
@@ -38,10 +39,15 @@ test('drops retired departments from live category nodes and keeps the order of 
 });
 
 test('drops retired departments from category route lists', () => {
-  assert.deepEqual(withoutRetiredCategoryPaths(['/product-category/roller-skates', '/product-category/skiboards', '/product-category/skate-tools']), [
-    '/product-category/roller-skates',
-    '/product-category/skate-tools',
-  ]);
+  assert.deepEqual(
+    withoutRetiredCategoryPaths([
+      '/product-category/roller-skates',
+      '/product-category/cross-country-skis',
+      '/product-category/winter-sports',
+      '/product-category/skate-tools',
+    ]),
+    ['/product-category/roller-skates', '/product-category/winter-sports', '/product-category/skate-tools'],
+  );
 });
 
 test('lists every retired slug so each one can get a noindex rule', () => {
@@ -49,14 +55,20 @@ test('lists every retired slug so each one can get a noindex rule', () => {
   assert.ok(slugs.length > 0);
   assert.equal(new Set(slugs).size, slugs.length);
   assert.deepEqual(slugs.filter((slug) => !isRetiredStorefrontCategory(slug)), []);
-  for (const slug of ['scooters', 'skateboards-and-longboards', 'alpine-skis', 'winter-sports']) {
+  for (const slug of ['scooters', 'skateboards-and-longboards', 'alpine-skis', 'cross-country-skis']) {
     assert.ok(slugs.includes(slug), slug);
   }
-  assert.equal(slugs.includes('ice-skates'), false);
+  for (const slug of ['ice-skates', 'winter-sports', 'alpine-ski-boots', 'roller-skis']) {
+    assert.equal(slugs.includes(slug), false, slug);
+  }
 });
 
-test('committed category routes list no retired department', () => {
-  assert.deepEqual(readJson('data/category-routes.json').filter(isRetiredStorefrontCategoryPath), []);
+test('committed category routes list no retired department but keep the Winter Sports tree', () => {
+  const routes = readJson('data/category-routes.json');
+  assert.deepEqual(routes.filter(isRetiredStorefrontCategoryPath), []);
+  for (const slug of ['winter-sports', 'alpine-ski-boots', 'nordic-ski-boots', 'roller-skis', 'rollerski-parts-accessoires', 'bindings-and-parts']) {
+    assert.ok(routes.includes(`/product-category/${slug}`), slug);
+  }
 });
 
 test('committed sitemap data lists no retired category and its counts still add up', () => {
