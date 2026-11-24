@@ -148,7 +148,7 @@ const homepageFAQs = [
   {
     question: 'Do you have a physical store in Toronto?',
     answer:
-      'Yes! Our Greater Toronto Area showroom is located at 7045 Tranmere Dr, Unit 4 in Mississauga. In-store shopping hours are Wednesday 2-7pm and Saturday 12-7pm. Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm, plus Wednesday and Saturday 12-7pm. We also serve customers online across Canada 24/7.',
+      'Our Mississauga location at 7045 Tranmere Dr, Unit 4 is closed for in-store shopping. Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm and Wednesday 12-7pm. Pickup is closed Saturday and Sunday. You can shop online across Canada 24/7.',
   },
   {
     question: 'What brands of roller skates and inline skates do you carry?',

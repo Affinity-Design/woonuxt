@@ -2,12 +2,12 @@
 const contactFaqItems = [
   {
     question: 'When can I shop in store?',
-    answer: 'In-store shopping is available Wednesday 2-7pm and Saturday 12-7pm. Online shopping is open 24/7.',
+    answer: 'In-store shopping is closed every day. Online shopping is open 24/7.',
     isOpen: false,
   },
   {
     question: 'When can I pick up an online order?',
-    answer: 'Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm, Wednesday 12-7pm, and Saturday 12-7pm. Pickup is closed Sunday.',
+    answer: 'Order pickup is available Monday, Tuesday, Thursday, and Friday 12-4pm and Wednesday 12-7pm. Pickup is closed Saturday and Sunday.',
     isOpen: false,
   },
   {
