@@ -27,10 +27,10 @@ const contactBrandList = brandSearchLinks
 const inStoreShoppingHours = [
   {day: 'Monday', hours: 'Closed'},
   {day: 'Tuesday', hours: 'Closed'},
-  {day: 'Wednesday', hours: '2-7pm'},
+  {day: 'Wednesday', hours: 'Closed'},
   {day: 'Thursday', hours: 'Closed'},
   {day: 'Friday', hours: 'Closed'},
-  {day: 'Saturday', hours: '12-7pm'},
+  {day: 'Saturday', hours: 'Closed'},
   {day: 'Sunday', hours: 'Closed'},
 ];
 const orderPickupHours = [
@@ -39,22 +39,8 @@ const orderPickupHours = [
   {day: 'Wednesday', hours: '12-7pm'},
   {day: 'Thursday', hours: '12-4pm'},
   {day: 'Friday', hours: '12-4pm'},
-  {day: 'Saturday', hours: '12-7pm'},
+  {day: 'Saturday', hours: 'Closed'},
   {day: 'Sunday', hours: 'Closed'},
-];
-const inStoreOpeningHoursSpecification = [
-  {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: 'Wednesday',
-    opens: '14:00',
-    closes: '19:00',
-  },
-  {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: 'Saturday',
-    opens: '12:00',
-    closes: '19:00',
-  },
 ];
 const orderPickupOpeningHoursSpecification = [
   {
@@ -86,12 +72,6 @@ const orderPickupOpeningHoursSpecification = [
     dayOfWeek: 'Friday',
     opens: '12:00',
     closes: '16:00',
-  },
-  {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: 'Saturday',
-    opens: '12:00',
-    closes: '19:00',
   },
 ];
 
@@ -135,7 +115,6 @@ useHead({
           latitude: 43.68339,
           longitude: -79.66696,
         },
-        openingHoursSpecification: inStoreOpeningHoursSpecification,
         department: [
           {
             '@type': 'LocalBusiness',
